@@ -38,7 +38,7 @@ function moment(title,detail='',x=null){sharedMoment(title,detail,null);const el
 let adPlaying=false;
 const sfx=(kind,tier=0)=>sounds.play(kind,tier,{muted:adPlaying||platform.muted()});
 // Shown in the footer so a playtester can tell which build is running.
-export const BUILD='Build 47v · level energy capacity (secondary chains pilot)';
+export const BUILD='Build 48a · Chapter 3, the Hidden Harbour';
 // The level path (docs/V5_LEVEL_PATH_2026-10-27.md): a crew order that pays a tool on top shows it
 // beside its coins (a Tide token; a favour's Sea chest or Brass cog).
 const bonusThing=o=>o.bonus==='cog'?cog():o.bonus==='chest'?kit(newestGenerator(state),2):o.bonus==='token'?token():null;
@@ -119,7 +119,10 @@ const DEV=new URLSearchParams(location.search).has('dev');document.documentEleme
 const ADS=document.documentElement.dataset.ads==='on'||DEV&&document.documentElement.dataset.ads!=='off';
 const pips=n=>`<span class="pips" aria-label="stage ${n} of ${STAGES}">${Array.from({length:STAGES},(_,k)=>`<i class="${k<n?'on':''}"></i>`).join('')}</span>`;
 // Places with stage art (build 38: workshop, pier, beacon) are drawn as they stand at their stage.
-const stageArt=(t,n)=>`<img class="art" src="assets/premium/coast/place-${t.art}-${Math.max(1,n)}.webp" alt="" draggable="false">`;
+// Build 48a: the Hidden Harbour's cut-outs (tools/harbour-art.py) live in their own folder; after the
+// launch the boatyard shows its stage-1 picture, the empty cradles, so the boat is never drawn twice.
+const artStage=(t,n)=>t.id==='hb-boatyard'&&n>=STAGES&&stageOf(state,'hb-departure')>=STAGES?1:Math.max(1,n);
+const stageArt=(t,n)=>`<img class="art" src="assets/premium/coast/${t.art.startsWith('hb-')?'hidden-harbour/':''}place-${t.art}-${artStage(t,n)}.webp" alt="" draggable="false">`;
 // Build 47f: the Vault door is drawn as itself (a crop of the Home picture's door) with its rings lit
 // for the stage, not as a part's icon; painted ring states do not exist (see the doc's missing art).
 const doorArt=n=>`<span class="doorThumb" data-stage="${n}"><img class="art" src="assets/premium/coast/vault-door-thumb.webp" alt="" draggable="false"><i></i><i></i><i></i></span>`;
@@ -686,16 +689,53 @@ for(const d of document.querySelectorAll('dialog'))d.querySelector('.close')?.ad
 // with every stage (--p); a finished area is in full colour. The stage just bought spreads its colour out from the old size.
 const REVEAL=[0,13,19,26];
 let lastStage=null;// {id,stage} of the upgrade being shown, so its patch can grow
+// Build 48a: the Hidden Harbour's map is the director's damaged harbour; each stage bought uncovers its
+// own repair from the restored painting of the same view (area.restored), on the spot that changed:
+// [stage, layer, x %, y %, half-width %, half-height %]. Layer 'after' is the restored painting; layer
+// 'before' brings back the damaged painting's own colour (the boatyard keeps its boat on the slip until
+// the launch, when its spot turns to the restored painting's empty cradles). A stage just bought grows
+// from nothing (--r of its place). Nothing is stood on the painting: it already shows every building.
+const HARBOUR_REVEAL={
+ 'hb-landing':[[1,'after',20,85,12,6],[2,'after',19,81,15,9],[3,'after',15,77,17,12]],
+ 'hb-crane':[[1,'after',16,52,8,9],[2,'after',27,47,10,7],[3,'after',21,58,9,5]],
+ 'hb-warehouse':[[1,'after',27,21,10,6],[2,'after',27,26,12,8],[3,'after',27,28,15,9]],
+ 'hb-boatyard':[[1,'before',88,51,8,7],[2,'before',72,51,11,7],[3,'before',80,44,15,8]],
+ 'hb-registry':[[1,'after',57,20,8,7],[2,'after',55,19,12,9],[3,'after',61,22,16,11]],
+ 'hb-signal':[[1,'after',90,24,6,7],[2,'after',91,14,6,9],[3,'after',89,16,11,14]],
+ 'hb-departure':[[1,'after',92,84,7,6],[2,'after',90,79,10,8],[3,'after',72,87,15,12]]
+};
+function harbourMasks(area){
+ const launched=stageOf(state,'hb-departure')>=STAGES,out={after:[],before:[]};
+ area.tasks.forEach((t,k)=>{const n=stageOf(state,t.id),grow=lastStage?.id===t.id?lastStage.stage:0;
+  for(const [st,layer,x,y,rx,ry] of HARBOUR_REVEAL[t.id]??[]){if(st>n)continue;
+   const size=st===grow?`var(--r${k})`:'1',into=t.id==='hb-boatyard'&&launched?'after':layer;
+   out[into].push(`radial-gradient(ellipse calc(${size}*${rx}%) calc(${size}*${ry}%) at ${x}% ${y}%,#000 45%,transparent 100%)`);
+   if(t.id==='hb-boatyard'&&launched&&st===STAGES)out.after.push(`radial-gradient(ellipse calc(${size}*12%) calc(${size}*9%) at 74% 52%,#000 45%,transparent 100%)`);}});
+ const css=list=>list.length?list.join(','):'linear-gradient(transparent,transparent)';
+ return {after:css(out.after),before:css(out.before)};
+}
 function sceneHtml(area){
+ if(area.restored)return harbourScene(area);
  const done=areaDone(state,area),vars=area.tasks.map((t,k)=>{const n=stageOf(state,t.id),grow=lastStage?.id===t.id;return `--r${k}:${REVEAL[grow?lastStage.stage-1:n]}`;}).join(';');
  const masks=area.tasks.map((t,k)=>`radial-gradient(ellipse calc(var(--r${k})*1%) calc(var(--r${k})*2%) at ${t.at[0]}% ${t.at[1]}%,#000 40%,transparent 100%)`).join(',');
  const pic=area.map?`assets/premium/${area.map}.webp`:`assets/premium/${area.picture}-vibrant.webp`;
  return `<div class="beachScene ${done?'complete':''} ${area.map?'mapped':''}" data-area="${area.id}" data-built="${builtCount(state,area)}" style="--p:${(builtCount(state,area)/(area.tasks.length*STAGES)).toFixed(3)}"><img class="sceneBase" src="${pic}" alt="${area.name}, ${done?'fully restored':builtCount(state,area)+' of '+area.tasks.length*STAGES+' upgrades'}"><div class="sceneStorm" aria-hidden="true"></div>${area.id==='entrance'?`<div class="doorRings" data-stage="${stageOf(state,'vault-door')}" aria-hidden="true"><i></i><i></i><i></i></div>`:''}<img class="sceneColor" src="${pic}" alt="" aria-hidden="true" style="${vars};-webkit-mask-image:${masks};mask-image:${masks}"><div class="restored">${area.id==='vault'?'':placeIcons(area.tasks.filter(t=>stageOf(state,t.id)>0))}</div></div>`;
 }
+function harbourScene(area){
+ const done=areaDone(state,area),built=builtCount(state,area),all=area.tasks.length*STAGES,m=harbourMasks(area);
+ // a stage just bought starts at 0 and grows (growScene); every other uncovered spot is whole
+ const vars=area.tasks.map((t,k)=>`--r${k}:${lastStage?.id===t.id?0:1}`).join(';');
+ const base=`assets/premium/${area.map}.webp`,after=`assets/premium/${area.restored}.webp`;
+ // (--r0…6 are registered without inheritance, next.css, so each layer carries them itself)
+ return `<div class="beachScene mapped harbour ${done?'complete':''}" data-area="${area.id}" data-built="${built}" style="--p:${(built/all).toFixed(3)}"><img class="sceneBase" src="${base}" alt="${area.name}, ${done?'fully restored':built+' of '+all+' upgrades'}"><div class="sceneStorm" aria-hidden="true"></div><img class="sceneColor sceneOwn" src="${base}" alt="" aria-hidden="true" style="${vars};-webkit-mask-image:${m.before};mask-image:${m.before}"><img class="sceneColor" src="${after}" alt="" aria-hidden="true" style="${vars};-webkit-mask-image:${m.after};mask-image:${m.after}"><div class="restored"></div></div>`;
+}
 // After the picture is drawn with the old size, the new one is set so the colour spreads.
 function growScene(){
  if(!lastStage)return;const area=currentArea(state),k=area.tasks.findIndex(t=>t.id===lastStage.id),img=$('#coastMap .sceneColor');lastStage=null;
- if(!img||k<0)return;requestAnimationFrame(()=>requestAnimationFrame(()=>img.style.setProperty(`--r${k}`,REVEAL[stageOf(state,area.tasks[k].id)])));
+ if(!img||k<0)return;
+ // the harbour (Build 48a): the stage's own reveal grows from 0 to whole, on the scene (both layers)
+ if(area.restored){const layers=[...document.querySelectorAll('#coastMap .beachScene .sceneColor')];requestAnimationFrame(()=>requestAnimationFrame(()=>layers.forEach(l=>l.style.setProperty(`--r${k}`,1))));return;}
+ requestAnimationFrame(()=>requestAnimationFrame(()=>img.style.setProperty(`--r${k}`,REVEAL[stageOf(state,area.tasks[k].id)])));
 }
 // The coast screen (Build 41e, user: "Bolhi baina 2000onii togloom bishdee yamar"): the area's
 // picture fills the top with a marker on every place that can be built; one card for the
@@ -863,7 +903,14 @@ const REVEALS=[
  // Build 47e (PR #80's reveals D and E): the array wakes and reads a signal (where from, not who
  // sends it); the sea gate opens on a hidden harbour, the end of Chapter 2.
  {id:'obs-signal',when:s=>stageOf(s,'obs-array')>=STAGES,live:s=>stageOf(s,'obs-passage')<STAGES,play:done=>revealCard(signalCard(),()=>{done();mapFocus='obs-passage';showMap();},'View sea gate')},
- {id:'obs-harbour',when:s=>stageOf(s,'obs-passage')>=STAGES,live:()=>true,play:done=>revealCard(harbourCard(),done)}
+ {id:'obs-harbour',when:s=>stageOf(s,'obs-passage')>=STAGES,live:()=>true,play:done=>revealCard(harbourCard(),done,AREAS[4]?.tasks.length?'Enter the harbour':'Continue')},
+ // Build 48a: Chapter 3, the Hidden Harbour's story moments (the director's handoff), each once: the
+ // arrival (a fresh rope at the landing), the crane's recovered chest, the signal answered; the launch
+ // is the chapter's end card (showEnd). Each is marked seen when dismissed; one the camp has moved past
+ // (a later save) is marked without playing. The arrival's button marks the landing's gold order.
+ {id:'hb-arrival',when:s=>s.area>=4,live:s=>s.area===4&&!builtCount(s,AREAS[4]),play:done=>revealCard(storyCard('arrival'),()=>{done();const o=firstGold();if(o)markGold(o);},'Make the gold order')},
+ {id:'hb-cargo',when:s=>stageOf(s,'hb-crane')>=STAGES,live:s=>stageOf(s,'hb-departure')<STAGES,play:done=>revealCard(storyCard('cargo'),done)},
+ {id:'hb-signal',when:s=>stageOf(s,'hb-signal')>=STAGES,live:s=>stageOf(s,'hb-departure')<STAGES,play:done=>revealCard(storyCard('signal'),done)}
 ];
 const markSeen=id=>{if(!state.seen?.[id]&&act(state,{type:'seen',id},Date.now()).ok){persist();playlog.event('reveal',{id});}};
 const pendingReveals=()=>REVEALS.filter(v=>v.when(state)&&!state.seen?.[v.id]);
@@ -893,7 +940,22 @@ const nextLine=()=>{const u=upgrades(state)[0];if(!u)return '';const gold=state.
 // The array wakes (its own stage-3 picture, with a beam of light in CSS).
 function signalCard(){return `<small>The Silent Observatory · the array</small><div class="revealStage signal" aria-hidden="true"><img class="revealDoor" src="assets/premium/coast/place-obs-array-3.webp" alt="" draggable="false"><i class="beam"></i></div><h3>A signal on one bearing</h3>${revealLine('tamsin','Three long, two short: the call sign in their logs. I can tell where it comes from. Not who sends it, or how long it has been sending.')}${nextLine()}`;}
 // The sea gate opens (harbour-view is PR #80's small placeholder picture: missing art, see the doc).
-function harbourCard(){return `<small>The Silent Observatory · the sea gate</small><div class="revealPanel single" aria-hidden="true"><img class="panelTo" src="assets/premium/coast/harbour-view.webp" alt="" draggable="false"></div><h3>A hidden harbour</h3>${revealLine('bram','The bearing runs straight through it. Who sent that signal, and what happened in that harbour?')}`;}
+// Build 48a: it is Chapter 2's end and leads into Chapter 3, the Hidden Harbour.
+function harbourCard(){const next=AREAS[4]?.tasks.length;return `<small>${next?'Chapter 2 complete':'The Silent Observatory'} · the sea gate</small><div class="revealPanel single" aria-hidden="true"><img class="panelTo" src="assets/premium/coast/harbour-view.webp" alt="" draggable="false"></div><h3>A hidden harbour</h3>${revealLine('bram','The bearing runs straight through it. Who sent that signal, and what happened in that harbour?')}${next?'<p class="revealNext"><b>Next</b>Chapter 3 · The Hidden Harbour</p>':''}`;}
+// Build 48a: the Hidden Harbour's story moments (story panels cut by tools/harbour-art.py; the arrival
+// has a sea mist over the harbour behind the arch, which the master paints already repaired). The
+// picture is described for screen readers. "Next" names the real next step, or what it waits for.
+const HARBOUR_STORY={
+ arrival:{tag:'Chapter 3 · The Hidden Harbour',title:'A fresh rope',who:'bram',line:'This knot is fresh. Someone has used this landing.',alt:'Through the sea gate: a mooring post with a freshly tied rope, and a quiet harbour beyond, half hidden in sea mist.',next:['hb-landing']},
+ cargo:{tag:'The Hidden Harbour · the crane',title:'Recovered cargo',who:'neri',line:'That mark again. Bring the chest ashore: we may find its route in the harbour records.',alt:'The crane lifts a navy and brass chest out of the water; a wave emblem is set into its lid.',next:['hb-registry']},
+ signal:{tag:'The Hidden Harbour · the signal tower',title:'An answering light',who:'tamsin',line:'There. Across the water. A light answered us.',alt:'At dusk the signal tower sends a sea-green beam over the water; far off on a headland, a small light answers.',next:['hb-boatyard','hb-departure']}
+};
+function storyCard(key){const v=HARBOUR_STORY[key];return `<small>${v.tag}</small><div class="revealPanel story"><img class="panelTo" src="assets/premium/coast/hidden-harbour/story-${key}.webp" alt="${v.alt}" draggable="false"></div><div class="storyCopy"><h3>${v.title}</h3>${revealLine(v.who,v.line)}${harbourNext(v.next)}</div>`;}
+function harbourNext(ids){
+ for(const id of ids){const u=upgrades(state).find(u=>u.id===id);if(u){const gold=state.orders.some(o=>o?.story===u.id);return `<p class="revealNext"><b>Next</b>${u.name}${gold?' · its gold order is on the board':''}</p>`;}}
+ for(const id of ids){const b=blockedStage(state,id);if(b){const wait=Object.entries(b.requires).filter(([p,n])=>stageOf(state,p)<n).map(([p,n])=>TASKS[p].stages[n-1].name);return `<p class="revealNext"><b>Next</b>${b.name} · after ${wait.join(' and ')}</p>`;}}
+ return nextLine();
+}
 // The Vault opens (PR #80's Reveal A, with the coast's own Vault, Build 47f): the inner ring lights
 // and light runs down the seam; the door's two halves swing inward on their hinges and the
 // Observatory's interior shows behind them; then inside. The halves are the Home picture itself, cut
@@ -945,9 +1007,14 @@ function showEnd(){
  // and its picture first, a short line, then the totals; what comes next is said to be unavailable,
  // never offered (no button) and never promised. Build 47b's Chapter 1 card is gone: Chapter 1 now
  // leads into the Vault, so the camp's end is always Chapter 2's.
- $('#endContent').innerHTML=`<figure class="endArt" aria-hidden="true"><img src="assets/premium/coast/harbour-view.webp" alt="" draggable="false"></figure>
+ // Build 48a: the content ends with Chapter 3, the Hidden Harbour: the launch (the director's departure
+ // panel and Ivo's line) is its end card, once. No Chapter 4 is offered or promised.
+ const harbour=last.id==='harbour';
+ $('#endContent').innerHTML=(harbour?`<figure class="endArt"><img src="assets/premium/coast/hidden-harbour/story-departure.webp" alt="The repaired boat with its ivory and coral sail leaves the harbour in daylight, the restored landing, warehouse and signal tower behind it." draggable="false"></figure>
+  <small class="endTag">Chapter 3 complete</small><h2 id="endTitle">The boat is ready</h2>
+  <p class="endLine">Ivo: “The boat is ready. Now we have a direction.”</p>`:`<figure class="endArt" aria-hidden="true"><img src="assets/premium/coast/harbour-view.webp" alt="" draggable="false"></figure>
   <small class="endTag">Chapter 2 complete</small><h2 id="endTitle">The sea gate is open</h2>
-  <p class="endLine">The array has a bearing, and the gate opens on a hidden harbour.</p>
+  <p class="endLine">The array has a bearing, and the gate opens on a hidden harbour.</p>`)+`
   <p class="endNext">This is the end of the story so far.${next?` ${next.name} is not available yet.`:''}</p>
   <section class="endStats" aria-label="Your camp so far"><h3>Your camp so far</h3><dl>
    <div><dt>Restoration stages</dt><dd>${stages} / ${all}</dd></div><div><dt>Crew orders delivered</dt><dd>${state.ordersDone}</dd></div><div><dt>Generator types found</dt><dd>${kinds}</dd></div></dl>

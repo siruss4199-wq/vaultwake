@@ -132,12 +132,53 @@ export const AREAS=[
     {name:'Shore up the tunnel',cost:220,effect:{cog:1},lines:[['ivo','Timber and brass. The same hands as the bench.']]},
     {name:'Open the sea gate',cost:250,requires:{'obs-array':3},gold:[['optic',4,1],['rope',4,1]],effect:{},lines:[['neri','The bearing runs straight through there.']]}],'obs-passage')
   ]},
- // Chapter 3 is not built: listed as coming, never playable (no places; from PR #80).
- {id:'harbour',name:'The Hidden Harbour',picture:'harbour',coming:true,tasks:[]}
+ // Chapter 3, The Hidden Harbour (build 48a, 2026-11-01; docs/V5_CHAPTER3_HARBOUR_2026-11-01.md, from the
+ // director's art and design handoff). Through the sea gate: seven places around one basin, each in
+ // three stages. Landing first; then the crane and the warehouse together; with both done the boatyard
+ // and the registry; the registry's route opens the signal tower; the departure dock's jetty waits for
+ // the boatyard's workbench, and its launch for the boat and the signal (requires, game.mjs upgrades).
+ // Every stage names its own materials, rotated among chains the camp already has (no rare extra and
+ // no new generator; the late generators get work). Picture: the director's before/after harbour,
+ // revealed place by place (restored), with each stage's own cut-out on its card (art 'hb-…'). The
+// handoff's four story lines are the story cards' (app.mjs HARBOUR_STORY and the end card), so the
+// stages that lead to them have their own lines and nothing is said twice.
+ {id:'harbour',name:'The Hidden Harbour',short:'HARBOUR',picture:'hidden-harbour',map:'coast/hidden-harbour/harbour-map-before',restored:'coast/hidden-harbour/harbour-map-after',
+  intro:[['bram','This knot is fresh. Someone has used this landing.'],['ivo','Then we make it ours. Clear the landing first.']],
+  tasks:[
+   place('hb-landing','rope-1',[21,81],[
+    {name:'Clear the landing',cost:180,gold:[['rig',3,1],['rope',2,2]],effect:{energy:10},lines:[['ivo','Weed and wreckage off the stones. Boats could tie up here again.']]},
+    {name:'Secure the railings',cost:200,gold:[['rope',3,1],['rig',2,2]],effect:{token:1},lines:[['bram','Rope rails, fresh-tarred. Whoever moored here meant to come back.']]},
+    {name:'Light the landing',cost:220,gold:[['lamp',2,1],['rig',3,1]],effect:{kit:['newest',2]},lines:[['tamsin','Two lamps on the landing. From the water it looks like a harbour again.']]}],'hb-landing'),
+   place('hb-crane','rope-3',[20,49],[
+    {name:'Reinforce the crane',cost:200,requires:{'hb-landing':3},gold:[['rig',4,1],['rope',2,1]],effect:{energy:10},lines:[['ivo','The mast is sound. It only needed bracing.']]},
+    {name:'Fit the pulley',cost:230,gold:[['rope',3,1],['rig',3,1]],effect:{cog:1},lines:[['ivo','A pulley block, a good hook. Now it can lift more than its own weight.']]},
+    {name:'Recover the cargo',cost:260,gold:[['rope',4,1],['rig',3,1]],effect:{kit:['newest',3]},lines:[['ivo','Something heavy down there. Steady… up she comes.']]}],'hb-crane'),
+   place('hb-warehouse','shell-2',[28,25],[
+    {name:'Repair the roof',cost:200,requires:{'hb-landing':3},gold:[['rig',3,1],['shell',2,1]],effect:{token:1},lines:[['ivo','New boards, a canvas over the gap. The rain stays out now.']]},
+    {name:'Raise the shelves',cost:230,gold:[['rig',4,1],['shell',3,1]],effect:{energy:10},lines:[['tamsin','Shelves to the rafters. Somebody kept this place stocked for a long voyage.']]},
+    {name:'Sort the supplies',cost:260,gold:[['shell',3,1],['chart',3,1]],effect:{kit:['newest',2]},lines:[['tamsin','Rope, lamp oil, dried food. Enough for one boat, and a long way.']]}],'hb-warehouse'),
+   place('hb-boatyard','rig-4',[76,49],[
+    {name:'Set up the workbench',cost:240,requires:{'hb-crane':3,'hb-warehouse':3},gold:[['rig',4,1],['rope',3,1]],effect:{energy:12},lines:[['ivo','Tools still on their hooks. A boatwright worked here, and not long ago.']]},
+    {name:'Repair the hull',cost:270,gold:[['rig',4,1],['rope',3,2]],effect:{token:1},lines:[['ivo','New planks where the old ones split. She will float.']]},
+    {name:'Rig the sail',cost:300,gold:[['rope',4,1],['chart',3,1]],effect:{kit:['newest',3]},lines:[['bram','A mast, a sail, and nowhere yet to sail her.']]}],'hb-boatyard'),
+   place('hb-registry','chart-3',[56,18],[
+    {name:'Reopen the office',cost:240,requires:{'hb-crane':3,'hb-warehouse':3},gold:[['chart',3,1],['lamp',2,1]],effect:{energy:12},lines:[['neri','The harbour office. Ledgers, a stamp, a map on the wall.']]},
+    {name:'Dry the records',cost:270,gold:[['lamp',3,1],['chart',3,1]],effect:{cog:1},lines:[['neri','Every boat that sailed from here is in these books. The last one too.']]},
+    {name:'Trace the route',cost:300,gold:[['chart',4,1],['optic',3,1]],effect:{kit:['newest',2]},lines:[['neri','The last boat followed the same bearing as the array. It leads out to sea.'],['tamsin','Then the tower can tell whoever is out there that we are here.']]}],'hb-registry'),
+   place('hb-signal','lamp-3',[90,18],[
+    {name:'Repair the tower',cost:260,requires:{'hb-registry':3},gold:[['lamp',3,1],['rig',3,1]],effect:{energy:12},lines:[['bram','Stone stairs, an iron door. The lamp room is still dry.']]},
+    {name:'Align the lens',cost:290,gold:[['optic',4,1],['lamp',2,1]],effect:{token:1},lines:[['tamsin','The lens turns on the same bearing as the array.']]},
+    {name:'Send the signal',cost:320,gold:[['optic',4,1],['lamp',3,1]],effect:{kit:['newest',3]},lines:[['tamsin','Three long, two short, out along the bearing. Now we watch the water.']]}],'hb-signal'),
+   place('hb-departure','rope-4',[83,85],[
+    {name:'Repair the jetty',cost:280,requires:{'hb-boatyard':1},gold:[['rope',3,1],['rig',3,1]],effect:{energy:12},lines:[['ivo','A jetty long enough for a boat with a sail.']]},
+    {name:'Load the supplies',cost:310,gold:[['rig',4,1],['shell',3,1]],effect:{cog:1},lines:[['tamsin','Food, oil and rope from the warehouse, stowed and lashed.']]},
+    {name:'Launch the boat',cost:350,requires:{'hb-boatyard':3,'hb-signal':3},gold:[['rope',4,1],['chart',4,1]],effect:{},lines:[['bram','Lines off. She floats true.']]}],'hb-departure')
+  ]}
 ];
 // The next area opens when this one's last stage is bought (game.mjs restore and load).
 // Build 47f: what the Vault's places are called when one waits for another ("Finish the array first").
-export const LABELS={'vault-archive':'the archive','obs-hall':'the entrance hall','obs-desk':'the survey desk','obs-bench':'the lens bench','obs-array':'the array','obs-passage':'the sea gate'};
+export const LABELS={'vault-archive':'the archive','obs-hall':'the entrance hall','obs-desk':'the survey desk','obs-bench':'the lens bench','obs-array':'the array','obs-passage':'the sea gate',
+ 'hb-landing':'the landing','hb-crane':'the crane','hb-warehouse':'the warehouse','hb-boatyard':'the boatyard','hb-registry':'the registry','hb-signal':'the signal tower','hb-departure':'the departure dock'};
 export const TASKS=Object.fromEntries(AREAS.flatMap(a=>a.tasks.map(t=>[t.id,{...t,area:a.id}])));
 export const STAGES=3;
 export const areaOf=id=>AREAS.find(a=>a.id===id);
