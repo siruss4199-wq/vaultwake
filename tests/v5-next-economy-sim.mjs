@@ -31,7 +31,7 @@ export function simulate(g,policy,speed,seed,{until=4*3600e3,firstOnly=false,onS
   if(s.energy<1&&starveStart===null)starveStart=now;
   if(s.energy>=1&&starveStart!==null){m.starve.push(now-starveStart);starveStart=null;}
   if(s.energy<3){m.lowStates++;if(freeAction(g,s))m.lowFree++;}
-  m.minEnergy=Math.min(m.minEnergy,s.energy);
+  m.minEnergy=Math.min(m.minEnergy,s.energy);m.maxEnergy=Math.max(m.maxEnergy??0,s.energy);
   let a=policy(s);
   if(!a&&shop&&s.energy<1&&s.coins>=g.SHOP.energy.cost&&g.act(s,{type:'buy',id:'energy',day:Math.floor(now/864e5)},now).ok){m.bought++;continue;}
   if(!a&&s.energy<=3&&g.act(s,{type:'ration'},now).ok){m.rations++;continue;}
@@ -47,7 +47,7 @@ export function simulate(g,policy,speed,seed,{until=4*3600e3,firstOnly=false,onS
   onStep?.(s,now);
  }
  if(starveStart!==null)m.starve.push(now-starveStart);
- m.total=now;m.finished=done();m.active=m.total-m.idle;return m;
+ m.total=now;m.finished=done();m.active=m.total-m.idle;m.owed=s.energyOwed??0;return m;
 }
 export const quantile=(a,p)=>{if(!a.length)return 0;const b=[...a].sort((x,y)=>x-y);return b[Math.min(b.length-1,Math.floor(b.length*p))];};
 export const gaps=r=>r.map((t,i)=>i?t-r[i-1]:t);
