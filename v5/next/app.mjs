@@ -1,10 +1,10 @@
 // Coast Camp: the new-loop page (v5/play.html). Same look as Classic V5, one loop:
 // generators → merge → crew orders → coins → upgrade the coast's places on the beach screen.
-import {blockedStage,isStuck,allDone,swapsLeft,adSwapsLeft,SHOP,shopLeft,BOOK_COINS,BOOK_CHAINS,bookKeys,bookReady,pageReady,SHED_SLOTS,DAILY,newestGenerator,cog,token,SAVE_KEY,fresh,load,act,tick,nameOf,item,matches,count,orderItems,nextTask,currentArea,areaDone,upgrades,stageOf,builtCount,sourceOpen,SOURCES,chainsOf,CRATES,cargoKeys,reachable,generatorsMerge,MAX_GENERATOR_LEVEL,GLASS_HITS,nextKind,UNLOCK_LEVEL,GENERATOR_ORDER,storyTarget,roleOf,SECONDARY_RULES} from './game.mjs';
+import {blockedStage,isStuck,allDone,swapsLeft,adSwapsLeft,SHOP,shopLeft,BOOK_COINS,BOOK_CHAINS,bookKeys,bookReady,pageReady,SHED_SLOTS,DAILY,newestGenerator,cog,token,SAVE_KEY,fresh,load,act,tick,nameOf,item,matches,count,orderItems,nextTask,currentArea,areaDone,upgrades,stageOf,builtCount,sourceOpen,SOURCES,chainsOf,CRATES,cargoKeys,reachable,generatorsMerge,MAX_GENERATOR_LEVEL,GLASS_HITS,nextKind,UNLOCK_LEVEL,GENERATOR_ORDER,storyTarget,roleOf,SECONDARY_RULES,SECONDARY_OF,secondarySource} from './game.mjs';
 import {AREAS,STAGES,TASKS,LABELS} from './areas.mjs';
 import {primaryAction} from './guide.mjs';
 import {needsOf,missingOf,levelOf} from './needs.mjs';
-import {LEVEL_PATH,BONUS_NAMES,CHEST_ENERGY,EARLY_LEVELS,EARLY_LEVEL_ENERGY} from './game.mjs';
+import {LEVEL_PATH,BONUS_NAMES,CHEST_ENERGY,EARLY_LEVELS,EARLY_LEVEL_ENERGY,ONBOARDING} from './game.mjs';
 import {kit} from '../kits.mjs';
 import {iceNeed,weakIceBeside} from './ice.mjs';
 import {purposeOf} from './purposes.mjs';
@@ -16,15 +16,21 @@ import {art,portrait} from '../art.mjs';
 import {enablePremium} from '../premium.mjs';
 import {kitsMerge,kitFull,kitDrop,kitCapacity,producerLevel,KIT_SIZES,KIT_DROPS,MAX_KIT_SIZE,MAX_PRODUCER_LEVEL} from '../kits.mjs';
 import {xpToNext} from '../levels.mjs';
-import {refillTimes,clock,REFILL_CAP,REFILL_EVERY,rationWait} from '../energy.mjs';
+// Energy pass (build 47v): Coast Camp's own energy module (the player level's refill capacity).
+import {refillTimes,clock,REFILL_EVERY,rationWait,capacityOf,nextCapacity,MAX_CAPACITY,STORE_ENERGY} from './energy.mjs';
 import {CREW} from '../crew.mjs';
 import {reduced,burst,rewardFlight,moment as sharedMoment} from '../feedback.mjs';
 import {sfx as sounds} from './sfx.mjs';
 import {createHome} from './home.mjs';
+import {readSave,keptCamps,freeKey,isKeptKey} from './saves.mjs';
 import {playIntro,preloadIntro,storySeen,playScenes} from './story-intro.mjs';
 import {haptics} from './haptics.mjs';
 // The shared moment draws its icon with the Classic art; new chains need draw().
 // Moments show above an open screen (the beach) too: a modal dialog covers the page.
+// Energy pass (build 47v): a short note under the energy pill (+15 energy, a capacity milestone),
+// beside the usual feedback and never blocking a tap; reduced motion shows it without movement.
+function energyNote(text){document.querySelector('.energyNote')?.remove();const el=document.createElement('div');el.className='energyNote';el.setAttribute('role','status');el.textContent=text;
+ const r=$('#energyPill').getBoundingClientRect();el.style.left=Math.max(8,Math.min(r.left,innerWidth-230))+'px';el.style.top=(r.bottom+14)+'px';document.body.append(el);setTimeout(()=>el.remove(),2600);}
 function moment(title,detail='',x=null){sharedMoment(title,detail,null);const el=document.querySelector('.moment');const top=[...document.querySelectorAll('dialog[open]')].pop();if(el&&top)top.append(el);if(!x||!el)return;const icon=document.createElement('span');icon.style.cssText='float:left;width:42px;height:42px;margin-right:10px';icon.innerHTML=draw(x);icon.firstElementChild.style.cssText='width:100%;height:100%';el.prepend(icon);}
 
 // Game sounds go through sfx: silent while an ad plays or when CrazyGames mutes the game
@@ -32,7 +38,7 @@ function moment(title,detail='',x=null){sharedMoment(title,detail,null);const el
 let adPlaying=false;
 const sfx=(kind,tier=0)=>sounds.play(kind,tier,{muted:adPlaying||platform.muted()});
 // Shown in the footer so a playtester can tell which build is running.
-export const BUILD='Build 47s · secondary chains pilot';
+export const BUILD='Build 47v · level energy capacity (secondary chains pilot)';
 // The level path (docs/V5_LEVEL_PATH_2026-10-27.md): a crew order that pays a tool on top shows it
 // beside its coins (a Tide token; a favour's Sea chest or Brass cog).
 const bonusThing=o=>o.bonus==='cog'?cog():o.bonus==='chest'?kit(newestGenerator(state),2):o.bonus==='token'?token():null;
@@ -49,29 +55,50 @@ const storage={get:k=>{try{return localStorage.getItem(k);}catch{return null;}},
 const startNew=new URLSearchParams(location.search).has('new');
 if(startNew){const q=new URLSearchParams(location.search);q.delete('new');history.replaceState(null,'',location.pathname+(q.size?'?'+q:''));}
 // Home (Build 46p): the save is read once here. load() answers a save it cannot read with a new
-// camp (game.mjs); a fresh camp is the same for the same moment, so a save that loads as exactly
-// fresh(now) was not read, and is kept as it is: nothing is written over it until the player
-// chooses a new camp on Home (which first copies it to SAVE_KEY+'-damaged'). A new camp with no
-// save is not written either until the player presses Play.
-const bootNow=Date.now(),rawSave=startNew?null:storage.get(SAVE_KEY)||null;
-let state=startNew?fresh(bootNow):load(rawSave??'',bootNow),selected=null,focusOrder=null,drag=null,suppressClick=false;
-let damaged=!!rawSave&&JSON.stringify(state)===JSON.stringify(fresh(bootNow)),holdSave=!rawSave||damaged,homeOpen=!!document.getElementById('home');
-const persist=()=>{if(!holdSave)storage.set(SAVE_KEY,JSON.stringify(state));};
-// Keeps the save that could not be read before anything replaces it.
-// Build 47c (reconciling PR #80's vaultwake-v5-coast-backup with Build 46p's -damaged key): a
-// recovery copy is never overwritten. The save goes to the first free -damaged key (-damaged, then
-// -damaged-2 … -damaged-9, then one named by the time), unless an identical copy is already kept
-// under any of them or #80's -backup. It answers false when the copy could not be written (storage
-// full); then nothing replaces the save.
-const BACKUP_KEYS=[SAVE_KEY+'-damaged',...Array.from({length:8},(_,i)=>`${SAVE_KEY}-damaged-${i+2}`)];
-function keepDamaged(){
- if(damaged&&rawSave){
-  if(![...BACKUP_KEYS,SAVE_KEY+'-backup'].some(k=>storage.get(k)===rawSave)){
-   const k=BACKUP_KEYS.find(k=>storage.get(k)===null)??`${SAVE_KEY}-damaged-${Date.now()}`;storage.set(k,rawSave);
-   if(storage.get(k)!==rawSave)return false;}
-  playlog.event('saveDamaged');}
- damaged=false;return true;
+// camp (game.mjs); readSave (saves.mjs) tells which kind of unreadable save it is: one made by a NEWER
+// build (parts or generators this build does not know, round 2 of the secondary-chain pilot) or a
+// damaged one. Either way it is kept as it is: nothing is written over it until the player chooses a
+// new camp on Home (which first copies it to SAVE_KEY+'-damaged'). A new camp with no save is not
+// written either until the player presses Play.
+const bootNow=Date.now(),stored=storage.get(SAVE_KEY)||null,rawSave=startNew?null:stored,read=readSave(rawSave,bootNow);
+let state=startNew?fresh(bootNow):read.state,selected=null,focusOrder=null,drag=null,suppressClick=false;
+let damaged=read.status==='damaged'||read.status==='newer',newer=read.status==='newer',holdSave=!rawSave||damaged,homeOpen=!!document.getElementById('home');
+// Round 2: ?new=1 (the playtest page's "start from the beginning" link) no longer writes over the
+// camp it replaces: that camp is kept (SAVE_KEY-kept…) before the new one is first saved.
+let replaced=startNew?stored:null;
+const persist=()=>{if(holdSave)return;if(replaced){if(!keepCopy(replaced,'kept'))return;replaced=null;}storage.set(SAVE_KEY,JSON.stringify(state));};
+const storageKeys=()=>{try{return Array.from({length:localStorage.length},(_,i)=>localStorage.key(i)).filter(Boolean);}catch{return [];}};
+// Keeps a copy of a camp before anything replaces it. Build 47c (reconciling PR #80's
+// vaultwake-v5-coast-backup with Build 46p's -damaged key): a kept copy is never overwritten. The
+// save goes to the first free key of its kind (-damaged or -kept, then -2 … -9, then one named by the
+// time), unless an identical copy is already kept under any kept key. It answers false when the copy
+// could not be written (storage full); then nothing replaces the save.
+function keepCopy(raw,kind){
+ if(!raw||storageKeys().filter(isKeptKey).some(k=>storage.get(k)===raw))return true;
+ const k=freeKey(kind,storage.get,Date.now());storage.set(k,raw);return storage.get(k)===raw;
 }
+function keepDamaged(){
+ if(damaged&&rawSave){if(!keepCopy(rawSave,'damaged'))return false;playlog.event('saveDamaged',{newer});}
+ damaged=false;newer=false;return true;
+}
+// Kept camps (round 2): every camp kept in this browser that this build reads can be restored. The
+// camp it replaces is kept first, so a restore loses nothing either. This is the way back after a camp
+// went through an older build (which keeps it as -damaged when the player starts a new camp there),
+// after a new camp, or after ?new=1.
+const kept=()=>keptCamps(storageKeys(),storage.get,Date.now(),storage.get(SAVE_KEY));
+function restoreKept(key){
+ const raw=storage.get(key);if(!raw)return false;
+ persist();const cur=storage.get(SAVE_KEY);
+ if(cur&&cur!==raw&&!keepCopy(cur,damaged?'damaged':'kept')){alert('Your current camp could not be copied aside (this browser\'s storage is full), so nothing was replaced.');return false;}
+ storage.set(SAVE_KEY,raw);if(storage.get(SAVE_KEY)!==raw){alert('The kept camp could not be restored (this browser\'s storage is full).');return false;}
+ holdSave=true;playlog.event('restoreKept');location.reload();return true;
+}
+function showKept(){
+ const list=kept(),when=t=>new Date(t).toLocaleString(undefined,{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+ $('#keptList').innerHTML=list.length?list.map(c=>`<li><span><b>${c.label}</b><small>last played ${when(c.when)}</small></span><button type="button" class="primary" data-restore="${c.key}">Restore</button></li>`).join(''):'<li><span>No other camp is kept in this browser.</span></li>';
+ $('#kept').showModal();
+}
+$('#keptList').addEventListener('click',e=>{const b=e.target.closest('[data-restore]');if(b)restoreKept(b.dataset.restore);});
 // The local playtest log (Build 41 M6): this browser only, copied out by the player.
 const playlog=createLog({storage:{get:k=>{try{return localStorage.getItem(k);}catch{return null;}},set:(k,v)=>localStorage.setItem(k,v),remove:k=>localStorage.removeItem(k)},
  build:BUILD,viewport:`${innerWidth}x${innerHeight}`,touch:!!globalThis.matchMedia?.('(pointer:coarse)').matches});
@@ -129,7 +156,7 @@ function render(){
  // Build 41i: the area's own picture, blurred, behind the board screen.
  // Build 45: the board screen stands on one bright coastal picture (coastal.css); each area's own
  // picture is shown where it belongs, on the restoration strip and the coast screen.
- $('#energy').innerHTML=`${state.energy}<span class="energyCap">/${REFILL_CAP}</span>`;
+ energyHud();
  $('#coins').textContent=state.coins;
  const lv=state.level;$('#levelNum').textContent=lv.level;$('#levelPill').style.setProperty('--p',Math.round(100*lv.xp/xpToNext(lv.level))+'%');{const nx=nextUnlock(lv.level);$('#levelPill').setAttribute('aria-label',`Level ${lv.level}, ${lv.xp} of ${xpToNext(lv.level)} XP`+(nx?`. Level ${nx.level} opens ${nx.name}`:''));$('#levelPill').title=nx?`Level ${nx.level}: ${nx.name}`:'Every level-path unlock is open';}
  const ready=upgrades(state).some(u=>u.materials&&state.coins>=u.cost);if(!(holdPlace>performance.now()))$('#mapReady').hidden=!ready;
@@ -184,7 +211,7 @@ function renderOrders(){
 // (build 36): free ones first, then after an ad. The gold order stays.
 function chainRoute(r){
  const gen=CHAINS[r.family].gen,open=sourceOpen(state,gen),steps=Array.from({length:r.tier+1},(_,k)=>k);
- const text=!has(gen)?`${SOURCES[gen].name} is still sealed in cargo on the board`:!open?`${SOURCES[gen].name} wakes in a later area`:CHAINS[r.family].secondary?`A rare extra from ${SOURCES[gen].name} taps (one at the latest every ${SECONDARY_RULES[gen].pity})${r.tier?`, then merge up ${r.tier} time${r.tier>1?'s':''}`:''}`:`Tap ${SOURCES[gen].name}${r.tier?`, then merge up ${r.tier} time${r.tier>1?'s':''}`:''}`;
+ const text=!has(gen)?`${SOURCES[gen].name} is still sealed in cargo on the board`:!open?`${SOURCES[gen].name} wakes in a later area`:CHAINS[r.family].secondary?`A rare extra from level 2+ ${SOURCES[gen].name} taps (at the latest on the ${SECONDARY_RULES[gen].pity}th tap)${r.tier?`, then merge up ${r.tier} time${r.tier>1?'s':''}`:''}`:`Tap ${SOURCES[gen].name}${r.tier?`, then merge up ${r.tier} time${r.tier>1?'s':''}`:''}`;
  return `<li class="route ${open?'':'sealed'}"><span class="routeGen">${draw({type:'source',id:gen})}</span>${steps.map(k=>`<i class="routeArrow" aria-hidden="true"></i><span class="routeStep ${k===r.tier?'goal':''}" title="${CHAINS[r.family].names[k]}">${draw(item(r.family,k))}</span>`).join('')}<small>${text}</small></li>`;
 }
 function renderOrderTools(){
@@ -301,7 +328,8 @@ function renderSelection(){
  }else if(x.type==='source'){
   const chain=CHAINS[GENERATOR_CHAINS[x.id][0][0]];
   const next=nextKind(x.id),waiting=next&&!state.board.some(y=>y?.type==='source'&&y.id===next);
-  desc=(waiting?`Level ${UNLOCK_LEVEL} brings out the ${SOURCES[next].name}. `:'')+(sourceOpen(state,x.id)?`Level ${producerLevel(x)} · 1 energy a tap · ${chain.names.slice(0,4).join(' → ')} …`+(producerLevel(x)<MAX_GENERATOR_LEVEL?` Merge it with another level-${producerLevel(x)} ${SOURCES[x.id].name} (drag one onto the other) for level ${producerLevel(x)+1}.`:' Top level.'):'Wakes at the Survey Worksite (next area).');
+  const extra=SECONDARY_OF[x.id]?CHAINS[SECONDARY_OF[x.id]].names[0]:null,extraLine=!extra?'':secondarySource(state,selected)?` Rare extras: sometimes a ${extra} as well.`:producerLevel(x)<SECONDARY_RULES[x.id].level?` At level ${SECONDARY_RULES[x.id].level} it also makes rare ${extra}s.`:'';
+  desc=(waiting?`Level ${UNLOCK_LEVEL} brings out the ${SOURCES[next].name}. `:'')+(sourceOpen(state,x.id)?`Level ${producerLevel(x)} · 1 energy a tap · ${chain.names.slice(0,4).join(' → ')} …`+(producerLevel(x)<MAX_GENERATOR_LEVEL?` Merge it with another level-${producerLevel(x)} ${SOURCES[x.id].name} (drag one onto the other) for level ${producerLevel(x)+1}.`:' Top level.')+extraLine:'Wakes at the Survey Worksite (next area).');
   if(sourceOpen(state,x.id)){
    // What the next tap really makes: the engine's own produce on a copy of the state.
    const trial=structuredClone(state),r=act(trial,{type:'produce',id:x.id,index:selected},Date.now()),made=r.ok?trial.board[r.index]:null;
@@ -349,13 +377,22 @@ $('#hint').onclick=()=>{
  else if(g.kind==='tap'){selected=g.index;run({type:'produce',id:g.id,index:g.index});render();}
  else if(g.kind==='merge'||g.kind==='unseal'){for(const i of g.cells)board.querySelector(`[data-index="${i}"]`)?.classList.add('hintPair');$('#message').textContent=g.kind==='merge'?'Drag one of the two marked parts onto the other.':'Drag the marked part onto the marked crate.';}
  else if(g.kind==='space')$('#message').textContent='Deliver a ready order, merge two twins, or tap a part and choose Shed.';
- else if(g.kind==='energy')$('#message').textContent='Energy refills +1 every 2 minutes. Merges, crates and deliveries cost nothing.';
+ else if(g.kind==='energy')$('#message').textContent=`Energy refills +1 every 2 minutes up to ${capacityOf(state)} (your level's capacity). Merges, crates and deliveries cost nothing.`;
 };
 function header(){
  if(tick(state,Date.now())){persist();render();}
- const t=refillTimes(state,Date.now());$('#energyTimer').textContent=t?'+1 '+clock(t.next):'FULL';
+ energyHud();
+}
+// Energy pass (build 47v): the HUD shows energy over the player level's refill capacity. At the
+// capacity the timer says FULL; above it (bonus energy, which the refill does not add to) it says
+// BONUS and the pill is marked, e.g. 135/120.
+function energyHud(){
+ const cap=capacityOf(state),over=state.energy>cap,t=refillTimes(state,Date.now());
+ $('#energy').innerHTML=`${state.energy}<span class="energyCap">/${cap}</span>`;
+ $('#energyTimer').textContent=t?'+1 '+clock(t.next):over?'BONUS':'FULL';
+ $('#energyPill').classList.toggle('overCap',over);
  $('#energyPill').style.setProperty('--g',t?(1-t.next/REFILL_EVERY).toFixed(3):1);
- $('#energy').innerHTML=`${state.energy}<span class="energyCap">/${REFILL_CAP}</span>`;
+ $('#energyPill').title=`Energy ${state.energy} of ${cap}: +1 every 2 minutes up to ${cap} (level ${state.level.level})`+(over?`. Bonus energy above ${cap} is kept; the refill waits until you are below it.`:'')+(state.energyOwed?` ${state.energyOwed} more waits for room (you can hold ${STORE_ENERGY}).`:'');
 }
 
 // ---------- actions ----------
@@ -401,15 +438,21 @@ function run(a){
  if(r.event==='produce'&&r.secondary){const t2=r.secondary.index>=0?board.querySelector(`[data-index="${r.secondary.index}"]`):null;t2?.classList.add('unsealed');burst(t2?.getBoundingClientRect(),r.secondary.family,true);sfx('rare');
   if(r.found?.includes(r.secondary.family+'0'))setTimeout(()=>moment('New: '+CHAINS[r.secondary.family].names[0],sourceNote(r.secondary.family)+` Crew orders ask for them · merge two for a ${CHAINS[r.secondary.family].names[1]}.`,item(r.secondary.family,0)),reduced()?0:500);
   else if(r.secondary.index<0)$('#message').textContent+=' · no space: it waits for one';}
+ if(r.unlocks?.length&&r.event!=='producerUp')extrasNews();
+ // round 3: a level 2+ generator whose rare extras rest (enough unused held) says so
+ if(r.event==='produce'&&r.rest)$('#message').textContent+=` · its rare extras rest while you hold ${SECONDARY_RULES[a.id].hold} unused: deliver, use or clear some`;
  if((r.event==='produce'||r.event==='kit')&&fromRect&&tile&&!reduced()){const to=tile.getBoundingClientRect(),el=document.createElement('div');el.className='flight';el.innerHTML=draw(state.board[r.index]);el.style.cssText=`left:${fromRect.x}px;top:${fromRect.y}px;--dx:${to.x-fromRect.x}px;--dy:${to.y-fromRect.y}px`;document.body.append(el);setTimeout(()=>el.remove(),460);}
  if(r.event==='deliver'){deliverSequence(r,taking,orderRect,before.coins,readyBefore);sfx('deliver');
   if(r.tool?.index!=null)board.querySelector(`[data-index="${r.tool.index}"]`)?.classList.add('unsealed');
   // the crew's +1 energy (Audit 2026-10-25) flies to the energy pill
   if(r.energy&&orderRect)setTimeout(()=>rewardFlight(orderRect,$('#energyPill').getBoundingClientRect(),`+${r.energy} ϟ`),reduced()?0:420);
+  // Energy pass: the first ordinary crew order's +15, a short non-blocking note beside it
+  if(r.boost){if(orderRect)setTimeout(()=>rewardFlight(orderRect,$('#energyPill').getBoundingClientRect(),`+${r.boost.energy} energy`),reduced()?0:700);energyNote(`First crew order · +${r.boost.energy} energy`);}
   if(r.materials){const t=TASKS[r.materials.id],u=t.stages[r.materials.stage-1],ok=state.coins>=u.cost;setTimeout(()=>moment(ok?'Ready to build: '+u.name:'Materials in: '+t.name,ok?`${t.name} · go to the ${currentArea(state).name} to build it (${u.cost} coins).`:`${u.name} also needs ${u.cost} coins: ${u.cost-state.coins} more from crew orders.`),reduced()?0:950);}}
  if(r.event==='producerUp'){const src=state.board[r.index],next=nextKind(src.id),waiting=next&&src.level<UNLOCK_LEVEL&&!state.board.some(y=>y?.type==='source'&&y.id===next);
-  moment(SOURCES[src.id].name+' · level '+src.level,LEVEL_GAIN[src.level]+(waiting?` Level ${UNLOCK_LEVEL} brings out the ${SOURCES[next].name}.`:''),src);tile?.classList.add('merge-pop');burst(tile?.getBoundingClientRect(),'gold',true);sfx('milestone');}
+  if(r.unlocks?.length)extrasNews();else moment(SOURCES[src.id].name+' · level '+src.level,LEVEL_GAIN[src.level]+(waiting?` Level ${UNLOCK_LEVEL} brings out the ${SOURCES[next].name}.`:''),src);tile?.classList.add('merge-pop');burst(tile?.getBoundingClientRect(),'gold',true);sfx('milestone');}
  // On the coast screen the build plays first (Build 41f), then its story.
+ if(r.event==='restore'&&r.effects?.boost)energyNote(`First stage · +${r.effects.boost.energy} energy`);
  if(r.event==='restore'){haptics.pulse('restore');if($('#coastMap').open&&!reduced())setTimeout(()=>showBeat(r.task,r.effects),1300);else showBeat(r.task,r.effects);}
  if(r.event==='store'){$(`#shed [data-slot="${r.slot}"]`)?.classList.add('merge-pop');sfx('tap');}
  if(r.event==='unstore'){tile?.classList.add('merge-pop');sfx('tap');if(!state.shed.some(Boolean)){shedOpen=false;renderShed();}}
@@ -434,7 +477,13 @@ function run(a){
  if(r.found?.length&&r.event!=='restore'){const k=r.found.at(-1),x=item(k.replace(/\d+$/,''),+k.match(/\d+$/)[0]);if(x.tier>=2)setTimeout(()=>moment('New: '+nameOf(x),(x.tier<maxTier(x.family)?'Next: '+CHAINS[x.family].names[x.tier+1]:'Top of the chain')+` · in the book: +${BOOK_COINS[x.tier]} coins`,x),r.levelUp?1600:0);}
  if(r.levelUp){const u=r.levelUp.at(-1),opened=r.levelUp.map(v=>LEVEL_PATH.find(p=>p.id===v.unlock)).filter(Boolean).at(-1),energy=r.levelUp.reduce((n,v)=>n+v.energy,0),nx=nextUnlock(u.level);
   // The level path: a level that opens something says what, with the energy after it.
-  setTimeout(()=>{moment('Level '+u.level+'!'+(opened?' · New: '+opened.name:''),(opened?opened.text+' ':'')+(energy?`+${energy} ϟ.`:'')+(!opened&&nx?` Level ${nx.level}: ${nx.name}.`:''));sfx('milestone');$('#levelPill').classList.add('levelUp');setTimeout(()=>$('#levelPill').classList.remove('levelUp'),1400);},r.event==='restore'?0:400);}
+  // Energy pass (build 47v): a level that raises the refill capacity says so apart from the level's
+  // own energy: the level card names the new capacity ("+5 ϟ for the level. Energy capacity is now
+  // 60."), then, once it has gone, a short note under the energy pill gives the milestone's own reward
+  // ("Energy capacity 50 → 60 · +10 energy"), so the two never cover each other.
+  const caps=r.levelUp.map(v=>v.capacity).filter(Boolean),capLine=caps.length?` Energy capacity is now ${caps.at(-1).to}.`:'';
+  if(caps.length)setTimeout(()=>energyNote(`Energy capacity ${caps[0].from} → ${caps.at(-1).to} · +${caps.reduce((n,c)=>n+c.energy,0)} energy`),(r.event==='restore'?0:400)+(reduced()?2200:1850));
+  setTimeout(()=>{moment('Level '+u.level+'!'+(opened?' · New: '+opened.name:''),(opened?opened.text+' ':'')+(energy?`+${energy} ϟ for the level.`:'')+capLine+(!opened&&nx?` Level ${nx.level}: ${nx.name}.`:''));sfx('milestone');$('#levelPill').classList.add('levelUp');setTimeout(()=>$('#levelPill').classList.remove('levelUp'),1400);},r.event==='restore'?0:400);}
  return r;
 }
 // The delivery (Build 44): the parts leave the board for the order card, then coins fly from
@@ -476,7 +525,10 @@ function clickTile(i){
 // The click a drag ends with is not a tap; the next press clears the flag if no click came.
 // The level badge shows the level path: what is open and what each next level brings.
 {const pill=$('#levelPill');pill.setAttribute('role','button');pill.tabIndex=0;
- const show=()=>{const lv=state.level.level;moment(`Level ${lv} · the level path`,LEVEL_PATH.map(u=>`${lv>=u.level?'✓':'Level '+u.level+':'} ${u.name}${lv>=u.level?'':': '+u.text}`).join('\n')+`\nEvery level: energy (+${EARLY_LEVEL_ENERGY} ϟ up to level ${EARLY_LEVELS}, then +${CHEST_ENERGY} ϟ).`);document.querySelector('.moment')?.classList.add('pathMoment');sfx('tap');};
+ // Energy pass (build 47v): it also shows the XP to the next level, the energy capacity and the next
+ // capacity milestone ("Level 5: energy capacity increases to 70."), or the maximum.
+ const show=()=>{const lv=state.level.level,cap=capacityOf(state),nc=nextCapacity(lv);
+  moment(`Level ${lv} · ${state.level.xp} of ${xpToNext(lv)} XP`,`Energy capacity: ${cap} (refills +1 every 2 minutes up to it). `+(nc?`Level ${nc.level}: energy capacity increases to ${nc.capacity}.`:`Maximum energy capacity: ${MAX_CAPACITY}.`)+'\n'+LEVEL_PATH.map(u=>`${lv>=u.level?'✓':'Level '+u.level+':'} ${u.name}${lv>=u.level?'':': '+u.text}`).join('\n')+`\nEvery level: energy (+${EARLY_LEVEL_ENERGY} ϟ up to level ${EARLY_LEVELS}, then +${CHEST_ENERGY} ϟ).`);document.querySelector('.moment')?.classList.add('pathMoment');sfx('tap');};
  pill.addEventListener('click',show);pill.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();show();}});}
 board.addEventListener('click',e=>{if(suppressClick){suppressClick=false;return;}const t=e.target.closest('[data-index]');if(t)clickTile(+t.dataset.index);});
 // Drag to merge (build 23, user: "merge hiih uildel drag hiij zuuj bolohgui baina"): every
@@ -535,11 +587,22 @@ const pageName=f=>CHAINS[f].secondary?`${SOURCES[CHAINS[f].gen].name} extras`:GE
 // With a tier (an order's part), it names that part and, past the first, the parts it is merged from.
 function sourceNote(f,tier=null){const r=SECONDARY_RULES[CHAINS[f].gen],gen=SOURCES[CHAINS[f].gen].name,n=CHAINS[f].names;
  const what=tier===null?'A':tier>0?`${n[tier]}: merged from ${n[0]}s, a`:`${n[0]}: a`;
- return `${what} rare ${gen} extra. A tap sometimes adds one, at no extra energy (one at least every ${r.pity} taps).`;}
+ // round 3: only a level 2+ generator makes them; the limit counts its taps while extras are coming
+ return `${what} rare ${gen} extra: a level 2+ ${gen} sometimes adds one to a tap, at no extra energy (at the latest on its ${r.pity}th tap, while you hold fewer than ${r.hold} unused).`;}
+// Round 3: a kind's rare extras open when one of its generators first reaches level 2 (the engine's
+// secondaryUnlock: a first part as a gift and an introductory crew order). Said once per kind, also
+// for a save that opened on load; marked seen ('extras-rig').
+function extrasNews(){
+ for(const gen of Object.keys(state.secOpen??{})){const id='extras-'+gen;if(state.seen?.[id])continue;
+  const f=SECONDARY_OF[gen],n=CHAINS[f].names[0],g=SOURCES[gen].name;
+  moment(`${g} extras unlocked`,`A level 2+ ${g} now sometimes adds a rare ${n} to a tap, at no extra energy. Your first ${n} is on the board (or waits for space), and the next new crew order will ask for it.`,item(f,0));
+  markSeen(id);return true;}
+ return false;
+}
 // Build 47e: the Lens Bench's page appears once the camp is inside the Vault (no Chapter 2 spoiler
 // in Chapter 1's book).
 // A secondary chain's page (pilot) shows once its first part is found: it is a find, not a promise.
-const bookChains=()=>BOOK_CHAINS.filter(f=>CHAINS[f].secondary?state.found.some(k=>k.replace(/\d+$/,'')===f):f!=='optic'||state.area>=3||state.found.some(k=>k.startsWith('optic')));
+const bookChains=()=>BOOK_CHAINS.filter(f=>CHAINS[f].secondary?!!state.secOpen?.[CHAINS[f].gen]||state.found.some(k=>k.replace(/\d+$/,'')===f):f!=='optic'||state.area>=3||state.found.some(k=>k.startsWith('optic')));
 function showBook(){
  const chains=bookChains(),ready=new Set(bookReady(state)),claimed=new Set(state.book.claimed),total=chains.reduce((n,f)=>n+bookKeys(f).length,0);
  const pages=chains.map(f=>{
@@ -603,10 +666,14 @@ function offerGift(){if(!homeOpen&&!adBusy&&giftReady()&&giftShown!==today()&&st
 $('#soundButton').onclick=()=>{sounds.toggle();render();sfx('tap');};
 $('#hapticsButton').onclick=()=>{haptics.toggle();render();haptics.pulse('merge');};
 $('#helpButton').onclick=()=>$('#help').showModal();
-$('#menuButton').onclick=()=>{$('#homeButton').hidden=homeOpen;$('#classicNote').textContent=storage.get('vaultwake-v5')?'Your Classic save is kept and continues where you left it.':'';$('#hapticsNote').textContent=haptics.method==='vibrate'?'Vibration on merges: use the button at the bottom of the board screen.':haptics.method==='ios-switch'?'Vibration on merges may work on this iPhone (iOS 18 and later); turn it off at the bottom of the board screen.':'Vibration is not available in this browser.';$('#menu').showModal();};
-$('#newGame').onclick=()=>{if(!confirm('Start the Coast Camp from the beginning? Your Classic save is not affected.'))return;if(!newCamp())return;$('#menu').close();if(homeOpen&&home)home.enter();else showIntro();};
+$('#keptButton').onclick=()=>{$('#menu').close();showKept();};
+$('#menuButton').onclick=()=>{$('#homeButton').hidden=homeOpen;{const n=kept().length;$('#keptButton').hidden=!n;$('#keptButton').textContent=`Kept camps (${n})`;}$('#classicNote').textContent=storage.get('vaultwake-v5')?'Your Classic save is kept and continues where you left it.':'';$('#hapticsNote').textContent=haptics.method==='vibrate'?'Vibration on merges: use the button at the bottom of the board screen.':haptics.method==='ios-switch'?'Vibration on merges may work on this iPhone (iOS 18 and later); turn it off at the bottom of the board screen.':'Vibration is not available in this browser.';$('#menu').showModal();};
+$('#newGame').onclick=()=>{if(!confirm('Start the Coast Camp from the beginning? This camp is kept in this browser (Kept camps in this menu brings it back), and your Classic save is not affected.'))return;if(!newCamp())return;$('#menu').close();if(homeOpen&&home)home.enter();else showIntro();};
 // A new camp, chosen by the player (the menu, or Home after a save could not be read).
-function newCamp(){if(!keepDamaged()){alert('Your old save could not be copied aside (this browser\'s storage is full), so nothing was replaced.');return false;}holdSave=false;state=fresh(Date.now());selected=null;focusOrder=null;persist();render();return true;}
+// Round 2: the camp a new camp replaces is kept (SAVE_KEY-kept…), so starting again loses nothing.
+function newCamp(){const wasDamaged=damaged;if(!keepDamaged()){alert('Your old save could not be copied aside (this browser\'s storage is full), so nothing was replaced.');return false;}
+ if(!wasDamaged){persist();if(!keepCopy(storage.get(SAVE_KEY),'kept')){alert('Your camp could not be copied aside (this browser\'s storage is full), so nothing was replaced.');return false;}}
+ holdSave=false;replaced=null;state=fresh(Date.now());selected=null;focusOrder=null;persist();render();return true;}
 $('#homeButton').onclick=()=>{$('#menu').close();persist();home?.show();};
 for(const d of document.querySelectorAll('dialog'))d.querySelector('.close')?.addEventListener('click',()=>d.close());
 
@@ -737,6 +804,7 @@ $('#mapContent').addEventListener('click',e=>{
 function rewardText(e={}){
  const out=[],wait=' (waits for a free space)';
  if(e.energy)out.push(`+${e.energy} energy`);
+ if(e.boost)out.push(`first stage: +${e.boost.energy} energy`);
  if(e.copyId)out.push(`a ${SOURCES[e.copyId].name} to merge`+(e.copy>=0?'':wait));
  if(e.kit>=0&&state.board[e.kit]?.type==='kit')out.push(nameOf(state.board[e.kit]).replace(' · ',' for '));
  else if(e.kitFamily)out.push(`a crate for the ${SOURCES[e.kitFamily].name}`+wait);
@@ -914,12 +982,12 @@ function arrive(fromHome=true){
  if(holdSave&&!damaged){holdSave=false;persist();}
  syncPlaying();if(fromHome)$('#hint').focus({preventScroll:true});
  if(!state.moves)showIntro();
- else nextReveal(()=>{if(allDone(state)&&!state.seenEnd)setTimeout(showEnd,600);});
+ else{extrasNews();nextReveal(()=>{if(allDone(state)&&!state.seenEnd)setTimeout(showEnd,600);});}
 }
 // Home and Loading (Build 46p): the board above is set up once; Home only covers and uncovers it.
 if(document.getElementById('home')){
  const stagesBuilt=()=>{const a=currentArea(state);return a.tasks.reduce((n,t)=>n+stageOf(state,t.id),0);};
- home=createHome({boot:window.VWBoot??null,hasSave:!!rawSave&&!damaged,damaged,
+ home=createHome({boot:window.VWBoot??null,hasSave:!!rawSave&&!damaged,damaged,newer,kept:()=>kept().length,onKept:showKept,
   chapter:()=>{const a=currentArea(state);return a?.tasks?.length?`${a.name} · ${stagesBuilt()} of ${a.tasks.length*STAGES} stages built`:a?.name??'';},
   onEnter:arrive,onSettings:()=>$('#menuButton').onclick(),onBook:showBook,
   onNewCamp:()=>{if(!confirm('Start a new camp? The save that could not be read stays in this browser as a backup.'))return false;return newCamp();},

@@ -2,7 +2,7 @@
 // rewritten for Build 40): a ready order to deliver, else an affordable upgrade, else a pair to
 // merge toward what an order wants, else the generator that makes it, else any pair, else why
 // nothing can happen yet. Pure: the app draws it and the economy test checks it is never empty.
-import {cargoKeys,matches,orderItems,nextTask,currentArea,sourceOpen,SOURCES,nameOf,GENERATOR_ORDER,nextKind,UNLOCK_LEVEL} from './game.mjs';
+import {cargoKeys,matches,orderItems,nextTask,currentArea,sourceOpen,SOURCES,nameOf,GENERATOR_ORDER,nextKind,UNLOCK_LEVEL,secondarySource} from './game.mjs';
 import {CHAINS,maxTier} from './chains.mjs';
 import {missingOf} from './needs.mjs';
 
@@ -31,7 +31,9 @@ export function primaryAction(s,focus=null){
  // a secondary one is named as the rare extra it is.
  const own=needs.filter(r=>!CHAINS[r.family].secondary),extra=needs.find(r=>CHAINS[r.family].secondary&&sourceOpen(s,CHAINS[r.family].gen));
  const gen=own.map(r=>CHAINS[r.family].gen).find(g=>sourceOpen(s,g))??(extra?CHAINS[extra.family].gen:null)??GENERATOR_ORDER.find(g=>sourceOpen(s,g));
- if(gen&&free&&s.energy>=1){const index=s.board.findIndex(x=>x?.type==='source'&&x.id===gen),rare=extra&&!own.some(r=>CHAINS[r.family].gen===gen)&&CHAINS[extra.family].gen===gen;
+ if(gen&&free&&s.energy>=1){const rare=extra&&!own.some(r=>CHAINS[r.family].gen===gen)&&CHAINS[extra.family].gen===gen;
+  // round 3: only a level 2+ generator makes rare extras, so the hint points at one (else the first)
+  const lv2=rare?s.board.findIndex((x,i)=>x?.type==='source'&&x.id===gen&&secondarySource(s,i)):-1,index=lv2>=0?lv2:s.board.findIndex(x=>x?.type==='source'&&x.id===gen);
   return {kind:'tap',index,id:gen,label:rare?`Tap ${SOURCES[gen].name}: a ${CHAINS[extra.family].names[0]} comes now and then`:`Tap ${SOURCES[gen].name} for a ${CHAINS[gen].names[0]}`};}
  // A crate whose key is in hand.
  const key=cargoKeys(s).map(k=>[s.board.findIndex(x=>matches(x,k)),k.index]).find(([i])=>i>=0);

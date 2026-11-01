@@ -14,7 +14,7 @@ async function dragTo(page,from,to){const a=await page.locator(`#board [data-ind
  await page.mouse.move(a.x+a.width/2,a.y+a.height/2);await page.mouse.down();await page.mouse.move(b.x+b.width/2,b.y+b.height/2,{steps:6});await page.mouse.up();}
 async function perform(page,a){
  const s=await read(page),tile=i=>page.locator(`#board [data-index="${i}"]`),pressed=async i=>await tile(i).getAttribute('aria-pressed')==='true';
- if(a.type==='produce')await tile(s.board.findIndex(x=>x?.type==='source'&&x.id===a.id)).tap();
+ if(a.type==='produce')await tile(Number.isInteger(a.index)?a.index:s.board.findIndex(x=>x?.type==='source'&&x.id===a.id)).tap();
  else if(a.type==='merge')await dragTo(page,a.from,a.to);
  else if(a.type==='openKit'){if(!await pressed(a.index))await tile(a.index).tap();await page.locator('#selection [data-action="openKit"]').tap();}
  else if(a.type==='deliver')await page.locator(`[data-order="${a.id}"]`).tap();
@@ -122,7 +122,8 @@ async function perform(page,a){
    {const a=await page.locator('#board [data-index="15"]').boundingBox(),b=await page.locator('#board [data-index="21"]').boundingBox();
     await page.mouse.move(a.x+a.width/2,a.y+a.height/2);await page.mouse.down();await page.mouse.move(b.x+b.width/2,b.y+b.height/2,{steps:6});await page.mouse.up();}
    await page.waitForFunction(()=>JSON.parse(localStorage.getItem('vaultwake-v5-coast')).board[21].level===2,null,{timeout:4000});
-   assert.equal((await read(page)).board[15],null);assert.match(await page.locator('#board [data-index="21"]').textContent(),/Lv2/);
+   // (the copy's space is free, or holds the first Bolt: level 2 opens the Rover's rare extras, round 3)
+   {const b15=(await read(page)).board[15];assert.ok(b15===null||b15.type==='item'&&b15.family==='mech',JSON.stringify(b15));}assert.match(await page.locator('#board [data-index="21"]').textContent(),/Lv2/);
    assert.equal(await page.locator('#board .source[data-family="chart"]').count(),0,'level 2 is not yet enough for the Survey Kite');
    // Touch drag (a finger, not a mouse), straight down: a generator copy onto the Rover. The page must not scroll it away.
    if(engine==='chromium'){
@@ -169,9 +170,10 @@ async function perform(page,a){
    assert.match(await page.locator('#shed .shedToggle').textContent(),/0\/4/,'and shows it is empty');
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,'no sideways scroll with the shed');
    // Build 33: the collection book. Parts already found wait in it; ticking one off pays its coins.
-   {const st=await read(page),c=st.coins,n=st.found.filter(k=>/^(rig|chart|rope|shell|lamp)\d$/.test(k)&&!st.book.claimed.includes(k)).length;
+   // (round 3: a level-2 Rover opened its rare extras, whose page and finds count too)
+   {const st=await read(page),c=st.coins,n=st.found.filter(k=>/^(rig|chart|rope|shell|lamp|mech|notes)\d$/.test(k)&&!st.book.claimed.includes(k)).length,extras=[['rig','mech'],['chart','notes']].filter(([g,f])=>st.secOpen?.[g]||st.found.some(k=>k.startsWith(f))).length;
     assert.ok(n>=1,'something waits in the book');assert.equal(await page.locator('#bookCount').textContent(),String(n));
-    await page.locator('#bookButton').tap();assert.equal(await page.locator('#book .bookPage').count(),5,'a page per generator chain');
+    await page.locator('#bookButton').tap();assert.equal(await page.locator('#book .bookPage').count(),5+extras,'a page per generator chain, and per opened extras chain');
     await page.locator('#book [data-key]').first().tap();
     await page.waitForFunction(c=>JSON.parse(localStorage.getItem('vaultwake-v5-coast')).coins>c,c,{timeout:4000});
     assert.equal((await read(page)).book.claimed.length,st.book.claimed.length+1);
