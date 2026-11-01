@@ -4,7 +4,7 @@ import {blockedStage,isStuck,allDone,swapsLeft,adSwapsLeft,SHOP,shopLeft,BOOK_CO
 import {AREAS,STAGES,TASKS,LABELS} from './areas.mjs';
 import {primaryAction} from './guide.mjs';
 import {needsOf,missingOf,levelOf} from './needs.mjs';
-import {LEVEL_PATH,BONUS_NAMES,CHEST_ENERGY,EARLY_LEVELS,EARLY_LEVEL_ENERGY} from './game.mjs';
+import {LEVEL_PATH,BONUS_NAMES,CHEST_ENERGY,EARLY_LEVELS,EARLY_LEVEL_ENERGY,ONBOARDING} from './game.mjs';
 import {kit} from '../kits.mjs';
 import {iceNeed,weakIceBeside} from './ice.mjs';
 import {purposeOf} from './purposes.mjs';
@@ -16,7 +16,8 @@ import {art,portrait} from '../art.mjs';
 import {enablePremium} from '../premium.mjs';
 import {kitsMerge,kitFull,kitDrop,kitCapacity,producerLevel,KIT_SIZES,KIT_DROPS,MAX_KIT_SIZE,MAX_PRODUCER_LEVEL} from '../kits.mjs';
 import {xpToNext} from '../levels.mjs';
-import {refillTimes,clock,REFILL_CAP,REFILL_EVERY,rationWait} from '../energy.mjs';
+// Energy pass (build 47v): Coast Camp's own energy module (the player level's refill capacity).
+import {refillTimes,clock,REFILL_EVERY,rationWait,capacityOf,nextCapacity,MAX_CAPACITY,STORE_ENERGY} from './energy.mjs';
 import {CREW} from '../crew.mjs';
 import {reduced,burst,rewardFlight,moment as sharedMoment} from '../feedback.mjs';
 import {sfx as sounds} from './sfx.mjs';
@@ -26,6 +27,10 @@ import {playIntro,preloadIntro,storySeen,playScenes} from './story-intro.mjs';
 import {haptics} from './haptics.mjs';
 // The shared moment draws its icon with the Classic art; new chains need draw().
 // Moments show above an open screen (the beach) too: a modal dialog covers the page.
+// Energy pass (build 47v): a short note under the energy pill (+15 energy, a capacity milestone),
+// beside the usual feedback and never blocking a tap; reduced motion shows it without movement.
+function energyNote(text){document.querySelector('.energyNote')?.remove();const el=document.createElement('div');el.className='energyNote';el.setAttribute('role','status');el.textContent=text;
+ const r=$('#energyPill').getBoundingClientRect();el.style.left=Math.max(8,Math.min(r.left,innerWidth-230))+'px';el.style.top=(r.bottom+14)+'px';document.body.append(el);setTimeout(()=>el.remove(),2600);}
 function moment(title,detail='',x=null){sharedMoment(title,detail,null);const el=document.querySelector('.moment');const top=[...document.querySelectorAll('dialog[open]')].pop();if(el&&top)top.append(el);if(!x||!el)return;const icon=document.createElement('span');icon.style.cssText='float:left;width:42px;height:42px;margin-right:10px';icon.innerHTML=draw(x);icon.firstElementChild.style.cssText='width:100%;height:100%';el.prepend(icon);}
 
 // Game sounds go through sfx: silent while an ad plays or when CrazyGames mutes the game
@@ -33,7 +38,7 @@ function moment(title,detail='',x=null){sharedMoment(title,detail,null);const el
 let adPlaying=false;
 const sfx=(kind,tier=0)=>sounds.play(kind,tier,{muted:adPlaying||platform.muted()});
 // Shown in the footer so a playtester can tell which build is running.
-export const BUILD='Build 47u · secondary chains pilot, round 3';
+export const BUILD='Build 47v · level energy capacity (secondary chains pilot)';
 // The level path (docs/V5_LEVEL_PATH_2026-10-27.md): a crew order that pays a tool on top shows it
 // beside its coins (a Tide token; a favour's Sea chest or Brass cog).
 const bonusThing=o=>o.bonus==='cog'?cog():o.bonus==='chest'?kit(newestGenerator(state),2):o.bonus==='token'?token():null;
@@ -151,7 +156,7 @@ function render(){
  // Build 41i: the area's own picture, blurred, behind the board screen.
  // Build 45: the board screen stands on one bright coastal picture (coastal.css); each area's own
  // picture is shown where it belongs, on the restoration strip and the coast screen.
- $('#energy').innerHTML=`${state.energy}<span class="energyCap">/${REFILL_CAP}</span>`;
+ energyHud();
  $('#coins').textContent=state.coins;
  const lv=state.level;$('#levelNum').textContent=lv.level;$('#levelPill').style.setProperty('--p',Math.round(100*lv.xp/xpToNext(lv.level))+'%');{const nx=nextUnlock(lv.level);$('#levelPill').setAttribute('aria-label',`Level ${lv.level}, ${lv.xp} of ${xpToNext(lv.level)} XP`+(nx?`. Level ${nx.level} opens ${nx.name}`:''));$('#levelPill').title=nx?`Level ${nx.level}: ${nx.name}`:'Every level-path unlock is open';}
  const ready=upgrades(state).some(u=>u.materials&&state.coins>=u.cost);if(!(holdPlace>performance.now()))$('#mapReady').hidden=!ready;
@@ -372,13 +377,22 @@ $('#hint').onclick=()=>{
  else if(g.kind==='tap'){selected=g.index;run({type:'produce',id:g.id,index:g.index});render();}
  else if(g.kind==='merge'||g.kind==='unseal'){for(const i of g.cells)board.querySelector(`[data-index="${i}"]`)?.classList.add('hintPair');$('#message').textContent=g.kind==='merge'?'Drag one of the two marked parts onto the other.':'Drag the marked part onto the marked crate.';}
  else if(g.kind==='space')$('#message').textContent='Deliver a ready order, merge two twins, or tap a part and choose Shed.';
- else if(g.kind==='energy')$('#message').textContent='Energy refills +1 every 2 minutes. Merges, crates and deliveries cost nothing.';
+ else if(g.kind==='energy')$('#message').textContent=`Energy refills +1 every 2 minutes up to ${capacityOf(state)} (your level's capacity). Merges, crates and deliveries cost nothing.`;
 };
 function header(){
  if(tick(state,Date.now())){persist();render();}
- const t=refillTimes(state,Date.now());$('#energyTimer').textContent=t?'+1 '+clock(t.next):'FULL';
+ energyHud();
+}
+// Energy pass (build 47v): the HUD shows energy over the player level's refill capacity. At the
+// capacity the timer says FULL; above it (bonus energy, which the refill does not add to) it says
+// BONUS and the pill is marked, e.g. 135/120.
+function energyHud(){
+ const cap=capacityOf(state),over=state.energy>cap,t=refillTimes(state,Date.now());
+ $('#energy').innerHTML=`${state.energy}<span class="energyCap">/${cap}</span>`;
+ $('#energyTimer').textContent=t?'+1 '+clock(t.next):over?'BONUS':'FULL';
+ $('#energyPill').classList.toggle('overCap',over);
  $('#energyPill').style.setProperty('--g',t?(1-t.next/REFILL_EVERY).toFixed(3):1);
- $('#energy').innerHTML=`${state.energy}<span class="energyCap">/${REFILL_CAP}</span>`;
+ $('#energyPill').title=`Energy ${state.energy} of ${cap}: +1 every 2 minutes up to ${cap} (level ${state.level.level})`+(over?`. Bonus energy above ${cap} is kept; the refill waits until you are below it.`:'')+(state.energyOwed?` ${state.energyOwed} more waits for room (you can hold ${STORE_ENERGY}).`:'');
 }
 
 // ---------- actions ----------
@@ -432,10 +446,13 @@ function run(a){
   if(r.tool?.index!=null)board.querySelector(`[data-index="${r.tool.index}"]`)?.classList.add('unsealed');
   // the crew's +1 energy (Audit 2026-10-25) flies to the energy pill
   if(r.energy&&orderRect)setTimeout(()=>rewardFlight(orderRect,$('#energyPill').getBoundingClientRect(),`+${r.energy} ϟ`),reduced()?0:420);
+  // Energy pass: the first ordinary crew order's +15, a short non-blocking note beside it
+  if(r.boost){if(orderRect)setTimeout(()=>rewardFlight(orderRect,$('#energyPill').getBoundingClientRect(),`+${r.boost.energy} energy`),reduced()?0:700);energyNote(`First crew order · +${r.boost.energy} energy`);}
   if(r.materials){const t=TASKS[r.materials.id],u=t.stages[r.materials.stage-1],ok=state.coins>=u.cost;setTimeout(()=>moment(ok?'Ready to build: '+u.name:'Materials in: '+t.name,ok?`${t.name} · go to the ${currentArea(state).name} to build it (${u.cost} coins).`:`${u.name} also needs ${u.cost} coins: ${u.cost-state.coins} more from crew orders.`),reduced()?0:950);}}
  if(r.event==='producerUp'){const src=state.board[r.index],next=nextKind(src.id),waiting=next&&src.level<UNLOCK_LEVEL&&!state.board.some(y=>y?.type==='source'&&y.id===next);
   if(r.unlocks?.length)extrasNews();else moment(SOURCES[src.id].name+' · level '+src.level,LEVEL_GAIN[src.level]+(waiting?` Level ${UNLOCK_LEVEL} brings out the ${SOURCES[next].name}.`:''),src);tile?.classList.add('merge-pop');burst(tile?.getBoundingClientRect(),'gold',true);sfx('milestone');}
  // On the coast screen the build plays first (Build 41f), then its story.
+ if(r.event==='restore'&&r.effects?.boost)energyNote(`First stage · +${r.effects.boost.energy} energy`);
  if(r.event==='restore'){haptics.pulse('restore');if($('#coastMap').open&&!reduced())setTimeout(()=>showBeat(r.task,r.effects),1300);else showBeat(r.task,r.effects);}
  if(r.event==='store'){$(`#shed [data-slot="${r.slot}"]`)?.classList.add('merge-pop');sfx('tap');}
  if(r.event==='unstore'){tile?.classList.add('merge-pop');sfx('tap');if(!state.shed.some(Boolean)){shedOpen=false;renderShed();}}
@@ -460,7 +477,13 @@ function run(a){
  if(r.found?.length&&r.event!=='restore'){const k=r.found.at(-1),x=item(k.replace(/\d+$/,''),+k.match(/\d+$/)[0]);if(x.tier>=2)setTimeout(()=>moment('New: '+nameOf(x),(x.tier<maxTier(x.family)?'Next: '+CHAINS[x.family].names[x.tier+1]:'Top of the chain')+` · in the book: +${BOOK_COINS[x.tier]} coins`,x),r.levelUp?1600:0);}
  if(r.levelUp){const u=r.levelUp.at(-1),opened=r.levelUp.map(v=>LEVEL_PATH.find(p=>p.id===v.unlock)).filter(Boolean).at(-1),energy=r.levelUp.reduce((n,v)=>n+v.energy,0),nx=nextUnlock(u.level);
   // The level path: a level that opens something says what, with the energy after it.
-  setTimeout(()=>{moment('Level '+u.level+'!'+(opened?' · New: '+opened.name:''),(opened?opened.text+' ':'')+(energy?`+${energy} ϟ.`:'')+(!opened&&nx?` Level ${nx.level}: ${nx.name}.`:''));sfx('milestone');$('#levelPill').classList.add('levelUp');setTimeout(()=>$('#levelPill').classList.remove('levelUp'),1400);},r.event==='restore'?0:400);}
+  // Energy pass (build 47v): a level that raises the refill capacity says so apart from the level's
+  // own energy: the level card names the new capacity ("+5 ϟ for the level. Energy capacity is now
+  // 60."), then, once it has gone, a short note under the energy pill gives the milestone's own reward
+  // ("Energy capacity 50 → 60 · +10 energy"), so the two never cover each other.
+  const caps=r.levelUp.map(v=>v.capacity).filter(Boolean),capLine=caps.length?` Energy capacity is now ${caps.at(-1).to}.`:'';
+  if(caps.length)setTimeout(()=>energyNote(`Energy capacity ${caps[0].from} → ${caps.at(-1).to} · +${caps.reduce((n,c)=>n+c.energy,0)} energy`),(r.event==='restore'?0:400)+(reduced()?2200:1850));
+  setTimeout(()=>{moment('Level '+u.level+'!'+(opened?' · New: '+opened.name:''),(opened?opened.text+' ':'')+(energy?`+${energy} ϟ for the level.`:'')+capLine+(!opened&&nx?` Level ${nx.level}: ${nx.name}.`:''));sfx('milestone');$('#levelPill').classList.add('levelUp');setTimeout(()=>$('#levelPill').classList.remove('levelUp'),1400);},r.event==='restore'?0:400);}
  return r;
 }
 // The delivery (Build 44): the parts leave the board for the order card, then coins fly from
@@ -502,7 +525,10 @@ function clickTile(i){
 // The click a drag ends with is not a tap; the next press clears the flag if no click came.
 // The level badge shows the level path: what is open and what each next level brings.
 {const pill=$('#levelPill');pill.setAttribute('role','button');pill.tabIndex=0;
- const show=()=>{const lv=state.level.level;moment(`Level ${lv} · the level path`,LEVEL_PATH.map(u=>`${lv>=u.level?'✓':'Level '+u.level+':'} ${u.name}${lv>=u.level?'':': '+u.text}`).join('\n')+`\nEvery level: energy (+${EARLY_LEVEL_ENERGY} ϟ up to level ${EARLY_LEVELS}, then +${CHEST_ENERGY} ϟ).`);document.querySelector('.moment')?.classList.add('pathMoment');sfx('tap');};
+ // Energy pass (build 47v): it also shows the XP to the next level, the energy capacity and the next
+ // capacity milestone ("Level 5: energy capacity increases to 70."), or the maximum.
+ const show=()=>{const lv=state.level.level,cap=capacityOf(state),nc=nextCapacity(lv);
+  moment(`Level ${lv} · ${state.level.xp} of ${xpToNext(lv)} XP`,`Energy capacity: ${cap} (refills +1 every 2 minutes up to it). `+(nc?`Level ${nc.level}: energy capacity increases to ${nc.capacity}.`:`Maximum energy capacity: ${MAX_CAPACITY}.`)+'\n'+LEVEL_PATH.map(u=>`${lv>=u.level?'✓':'Level '+u.level+':'} ${u.name}${lv>=u.level?'':': '+u.text}`).join('\n')+`\nEvery level: energy (+${EARLY_LEVEL_ENERGY} ϟ up to level ${EARLY_LEVELS}, then +${CHEST_ENERGY} ϟ).`);document.querySelector('.moment')?.classList.add('pathMoment');sfx('tap');};
  pill.addEventListener('click',show);pill.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();show();}});}
 board.addEventListener('click',e=>{if(suppressClick){suppressClick=false;return;}const t=e.target.closest('[data-index]');if(t)clickTile(+t.dataset.index);});
 // Drag to merge (build 23, user: "merge hiih uildel drag hiij zuuj bolohgui baina"): every
@@ -778,6 +804,7 @@ $('#mapContent').addEventListener('click',e=>{
 function rewardText(e={}){
  const out=[],wait=' (waits for a free space)';
  if(e.energy)out.push(`+${e.energy} energy`);
+ if(e.boost)out.push(`first stage: +${e.boost.energy} energy`);
  if(e.copyId)out.push(`a ${SOURCES[e.copyId].name} to merge`+(e.copy>=0?'':wait));
  if(e.kit>=0&&state.board[e.kit]?.type==='kit')out.push(nameOf(state.board[e.kit]).replace(' · ',' for '));
  else if(e.kitFamily)out.push(`a crate for the ${SOURCES[e.kitFamily].name}`+wait);

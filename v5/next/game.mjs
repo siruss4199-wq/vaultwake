@@ -8,13 +8,20 @@
 import {cellPos,BOARD_SIZE} from '../core.mjs';
 import {kit,kitDrop,kitsMerge,producerLevel,levelLift,validProducerLevel,nearestFree,MAX_KIT_SIZE,KIT_DROPS} from '../kits.mjs';
 import {xpToNext,validLevel,freshLevel} from '../levels.mjs';
-import {settleEnergy,REFILL_CAP,RATION_ENERGY,rationWait} from '../energy.mjs';
+// Energy pass (build 47v): Coast Camp's own energy module, with the player-level refill capacity.
+// Classic V5's v5/energy.mjs is not changed; REFILL_CAP (its fixed 50) is only read to move saves on.
+import {REFILL_CAP} from '../energy.mjs';
+import {settleEnergy,capacityOf,capacityAt,storeEnergy,payOwed,STORE_ENERGY,RATION_ENERGY,rationWait} from './energy.mjs';
+export {capacityOf,capacityAt,STORE_ENERGY};
 import {AREAS,TASKS,STAGES} from './areas.mjs';
 import {CHAINS,GENERATOR_CHAINS,GENERATOR_NAMES,maxTier,SECONDARY_OF,isSecondary} from './chains.mjs';
 export {SECONDARY_OF,isSecondary};
 
 export const SAVE_KEY='vaultwake-v5-coast';
-export const VERSION=4,MAX_TIER=7,MAX_ENERGY=120;// MAX_TIER: the longest chain
+// Version 5 (energy pass, build 47v): energy may be stored up to STORE_ENERGY (200, was 120), so a
+// build before it reads such a save as one from a newer build and leaves it alone (saves.mjs).
+// MAX_ENERGY is the most a camp may hold.
+export const VERSION=5,MAX_TIER=7,MAX_ENERGY=STORE_ENERGY;// MAX_TIER: the longest chain
 export const SOURCES=Object.fromEntries(Object.entries(GENERATOR_NAMES).map(([id,name])=>[id,{name}]));
 export const XP={merge:1,restore:8,feed:5,unseal:2};// feed: merging two generators; orders pay a fifth of their coins as XP
 // Coins per part by tier (build 16: stars became coins, five to a star; build 31: every tier
@@ -29,7 +36,12 @@ export const CHEST_ENERGY=15;
 // order done in 1.5 min. A new camp starts with less energy, the first five levels give less, and the
 // first six stages' gold orders ask one part a level bigger, so the first energy squeeze comes at
 // about 12 min (5 s an action) and the first stages are goals that take planning.
-export const START_ENERGY=30,EARLY_LEVELS=5,EARLY_LEVEL_ENERGY=5,GOLD_LIFT=1,GOLD_LIFT_STAGES=6;
+// Energy pass (build 47v, user: energy ran out before the player had enjoyed enough merging, orders and
+// restoration): a new camp starts full, at 50 of 50; the first ordinary crew order delivered gives +15
+// energy and the first stage bought +20, once each (ONBOARDING); a capacity milestone gives the
+// capacity's increase, once (gainXp). These go above the refill capacity, up to STORE_ENERGY.
+export const ONBOARDING={order:15,stage:20};
+export const START_ENERGY=50,EARLY_LEVELS=5,EARLY_LEVEL_ENERGY=5,GOLD_LIFT=1,GOLD_LIFT_STAGES=6;
 export const levelEnergy=level=>level<=EARLY_LEVELS?EARLY_LEVEL_ENERGY:CHEST_ENERGY;
 // The level path (docs/V5_LEVEL_PATH_2026-10-27.md; user: "togloomond ashiglaad gameplayd sonirholtoi
 // zuilsee nemmeer baina"): the player level opens a merge rule and two kinds of crew order. The
@@ -257,6 +269,8 @@ export const GLASS_HITS=3;
 // around the Rover and opens up as the player merges.
 export const glass=(family,tier)=>({type:'glass',family,tier});
 export const cargoAt=i=>{const c=CARGO[i];return c?cargo({family:c[0],tier:c[1]},structuredClone(c[2])):null;};
+// Energy pass: a new camp's capacity is level 1's, already paid for.
+const START_CAPACITY_PAID=capacityAt(1);
 export function fresh(now=Date.now()){
  const board=Array(BOARD_SIZE).fill(null);
  board[ROVER]=source('rig');
@@ -264,7 +278,8 @@ export function fresh(now=Date.now()){
  const s={version:VERSION,board,energy:START_ENERGY,energyAt:now,coins:0,level:freshLevel(),taps:{},
   orders:[],slots:3,orderSeq:0,ordersDone:0,area:0,built:{},found:[],moves:0,merges:0,lastAt:now,
   shed:Array(SHED_SLOTS).fill(null),pending:[],seen:{},daily:{day:-1,count:0},book:{claimed:[],pages:[]},shop:{day:-1,bought:{}},swaps:{day:-1,n:0,ads:0},materials:{},
-  secSince:Object.fromEntries(Object.keys(SECONDARY_OF).map(g=>[g,0])),secTaps:Object.fromEntries(Object.keys(SECONDARY_OF).map(g=>[g,0])),secOpen:{},secIntro:[]};
+  secSince:Object.fromEntries(Object.keys(SECONDARY_OF).map(g=>[g,0])),secTaps:Object.fromEntries(Object.keys(SECONDARY_OF).map(g=>[g,0])),secOpen:{},secIntro:[],
+  capPaid:START_CAPACITY_PAID,boost:{order:false,stage:false}};
  for(const g of Object.keys(GENERATOR_CHAINS))s.taps[g]=0;
  for(let i=0;i<s.slots;i++)s.orders.push(makeOrder(s));
  note(s);return s;
@@ -281,6 +296,16 @@ const FIRST=[[['rig',2,1]],[['rig',3,1]],[['rig',2,1],['rig',1,2]]];
 // Everyday order kinds (Build 44) and what each pays on top of its parts' worth.
 // Energy a delivery gives back (Audit 2026-10-25).
 export const DELIVER_ENERGY=1;
+// Energy pass (build 47v): what a delivery gives back by the order's parts. A crew order with only
+// primary parts, or a mixed one (a primary part and a rare extra), gives the crew energy; a quick job
+// asking only rare extras gives coins and no energy (a bonus drop never pays energy); a gold order
+// gives none (its reward is the stage's materials). Exported so the simulations can measure each.
+export const DELIVERY_ENERGY={primary:DELIVER_ENERGY,mixed:DELIVER_ENERGY,secondary:0,gold:0};
+export const orderEnergyKind=o=>o.story?'gold':o.needs.every(r=>isSecondary(r.family))?'secondary':o.needs.some(r=>isSecondary(r.family))?'mixed':'primary';
+// The first-order bonus is for an ordinary crew order: not a gold order, and with at least one primary
+// part, so the introductory order for a gifted rare extra (a quick job for that part alone) never
+// claims it, nor does any other quick job asking only rare extras.
+export const ordinaryOrder=o=>!!o&&!o.story&&o.needs.some(r=>!isSecondary(r.family));
 // The big job (one part a tier past what its generator makes easily, ×1.3) was dropped on
 // 2026-10-26 (user: "big job hereg baina uu ... hundruuleed yavchihiin bishuu"): it only made orders
 // harder, not more interesting. Orders saved with role 'big' keep their coins and show as quick jobs.
@@ -567,7 +592,8 @@ const withCracks=(r,c)=>{if(c.cracked.length)r.cracked=c.cracked;if(c.freed.leng
 
 // Energy from levels, stages and cargo jars tops energy up to the refill cap and no further
 // (Build 41g, user: "energy er ni duusah shinj alga"); bought, daily and ad energy can go over.
-function bonus(s,n){const before=s.energy;s.energy=Math.max(s.energy,Math.min(REFILL_CAP,s.energy+n));return s.energy-before;}
+// Energy pass (build 47v): "the refill cap" is the player level's capacity (capacityOf).
+function bonus(s,n){const before=s.energy;s.energy=Math.max(s.energy,Math.min(capacityOf(s),s.energy+n));return s.energy-before;}
 // ---- levels ----
 function gainXp(s,amount){
  s.level=validLevel(s.level);s.level.xp+=amount;const ups=[];
@@ -575,10 +601,18 @@ function gainXp(s,amount){
   s.level.xp-=xpToNext(s.level.level);s.level.level++;
   // Energy only (Build 41, user: "ene hairtsagiig amarhan uguud baina"): level chests no longer
   // add a driftwood crate.
+  // Energy pass (build 47v): a level that raises the refill capacity pays the increase once, on top
+  // of the level's own energy. The new capacity applies first, then the level's energy (up to it),
+  // then the increase (above it if need be, up to STORE_ENERGY; anything past that is owed, never
+  // lost). s.capPaid is the capacity already paid for, so a level is never paid twice (reload, or a
+  // save moved on from before the pass, whose capPaid starts at its level's capacity).
+  const cap=capacityAt(s.level.level),delta=Math.max(0,cap-(s.capPaid??cap));
   const energy=bonus(s,levelEnergy(s.level.level));
+  let capacity=null;
+  if(delta>0){const paid=storeEnergy(s,delta,{keep:true});s.capPaid=cap;capacity={from:cap-delta,to:cap,energy:delta,...(paid<delta?{owed:delta-paid}:{})};}
   const unlock=LEVEL_PATH.find(u=>u.level===s.level.level);
   if(unlock?.id==='token')s.pathNext='token';
-  ups.push({level:s.level.level,energy,family:null,index:-1,...(unlock?{unlock:unlock.id}:{})});
+  ups.push({level:s.level.level,energy,family:null,index:-1,...(unlock?{unlock:unlock.id}:{}),...(capacity?{capacity}:{})});
  }
  return ups;
 }
@@ -620,9 +654,8 @@ function ensureGold(s){
 }
 
 export function act(s,a,now=Date.now()){
- const wasFull=s.energy>=REFILL_CAP,r=step(s,a,now);
+ const wasFull=s.energy>=capacityOf(s),r=step(s,a,now);
  if(!r.ok)return r;
- if(wasFull&&s.energy<REFILL_CAP)s.energyAt=now;
  s.moves++;s.lastAt=now;
  // round 3: a generator that reached level 2 opens its kind's secondary chain (once); an introduction
  // is no longer queued once an order on the board asks that chain
@@ -632,6 +665,11 @@ export function act(s,a,now=Date.now()){
  const found=note(s),xp=r.xp??0,levelUp=xp?gainXp(s,xp):[];
  if(levelUp.length)found.push(...note(s));
  if(levelUp.length)released.push(...release(s));
+ // Energy owed (a milestone reward past STORE_ENERGY) is paid as room opens.
+ const owed=payOwed(s);if(owed)r.owedPaid=owed;
+ // The refill clock rested at or above the capacity; it restarts once energy is below the (current)
+ // capacity again, so no refill credit builds up while above it.
+ if(wasFull&&s.energy<capacityOf(s))s.energyAt=now;
  if(released.length)r.message+=released.map(n=>` · the ${SOURCES[n.id].name} comes out`).join('');
  return {...r,...(released.length?{released}:{}),...(arrived.length?{arrived}:{}),...(found.length?{found}:{}),...(levelUp.length?{levelUp}:{}),...(unlocks.length?{unlocks}:{})};
 }
@@ -738,8 +776,13 @@ function step(s,a,now){
   // slower players from ever running out. Round 3 (secondary pilot): an order with a rare extra gives
   // none either, like clearing one (a bonus drop never pays energy): with about one order in three
   // asking one, their energy kept the 10 s player from ever running out (economy guard).
-  const gain=o.story||o.needs.some(r=>isSecondary(r.family))?0:DELIVER_ENERGY;
+  // Energy pass (build 47v): a mixed order (a primary part and a rare extra) gives the crew energy
+  // again; only a quick job asking rare extras alone gives none (DELIVERY_ENERGY).
+  const gain=DELIVERY_ENERGY[orderEnergyKind(o)];
   s.coins+=o.coins;s.ordersDone++;s.orders[lane]=null;s.energy=Math.min(MAX_ENERGY,s.energy+gain);
+  // The first ordinary crew order delivered: +15 energy, once (s.boost.order).
+  let boost=null;
+  if(ordinaryOrder(o)&&!s.boost.order){s.boost.order=true;const paid=storeEnergy(s,ONBOARDING.order,{keep:true});boost={kind:'order',energy:ONBOARDING.order,...(paid<ONBOARDING.order?{owed:ONBOARDING.order-paid}:{})};}
   if(o.story&&TASKS[o.story]&&stageOf(s,o.story)<STAGES)s.materials[o.story]=stageOf(s,o.story)+1;
   s.orders[lane]=makeOrder(s);
   // A tool the order pays on top (the level path): next to the Rover; the delivery has just freed
@@ -751,7 +794,7 @@ function step(s,a,now){
   // shuud hurdan hiigdej baina"): the stage can be bought once they are delivered. Orders no
   // longer bring a driftwood crate every third time.
   const materials=o.story&&s.materials[o.story]>stageOf(s,o.story)?{id:o.story,stage:s.materials[o.story]}:null;
-  return {ok:true,event:'deliver',index:null,xp:Math.max(1,Math.round(o.coins/COIN_RATE)),coins:o.coins,box:-1,freed:take,...(materials?{materials}:{}),energy:gain,...(tool?{tool}:{}),message:`+${o.coins} coins`+(gain?` · +${gain} energy`:'')+(tool?` · a ${BONUS_NAMES[tool.type]}`:'')+(materials?` · materials for ${TASKS[o.story].stages[materials.stage-1].name}`:'')};
+  return {ok:true,event:'deliver',index:null,xp:Math.max(1,Math.round(o.coins/COIN_RATE)),coins:o.coins,box:-1,freed:take,...(materials?{materials}:{}),energy:gain,...(boost?{boost}:{}),...(tool?{tool}:{}),message:`+${o.coins} coins`+(gain?` · +${gain} energy`:'')+(boost?` · first crew order: +${boost.energy} energy`:'')+(tool?` · a ${BONUS_NAMES[tool.type]}`:'')+(materials?` · materials for ${TASKS[o.story].stages[materials.stage-1].name}`:'')};
  }
  // Upgrade a place on the beach one stage (the action keeps its old name, 'restore').
  if(a.type==='restore'){
@@ -764,6 +807,8 @@ function step(s,a,now){
   if(s.coins<t.cost)return fail(`${t.name} needs ${t.cost} coins. Deliver crew orders for coins.`);
   s.coins-=t.cost;s.built[t.id]=t.stage;const e=t.effect??{},effects={};
   if(e.energy){effects.energy=bonus(s,e.energy);}
+  // The first stage bought: +20 energy, once (s.boost.stage), on top of the stage's own effects.
+  if(!s.boost.stage){s.boost.stage=true;const paid=storeEnergy(s,ONBOARDING.stage,{keep:true});effects.boost={kind:'stage',energy:ONBOARDING.stage,...(paid<ONBOARDING.stage?{owed:ONBOARDING.stage-paid}:{})};}
   if(e.copy){const id=e.copy==='newest'?newestGenerator(s):e.copy;effects.copy=give(s,source(id));effects.copyId=id;}
   if(e.kit){const family=e.kit[0]==='newest'?newestGenerator(s):e.kit[0];effects.kit=give(s,kit(family,e.kit[1]));effects.kitFamily=family;}
   if(e.token){effects.token=give(s,token());}
@@ -799,7 +844,7 @@ function step(s,a,now){
   if(g.kit||g.token||g.cog){const x=g.kit?kit(newestGenerator(s),g.kit):g.token?token():cog(),i=nearestFree(s.board,ROVER,cellPos),k=s.shed.indexOf(null);
    if(i<0&&k<0)return fail('Make space on the board or in the shed for today\'s gift.');
    if(i>=0){s.board[i]=x;gift.index=i;}else{s.shed[k]=x;gift.slot=k;}gift.thing=x;}
-  if(g.energy){s.energy=Math.min(MAX_ENERGY,s.energy+g.energy);gift.energy=g.energy;}
+  if(g.energy){storeEnergy(s,g.energy,{keep:true});gift.energy=g.energy;}
   if(g.coins){s.coins+=g.coins;gift.coins=g.coins;}
   s.daily={day:a.day,count:s.daily.count+1};
   return {ok:true,event:'daily',gift,index:gift.index??null,message:`Daily gift · day ${n+1} of ${DAILY.length}`};
@@ -927,6 +972,8 @@ export function load(raw,now=Date.now()){
   const s=JSON.parse(raw);
   if((s?.version===1||s?.version===2)&&Array.isArray(s.board)&&s.taps&&typeof s.taps==='object')upgrade(s);
   if(s?.version===3)toV4(s);
+  // Version 5 (energy pass, build 47v): the save shape only gains optional fields (set below).
+  const before47v=s?.version===4;if(before47v)s.version=VERSION;
   if(s?.version!==VERSION||!Array.isArray(s.board)||s.board.length!==BOARD_SIZE||!s.board.every(validCell))return fresh(now);
   if(!integer(s.energy,0,MAX_ENERGY)||!integer(s.coins,0,999999)||!integer(s.area,0,AREAS.length-1)||!AREAS[s.area].tasks.length||!integer(s.slots,3,4))return fresh(now);
   // Build 30 could price a sixth-tier story order at NaN coins (saved as null): it is priced again.
@@ -997,9 +1044,28 @@ export function load(raw,now=Date.now()){
   if(before41)for(const u of upgrades(s))s.materials[u.id]=u.stage;
   if(s.rationAt!==undefined&&!(Number.isFinite(s.rationAt)&&s.rationAt<=now))delete s.rationAt;
   if(!Number.isFinite(s.energyAt)||s.energyAt>now)s.energyAt=now;
+  // Energy pass (build 47v; docs/V5_ENERGY_CAPACITY_2026-11-01.md). The refill capacity follows the
+  // player level from now on; nothing earned before is paid again, and energy is never reduced.
+  // - capPaid (the capacity already paid for) is the level's capacity: a save from before the pass is
+  //   not paid its past increases, and a reload can never pay one twice.
+  // - boost (the one-time +15 and +20): a save from before the pass has them claimed if it has
+  //   already delivered an ordinary crew order (deliveries other than gold orders, which are counted
+  //   by the materials they brought) or bought a stage; otherwise it stays eligible. A damaged value
+  //   is worked out the same way.
+  // - energyOwed (milestone energy waiting for room under STORE_ENERGY): a damaged value is dropped.
+  // - the refill clock: the save's time away is first settled at the old fixed capacity (50), as the
+  //   build it came from would have; a camp then at 50 or more starts its clock now, so no refill
+  //   credit from time spent full is paid at the new capacity.
+  s.capPaid=capacityAt(s.level.level);
+  if(!s.boost||typeof s.boost!=='object'||Array.isArray(s.boost)||typeof s.boost.order!=='boolean'||typeof s.boost.stage!=='boolean'){
+   const gold=Object.values(s.materials).reduce((n,k)=>n+k,0);
+   s.boost={order:s.ordersDone>gold,stage:totalBuilt(s)>0};
+  }else s.boost={order:s.boost.order,stage:s.boost.stage};
+  if(s.energyOwed!==undefined&&!integer(s.energyOwed,1,1000))delete s.energyOwed;
+  if(before47v){settleEnergy(s,now,REFILL_CAP);if(s.energy>=REFILL_CAP)s.energyAt=now;}
   // Round 3: a generator already at level 2+ (an older save) opens its kind's secondary chain now, once.
   secondaryUnlock(s,{wait:true});
-  settleEnergy(s,now);
+  settleEnergy(s,now);payOwed(s);
   return s;
  }catch{return fresh(now);}
 }
