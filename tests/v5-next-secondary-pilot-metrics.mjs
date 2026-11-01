@@ -71,7 +71,7 @@ for(const shop of SHOPS)for(const speed of SPEEDS){
   if(RUNS)R.forEach((r,i)=>console.log(JSON.stringify({run:1,model,speed,shop,seed:SEEDS[i],...r})));
   const mean=k=>{const v=vals(k);return v.length?v.reduce((a,b)=>a+b,0)/v.length:null;},med=k=>{const v=vals(k).sort((a,b)=>a-b);return v.length?v[Math.floor(v.length/2)]:null;};
   const row={model,speed,shop,...OVER,seeds:SEEDS.length,finished:R.filter(r=>r.finished).length,medTotalMin:r1(med('totalMin')),medWaitShare:r2(med('waitShare')),medCh1Min:r1(med('ch1Min'))};
-  for(const k of MEAN){const v=mean(k);row[k]=v===null?null:k.endsWith('Share')||k.startsWith('energy')?r2(v):r1(v);}
+  for(const k of MEAN){const v=mean(k);row[k]=v===null?null:k==='dropRate'?Math.round(v*1000)/1000:k.endsWith('Share')||k.startsWith('energy')?r2(v):r1(v);}
   row.drought=Math.max(...R.map(r=>r.drought));row.pendingMax=Math.max(...R.map(r=>r.pendingMax));
   if(!base)base=row;else for(const k of ['medTotalMin','medWaitShare','waitShare','energyPerOrder','energyPerPrimaryUnit','occupied'])row['d_'+k]=r2(row[k]-base[k]);
   console.log(JSON.stringify(row));
