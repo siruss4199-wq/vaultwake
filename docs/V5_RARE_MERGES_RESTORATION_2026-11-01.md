@@ -213,7 +213,13 @@ The flow runs craft → deliver → spend → restore.
 ## 6. Pre-existing and environment issues (not caused by this change)
 
 1. **WebKit is not installed in this session.** Downloads are blocked, so WebKit runs only in CI. `v5-next-browser` and `v5-next-playtest-browser` ignore `ENGINES` and exit 1 locally when they reach WebKit, after every Chromium case passes.
-2. **WebKit Chapter 2** (`tests/v5-next-chapter2-browser.cjs:60`) fails intermittently in CI. One Next click advances the story twice. It is on the base too, and reported on PR #85.
+2. **WebKit Chapter 2** (`tests/v5-next-chapter2-browser.cjs:60`) failed intermittently in CI, on the base too. **This was a real game bug, fixed here.**
+   - **Cause:** the inner ring's stage started the Vault reveal, and its story callback queued `nextReveal()` again 900 ms later. The reveal is marked seen only when it ends, so the second call restarted it.
+   - **Effect:** a player who tapped Next within 0.9 s was sent back to the first scene.
+   - **Reproduced in Chromium:** the story started twice without a click.
+   - **Fix:** `nextReveal` now plays one reveal at a time; a second call waits and its callback runs when the chain ends.
+   - **Regression check:** the Chapter 2 suite now asserts the Vault opening starts once. It fails on the old code and passes now.
+3. **Fresh coastal journey (WebKit)** finds sideways scroll on Classic V5 (`/v5/`) at 360 px. It is red on the base too, and this PR changes none of the files that page loads.
 
 ## 7. Limits
 
