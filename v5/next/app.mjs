@@ -914,10 +914,17 @@ const REVEALS=[
 ];
 const markSeen=id=>{if(!state.seen?.[id]&&act(state,{type:'seen',id},Date.now()).ok){persist();playlog.event('reveal',{id});}};
 const pendingReveals=()=>REVEALS.filter(v=>v.when(state)&&!state.seen?.[v.id]);
+// One reveal at a time (ported from PR #86). A stage that opens the next area starts its reveal at once and its
+// story callback also queued nextReveal 900 ms later; the reveal is marked seen only when it ends, so
+// the second call restarted it (the Vault opening jumped back to its first scene: WebKit CI, then
+// reproduced in Chromium). A call while one plays waits: its callback runs when the chain ends.
+let revealOn=false;const revealAfter=[];
 function nextReveal(done=()=>{}){
+ if(revealOn){revealAfter.push(done);return true;}
  let v;while((v=pendingReveals()[0])&&!v.live(state))markSeen(v.id);
- if(!v){done();return false;}
- v.play(()=>{markSeen(v.id);render();nextReveal(done);});
+ if(!v){done();for(const d of revealAfter.splice(0))d();return false;}
+ revealOn=true;
+ v.play(()=>{revealOn=false;markSeen(v.id);render();nextReveal(done);});
  return true;
 }
 // One reveal card in the story dialog (PR #80); Continue or Escape closes it.
