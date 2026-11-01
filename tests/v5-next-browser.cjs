@@ -14,7 +14,7 @@ async function dragTo(page,from,to){const a=await page.locator(`#board [data-ind
  await page.mouse.move(a.x+a.width/2,a.y+a.height/2);await page.mouse.down();await page.mouse.move(b.x+b.width/2,b.y+b.height/2,{steps:6});await page.mouse.up();}
 async function perform(page,a){
  const s=await read(page),tile=i=>page.locator(`#board [data-index="${i}"]`),pressed=async i=>await tile(i).getAttribute('aria-pressed')==='true';
- if(a.type==='produce')await tile(s.board.findIndex(x=>x?.type==='source'&&x.id===a.id)).tap();
+ if(a.type==='produce')await tile(Number.isInteger(a.index)?a.index:s.board.findIndex(x=>x?.type==='source'&&x.id===a.id)).tap();
  else if(a.type==='merge')await dragTo(page,a.from,a.to);
  else if(a.type==='openKit'){if(!await pressed(a.index))await tile(a.index).tap();await page.locator('#selection [data-action="openKit"]').tap();}
  else if(a.type==='deliver')await page.locator(`[data-order="${a.id}"]`).tap();

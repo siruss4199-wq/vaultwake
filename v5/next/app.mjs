@@ -1,6 +1,6 @@
 // Coast Camp: the new-loop page (v5/play.html). Same look as Classic V5, one loop:
 // generators → merge → crew orders → coins → upgrade the coast's places on the beach screen.
-import {blockedStage,isStuck,allDone,swapsLeft,adSwapsLeft,SHOP,shopLeft,BOOK_COINS,BOOK_CHAINS,bookKeys,bookReady,pageReady,SHED_SLOTS,DAILY,newestGenerator,cog,token,SAVE_KEY,fresh,load,act,tick,nameOf,item,matches,count,orderItems,nextTask,currentArea,areaDone,upgrades,stageOf,builtCount,sourceOpen,SOURCES,chainsOf,CRATES,cargoKeys,reachable,generatorsMerge,MAX_GENERATOR_LEVEL,GLASS_HITS,nextKind,UNLOCK_LEVEL,GENERATOR_ORDER,storyTarget,roleOf,SECONDARY_RULES} from './game.mjs';
+import {blockedStage,isStuck,allDone,swapsLeft,adSwapsLeft,SHOP,shopLeft,BOOK_COINS,BOOK_CHAINS,bookKeys,bookReady,pageReady,SHED_SLOTS,DAILY,newestGenerator,cog,token,SAVE_KEY,fresh,load,act,tick,nameOf,item,matches,count,orderItems,nextTask,currentArea,areaDone,upgrades,stageOf,builtCount,sourceOpen,SOURCES,chainsOf,CRATES,cargoKeys,reachable,generatorsMerge,MAX_GENERATOR_LEVEL,GLASS_HITS,nextKind,UNLOCK_LEVEL,GENERATOR_ORDER,storyTarget,roleOf,SECONDARY_RULES,SECONDARY_OF,secondarySource} from './game.mjs';
 import {AREAS,STAGES,TASKS,LABELS} from './areas.mjs';
 import {primaryAction} from './guide.mjs';
 import {needsOf,missingOf,levelOf} from './needs.mjs';
@@ -33,7 +33,7 @@ function moment(title,detail='',x=null){sharedMoment(title,detail,null);const el
 let adPlaying=false;
 const sfx=(kind,tier=0)=>sounds.play(kind,tier,{muted:adPlaying||platform.muted()});
 // Shown in the footer so a playtester can tell which build is running.
-export const BUILD='Build 47t · secondary chains pilot, round 2';
+export const BUILD='Build 47u · secondary chains pilot, round 3';
 // The level path (docs/V5_LEVEL_PATH_2026-10-27.md): a crew order that pays a tool on top shows it
 // beside its coins (a Tide token; a favour's Sea chest or Brass cog).
 const bonusThing=o=>o.bonus==='cog'?cog():o.bonus==='chest'?kit(newestGenerator(state),2):o.bonus==='token'?token():null;
@@ -206,7 +206,7 @@ function renderOrders(){
 // (build 36): free ones first, then after an ad. The gold order stays.
 function chainRoute(r){
  const gen=CHAINS[r.family].gen,open=sourceOpen(state,gen),steps=Array.from({length:r.tier+1},(_,k)=>k);
- const text=!has(gen)?`${SOURCES[gen].name} is still sealed in cargo on the board`:!open?`${SOURCES[gen].name} wakes in a later area`:CHAINS[r.family].secondary?`A rare extra from ${SOURCES[gen].name} taps (at the latest on the ${SECONDARY_RULES[gen].pity}th tap)${r.tier?`, then merge up ${r.tier} time${r.tier>1?'s':''}`:''}`:`Tap ${SOURCES[gen].name}${r.tier?`, then merge up ${r.tier} time${r.tier>1?'s':''}`:''}`;
+ const text=!has(gen)?`${SOURCES[gen].name} is still sealed in cargo on the board`:!open?`${SOURCES[gen].name} wakes in a later area`:CHAINS[r.family].secondary?`A rare extra from level 2+ ${SOURCES[gen].name} taps (at the latest on the ${SECONDARY_RULES[gen].pity}th tap)${r.tier?`, then merge up ${r.tier} time${r.tier>1?'s':''}`:''}`:`Tap ${SOURCES[gen].name}${r.tier?`, then merge up ${r.tier} time${r.tier>1?'s':''}`:''}`;
  return `<li class="route ${open?'':'sealed'}"><span class="routeGen">${draw({type:'source',id:gen})}</span>${steps.map(k=>`<i class="routeArrow" aria-hidden="true"></i><span class="routeStep ${k===r.tier?'goal':''}" title="${CHAINS[r.family].names[k]}">${draw(item(r.family,k))}</span>`).join('')}<small>${text}</small></li>`;
 }
 function renderOrderTools(){
@@ -323,7 +323,8 @@ function renderSelection(){
  }else if(x.type==='source'){
   const chain=CHAINS[GENERATOR_CHAINS[x.id][0][0]];
   const next=nextKind(x.id),waiting=next&&!state.board.some(y=>y?.type==='source'&&y.id===next);
-  desc=(waiting?`Level ${UNLOCK_LEVEL} brings out the ${SOURCES[next].name}. `:'')+(sourceOpen(state,x.id)?`Level ${producerLevel(x)} · 1 energy a tap · ${chain.names.slice(0,4).join(' → ')} …`+(producerLevel(x)<MAX_GENERATOR_LEVEL?` Merge it with another level-${producerLevel(x)} ${SOURCES[x.id].name} (drag one onto the other) for level ${producerLevel(x)+1}.`:' Top level.'):'Wakes at the Survey Worksite (next area).');
+  const extra=SECONDARY_OF[x.id]?CHAINS[SECONDARY_OF[x.id]].names[0]:null,extraLine=!extra?'':secondarySource(state,selected)?` Rare extras: sometimes a ${extra} as well.`:producerLevel(x)<SECONDARY_RULES[x.id].level?` At level ${SECONDARY_RULES[x.id].level} it also makes rare ${extra}s.`:'';
+  desc=(waiting?`Level ${UNLOCK_LEVEL} brings out the ${SOURCES[next].name}. `:'')+(sourceOpen(state,x.id)?`Level ${producerLevel(x)} · 1 energy a tap · ${chain.names.slice(0,4).join(' → ')} …`+(producerLevel(x)<MAX_GENERATOR_LEVEL?` Merge it with another level-${producerLevel(x)} ${SOURCES[x.id].name} (drag one onto the other) for level ${producerLevel(x)+1}.`:' Top level.')+extraLine:'Wakes at the Survey Worksite (next area).');
   if(sourceOpen(state,x.id)){
    // What the next tap really makes: the engine's own produce on a copy of the state.
    const trial=structuredClone(state),r=act(trial,{type:'produce',id:x.id,index:selected},Date.now()),made=r.ok?trial.board[r.index]:null;
@@ -423,6 +424,9 @@ function run(a){
  if(r.event==='produce'&&r.secondary){const t2=r.secondary.index>=0?board.querySelector(`[data-index="${r.secondary.index}"]`):null;t2?.classList.add('unsealed');burst(t2?.getBoundingClientRect(),r.secondary.family,true);sfx('rare');
   if(r.found?.includes(r.secondary.family+'0'))setTimeout(()=>moment('New: '+CHAINS[r.secondary.family].names[0],sourceNote(r.secondary.family)+` Crew orders ask for them · merge two for a ${CHAINS[r.secondary.family].names[1]}.`,item(r.secondary.family,0)),reduced()?0:500);
   else if(r.secondary.index<0)$('#message').textContent+=' · no space: it waits for one';}
+ if(r.unlocks?.length&&r.event!=='producerUp')extrasNews();
+ // round 3: a level 2+ generator whose rare extras rest (enough unused held) says so
+ if(r.event==='produce'&&r.rest)$('#message').textContent+=` · its rare extras rest while you hold ${SECONDARY_RULES[a.id].hold} unused: deliver, use or clear some`;
  if((r.event==='produce'||r.event==='kit')&&fromRect&&tile&&!reduced()){const to=tile.getBoundingClientRect(),el=document.createElement('div');el.className='flight';el.innerHTML=draw(state.board[r.index]);el.style.cssText=`left:${fromRect.x}px;top:${fromRect.y}px;--dx:${to.x-fromRect.x}px;--dy:${to.y-fromRect.y}px`;document.body.append(el);setTimeout(()=>el.remove(),460);}
  if(r.event==='deliver'){deliverSequence(r,taking,orderRect,before.coins,readyBefore);sfx('deliver');
   if(r.tool?.index!=null)board.querySelector(`[data-index="${r.tool.index}"]`)?.classList.add('unsealed');
@@ -430,7 +434,7 @@ function run(a){
   if(r.energy&&orderRect)setTimeout(()=>rewardFlight(orderRect,$('#energyPill').getBoundingClientRect(),`+${r.energy} ϟ`),reduced()?0:420);
   if(r.materials){const t=TASKS[r.materials.id],u=t.stages[r.materials.stage-1],ok=state.coins>=u.cost;setTimeout(()=>moment(ok?'Ready to build: '+u.name:'Materials in: '+t.name,ok?`${t.name} · go to the ${currentArea(state).name} to build it (${u.cost} coins).`:`${u.name} also needs ${u.cost} coins: ${u.cost-state.coins} more from crew orders.`),reduced()?0:950);}}
  if(r.event==='producerUp'){const src=state.board[r.index],next=nextKind(src.id),waiting=next&&src.level<UNLOCK_LEVEL&&!state.board.some(y=>y?.type==='source'&&y.id===next);
-  moment(SOURCES[src.id].name+' · level '+src.level,LEVEL_GAIN[src.level]+(waiting?` Level ${UNLOCK_LEVEL} brings out the ${SOURCES[next].name}.`:''),src);tile?.classList.add('merge-pop');burst(tile?.getBoundingClientRect(),'gold',true);sfx('milestone');}
+  if(r.unlocks?.length)extrasNews();else moment(SOURCES[src.id].name+' · level '+src.level,LEVEL_GAIN[src.level]+(waiting?` Level ${UNLOCK_LEVEL} brings out the ${SOURCES[next].name}.`:''),src);tile?.classList.add('merge-pop');burst(tile?.getBoundingClientRect(),'gold',true);sfx('milestone');}
  // On the coast screen the build plays first (Build 41f), then its story.
  if(r.event==='restore'){haptics.pulse('restore');if($('#coastMap').open&&!reduced())setTimeout(()=>showBeat(r.task,r.effects),1300);else showBeat(r.task,r.effects);}
  if(r.event==='store'){$(`#shed [data-slot="${r.slot}"]`)?.classList.add('merge-pop');sfx('tap');}
@@ -557,12 +561,22 @@ const pageName=f=>CHAINS[f].secondary?`${SOURCES[CHAINS[f].gen].name} extras`:GE
 // With a tier (an order's part), it names that part and, past the first, the parts it is merged from.
 function sourceNote(f,tier=null){const r=SECONDARY_RULES[CHAINS[f].gen],gen=SOURCES[CHAINS[f].gen].name,n=CHAINS[f].names;
  const what=tier===null?'A':tier>0?`${n[tier]}: merged from ${n[0]}s, a`:`${n[0]}: a`;
- // round 2: the limit counts taps while extras are coming (they rest while three lie unused)
- return `${what} rare ${gen} extra. A tap sometimes adds one, at no extra energy: at the latest on the ${r.pity}th tap, while fewer than three lie unused.`;}
+ // round 3: only a level 2+ generator makes them; the limit counts its taps while extras are coming
+ return `${what} rare ${gen} extra: a level 2+ ${gen} sometimes adds one to a tap, at no extra energy (at the latest on its ${r.pity}th tap, while you hold fewer than ${r.hold} unused).`;}
+// Round 3: a kind's rare extras open when one of its generators first reaches level 2 (the engine's
+// secondaryUnlock: a first part as a gift and an introductory crew order). Said once per kind, also
+// for a save that opened on load; marked seen ('extras-rig').
+function extrasNews(){
+ for(const gen of Object.keys(state.secOpen??{})){const id='extras-'+gen;if(state.seen?.[id])continue;
+  const f=SECONDARY_OF[gen],n=CHAINS[f].names[0],g=SOURCES[gen].name;
+  moment(`${g} extras unlocked`,`A level 2+ ${g} now sometimes adds a rare ${n} to a tap, at no extra energy. Your first ${n} is on the board (or waits for space), and a crew order will ask for it.`,item(f,0));
+  markSeen(id);return true;}
+ return false;
+}
 // Build 47e: the Lens Bench's page appears once the camp is inside the Vault (no Chapter 2 spoiler
 // in Chapter 1's book).
 // A secondary chain's page (pilot) shows once its first part is found: it is a find, not a promise.
-const bookChains=()=>BOOK_CHAINS.filter(f=>CHAINS[f].secondary?state.found.some(k=>k.replace(/\d+$/,'')===f):f!=='optic'||state.area>=3||state.found.some(k=>k.startsWith('optic')));
+const bookChains=()=>BOOK_CHAINS.filter(f=>CHAINS[f].secondary?!!state.secOpen?.[CHAINS[f].gen]||state.found.some(k=>k.replace(/\d+$/,'')===f):f!=='optic'||state.area>=3||state.found.some(k=>k.startsWith('optic')));
 function showBook(){
  const chains=bookChains(),ready=new Set(bookReady(state)),claimed=new Set(state.book.claimed),total=chains.reduce((n,f)=>n+bookKeys(f).length,0);
  const pages=chains.map(f=>{
@@ -941,7 +955,7 @@ function arrive(fromHome=true){
  if(holdSave&&!damaged){holdSave=false;persist();}
  syncPlaying();if(fromHome)$('#hint').focus({preventScroll:true});
  if(!state.moves)showIntro();
- else nextReveal(()=>{if(allDone(state)&&!state.seenEnd)setTimeout(showEnd,600);});
+ else{extrasNews();nextReveal(()=>{if(allDone(state)&&!state.seenEnd)setTimeout(showEnd,600);});}
 }
 // Home and Loading (Build 46p): the board above is set up once; Home only covers and uncovers it.
 if(document.getElementById('home')){
