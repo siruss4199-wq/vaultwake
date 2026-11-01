@@ -13,7 +13,8 @@ const OTHER=(()=>{const s=JSON.parse(fs.readFileSync(path.join(__dirname,'fixtur
 const NEWER=(()=>{const s=JSON.parse(PILOT);s.board[14]={type:'item',family:'sail',tier:0};return JSON.stringify(s);})();
 // The page settles a camp's energy when it opens it and saves it, so a kept or restored camp is the
 // same camp (moves, board, finds), not always the same text.
-const sameCamp=(a,b)=>{try{const x=JSON.parse(a),y=JSON.parse(b);return x.moves===y.moves&&JSON.stringify(x.board)===JSON.stringify(y.board)&&JSON.stringify(x.found)===JSON.stringify(y.found);}catch{return false;}};
+// (moves are not compared: a note shown once, such as round 3's extras unlock, is saved as a seen move)
+const sameCamp=(a,b)=>{try{const x=JSON.parse(a),y=JSON.parse(b);return JSON.stringify(x.board)===JSON.stringify(y.board)&&JSON.stringify(x.found)===JSON.stringify(y.found)&&x.coins===y.coins;}catch{return false;}};
 const all=page=>page.evaluate(()=>Object.fromEntries(Array.from({length:localStorage.length},(_,i)=>localStorage.key(i)).map(k=>[k,localStorage.getItem(k)])));
 const homeUsable=page=>page.waitForSelector('#home:not(.isLoading)',{timeout:20000});
 async function skipStory(page){await page.waitForFunction(()=>document.querySelector('#home').hidden||!document.querySelector('#story').hidden);
