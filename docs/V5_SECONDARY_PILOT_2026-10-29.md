@@ -29,6 +29,9 @@
 - Unchanged: save keys, existing items and chains, chapter requirements, gold orders, V4, `v5/lab/`.
   Chapter 3 is not started.
 
+
+> **Build 47v (2026-11-01):** the energy pass (level-based capacity, early energy bonuses, mixed orders paying the crew's +1 again) is reported in `docs/V5_ENERGY_CAPACITY_2026-11-01.md`. The secondary rules in this document are unchanged by it.
+
 ## Round 3: level-2 unlock and order demand (build 47u)
 
 Playtest feedback: rare items appeared often, but no matching orders appeared. This round fixes
