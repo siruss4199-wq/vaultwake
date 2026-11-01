@@ -32,7 +32,12 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
    const reload=async()=>{await page.reload();await page.waitForSelector('#board .tile');};
    const beats=async()=>{const t=[];for(let n=0;n<12&&await page.locator('#beat[open]').count();n++){t.push(await page.locator('#beatContent').textContent());
     const b=await page.locator('#beatNext').boundingBox();assert.ok(b.height>=43.5,tag('story button 44 px'));await page.locator('#beatNext').click();await page.waitForTimeout(90);}return t.join(' | ');};
-   const fits=async what=>{const o=await page.evaluate(()=>({doc:document.documentElement.scrollWidth,vw:innerWidth}));assert.ok(o.doc<=o.vw+1,tag(`${what}: no sideways scroll (${o.doc} > ${o.vw})`));};
+   // on failure, name what reaches past the right edge (what is fixed, and inside which parent), so a WebKit-only
+   // overflow can be traced from CI's log
+   const fits=async what=>{const o=await page.evaluate(()=>{const vw=innerWidth,past=[];for(const e of document.querySelectorAll('body *')){const r=e.getBoundingClientRect();
+    if(r.width&&r.right>vw+1&&getComputedStyle(e).display!=='none')past.push(`${e.tagName.toLowerCase()}${e.id?'#'+e.id:''}${[...e.classList].map(c=>'.'+c).join('')}<${e.parentElement?.tagName.toLowerCase()}> ${Math.round(r.left)}..${Math.round(r.right)} ${getComputedStyle(e).position}`);}
+    return {doc:document.documentElement.scrollWidth,vw,past:past.slice(0,20)};});
+    assert.ok(o.doc<=o.vw+1,tag(`${what}: no sideways scroll (${o.doc} > ${o.vw}); past the edge: ${o.past.join(' | ')}`));};
    const openMap=async()=>{if(!(await page.locator('#coastMap[open]').count())){await page.locator('#mapButton').click();await page.waitForSelector('#coastMap[open]');}};
    await page.goto(URL+'?new=1');await page.waitForSelector('#board .tile');await beats();
    // a camp at the end of Chapter 3, as build 48c saved it: still in the harbour, its end card seen
