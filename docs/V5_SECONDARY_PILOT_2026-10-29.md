@@ -1,18 +1,25 @@
 # Vaultwake V5 Coast Camp — secondary chains, first playable pilot (2026-10-29)
 
-**Branch.** `claude/v5-secondary-pilot`, from `claude/v5-rover-secondary-art` at `cc63b84`, which
-holds the five art passes (`docs/V5_*_SECONDARY_ART_2026-10-29.md`) and the measurement plan
-(`docs/V5_SECONDARY_CHAINS_PLAN_2026-10-28.md`). Not merged anywhere.
+**Branches.**
+- Round 1 is on `claude/v5-secondary-pilot`, from `claude/v5-rover-secondary-art` at `cc63b84`, which
+  holds the five art passes (`docs/V5_*_SECONDARY_ART_2026-10-29.md`) and the measurement plan
+  (`docs/V5_SECONDARY_CHAINS_PLAN_2026-10-28.md`).
+- Rounds 2 and 3 are on `claude/v5-secondary-pilot-r2`, in draft PR #84 (base: the round-1 branch).
+- Not merged anywhere.
 
-**Round 2** (the director's review, build 47t) is the first section below; round 1 follows it, with
-superseded statements marked.
+**Sections.** Round 3 (level-2 unlock and order demand, build 47u) comes first, then round 2 (build
+47t), then round 1 (build 47s) with superseded statements marked.
 
-**Preview.** https://claude.ai/artifact/LDdJLFatkwsyykjnJ3Q9sr (private until shared; round 2 is
-build 47t, published to the same link).
-- It is a launcher page with two buttons: "Start a new camp" (`v5/play.html?new=1`) and "Continue this camp".
-- The game files are published at their repo paths, byte-identical to this branch.
-- Use the launcher's "Start a new camp" there: the in-game menu's new-camp button asks `confirm()`, which
-  that viewer answers "no".
+**Previews.**
+- https://claude.ai/artifact/LDdJLFatkwsyykjnJ3Q9sr: private until shared; the latest round is
+  published to the same link.
+  - It is a launcher page with two buttons: "Start a new camp" (`v5/play.html?new=1`) and "Continue
+    this camp".
+  - The game files are published at their repo paths, byte-identical to this branch.
+  - Use the launcher's "Start a new camp" there: the in-game menu's new-camp button asks
+    `confirm()`, which that viewer answers "no".
+- https://claude-v5-secondary-pilot-r2.wispwood-game.pages.dev/v5/play.html: the repository's own
+  Cloudflare Pages branch preview, which follows every push to the branch.
 
 **Scope.**
 - The Rivet Rover's and the Survey Kite's secondary chains are playable: drops, bad-luck limit, crew
@@ -21,6 +28,179 @@ build 47t, published to the same link).
   `v5/assets/premium/coast/proposed/`, and no id is registered.
 - Unchanged: save keys, existing items and chains, chapter requirements, gold orders, V4, `v5/lab/`.
   Chapter 3 is not started.
+
+## Round 3: level-2 unlock and order demand (build 47u)
+
+Playtest feedback: rare items appeared often, but no matching orders appeared. This round fixes
+supply and demand together.
+
+**Trial rates, not a claimed balance:**
+- 5 % per eligible tap;
+- a drop certain by the 20th eligible tap without one;
+- the effective rate including the guarantee is (1 − 0.95²⁰) / 0.05 = 12.83 eligible taps per drop
+  on average, i.e. **7.8 %**;
+- measured over 10 seeds × 8 cells: **7.4–7.5 %** of eligible taps. Each run ends partway through a
+  gap, so the measured rate sits a little under the theoretical one.
+
+The primary output of a tap is unchanged, and an extra never costs energy. The Winch, Shell Trap and
+Lantern Kiln chains stay inactive. V4, `v5/lab`, save keys and chapter requirements are unchanged.
+
+### R3.1 Why the playtest had extras without orders (round-2 rules, measured)
+
+`node` diagnosis on `ba20dd3`, 10 seeds, 4/5/8/10 s, with and without the shop:
+- **Only 22–26 % of new everyday orders asked for an extra:**
+  - about two in three were simply not a secondary turn, because round 2 asked at most every third
+    order;
+  - another 11 % of turns were blocked, because only one extra order could be on the board.
+- **Supply ran at about 70–75 drops per run against about 18 extra orders**, each asking for one part.
+- **Unused extras with no order for them, as a share of the time after extras opened: 84–89 %.**
+  This is what the playtest saw.
+
+### R3.2 What changed
+
+| Requirement | Implementation (`v5/next/game.mjs` unless noted) |
+|---|---|
+| Only level-2+ generators make extras | `secondarySource(s, i)`: the tapped copy must be level 2+ and its kind's chain open. Level-1 copies make primary parts only, and their taps are neither rolled nor counted. The tap-count and delivered-order openers are gone. The level-3 next-generator progression is unchanged. |
+| Unlock on the first level 2 | `secondaryUnlock`, run after every action (after any generator it brings out has its space) and on load. It opens the chain for good (`s.secOpen`), gives its first part beside that generator (or waiting for space; on load always waiting, so loading never rearranges the board) and queues an introductory order (`s.secIntro`). The app shows "Rivet Rover extras unlocked" once per kind (seen id `extras-rig`), also for a save opened on load. Merging more copies or using a cog never gives again. A chain met in rounds 1–2 opens without gift or introduction. |
+| Introductory order | The next everyday order made after the unlock: a quick job for the first part. It never replaces an order on the board, and it waits for a crew favour's turn to pass. |
+| About one order in three | A secondary turn comes when neither of the last two everyday orders asked for an extra. It also comes whenever a chain holds unused extras that no order on the board asks for (supply first). |
+| Order shape | The extra is asked alone, as a quick job: use orders ask for the biggest part the unused drops make; goal orders ask for a part one drop away, at most one waiting at a time, only from a chain with a level-2+ generator on the board. A crew favour or token order keeps its harder part and bonus and asks the extra as its second part. Without that, unused time measured 53–66 % instead of 41–53 %, so it stays. Tier ramp and top tier as before. Never gold. |
+| At least one primary-only order | Extra orders on the board stay below the everyday slots (1 with 3 slots, 2 with 4). Gold orders never ask for one. |
+| Lv2 never needs extras | Extras only exist after level 2, and gold orders never ask for them, so the copies for level 2 and level 3 come as before. |
+| Oversupply | Counted in drops (a part of tier t is 2^t; the keepsake counts too, so merging never lowers it) across board, shed and waiting, less what orders want. Drops rest at 4 unwanted drops. The tap's message says so ("its rare extras rest while you hold 4 unused…"). |
+| No lost bonus | With 4 extras already waiting for space, drops pause instead of rolling, so an earned drop is never lost. |
+| Counter rules | An eligible tap is a successful tap on a level-2+ copy of an open chain while not paused. Only eligible taps advance `s.secTaps` (the roll's number) and `s.secSince` (the guarantee). Both are per kind, so copies share them and merging keeps them. A level-1 copy's tap, a paused tap or a refused tap (full board, no energy) moves neither. Reloading and tapping level-1 copies in between cannot change an outcome (tested). |
+| Energy | An order with an extra pays coins and XP but no delivery energy, the same rule as clearing an extra. With about one order in three asking for one, the delivery energy kept the 10 s player from ever running out, which broke the economy guard. |
+| Saves | New fields `secTaps`, `secOpen`, `secIntro`, all validated on load. A damaged value only restarts a count or drops an introduction. Pre-pilot saves keep everything; their level-2+ kinds open on load with the gift waiting, once. Round 1–2 saves keep their extras, orders, counters and waiting rewards, and open without gifts. |
+| UI | The generator panel says "At level 2 it also makes rare Bolts" (level 1) or "Rare extras: sometimes a Bolt as well" (level 2+). The book's extras page opens with the chain. The guide's tap hint points at a level-2+ copy. The help text is rewritten. Build 47u. |
+
+The scripted player (`tests/v5-next-policy.mjs`) now taps its best copy of a generator. Before, the
+engine took the first copy on the board, so where a copy happened to land decided whether a level-1
+or a level-3 Rover was tapped. In one measured run, a single misplaced copy cost 90 minutes.
+Baseline and B are both measured with this policy.
+
+### R3.3 Measured: baseline (extras off) against round 3
+
+`node tests/v5-next-secondary-pilot-metrics.mjs 4,5,8,10 1,...,10 both off,bonus --runs`. Medians and
+means over 10 seeds per cell. "Unused" means a chain holds extras (in drops, less what orders want)
+and no order on the board asks that chain.
+
+| Speed, shop | Model | Total min (median) | Waiting share | Energy per primary unit | Extras drops / eligible taps | Effective drop rate | Extra orders offered / delivered | Their wait (min, median) | New everyday orders with an extra | Time with unused extras and no order for them | Unused drops held (mean) | Occupied spaces | Rover / Kite opens at (min) | Longest dry run |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 4 s, no shop | Baseline | 256 | 0.43 | 0.46 | — | — | — | — | — | — | — | 11 | — | — |
+| 4 s, no shop | **B, round 3** | 193 | 0.26 | 0.46 | 37 / 497 | 7.5 % | 36 / 27.4 | 0.1 | 42 % | 53 % | 1.6 | 12.3 | 3 / 16 | 20 |
+| 5 s, no shop | Baseline | 260 | 0.31 | 0.46 | — | — | — | — | — | — | — | 11.8 | — | — |
+| 5 s, no shop | **B, round 3** | 222 | 0.17 | 0.46 | 36 / 488 | 7.4 % | 35.5 / 26.8 | 0.1 | 41 % | 50 % | 1.6 | 12.4 | 4 / 20 | 20 |
+| 8 s, no shop | Baseline | 340 | 0.11 | 0.47 | — | — | — | — | — | — | — | 12.2 | — | — |
+| 8 s, no shop | **B, round 3** | 294 | 0.01 | 0.46 | 37 / 500 | 7.5 % | 36 / 28.4 | 0.2 | 42 % | 48 % | 1.4 | 13.2 | 7 / 32 | 20 |
+| 10 s, no shop | Baseline | 362 | 0.00 | 0.46 | — | — | — | — | — | — | — | 12.3 | — | — |
+| 10 s, no shop | **B, round 3** | 366 | 0.00 | 0.47 | 38 / 511 | 7.4 % | 35.7 / 27.9 | 0.3 | 42 % | 48 % | 1.3 | 14.3 | 8 / 41 | 20 |
+| 4 s, shop | Baseline | 160 | 0.05 | 0.46 | — | — | — | — | — | — | — | 11.5 | — | — |
+| 4 s, shop | **B, round 3** | 150 | 0.01 | 0.46 | 39 / 522 | 7.5 % | 39.7 / 30.1 | 0.2 | 42 % | 50 % | 1.3 | 12.4 | 3 / 16 | 20 |
+| 5 s, shop | Baseline | 190 | 0.01 | 0.46 | — | — | — | — | — | — | — | 12 | — | — |
+| 5 s, shop | **B, round 3** | 188 | 0.00 | 0.46 | 38 / 510 | 7.4 % | 38.9 / 30.9 | 0.2 | 40 % | 41 % | 1.2 | 12.8 | 4 / 20 | 20 |
+| 8 s, shop | Baseline | 314 | 0.00 | 0.48 | — | — | — | — | — | — | — | 13.5 | — | — |
+| 8 s, shop | **B, round 3** | 294 | 0.00 | 0.47 | 38 / 512 | 7.4 % | 39.2 / 30.5 | 0.5 | 42 % | 48 % | 1.3 | 13.7 | 7 / 32 | 20 |
+| 10 s, shop | Baseline | 383 | 0.00 | 0.48 | — | — | — | — | — | — | — | 13.4 | — | — |
+| 10 s, shop | **B, round 3** | 370 | 0.00 | 0.47 | 37 / 508 | 7.4 % | 37.1 / 28.7 | 0.6 | 41 % | 48 % | 1.4 | 14.1 | 8 / 41 | 20 |
+
+| Speed, shop | Total min, baseline: min · median · max | B: min · median · max | B faster in | Energy per primary unit, mean difference (B higher in) | Waiting share, mean difference |
+|---|---|---|---|---|---|
+| 4 s, no shop | 256 · 256 · 256 | 185 · 192 · 236 | 10 of 10 | +0.002 (4 of 10) | -0.169 |
+| 5 s, no shop | 233 · 260 · 286 | 197 · 219 · 248 | 10 of 10 | +0.001 (5 of 10) | -0.136 |
+| 8 s, no shop | 314 · 336 · 342 | 286 · 294 · 306 | 10 of 10 | -0.004 (2 of 10) | -0.104 |
+| 10 s, no shop | 359 · 362 · 366 | 354 · 364 · 376 | 4 of 10 | +0.012 (8 of 10) | -0.001 |
+| 4 s, shop | 153 · 160 · 161 | 141 · 149 · 167 | 9 of 10 | +0.005 (8 of 10) | -0.042 |
+| 5 s, shop | 181 · 187 · 200 | 180 · 188 · 192 | 5 of 10 | +0.006 (6 of 10) | -0.009 |
+| 8 s, shop | 294 · 311 · 318 | 288 · 294 · 304 | 9 of 10 | -0.010 (2 of 10) | +0.000 |
+| 10 s, shop | 373 · 383 · 384 | 354 · 368 · 391 | 8 of 10 | -0.006 (3 of 10) | +0.000 |
+
+**Reading:**
+- **Demand now meets supply:**
+  - 40–42 % of new everyday orders ask for an extra (target about one in three; above it because
+    supply-first turns add some);
+  - 36–39 drops per run, against round 2's 70–75;
+  - extra orders are delivered within 0.1–0.6 min (median), and 75–79 % of those offered are
+    delivered.
+- **Unused-and-unordered time fell from 84–89 % (round 2) to 41–53 %.** The unused drops held average
+  1.2–1.6. What remains is mostly the time between a drop and the next new everyday order. When the
+  player delivers only gold orders for a while, no crew slot opens and no order can ask for extras.
+- **Waiting share is lower or equal in every cell.**
+- **Energy per primary unit is within seed noise in six cells (−0.010 to +0.006).** At 10 s without
+  the shop it is +0.012, higher in 8 of 10 seeds: a small but consistent miss of the "no increase"
+  target.
+- **Time:**
+  - faster in 7 of 8 cells (−1 % to −25 %);
+  - +1 % at 10 s without the shop (B faster in 4 of 10 seeds).
+- **Occupancy** is +0.2 to +2.0 spaces. The longest dry run was exactly the guarantee, 20 eligible
+  taps.
+
+### R3.4 Mobile playthrough (real page, 390×844, touch)
+
+`node tools/playthrough-secondary.cjs OUT 700` plays the real game from a new camp.
+- Every choice is the scripted player's, made by tapping and dragging on the page.
+- Waits are simulated by moving the refill clock back 20 minutes.
+- It records the extras timeline and takes screenshots at key moments.
+
+From a new camp, 696 actions (about 138 min of play including four energy waits), no page errors:
+
+- **Action 51 (4 min):** two Rovers merged, so level 2. "Rivet Rover extras unlocked" shows and the
+  first Bolt lands beside the Rover (screenshot `playthrough-1-unlocked.png`).
+- **Actions 51–186:** no everyday order is delivered (the scripted player saves its parts for the
+  gold order), so no crew slot opens. The introductory Bolt order arrives at action 187 and is
+  delivered at once.
+- **Action 157:** with four Rover drops held unused, a tap says "its rare extras rest while you hold 4
+  unused…". The guard holds them at 4 drops (`playthrough-4-extras-rest.png`).
+- **Afterwards**, every extra order is delivered within 1–3 actions of appearing, except while the
+  player again delivers only gold orders.
+- **Totals:** 17 drops; extras held peaked at 10 drops across both chains, with orders wanting part
+  of them. On 72 % of the actions after the unlock some extras had no order yet, mostly during those
+  gold-only stretches.
+
+New rare items get useful demand as soon as crew orders turn over, and the guard keeps them from
+filling the board: free spaces never fell because of extras, and never more than 4 unused per chain.
+The early wait for the introductory order is the open point (remaining issue 1).
+
+### R3.5 Tests
+
+- **`tests/v5-next-secondary.test.mjs`** (19 tests, rewritten), covering:
+  - the trial rates and their measured rate;
+  - level-1 copies never rolling;
+  - the first level 2 opening once (gift, note, introduction, no replaced order, no second gift
+    from copies, a cog, a full board, or load);
+  - pre-pilot and pilot saves, and damaged values;
+  - the guarantee at worst luck across reloads;
+  - rolls unchanged by reloads and level-1 taps;
+  - full board and pending cap;
+  - the oversupply guard in drops (merging, keepsake, shed, waiting, demand lifting it);
+  - copies sharing counts, and merges keeping them;
+  - model A;
+  - pricing;
+  - a full run checking every order (share, limits, a primary-only order, never gold, use and goal);
+  - goal and use tiers, and turns;
+  - the book;
+  - a delivery paying once and no energy;
+  - the guide hint.
+- **`tests/v5-next-extras-browser.cjs`** (new; Chromium passes here, WebKit in CI): level 2 by drag
+  opens the extras once (note, Bolt, book page, introduction); level-1 and level-2 texts; a save
+  opened on load shows the note once; the rest message.
+- **CI order:** the saves and extras suites now run before the Chapter 2 suite. That suite's
+  intermittent WebKit failure stopped the step and hid them.
+- **Results on the final tree (game.mjs as in 19b9dde):** `node --test tests/v5-*.test.mjs` 335 pass, 0 fail; Chromium browser suites: see the line below once the local run ends.
+
+### R3.6 Remaining issues
+
+1. **The introductory order waits for a free crew slot.** In the playthrough it came 136 actions
+   (about 32 min) after the unlock, because the scripted player delivered only gold orders while it
+   saved parts for them. A player who delivers any everyday order sees it at once. Showing it sooner
+   needs either an extra temporary crew slot or replacing an order; both were ruled out by the task,
+   so it is left for a decision.
+2. **Share above target.** 40–42 % against "roughly one third". Supply-first turns add the extra
+   share. Dropping them returns to about 32 %, but leaves unused extras longer (61 %).
+3. **Energy per primary unit** is +0.012 at 10 s without the shop (higher in 8 of 10 seeds); the other
+   cells are within noise or lower.
+4. **Trial rates** (5 %, 20) are the director's trial values, not a tuned balance.
+5. **The scripted player is still a proxy.** It now taps its best copy of a generator.
 
 ## Round 2: after the director's review (build 47t)
 
