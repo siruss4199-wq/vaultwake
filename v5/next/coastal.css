@@ -461,5 +461,7 @@ body.nextMode #board.board .tile.tile.located{outline:3px solid #ffb81f;outline-
 .nextMode .revealPanel.beamOnce .beamSweep{position:absolute;left:50%;top:14%;width:150%;height:26%;transform-origin:0 50%;background:linear-gradient(90deg,#9ff5e2cc,#9ff5e200 85%);clip-path:polygon(0 45%,100% 0,100% 100%,0 55%);mix-blend-mode:screen;opacity:0;animation:beamSweep 1.8s ease-in-out .3s 1 both;pointer-events:none}
 @keyframes beamSweep{0%{opacity:0;transform:rotate(-38deg)}25%{opacity:.85}75%{opacity:.85}100%{opacity:.35;transform:rotate(-4deg)}}
 @media(prefers-reduced-motion:reduce){.nextMode .revealPanel.beamOnce .beamSweep{animation:none;opacity:.35;transform:rotate(-4deg)}}
-#endDialog .endArt.portrait img{object-position:50% 38%}
-#endDialog .revealLine{margin:6px 0}
+#endDialog .endArt.portrait img{object-position:50% 22%}
+#endDialog .revealLine{margin:6px 0;display:flex;gap:10px;align-items:flex-start;text-align:left;background:#fff3dc;border-radius:14px;padding:8px 12px}
+#endDialog .revealLine img.face,#endDialog .revealLine svg{width:40px;height:40px;flex:none;border-radius:50%;object-fit:cover;object-position:50% 12%}
+#endDialog .revealLine b{display:block;color:var(--cb-turq2,#0e7f78);font-size:12px}
