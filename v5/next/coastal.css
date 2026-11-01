@@ -32,6 +32,11 @@ body.nextMode header #coinPill .coinIcon{position:absolute;left:4px;top:0;width:
 body.nextMode header #coinPill strong{font-size:16px;color:#5a3a12}
 body.nextMode header #energyPill #energyTimer{left:calc(42px + (100% - 79px) / 2)}
 @media(max-width:380px){body.nextMode header{gap:6px}body.nextMode header #energyPill{padding:0 36px 0 42px}body.nextMode header #coinPill{padding:0 15px 0 42px}}
+/* Build 49a: a late camp's top bar (energy over its capacity, e.g. 137/100 BONUS, five-figure coins, a
+   two-digit level) reached 371-375 px at 360 (WebKit's wider rounded font first; measured in CI). Under
+   380 px the bar packs tighter and its numbers are a little smaller, so it fits with room to spare. */
+@media(max-width:380px){body.nextMode header{gap:4px;padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}body.nextMode header #energyPill{padding:0 33px 0 40px;min-width:92px}body.nextMode header #coinPill{padding:0 11px 0 40px;min-width:62px}
+ body.nextMode header :is(#energyPill,#coinPill) strong{font-size:15px;letter-spacing:-.4px}body.nextMode header #energyPill .energyCap{font-size:11px}}
 body.nextMode .levelPill{width:44px;height:44px;flex:none;border-radius:50%;background:url('../assets/premium/coast/ui/hud-level.webp') center/88% no-repeat,conic-gradient(var(--cb-gold) var(--p),#ffffffa6 0);box-shadow:0 2px 6px #0d5a6a40}
 body.nextMode .levelPill b{width:auto;height:auto;background:none;box-shadow:none;color:#fff;font-size:18px;text-shadow:0 1px 0 #0b5f66}
 body.nextMode #menuButton{width:44px;height:44px;flex:none;border:0;border-radius:12px;background:url('../assets/premium/coast/ui/hud-menu.webp') center/contain no-repeat;box-shadow:none}
