@@ -38,7 +38,7 @@ function moment(title,detail='',x=null){sharedMoment(title,detail,null);const el
 let adPlaying=false;
 const sfx=(kind,tier=0)=>sounds.play(kind,tier,{muted:adPlaying||platform.muted()});
 // Shown in the footer so a playtester can tell which build is running.
-export const BUILD='Build 48c · gameplay pass before Chapter 4';
+export const BUILD='Build 49a · Chapter 4, the Answering Light';
 // The level path (docs/V5_LEVEL_PATH_2026-10-27.md): a crew order that pays a tool on top shows it
 // beside its coins (a Tide token; a favour's Sea chest or Brass cog).
 const bonusThing=o=>o.bonus==='cog'?cog():o.bonus==='chest'?kit(newestGenerator(state),2):o.bonus==='token'?token():null;
@@ -123,7 +123,9 @@ const pips=n=>`<span class="pips" aria-label="stage ${n} of ${STAGES}">${Array.f
 // after the launch the boatyard's card is its finished yard from the restored map, cradles empty because
 // the boat has sailed ('launched'); it no longer falls back to the stage-1 cut-out, which read as unbuilt.
 const artStage=(t,n)=>t.id==='hb-boatyard'&&n>=STAGES&&stageOf(state,'hb-departure')>=STAGES?'launched':Math.max(1,n);
-const stageArt=(t,n)=>`<img class="art" src="assets/premium/coast/${t.art.startsWith('hb-')?'hidden-harbour/':''}place-${t.art}-${artStage(t,n)}.webp" alt="" draggable="false">`;
+// Build 49a: Chapter 4's 21 separate stage sprites live in coast/answering-light (tools/headland-art.py).
+const artDir=a=>a.startsWith('hb-')?'hidden-harbour/':a.startsWith('ch4-')?'answering-light/':'';
+const stageArt=(t,n)=>`<img class="art" src="assets/premium/coast/${artDir(t.art)}place-${t.art}-${artStage(t,n)}.webp" alt="" draggable="false" loading="lazy">`;
 // Build 47f: the Vault door is drawn as itself (a crop of the Home picture's door) with its rings lit
 // for the stage, not as a part's icon; painted ring states do not exist (see the doc's missing art).
 const doorArt=n=>`<span class="doorThumb" data-stage="${n}"><img class="art" src="assets/premium/coast/vault-door-thumb.webp" alt="" draggable="false"><i></i><i></i><i></i></span>`;
@@ -756,6 +758,7 @@ function harbourMasks(area){
 }
 function sceneHtml(area){
  if(area.restored)return harbourScene(area);
+ if(area.overview)return headlandScene(area);
  const done=areaDone(state,area),vars=area.tasks.map((t,k)=>{const n=stageOf(state,t.id),grow=lastStage?.id===t.id;return `--r${k}:${REVEAL[grow?lastStage.stage-1:n]}`;}).join(';');
  const masks=area.tasks.map((t,k)=>`radial-gradient(ellipse calc(var(--r${k})*1%) calc(var(--r${k})*2%) at ${t.at[0]}% ${t.at[1]}%,#000 40%,transparent 100%)`).join(',');
  const pic=area.map?`assets/premium/${area.map}.webp`:`assets/premium/${area.picture}-vibrant.webp`;
@@ -768,6 +771,14 @@ function harbourScene(area){
  const base=`assets/premium/${area.map}.webp`,after=`assets/premium/${area.restored}.webp`;
  // (--r0…6 are registered without inheritance, next.css, so each layer carries them itself)
  return `<div class="beachScene mapped harbour ${done?'complete':''}" data-area="${area.id}" data-built="${built}" style="--p:${(built/all).toFixed(3)}"><img class="sceneBase" src="${base}" alt="${area.name}, ${done?'fully restored':built+' of '+all+' upgrades'}"><div class="sceneStorm" aria-hidden="true"></div><img class="sceneColor sceneOwn" src="${base}" alt="" aria-hidden="true" style="${vars};-webkit-mask-image:${m.before};mask-image:${m.before}"><img class="sceneColor" src="${after}" alt="" aria-hidden="true" style="${vars};-webkit-mask-image:${m.after};mask-image:${m.after}"><div class="restored"></div></div>`;
+}
+// Build 49a: Chapter 4's headland. The director's two paintings are not registered layers (the pack's
+// art notes), so the map shows the damaged headland until every stage is built, then the restored one;
+// it never uncovers patches. Each stage shows on its place's card and tile, with its own sprite.
+function headlandScene(area){
+ const done=areaDone(state,area),built=builtCount(state,area),all=area.tasks.length*STAGES;
+ const pic=`assets/premium/${done?area.overview:area.map}.webp`;
+ return `<div class="beachScene mapped headland ${done?'complete':''}" data-area="${area.id}" data-built="${built}"><img class="sceneBase" src="${pic}" alt="${area.name}, ${done?'the headland restored and its light lit':`the damaged headland: ${built} of ${all} stages built (each place's card shows its stage)`}"><div class="restored"></div></div>`;
 }
 // After the picture is drawn with the old size, the new one is set so the colour spreads.
 function growScene(){
@@ -802,6 +813,7 @@ function mapCard(area,t,u){
  const order=state.orders.find(o=>o.story===t.id),coinsOk=state.coins>=u.cost;
  const stuff=u.materials?`<span class="need ok"><b class="needIcon">✓</b><span>Materials</span></span>`
   :order?`<span class="need gold"><span class="needParts">${needsOf(state,order).map(r=>`<i class="${r.have>=r.count?'got':'short'}">${draw(item(r.family,r.tier))}${r.sibling?`<em class="needLv" aria-label="level ${levelOf(r)}">Lv${levelOf(r)}</em>`:''}<b>${r.have>=r.count?'✓ ':''}${r.have}/${r.count}</b></i>`).join('')}</span><span>Gold order</span></span>`
+  :state.orders.some(o=>o?.story)?`<span class="need"><b class="needIcon">…</b><span>Gold order after ${TASKS[state.orders.find(o=>o?.story).story].name}, or choose this place</span></span>`
   :`<span class="need"><b class="needIcon">…</b><span>Gold order coming</span></span>`;
  const coins=`<span class="need ${coinsOk?'ok':''}"><b class="needIcon coinNeed">${COIN}</b><span><b>${Math.min(state.coins,u.cost)}</b>/${u.cost}</span></span>`;
  const short=!u.materials&&order?goldShort(t.id):null;
@@ -809,6 +821,7 @@ function mapCard(area,t,u){
  const lack=short?.parts?`<p class="needMissing"><b>Missing:</b> ${missText(short.miss)}</p>`:short?`<p class="needMissing ready"><b>All parts are on the board:</b> deliver the gold order</p>`:'';
  const button=canBuild(u)?`<button class="cardButton build" type="button" data-restore="${t.id}">Build · ${COIN} ${u.cost}</button>`
   :short?`<button class="cardButton go" type="button" data-make="${order.id}">${!short.parts?'Deliver the gold order':short.miss.length===1&&short.parts===1?`Make the missing ${nameOf(item(short.miss[0].family,short.miss[0].tier))}`:`Make ${short.parts} missing parts`}</button>`
+  :!u.materials&&state.orders.some(o=>o?.story)?`<button class="cardButton go" type="button" data-aim="${t.id}">Work on this next</button>`
   :!u.materials?`<button class="cardButton go" type="button" data-go>Deliver an order</button>`
   :`<button class="cardButton go" type="button" data-go>Earn ${u.cost-state.coins} more ${COIN}</button>`;
  return `<section id="mapCard" class="mapCard ${canBuild(u)?'ready':''}" data-card="${t.id}"><span class="cardArt next">${placeArt(t,u.stage)}<em>Stage ${u.stage}</em></span><div class="cardBody"><small class="cardPlace">${n?t.stages[n-1].name:'New place'}</small><h3>${u.name}</h3>${pips(n)}<div class="needs">${stuff}${coins}</div>${lack}</div>${button}</section>`;
@@ -876,6 +889,8 @@ $('#mapContent').addEventListener('click',e=>{
   // Build 47f: a stage that opens the next area behind a reveal (the inner ring) keeps its own area on
   // screen until the reveal has shown the way in; the new area is not shown before its door opens.
   if(!(res.ok&&res.effects.nextArea&&pendingReveals().some(v=>v.live(state))))showMap();if(res.ok&&!res.effects.nextArea)buildFx(res.task,from,was);return;}
+ // Build 49a: work on another open place next (its gold order replaces the other one's; parts stay)
+ const aim=e.target.closest('[data-aim]');if(aim){const r=run({type:'aim',id:aim.dataset.aim});if(r?.ok){mapFocus=aim.dataset.aim;showMap();}return;}
  const sel=e.target.closest('[data-select]');if(sel){mapFocus=sel.dataset.select;sfx('tap');showMap();return;}
  const make=e.target.closest('[data-make]');if(make){$('#coastMap').close();focusOrder=make.dataset.make;render();$('#message').textContent='The gold order is marked: make its parts and deliver it for the materials.';return;}
  const p=e.target.closest('[data-replay]');if(p){showBeat(p.dataset.replay,{},STAGES);return;}
@@ -904,11 +919,15 @@ function showBeat(id,effects,stage=stageOf(state,id)){
  const revealNext=effects?.nextArea&&pendingReveals().some(v=>v.live(state));
  if(effects?.nextArea&&!revealNext)extra.push(['bram',`${area.name} is complete! ${area.id==='beach'?'Up the cliff: the':'The'} ${bare(next)} is open.`]);
  else if(effects?.areaDone&&!effects.nextArea)extra.push(['bram',`${area.name} is complete!${next?` The ${bare(next)} is still to come.`:''}`]);
- playLines(st.name,st.lines.concat(extra),()=>{const fresh=effects&&Object.keys(effects).length,nxt=fresh?nextPlace():null;if(nxt&&!effects.nextArea)mapFocus=nxt.u.id;if(effects?.nextArea){render();if(!nextReveal()){showMap();showIntro();}}else if($('#coastMap').open)showMap();const icon=$(`#coastMap .restoredIcon[data-task="${id}"]`)??$(`.restoredIcon[data-task="${id}"]`);icon?.classList.add('upgraded');
+ // Build 49a: Chapter 4 keeps its four story cards for the big moments; a stage's own line is a short
+ // caption with its rewards, never a dialog to tap through (the pack's interaction notes).
+ const caption=!!area.overview,say=caption?(title,lines,cb)=>{receipt=null;cb();}:playLines;
+ say(st.name,st.lines.concat(extra),()=>{const fresh=caption||effects&&Object.keys(effects).length,nxt=fresh?nextPlace():null;if(nxt&&!effects.nextArea)mapFocus=nxt.u.id;if(effects?.nextArea){render();if(!nextReveal()){showMap();showIntro();}}else if($('#coastMap').open)showMap();const icon=$(`#coastMap .restoredIcon[data-task="${id}"]`)??$(`.restoredIcon[data-task="${id}"]`);icon?.classList.add('upgraded');
   // The stage's rewards, said once the story has been told (build 22: every stage gives one).
   // One clear next step after the story: the next place to build, said with its rewards.
   const next=nxt&&!effects?.nextArea?` · Next: ${nxt.u.name}${nxt.ready?' (ready)':''}`:'';
-  if(effects&&Object.keys(effects).length)moment(`${st.name} · stage ${stage} of ${STAGES}`,rewardText(effects)+next,null);burst(($('#coastMap').open?$('#coastMap .beachScene'):board).getBoundingClientRect(),'gold',true);
+  const said=caption?st.lines.map(([w,l])=>`${CREW[w].name}: “${l}” `).join(''):'';
+  if(caption||effects&&Object.keys(effects).length)moment(`${st.name} · stage ${stage} of ${STAGES}`,said+(effects&&Object.keys(effects).length?rewardText(effects):'')+next,null);burst(($('#coastMap').open?$('#coastMap .beachScene'):board).getBoundingClientRect(),'gold',true);
   for(const i of [effects?.kit,effects?.copy,effects?.token,effects?.cog])if(i>=0)board.querySelector(`[data-index="${i}"]`)?.classList.add('unsealed');
   // Build 47e (from PR #80): a first generator of its kind from a stage (the Lens Bench) shows its chain.
   if(effects?.copyId&&[...state.board,...state.shed,...state.pending].filter(y=>y?.type==='source'&&y.id===effects.copyId).length===1)setTimeout(()=>newGeneratorMoment(effects.copyId),1400);
@@ -950,7 +969,16 @@ const REVEALS=[
  // (a later save) is marked without playing. The arrival's button marks the landing's gold order.
  {id:'hb-arrival',when:s=>s.area>=4,live:s=>s.area===4&&!builtCount(s,AREAS[4]),play:done=>revealCard(storyCard('arrival'),()=>{done();const o=firstGold();if(o)markGold(o);},'Make the gold order')},
  {id:'hb-cargo',when:s=>stageOf(s,'hb-crane')>=STAGES,live:s=>stageOf(s,'hb-departure')<STAGES,play:done=>revealCard(storyCard('cargo'),done)},
- {id:'hb-signal',when:s=>stageOf(s,'hb-signal')>=STAGES,live:s=>stageOf(s,'hb-departure')<STAGES,play:done=>revealCard(storyCard('signal'),done)}
+ {id:'hb-signal',when:s=>stageOf(s,'hb-signal')>=STAGES,live:s=>stageOf(s,'hb-departure')<STAGES,play:done=>revealCard(storyCard('signal'),done)},
+ // Build 49a: the launch was the end of the content; it is now Chapter 3's last card and leads on to the
+ // headland (a camp that already saw it as the end card has it marked seen by load()).
+ {id:'hb-launch',when:s=>stageOf(s,'hb-departure')>=STAGES,live:()=>true,play:done=>revealCard(launchCard(),done,AREAS[5]?.tasks.length?'Follow the light':'Continue')},
+ // Chapter 4, the Answering Light (the pack's data/story-cards.json): the arrival once (its button marks
+ // the landing's gold order), the keeper's log and the first light each once; the stored message is the
+ // chapter's end card (showEnd). One the camp has moved past is marked seen without playing.
+ {id:'ch4-arrival',when:s=>s.area>=5,live:s=>s.area===5&&!builtCount(s,AREAS[5]),play:done=>revealCard(headlandCard('arrival'),()=>{done();const o=firstGold();if(o)markGold(o);},'Secure the landing')},
+ {id:'ch4-log',when:s=>stageOf(s,'ch4-cottage')>=STAGES,live:s=>stageOf(s,'ch4-relay')<STAGES,play:done=>revealCard(headlandCard('log'),()=>{done();mapFocus='ch4-records';showMap();},'Open the signal room')},
+ {id:'ch4-light',when:s=>stageOf(s,'ch4-lighthouse')>=STAGES,live:s=>stageOf(s,'ch4-relay')<STAGES,play:done=>revealCard(headlandCard('light'),()=>{done();mapFocus='ch4-relay';showMap();},'Check the relay')}
 ];
 const markSeen=id=>{if(!state.seen?.[id]&&act(state,{type:'seen',id},Date.now()).ok){persist();playlog.event('reveal',{id});}};
 const pendingReveals=()=>REVEALS.filter(v=>v.when(state)&&!state.seen?.[v.id]);
@@ -998,6 +1026,16 @@ const HARBOUR_STORY={
  signal:{tag:'The Hidden Harbour · the signal tower',title:'An answering light',who:'tamsin',line:'There. Across the water. A light answered us.',alt:'At dusk the signal tower sends a sea-green beam over the water; far off on a headland, a small light answers.',next:['hb-boatyard','hb-departure']}
 };
 function storyCard(key){const v=HARBOUR_STORY[key];return `<small>${v.tag}</small><div class="revealPanel story"><img class="panelTo" src="assets/premium/coast/hidden-harbour/story-${key}.webp" alt="${v.alt}" draggable="false"></div><div class="storyCopy"><h3>${v.title}</h3>${revealLine(v.who,v.line)}${harbourNext(v.next)}</div>`;}
+// Build 49a: the launch, Chapter 3's last card (it was the end card), leading on to Chapter 4.
+function launchCard(){const next=AREAS[5];return `<small>${next?'Chapter 3 complete':'The Hidden Harbour'} · the departure dock</small><div class="revealPanel story"><img class="panelTo" src="assets/premium/coast/hidden-harbour/story-departure.webp" alt="The repaired boat with its ivory and coral sail leaves the harbour in daylight, the restored landing, warehouse and signal tower behind it." draggable="false"></div><div class="storyCopy"><h3>The boat is ready</h3>${revealLine('ivo','The boat is ready. Now we have a direction.')}${next?`<p class="revealNext"><b>Next</b>Chapter 4 · ${next.name}</p>`:''}</div>`;}
+// Chapter 4's story cards (the pack's four text-free portrait paintings, lines from its story-cards.json,
+// the crew's own portraits). The first light sweeps its beam once (1.8 s, reduced motion: a still glow).
+const HEADLAND_STORY={
+ arrival:{tag:'Chapter 4 · The Answering Light',title:'A light without a keeper',lines:[['bram','The tower is dark. That small light answered us.'],['ivo','First we need a safe way up.']],alt:'The headland seen from the water: a dark lighthouse on the cliff, a broken landing below and a small brass light glowing beside the ruins.',pos:'50% 32%',next:['ch4-landing']},
+ log:{tag:'The Answering Light · the keeper\'s cottage',title:'A reply left waiting',lines:[['neri','The keeper describes a machine that answers a signal on its own.'],['tamsin','Then we have found the reply. We still do not know who left it.']],alt:'The keeper\'s logbook open on a desk by the window: drawings of brass gears, a lens and a reflector.',pos:'40% 58%',next:['ch4-records']},
+ light:{tag:'The Answering Light · the lighthouse',title:'The headland wakes',lines:[['tamsin','The main light is steady. The relay can use it now.'],['bram','A safe light for every boat that follows us.']],alt:'At sunset the lighthouse on the headland is lit, its sea-green beam reaching out over the water.',pos:'50% 22%',beam:true,next:['ch4-relay']}
+};
+function headlandCard(key){const v=HEADLAND_STORY[key];return `<small>${v.tag}</small><div class="revealPanel story portrait ${v.beam?'beamOnce':''}"><img class="panelTo" src="assets/premium/coast/answering-light/story-${key}.webp" alt="${v.alt}" draggable="false" style="object-position:${v.pos}">${v.beam?'<i class="beamSweep" aria-hidden="true"></i>':''}</div><div class="storyCopy"><h3>${v.title}</h3>${v.lines.map(([w,l])=>revealLine(w,l)).join('')}${harbourNext(v.next)}</div>`;}
 function harbourNext(ids){
  for(const id of ids){const u=upgrades(state).find(u=>u.id===id);if(u){const gold=state.orders.some(o=>o?.story===u.id);return `<p class="revealNext"><b>Next</b>${u.name}${gold?' · its gold order is on the board':''}</p>`;}}
  for(const id of ids){const b=blockedStage(state,id);if(b){const wait=Object.entries(b.requires).filter(([p,n])=>stageOf(state,p)<n).map(([p,n])=>TASKS[p].stages[n-1].name);return `<p class="revealNext"><b>Next</b>${b.name} · after ${wait.join(' and ')}</p>`;}}
@@ -1056,7 +1094,21 @@ function showEnd(){
  // leads into the Vault, so the camp's end is always Chapter 2's.
  // Build 48a: the content ends with Chapter 3, the Hidden Harbour: the launch (the director's departure
  // panel and Ivo's line) is its end card, once. No Chapter 4 is offered or promised.
- const harbour=last.id==='harbour';
+ // Build 49a: the content ends with Chapter 4, the Answering Light: the relay's stored message (the
+ // pack's fourth story card) is its end card, once, with this chapter's own count and the camp's
+ // labelled apart. No Chapter 5 is offered or promised (no button): "the story so far" only.
+ const harbour=last.id==='harbour',headland=last.id==='answering-light';
+ if(headland){const here=builtCount(state,last),all4=last.tasks.length*STAGES;
+  $('#endContent').innerHTML=`<figure class="endArt portrait"><img src="assets/premium/coast/answering-light/story-message.webp" alt="On the headland the relay's brass frame holds a lit sea-green orb; below it a chart is unrolled, a route marked through the reef." draggable="false"></figure>
+  <small class="endTag">Chapter 4 complete · A route through the reef</small><h2 id="endTitle">The headland answers</h2>
+  ${revealLine('neri','A passage through the reef, marked for low water.')}${revealLine('bram','Someone left a way through. We still have to learn why.')}
+  <p class="endLine">You restored the light and decoded a route through the reef.</p>
+  <p class="endNext">This is the end of the story so far.</p>
+  <section class="endStats" aria-label="This chapter and your camp"><h3>The Answering Light</h3><dl>
+   <div><dt>This chapter's stages</dt><dd>${here} / ${all4}</dd></div><div><dt>All chapters so far</dt><dd>${stages} / ${all}</dd></div><div><dt>Crew orders delivered</dt><dd>${state.ordersDone}</dd></div><div><dt>Generator types found</dt><dd>${kinds}</dd></div></dl>
+   <p>Crew orders keep coming. Their coins carry over, and the shop takes them.</p></section>
+  <button class="primary" type="button" data-view>View the restored headland</button><button class="menuButton" type="button" data-keep>Return to board</button><button class="menuButton" type="button" data-feedback>Share feedback</button>`;
+  $('#endDialog').showModal();return;}
  $('#endContent').innerHTML=(harbour?`<figure class="endArt"><img src="assets/premium/coast/hidden-harbour/story-departure.webp" alt="The repaired boat with its ivory and coral sail leaves the harbour in daylight, the restored landing, warehouse and signal tower behind it." draggable="false"></figure>
   <small class="endTag">Chapter 3 complete</small><h2 id="endTitle">The boat is ready</h2>
   <p class="endLine">Ivo: “The boat is ready. Now we have a direction.”</p>`:`<figure class="endArt" aria-hidden="true"><img src="assets/premium/coast/harbour-view.webp" alt="" draggable="false"></figure>
@@ -1069,7 +1121,7 @@ function showEnd(){
   <button class="primary" type="button" data-keep>Keep playing</button><button class="menuButton" type="button" data-feedback>Share feedback</button>`;
  $('#endDialog').showModal();
 }
-$('#endContent').addEventListener('click',e=>{if(e.target.closest('[data-keep]'))$('#endDialog').close();if(e.target.closest('[data-feedback]')){$('#endDialog').close();showPlaylog(true);}});
+$('#endContent').addEventListener('click',e=>{if(e.target.closest('[data-keep]'))$('#endDialog').close();if(e.target.closest('[data-view]')){$('#endDialog').close();mapFocus=null;showMap();}if(e.target.closest('[data-feedback]')){$('#endDialog').close();showPlaylog(true);}});
 // The playtest log screen: copy or download it, or clear it (the game's save is not touched).
 const QUESTIONS='1. What was the most fun?\n2. Where did you get stuck or bored?\n3. Would you play again tomorrow? Why?';
 function showPlaylog(ask=false){

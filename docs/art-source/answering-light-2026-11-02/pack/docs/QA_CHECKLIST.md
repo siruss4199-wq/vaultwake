@@ -1,0 +1,21 @@
+# Implementation acceptance
+- 21 stages, 7 places; no dependency cycles; both middle branches reachable in either order.
+- Recipes reference actual existing family IDs, valid zero-based tiers and usable producers; no collectible-only top tiers.
+- Fixed Gear assembly and Travel notebook appear with and without precursor inventory.
+- Pending/full board, shed, source parking, competing crew commitments and rare pity survive reload.
+- Chapter3-complete saves with/without seen-end flag both enter correctly.
+- Earlier Chapter1/2 saves retain progression, active Gold orders and all possessions.
+- All 21 stages restore exactly once and charge exactly once across refresh.
+- Finale requires all branches and triggers exactly one reveal; skip/reload cannot duplicate rewards.
+- No fresh board, new cargo injection, currency or accidental generator unlock.
+- Capacity100 settings and overflow untouched by Chapter4.
+- At360/390/430/907x510: map points reachable, scroll contained, no horizontal overflow, chapter tabs legible.
+- Stage0/1/2/3 visibly distinct; no fully lit tower before stage3; only one arrival boat.
+- After each stage update actual art; disabled locations explain why, never fake available CTA.
+- Art previews at96px and144px: readable silhouette, no cropped details, icon background truly transparent.
+- Reduced-motion, mute, touch tap and drag, overlay dismiss/return board, save/reload and Home Continue.
+- Run current node --test tests/v5-*.test.mjs and relevant browser suites; add Chapter4 coverage.
+- Compare 10seeds x4speeds xshop modes with current baseline. Report completion, time, energy wait, coins, order demands, source-specific eligible taps and rare-only pursuit.
+- Human-style play: choose both branch orders; use a board-constrained entry save, not only a clean bot board.
+- Report unresolved issues; do not claim tests ran in this preparation pack.
+
