@@ -20,7 +20,7 @@ const args=process.argv.slice(2),flags=new Set(args.filter(a=>a.startsWith('--')
 const SPEEDS=(pos[0]??'4,5,8,10').split(',').map(Number),SEEDS=(pos[1]??'1,2,3,4,5,6,7,8,9,10').split(',').map(Number);
 const SHOPS={shop:[true],noshop:[false],both:[false,true]}[pos[2]??'both'],MODELS=(pos[3]??'off,bonus').split(',');
 const OVER=Object.fromEntries(args.filter(a=>a.includes('=')).map(a=>a.split('=')).map(([k,v])=>[k,+v]));
-const RULE_KEYS=['chance','pity','first','orders','taps','hold'],ORDER_KEYS=['every','top','rarity'];
+const RULE_KEYS=['chance','pity','level','hold'],ORDER_KEYS=['share','top','rarity','goal'];
 for(const k of ORDER_KEYS)if(k in OVER)g.SECONDARY_ORDERS[k]=OVER[k];
 const MIN=60000,DEFAULT=structuredClone(g.SECONDARY_RULES),sec=f=>g.isSecondary(f);
 const r1=x=>x===null?null:Math.round(x*10)/10;
