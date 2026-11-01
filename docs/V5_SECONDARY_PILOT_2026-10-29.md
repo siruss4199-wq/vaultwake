@@ -186,7 +186,7 @@ The early wait for the introductory order is the open point (remaining issue 1).
   opened on load shows the note once; the rest message.
 - **CI order:** the saves and extras suites now run before the Chapter 2 suite. That suite's
   intermittent WebKit failure stopped the step and hid them.
-- **Results on the final tree (game.mjs as in 19b9dde):** `node --test tests/v5-*.test.mjs` 335 pass, 0 fail; Chromium browser suites: see the line below once the local run ends.
+- **Results on the final tree (game.mjs as in 19b9dde):** `node --test tests/v5-*.test.mjs` 335 pass, 0 fail; Chromium at 360/390/430 px (and 907×510 where the suite covers it): board, playtest, bright, CrazyGames, home, story, rewards, saves, extras and Chapter 2 suites all pass; `node tools/coast-crazygames.mjs --check` up to date. WebKit is not installed here; it runs in CI.
 
 ### R3.6 Remaining issues
 
