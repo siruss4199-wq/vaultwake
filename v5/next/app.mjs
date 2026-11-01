@@ -4,7 +4,7 @@ import {blockedStage,isStuck,allDone,swapsLeft,adSwapsLeft,SHOP,shopLeft,BOOK_CO
 import {AREAS,STAGES,TASKS,LABELS} from './areas.mjs';
 import {primaryAction} from './guide.mjs';
 import {needsOf,missingOf,levelOf} from './needs.mjs';
-import {LEVEL_PATH,BONUS_NAMES,CHEST_ENERGY,EARLY_LEVELS,EARLY_LEVEL_ENERGY,ONBOARDING} from './game.mjs';
+import {LEVEL_PATH,BONUS_NAMES,CHEST_ENERGY,EARLY_LEVELS,EARLY_LEVEL_ENERGY,ONBOARDING,goldChase} from './game.mjs';
 import {kit} from '../kits.mjs';
 import {iceNeed,weakIceBeside} from './ice.mjs';
 import {purposeOf} from './purposes.mjs';
@@ -38,7 +38,7 @@ function moment(title,detail='',x=null){sharedMoment(title,detail,null);const el
 let adPlaying=false;
 const sfx=(kind,tier=0)=>sounds.play(kind,tier,{muted:adPlaying||platform.muted()});
 // Shown in the footer so a playtester can tell which build is running.
-export const BUILD='Build 48a · Chapter 3, the Hidden Harbour';
+export const BUILD='Build 48c · gameplay pass before Chapter 4';
 // The level path (docs/V5_LEVEL_PATH_2026-10-27.md): a crew order that pays a tool on top shows it
 // beside its coins (a Tide token; a favour's Sea chest or Brass cog).
 const bonusThing=o=>o.bonus==='cog'?cog():o.bonus==='chest'?kit(newestGenerator(state),2):o.bonus==='token'?token():null;
@@ -119,9 +119,10 @@ const DEV=new URLSearchParams(location.search).has('dev');document.documentEleme
 const ADS=document.documentElement.dataset.ads==='on'||DEV&&document.documentElement.dataset.ads!=='off';
 const pips=n=>`<span class="pips" aria-label="stage ${n} of ${STAGES}">${Array.from({length:STAGES},(_,k)=>`<i class="${k<n?'on':''}"></i>`).join('')}</span>`;
 // Places with stage art (build 38: workshop, pier, beacon) are drawn as they stand at their stage.
-// Build 48a: the Hidden Harbour's cut-outs (tools/harbour-art.py) live in their own folder; after the
-// launch the boatyard shows its stage-1 picture, the empty cradles, so the boat is never drawn twice.
-const artStage=(t,n)=>t.id==='hb-boatyard'&&n>=STAGES&&stageOf(state,'hb-departure')>=STAGES?1:Math.max(1,n);
+// Build 48a: the Hidden Harbour's cut-outs (tools/harbour-art.py) live in their own folder. Build 48c:
+// after the launch the boatyard's card is its finished yard from the restored map, cradles empty because
+// the boat has sailed ('launched'); it no longer falls back to the stage-1 cut-out, which read as unbuilt.
+const artStage=(t,n)=>t.id==='hb-boatyard'&&n>=STAGES&&stageOf(state,'hb-departure')>=STAGES?'launched':Math.max(1,n);
 const stageArt=(t,n)=>`<img class="art" src="assets/premium/coast/${t.art.startsWith('hb-')?'hidden-harbour/':''}place-${t.art}-${artStage(t,n)}.webp" alt="" draggable="false">`;
 // Build 47f: the Vault door is drawn as itself (a crop of the Home picture's door) with its rings lit
 // for the stage, not as a part's icon; painted ring states do not exist (see the doc's missing art).
@@ -209,20 +210,43 @@ function renderOrders(){
  }).join('')}</div>`;
  renderOrderTools();
 }
-// A tapped order explains where its missing parts come from (the generator, then each merge up
-// to the tier wanted: the real chain, nothing invented); one that is not ready can be changed
-// (build 36): free ones first, then after an ad. The gold order stays.
+// A tapped order explains where its missing parts come from (the generator, then the real chain up to
+// the part wanted, nothing invented); one that is not ready can be changed (build 36): free ones first,
+// then after an ad. Build 48b: "merge up N times" is gone (a chain's distance is not how many merges it
+// takes): it says "merge matching items to reach …"; a part whose generator cannot make it yet says what
+// opens it (routeWhy).
+function routeWhy(r,gold=false){
+ const gen=CHAINS[r.family].gen,name=SOURCES[gen].name,sec=CHAINS[r.family].secondary;
+ if(!has(gen))return {ok:false,text:`${name} is still sealed in cargo on the board`};
+ if(!sourceOpen(state,gen))return {ok:false,text:`${name} wakes in a later area`};
+ if(sec&&!state.secOpen?.[gen])return {ok:false,text:`Opens when a ${name} reaches level ${SECONDARY_RULES[gen].level}`};
+ const reach=r.tier?` · merge matching items to reach ${CHAINS[r.family].names[r.tier]}`:'';
+ // Build 48c: on the gold order the guarantee is said as it is: counted in taps, not time
+ if(sec&&gold&&goldChase(state,r.family))return {ok:true,text:`Tap a level ${SECONDARY_RULES[gen].level}+ ${name}: while this order waits, a ${CHAINS[r.family].names[0]} comes within every ${SECONDARY_RULES[gen].goldPity} taps${reach}`};
+ return {ok:true,text:sec?`A rare extra from level ${SECONDARY_RULES[gen].level}+ ${name} taps${reach}`:`Tap ${name}${reach}`};
+}
 function chainRoute(r){
- const gen=CHAINS[r.family].gen,open=sourceOpen(state,gen),steps=Array.from({length:r.tier+1},(_,k)=>k);
- const text=!has(gen)?`${SOURCES[gen].name} is still sealed in cargo on the board`:!open?`${SOURCES[gen].name} wakes in a later area`:CHAINS[r.family].secondary?`A rare extra from level 2+ ${SOURCES[gen].name} taps (at the latest on the ${SECONDARY_RULES[gen].pity}th tap)${r.tier?`, then merge up ${r.tier} time${r.tier>1?'s':''}`:''}`:`Tap ${SOURCES[gen].name}${r.tier?`, then merge up ${r.tier} time${r.tier>1?'s':''}`:''}`;
- return `<li class="route ${open?'':'sealed'}"><span class="routeGen">${draw({type:'source',id:gen})}</span>${steps.map(k=>`<i class="routeArrow" aria-hidden="true"></i><span class="routeStep ${k===r.tier?'goal':''}" title="${CHAINS[r.family].names[k]}">${draw(item(r.family,k))}</span>`).join('')}<small>${text}</small></li>`;
+ const gen=CHAINS[r.family].gen,why=routeWhy(r),steps=Array.from({length:r.tier+1},(_,k)=>k);
+ return `<li class="route ${why.ok?'':'sealed'}"><span class="routeGen">${draw({type:'source',id:gen})}</span>${steps.map(k=>`<i class="routeArrow" aria-hidden="true"></i><span class="routeStep ${k===r.tier?'goal':''}" title="${CHAINS[r.family].names[k]}">${draw(item(r.family,k))}</span>`).join('')}<small>${why.text}</small></li>`;
+}
+// Build 48b: the gold order's panel is compact: the stage, each material with what is held of it, where
+// it comes from (or what opens it), the build cost against the coins held, and a button that shows the
+// generator on the board. The full chains are behind "How to make these".
+function goldPanel(o){
+ const t=TASKS[o.story],u=upgrades(state).find(v=>v.id===o.story),st=t.stages[Math.min(STAGES,stageOf(state,t.id)+1)-1],cost=u?.cost??st.cost;
+ const need=needsOf(state,o).map(r=>{const why=routeWhy(r,true),gen=CHAINS[r.family].gen;
+  return `<li class="goldNeed ${r.have>=r.count?'met':''}"><span class="goldIcon">${draw(item(r.family,r.tier))}</span><span class="goldText"><b>${nameOf(item(r.family,r.tier))} <em>${r.have}/${r.count}</em></b><small>${r.have>=r.count?'On the board':why.text}</small></span>${r.have<r.count&&why.ok?`<button class="locate" type="button" data-locate="${gen}" aria-label="Show the ${SOURCES[gen].name}">${draw({type:'source',id:gen})}</button>`:''}</li>`;}).join('');
+ const short=Math.max(0,cost-state.coins);
+ const where=LABELS[t.id]?LABELS[t.id][0].toUpperCase()+LABELS[t.id].slice(1):AREAS.find(a=>a.id===t.area)?.name??t.name;
+ return `<p class="orderSay goldSay"><b>${st.name}</b><small>${where} · materials, then ${COIN}${cost} to build</small></p><ul class="goldNeeds">${need}</ul><p class="goldCost">${short?`${COIN}${state.coins} of ${cost}: <b>${short} more</b> from crew orders`:`${COIN}${cost} to build: <b>you have it</b>`}</p><details class="goldHow"><summary>How to make these</summary><ol class="routes">${missingOf(state,o).map(chainRoute).join('')}</ol></details>`;
 }
 function renderOrderTools(){
  const o=state.orders.find(o=>o.id===focusOrder),bar=$('#orderTools');
  if(!o||orderItems(state,o)){bar.hidden=true;bar.innerHTML='';return;}
  const day=today(),free=swapsLeft(state,day),ads=adSwapsLeft(state,day),missing=missingOf(state,o);
  bar.hidden=false;
- const swap=o.story?`<span class="toolNote">The gold order is for ${upgrades(state).find(u=>u.id===o.story)?.name??TASKS[o.story].name}: it stays.</span>`:`<span class="toolNote">Stuck on ${CREW[o.who].name}'s order?</span>`+(free>0?`<button data-swap>↻ New order <small>${free} free today</small></button>`:ADS&&ads>0?'<button class="adOffer" data-swap-ad>▶ New order</button>':'<button disabled>No more changes today</button>');
+ if(o.story){bar.innerHTML=goldPanel(o);return;}
+ const swap=`<span class="toolNote">Stuck on ${CREW[o.who].name}'s order?</span>`+(free>0?`<button data-swap>↻ New order <small>${free} free today</small></button>`:ADS&&ads>0?'<button class="adOffer" data-swap-ad>▶ New order</button>':'<button disabled>No more changes today</button>');
  // What the order is for and where its coins go (Build 44): the crew member's reason, and the
  // next stage the coins count toward (the gold order instead brings that stage's materials).
  const role=roleOf(o),why=purposeOf(o,role),n=nextPlace(),kind={quick:'Quick job',pair:'Two-part job'}[role];
@@ -234,8 +258,12 @@ function renderOrderTools(){
  const pays=!o.story&&n&&!n.ready?`<p class="orderPays">${COIN} +${o.coins} → <b>${n.u.name}</b></p>`:'';
  bar.innerHTML=`${say}${pays}<ol class="routes" aria-label="Where the parts come from">${missing.map(chainRoute).join('')}</ol><div class="toolRow">${swap}</div>`;
 }
+// Build 48b: "show the generator" from the gold order's panel: its best copy glows for a moment (a
+// still outline with reduced motion).
+let locateGen=null,locateUntil=0;
+const locateIndex=()=>{if(!locateGen||performance.now()>locateUntil)return -1;return state.board.reduce((b,x,i)=>x?.type==='source'&&x.id===locateGen&&(b<0||producerLevel(x)>producerLevel(state.board[b]))?i:b,-1);};
 function renderBoard(){
- const sel=state.board[selected],focus=state.orders.find(o=>o.id===focusOrder);
+ const sel=state.board[selected],focus=state.orders.find(o=>o.id===focusOrder),located=locateIndex();
  const focusKeys=new Set(focus?.needs.map(r=>r.family+r.tier)??[]),focusMissing=focus?missingOf(state,focus):[];
  // The tapped order's generators glow too (Build 41 M3, from PR #77).
  const focusGens=new Set(focusMissing.map(r=>CHAINS[r.family].gen));
@@ -258,7 +286,7 @@ function renderBoard(){
   // generator it still needs. The panel under the board tells the rest.
   const holdsGen=x?.type==='cargo'&&x.find?.type==='source'&&focusGens.has(x.find.id);
   const ice=x?.type==='glass'?`ice${Math.min(2,x.cracks??0)}`:'';
-  return `<button class="tile ${x?.type??'empty'} ${ice} ${x?.cracks?'cracked':''} ${ready?'keyReady':''} ${deep?'deep':''} ${locked?'locked':''} ${selected===i?'selected':''} ${twin?'match':''} ${focused?'nextAction':''} ${x?.type==='source'&&focusGens.has(x.id)||holdsGen?'orderSource':''} ${(r+c)%2?'odd':''}" data-index="${i}" style="grid-row:${r+1};grid-column:${c+1}" ${x?.family||x?.id?`data-family="${x.family??x.id}"`:''} ${x?.type==='cargo'?`data-key="${x.key.family}"`:''} aria-label="${nameOf(x)}${x?.type==='glass'?` · ${GLASS_HITS-(x.cracks??0)} hit${GLASS_HITS-(x.cracks??0)>1?'s':''} left`:''}${iceNeed(x)?` · cracked by a level ${iceNeed(x)} or better merge beside it`:''}${locked?' · locked':''}${x?.type==='source'&&!locked?' · tap to make a part for 1 energy':''}. Space ${i+1}" aria-pressed="${selected===i}">${draw(deep?{...x,deep:true}:x)}${badge}</button>`;
+  return `<button class="tile ${x?.type??'empty'} ${i===located?'located':''} ${ice} ${x?.cracks?'cracked':''} ${ready?'keyReady':''} ${deep?'deep':''} ${locked?'locked':''} ${selected===i?'selected':''} ${twin?'match':''} ${focused?'nextAction':''} ${x?.type==='source'&&focusGens.has(x.id)||holdsGen?'orderSource':''} ${(r+c)%2?'odd':''}" data-index="${i}" style="grid-row:${r+1};grid-column:${c+1}" ${x?.family||x?.id?`data-family="${x.family??x.id}"`:''} ${x?.type==='cargo'?`data-key="${x.key.family}"`:''} aria-label="${nameOf(x)}${x?.type==='glass'?` · ${GLASS_HITS-(x.cracks??0)} hit${GLASS_HITS-(x.cracks??0)>1?'s':''} left`:''}${iceNeed(x)?` · cracked by a level ${iceNeed(x)} or better merge beside it`:''}${locked?' · locked':''}${x?.type==='source'&&!locked?' · tap to make a part for 1 energy':''}. Space ${i+1}" aria-pressed="${selected===i}">${draw(deep?{...x,deep:true}:x)}${badge}</button>`;
  }).join('');
  // The free-space count shows only when space is getting short.
  // Build 47a: rewards waiting for space say so here until they land.
@@ -278,10 +306,12 @@ function renderShed(){
 // The next place (Build 44): a compact preview of the coast's next stage beside the guidance.
 // It says "Ready" only when the materials are in and the coins are there.
 function nextPlace(){
- // One goal at a time (Audit 2026-10-25): a stage ready to build, else the stage the live gold
+ // One goal at a time (Audit 2026-10-25): a stage ready to build, else (build 48b) a stage whose
+ // materials are secured and waits for coins (the next gold order is already up for the stage after,
+ // so the strip kept saying "3 parts missing" right after a delivery), else the stage the live gold
  // order is for (so the strip and the gold card name the same place), else as before.
  const ups=upgrades(state),gold=state.orders.find(o=>o?.story)?.story;
- const u=ups.find(canBuild)??ups.find(u=>u.id===gold)??ups.find(u=>u.materials)??storyTarget(state)??ups[0];
+ const u=ups.find(canBuild)??ups.find(u=>u.materials)??ups.find(u=>u.id===gold)??storyTarget(state)??ups[0];
  if(!u)return null;const t=TASKS[u.id];return {u,t,ready:canBuild(u)};
 }
 // The restoration strip (Build 45): the board's one way to the coast. It shows the place the next
@@ -304,7 +334,7 @@ function renderNextPlace(){
  el.dataset.place=u.id;el.dataset.ready=ready?'1':'0';el.classList.toggle('ready',ready);
  el.querySelector('.rsThumb').innerHTML=placeArt(t,u.stage);
  el.querySelector('.rsText b').textContent=ready?'Ready to build':u.name;
- el.querySelector('.rsText small').innerHTML=ready?`${u.name} · ${COIN}${u.cost}`:`<i class="rsMat ${u.materials?'ok':''}" aria-hidden="true">${u.materials?'✓':'◆'}</i>${u.materials?'Materials':(g=>!g?'Gold order':g.parts?`${g.parts} part${g.parts>1?'s':''} missing`:'Deliver gold order')(goldShort(u.id))} · ${COIN}${Math.min(state.coins,u.cost)}/${u.cost}`;
+ el.querySelector('.rsText small').innerHTML=ready?`${u.name} · ${COIN}${u.cost}`:`<i class="rsMat ${u.materials?'ok':''}" aria-hidden="true">${u.materials?'✓':'◆'}</i>${u.materials?'Materials':(g=>!g?'Gold order':g.parts?`${g.parts} part${g.parts>1?'s':''} missing`:'Deliver gold order')(goldShort(u.id))} · ${u.materials&&state.coins<u.cost?`${u.cost-state.coins} more ${COIN}`:`${COIN}${Math.min(state.coins,u.cost)}/${u.cost}`}`;
  el.querySelector('.rsAction').textContent=ready?'Build':'View';
  el.setAttribute('aria-label',`${u.name} (${t.name}, stage ${u.stage}): ${ready?`ready to build for ${u.cost} coins. Open the ${area.name} to build it`:`${u.materials?'materials in':(g=>g?.parts?`gold order missing ${missText(g.miss)}`:'needs its gold order')(goldShort(u.id))}, ${Math.min(state.coins,u.cost)} of ${u.cost} coins. Open the ${area.name}`}`);
  if(ready&&!was&&el.dataset.seen==='1'&&!reduced()){el.classList.remove('justReady');void el.offsetWidth;el.classList.add('justReady');}
@@ -322,6 +352,9 @@ function renderSelection(){
   const wants=state.orders.filter(o=>o.needs.some(r=>matches(x,r)));
   const who=[...new Set(wants.map(o=>o.story?'The gold order':CREW[o.who].name))];
   if(who.length)desc=`★ ${who.join(' and ')} ${who.length>1?'need':'needs'} this. `+desc;
+  // Build 48b: a rare part the gold order's materials take, as it is or merged up, says for which place
+  {const gold=state.orders.find(o=>o?.story),r=gold&&CHAINS[x.family].secondary?gold.needs.find(q=>q.family===x.family&&q.tier>=x.tier):null;
+   if(r){const place=LABELS[gold.story]??TASKS[gold.story].stages[Math.min(STAGES,stageOf(state,gold.story)+1)-1].name;desc=`Needed for ${place}${r.tier>x.tier?`: merge matching items to reach ${CHAINS[r.family].names[r.tier]}`:''}. `+desc;}}
   // Clearing a part only appears when the board is nearly full (Build 41 M4): it is the way out of
   // a full board, not an everyday energy trick.
   // A secondary part (pilot) cost no energy, so clearing it gives none: it is not an energy trick, and
@@ -388,7 +421,7 @@ function header(){
 }
 // Energy pass (build 47v): the HUD shows energy over the player level's refill capacity. At the
 // capacity the timer says FULL; above it (bonus energy, which the refill does not add to) it says
-// BONUS and the pill is marked, e.g. 135/120.
+// BONUS and the pill is marked, e.g. 135/100.
 function energyHud(){
  const cap=capacityOf(state),over=state.energy>cap,t=refillTimes(state,Date.now());
  $('#energy').innerHTML=`${state.energy}<span class="energyCap">/${cap}</span>`;
@@ -451,7 +484,10 @@ function run(a){
   if(r.energy&&orderRect)setTimeout(()=>rewardFlight(orderRect,$('#energyPill').getBoundingClientRect(),`+${r.energy} ϟ`),reduced()?0:420);
   // Energy pass: the first ordinary crew order's +15, a short non-blocking note beside it
   if(r.boost){if(orderRect)setTimeout(()=>rewardFlight(orderRect,$('#energyPill').getBoundingClientRect(),`+${r.boost.energy} energy`),reduced()?0:700);energyNote(`First crew order · +${r.boost.energy} energy`);}
-  if(r.materials){const t=TASKS[r.materials.id],u=t.stages[r.materials.stage-1],ok=state.coins>=u.cost;setTimeout(()=>moment(ok?'Ready to build: '+u.name:'Materials in: '+t.name,ok?`${t.name} · go to the ${currentArea(state).name} to build it (${u.cost} coins).`:`${u.name} also needs ${u.cost} coins: ${u.cost-state.coins} more from crew orders.`),reduced()?0:950);}}
+  // Build 48b: one clear step after the gold order: the materials are secured, the strip shows it at
+  // once, and it says either "Build · cost" or how many coins are still short (crew orders pay them)
+  if(r.materials){const t=TASKS[r.materials.id],u=t.stages[r.materials.stage-1],ok=state.coins>=u.cost;holdPlace=0;renderNextPlace();
+   setTimeout(()=>moment(`Materials secured · ${u.name}`,ok?`Build · ${u.cost} coins: tap the strip under the orders.`:`${u.cost-state.coins} more coins to build it: deliver crew orders.`),reduced()?0:950);}}
  if(r.event==='producerUp'){const src=state.board[r.index],next=nextKind(src.id),waiting=next&&src.level<UNLOCK_LEVEL&&!state.board.some(y=>y?.type==='source'&&y.id===next);
   if(r.unlocks?.length)extrasNews();else moment(SOURCES[src.id].name+' · level '+src.level,LEVEL_GAIN[src.level]+(waiting?` Level ${UNLOCK_LEVEL} brings out the ${SOURCES[next].name}.`:''),src);tile?.classList.add('merge-pop');burst(tile?.getBoundingClientRect(),'gold',true);sfx('milestone');}
  // On the coast screen the build plays first (Build 41f), then its story.
@@ -561,6 +597,10 @@ $('#selection').addEventListener('click',e=>{
  // The panel keeps its text to two lines (Build 45); a tap on it shows the rest.
  if(e.target.closest('.copy')){$('#selection').classList.toggle('open');return;}
  const b=e.target.closest('[data-action]');if(!b)return;if(b.dataset.action==='store')shedOpen=true;const x=state.board[selected];run({type:b.dataset.action,index:selected,id:x?.id});});
+$('#orderTools').addEventListener('click',e=>{const b=e.target.closest('[data-locate]');if(!b)return;locateGen=b.dataset.locate;locateUntil=performance.now()+2600;renderBoard();
+ board.querySelector('.tile.located')?.scrollIntoView({block:'nearest',behavior:reduced()?'auto':'smooth'});
+ const i=locateIndex();if(i>=0)$('#message').textContent=`${SOURCES[locateGen].name}${state.board[i]?.level>1?` (level ${state.board[i].level})`:''}: tap it for parts.`;
+ setTimeout(()=>{if(performance.now()>=locateUntil)renderBoard();},2700);});
 $('#requests').addEventListener('click',e=>{const c=e.target.closest('[data-order]');if(!c)return;const o=state.orders.find(o=>o.id===c.dataset.order);if(!o)return;if(orderItems(state,o)){run({type:'deliver',id:o.id});return;}focusOrder=focusOrder===o.id?null:o.id;render();$('#message').textContent=`${CREW[o.who].name} needs ${needsOf(state,o).map(r=>r.count+' × '+nameOf(item(r.family,r.tier))+(r.sibling?` (level ${levelOf(r)})`:'')).join(' and ')}. Their parts are marked on the board.`+o.needs.filter(r=>CHAINS[r.family].secondary).map(r=>' '+sourceNote(r.family,r.tier)).join('');});
 // The upgrading happens on the beach screen (user: "tusdaa orchinruu ochij upgrade hiih").
 $('#mapButton').onclick=()=>{mapFocus=$('#mapButton').dataset.place||null;sfx('tap');showMap();};
@@ -914,7 +954,7 @@ const REVEALS=[
 ];
 const markSeen=id=>{if(!state.seen?.[id]&&act(state,{type:'seen',id},Date.now()).ok){persist();playlog.event('reveal',{id});}};
 const pendingReveals=()=>REVEALS.filter(v=>v.when(state)&&!state.seen?.[v.id]);
-// One reveal at a time (ported from PR #86). A stage that opens the next area starts its reveal at once and its
+// Build 48b: one reveal at a time. A stage that opens the next area starts its reveal at once and its
 // story callback also queued nextReveal 900 ms later; the reveal is marked seen only when it ends, so
 // the second call restarted it (the Vault opening jumped back to its first scene: WebKit CI, then
 // reproduced in Chromium). A call while one plays waits: its callback runs when the chain ends.

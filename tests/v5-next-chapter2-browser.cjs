@@ -48,7 +48,7 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast';
     if(ring<3){await beats();if(await page.locator('#coastMap[open]').count()){assert.equal(await page.locator('#coastMap .doorRings').getAttribute('data-stage'),String(ring),tag(`ring ${ring} lit`));await page.locator('#coastMap .close').click();}}
    }
    // the inner ring: its line, then the Vault opens (the reveal), then the end card
-   // the reveal starts once (it was also queued 900 ms later and restarted, sending a player who
+   // build 48b: the reveal starts once (it was also queued 900 ms later and restarted, sending a player who
    // had tapped Next back to its first scene); every scene change is recorded, and none comes unasked
    await page.evaluate(()=>{window.__scenes=[];const st=document.querySelector('#story');new MutationObserver(()=>window.__scenes.push(st.dataset.scene)).observe(st,{attributes:true,attributeFilter:['data-scene']});});
    await beats();await page.waitForSelector('#story:not([hidden])',{timeout:8000});

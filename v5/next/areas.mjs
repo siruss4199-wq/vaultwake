@@ -6,6 +6,15 @@
 // give generator copies (build 18): level a generator to 3 with them to bring out the next kind. A place's first
 // stage opens once the place before it has its first stage; its later stages follow its own.
 // Pure data. Effects are applied by game.mjs.
+// Build 48c (docs/V5_RARE_MERGES_RESTORATION_2026-11-01.md): six stages, chosen for what they repair,
+// name a FIXED merged rare part (rare: [chain, tier]) that replaces their gold order's second material:
+// the same part for every player, whatever they hold (build 48b lowered a tier-2 part to tier 1 for a
+// player holding no Gear, which punished saving one). Gears go to geared machines (the worksite hoist,
+// the lens bench's grinding wheel) and the crane's cargo needs a Gear assembly; notes go to the
+// Observatory's charts and logbook (an Expedition note, then a Travel notebook) and the registry's
+// route (a Travel notebook). Only if the chain cannot drop at all (never opened, or no level-2+
+// generator on the board) does the stage ask its usual materials instead: no circular unlock. While
+// the gold order lacks its rare part, that chain's drops are certain sooner (game.mjs goldChase).
 const place=(id,icon,at,stages,art)=>({id,icon,at,name:stages[0].name,stages,...(art?{art}:{})});
 // art: a place drawn stage by stage on the area picture (v5/assets/premium/coast/place-<art>-<stage>.webp,
 // build 38); the others still show their icon.
@@ -75,7 +84,7 @@ export const AREAS=[
     {name:'Wall in the pool',cost:200,effect:{copy:'newest'},lines:[['tamsin','A stone wall keeps the sea out. The pool is a workshop now.'],['tamsin','At the bottom: a copy of our newest generator.']]}],'ws-pool'),
    place('ws-hoist','source-rope',[89,70],[
     {name:'Raise the rope hoist',cost:160,effect:{energy:10},lines:[['ivo','A hoist on the cliff edge. One pull and the beach sends up anything we need.'],['bram','Supplies came up with the first load: +10 energy.']]},
-    {name:'Gear the hoist',cost:200,effect:{copy:'newest'},lines:[['ivo','Brass gears from the Workshop. The hoist lifts twice the load.'],['ivo','The first geared load: a copy of our newest generator.']]},
+    {name:'Gear the hoist',cost:200,rare:['mech',1],effect:{copy:'newest'},lines:[['ivo','Brass gears from the Workshop. The hoist lifts twice the load.'],['ivo','The first geared load: a copy of our newest generator.']]},
     {name:'Run the hoist to the door',cost:220,effect:{kit:['newest',3]},lines:[['ivo','A line from the hoist straight to the door. Whatever is behind it, we can move it.']]}],'ws-hoist'),
    place('ws-door','lamp-2',[74,38],[
     {name:'Survey the vault door',cost:180,effect:{energy:5},lines:[['neri','The door is a dial, as tall as three of us. Every ring turns.']]},
@@ -117,11 +126,11 @@ export const AREAS=[
     {name:'Hang the banners',cost:150,effect:{kit:['newest',2]},lines:[['neri','A compass and a crescent on every banner. That mark was on the door too.']]}],'obs-hall')},
    place('obs-desk','chart-3',[16,68],[
     {name:'Right the survey desk',cost:130,effect:{energy:8},lines:[['neri','Logbooks. Hundreds of them, all in the same hand.']]},
-    {name:'Unroll the old charts',cost:150,effect:{token:1},lines:[['neri','Every chart here carries the same mark: the fleet that no shipping register remembers.'],['bram','So they worked from here.']]},
-    {name:'Read the last logbook',cost:170,effect:{kit:['newest',2]},lines:[['tamsin','The last entry says: "Array silent. Lenses sent to the bench for regrinding." Then nothing.'],['neri','Then we start at the bench.']]}],'obs-desk'),
+    {name:'Unroll the old charts',cost:150,rare:['notes',1],effect:{token:1},lines:[['neri','Every chart here carries the same mark: the fleet that no shipping register remembers.'],['bram','So they worked from here.']]},
+    {name:'Read the last logbook',cost:170,rare:['notes',2],effect:{kit:['newest',2]},lines:[['tamsin','The last entry says: "Array silent. Lenses sent to the bench for regrinding." Then nothing.'],['neri','Then we start at the bench.']]}],'obs-desk'),
    place('obs-bench','optic-2',[86,46],[
     {name:'Clear the lens bench',cost:150,effect:{copy:'optic'},lines:[['ivo','A grinding wheel and a box of raw sea glass. We can make lenses again.']]},
-    {name:'Fit the grinding wheel',cost:170,effect:{copy:'optic'},lines:[['ivo','The wheel turns true. Merge the new bench with ours: twice the work.']]},
+    {name:'Fit the grinding wheel',cost:170,rare:['mech',1],effect:{copy:'optic'},lines:[['ivo','The wheel turns true. Merge the new bench with ours: twice the work.']]},
     {name:'Polish the reading lens',cost:190,effect:{kit:['optic',2]},lines:[['neri','The big lens is clear again. Now the array can see.']]}],'obs-bench'),
    place('obs-array','optic-3',[55,47],[
     {name:'Reseat the array crystal',cost:170,gold:[['optic',2,1],['lamp',2,2]],effect:{energy:10},lines:[['tamsin','The crystal is cold. It needs focused light.']]},
@@ -152,7 +161,7 @@ export const AREAS=[
    place('hb-crane','rope-3',[20,49],[
     {name:'Reinforce the crane',cost:200,requires:{'hb-landing':3},gold:[['rig',4,1],['rope',2,1]],effect:{energy:10},lines:[['ivo','The mast is sound. It only needed bracing.']]},
     {name:'Fit the pulley',cost:230,gold:[['rope',3,1],['rig',3,1]],effect:{cog:1},lines:[['ivo','A pulley block, a good hook. Now it can lift more than its own weight.']]},
-    {name:'Recover the cargo',cost:260,gold:[['rope',4,1],['rig',3,1]],effect:{kit:['newest',3]},lines:[['ivo','Something heavy down there. Steady… up she comes.']]}],'hb-crane'),
+    {name:'Recover the cargo',cost:260,gold:[['rope',4,1],['rig',3,1]],rare:['mech',2],effect:{kit:['newest',3]},lines:[['ivo','Something heavy down there. Steady… up she comes.']]}],'hb-crane'),
    place('hb-warehouse','shell-2',[28,25],[
     {name:'Repair the roof',cost:200,requires:{'hb-landing':3},gold:[['rig',3,1],['shell',2,1]],effect:{token:1},lines:[['ivo','New boards, a canvas over the gap. The rain stays out now.']]},
     {name:'Raise the shelves',cost:230,gold:[['rig',4,1],['shell',3,1]],effect:{energy:10},lines:[['tamsin','Shelves to the rafters. Somebody kept this place stocked for a long voyage.']]},
@@ -164,7 +173,7 @@ export const AREAS=[
    place('hb-registry','chart-3',[56,18],[
     {name:'Reopen the office',cost:240,requires:{'hb-crane':3,'hb-warehouse':3},gold:[['chart',3,1],['lamp',2,1]],effect:{energy:12},lines:[['neri','The harbour office. Ledgers, a stamp, a map on the wall.']]},
     {name:'Dry the records',cost:270,gold:[['lamp',3,1],['chart',3,1]],effect:{cog:1},lines:[['neri','Every boat that sailed from here is in these books. The last one too.']]},
-    {name:'Trace the route',cost:300,gold:[['chart',4,1],['optic',3,1]],effect:{kit:['newest',2]},lines:[['neri','The last boat followed the same bearing as the array. It leads out to sea.'],['tamsin','Then the tower can tell whoever is out there that we are here.']]}],'hb-registry'),
+    {name:'Trace the route',cost:300,gold:[['chart',4,1],['optic',3,1]],rare:['notes',2],effect:{kit:['newest',2]},lines:[['neri','The last boat followed the same bearing as the array. It leads out to sea.'],['tamsin','Then the tower can tell whoever is out there that we are here.']]}],'hb-registry'),
    place('hb-signal','lamp-3',[90,18],[
     {name:'Repair the tower',cost:260,requires:{'hb-registry':3},gold:[['lamp',3,1],['rig',3,1]],effect:{energy:12},lines:[['bram','Stone stairs, an iron door. The lamp room is still dry.']]},
     {name:'Align the lens',cost:290,gold:[['optic',4,1],['lamp',2,1]],effect:{token:1},lines:[['tamsin','The lens turns on the same bearing as the array.']]},

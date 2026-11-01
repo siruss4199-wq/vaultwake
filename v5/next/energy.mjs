@@ -7,8 +7,11 @@
 import {REFILL_EVERY,RATION_ENERGY,RATION_EVERY,rationWait,clock} from '../energy.mjs';
 export {REFILL_EVERY,RATION_ENERGY,RATION_EVERY,rationWait,clock};
 
-// [first player level, natural-refill capacity] (trial balance values)
-export const CAPACITY=[[1,50],[3,60],[5,70],[8,80],[12,90],[17,100],[23,110],[30,120]];
+// [first player level, natural-refill capacity]. Build 48c (the director's approved schedule): the
+// maximum is 100, reached at level 12 (80 → 100, paid once as +20); the 90, 110 and 120 steps are gone.
+// A save past them keeps its energy (the refill rests above the capacity) and load() sets its capPaid
+// to its level's capacity, so no step is paid again or back-paid.
+export const CAPACITY=[[1,50],[3,60],[5,70],[8,80],[12,100]];
 export const START_CAPACITY=CAPACITY[0][1],MAX_CAPACITY=CAPACITY.at(-1)[1];
 // The most energy a camp may hold (refill, bonuses, shop and gifts together).
 export const STORE_ENERGY=200;

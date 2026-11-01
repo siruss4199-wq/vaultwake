@@ -111,10 +111,13 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
    await page.locator('#endContent [data-keep]').click();assert.equal(await page.locator('#endDialog[open]').count(),0);assert.ok(await page.locator('#board .tile').count()>30,tag('back to the board'));
    s=await save();assert.equal(s.seenEnd,true);
    await reload();await page.waitForTimeout(400);assert.equal(await page.locator('#endDialog[open]').count(),0,tag('the end card once'));assert.equal(await beats(),'',tag('no story card again'));
-   // the finished harbour: the boatyard's card shows its empty cradles (the boat is at the dock)
+   // the finished harbour (build 48c): the boatyard's card is its finished yard after the launch (cradles
+   // empty, the boat at the dock), not the stage-1 cut-out; the picture loads
    await page.locator('#mapButton').click();await page.waitForSelector('#coastMap[open]');
    await page.locator('#coastMap .places [data-select="hb-boatyard"]').click();
-   assert.match(await page.locator('#mapCard .cardArt img').getAttribute('src'),/place-hb-boatyard-1\.webp$/,tag('no second boat in the yard'));
+   assert.match(await page.locator('#mapCard .cardArt img').getAttribute('src'),/place-hb-boatyard-launched\.webp$/,tag('no second boat in the yard, and no unbuilt-looking yard'));
+   assert.ok(await page.locator('#mapCard .cardArt img').evaluate(i=>i.complete&&i.naturalWidth>0),tag('the launched yard loads'));
+   assert.match(await page.locator('#mapCard').innerText(),/Rig the sail/,tag('still its last stage'));
    assert.ok(await page.locator('#coastMap .beachScene.complete').count(),tag('the restored harbour'));await fits('finished coast');await shot('6-coast-complete');
    assert.deepEqual(missing,[],tag('every harbour picture loads'));assert.deepEqual(errors,[],tag('no page errors'));
    await context.close();

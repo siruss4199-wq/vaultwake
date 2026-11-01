@@ -196,7 +196,7 @@ async function perform(page,a){
     if(o){await page.locator(`[data-order="${o.id}"]`).tap();assert.equal(await page.locator('#orderTools [data-swap]').count(),1,'a free change is offered');
      await page.locator('#orderTools [data-swap]').tap();await page.waitForFunction(id=>!JSON.parse(localStorage.getItem('vaultwake-v5-coast')).orders.some(o=>o.id===id),o.id,{timeout:4000});
      assert.equal((await read(page)).swaps.n,1);assert.equal(await page.locator('#orderTools').isHidden(),true);}
-    const g=(await read(page)).orders.find(o=>o.story);if(g){await page.locator(`[data-order="${g.id}"]`).tap();assert.equal(await page.locator('#orderTools button').count(),0,'the gold order stays');await page.locator(`[data-order="${g.id}"]`).tap();}}
+    const g=(await read(page)).orders.find(o=>o.story);if(g){await page.locator(`[data-order="${g.id}"]`).tap();assert.equal(await page.locator('#orderTools [data-swap], #orderTools [data-swap-ad]').count(),0,'the gold order cannot be changed (build 48b: its panel has only Show buttons)');await page.locator(`[data-order="${g.id}"]`).tap();}}
    // Build 41 M3/M4: one primary action, the tapped order's generator, upgrade shortfalls, the
    // spend receipt, at most two attention marks, and clearing a part only when the board is full.
    await page.evaluate(()=>{const s=JSON.parse(localStorage.getItem('vaultwake-v5-coast'));const f=JSON.parse(JSON.stringify(s));

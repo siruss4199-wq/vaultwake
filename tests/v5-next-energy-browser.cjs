@@ -1,6 +1,6 @@
 // Coast Camp energy pass (build 47v; docs/V5_ENERGY_CAPACITY_2026-11-01.md) in a real browser, at 360,
 // 390 and 430 px portrait and 907×510 landscape (touch): the HUD shows energy over the level's capacity
-// (50/50 FULL for a new camp, a countdown below it, 135/120 BONUS above it) without clipping; the level
+// (50/50 FULL for a new camp, a countdown below it, 135/100 BONUS above it) without clipping; the level
 // badge shows the level, its XP, the capacity and the next milestone (or the maximum); a capacity
 // milestone shows "Energy capacity 50 → 60 · +10 energy" apart from the level's own energy, once; the
 // first crew order's +15 shows as a short note; a reload pays nothing twice.
@@ -63,17 +63,18 @@ const order=(s,needs)=>{s.orders[0]={id:'tq',who:'ivo',needs,coins:5,role:'quick
     // a reload pays nothing again
     s=await read(page);await page.reload();await page.waitForSelector('#board .tile');await page.waitForTimeout(300);
     const t=await read(page);assert.equal(t.energy,s.energy);assert.equal(t.capPaid,60);assert.equal(await page.locator('.energyNote').count(),0);
-    // 4. bonus energy above the capacity: 135/120 BONUS, and the maximum capacity in the level panel
+    // 4. bonus energy above the capacity: 135/100 BONUS, and the maximum capacity in the level panel
     await write(page,`s.energy=135;s.level={version:1,level:30,xp:0};s.capPaid=120;`);await page.reload();await page.waitForSelector('#board .tile');await closeBeats(page);
-    assert.equal((await page.locator('#energy').textContent()).replace(/\s/g,''),'135/120');assert.equal(await page.locator('#energyTimer').textContent(),'BONUS');
-    assert.ok(await page.locator('#energyPill.overCap').count(),'marked as bonus energy');await fits(page,tag+' 135/120');await shot('4-bonus-overflow');
-    await page.locator('#levelPill').tap();await page.waitForSelector('.moment');assert.match(await page.locator('.moment').textContent(),/Maximum energy capacity: 120\./);
+    assert.equal((await page.locator('#energy').textContent()).replace(/\s/g,''),'135/100');assert.equal(await page.locator('#energyTimer').textContent(),'BONUS');
+    {const t=await read(page);assert.equal(t.energy,135,'energy above the new maximum is kept');assert.equal(t.capPaid,100,'capPaid follows the new maximum');}
+    assert.ok(await page.locator('#energyPill.overCap').count(),'marked as bonus energy');await fits(page,tag+' 135/100 (a level-30 save that had capacity 120)');await shot('4-bonus-overflow');
+    await page.locator('#levelPill').tap();await page.waitForSelector('.moment');assert.match(await page.locator('.moment').textContent(),/Maximum energy capacity: 100\./);
     await page.waitForTimeout(300);await shot('5-level-panel-maximum');
     // a three-digit energy at the largest stored amount still fits
-    await write(page,`s.energy=200;s.coins=1250;`);await page.reload();await page.waitForSelector('#board .tile');await closeBeats(page);await fits(page,tag+' 200/120 with 1,250 coins');
+    await write(page,`s.energy=200;s.coins=1250;`);await page.reload();await page.waitForSelector('#board .tile');await closeBeats(page);await fits(page,tag+' 200/100 with 1,250 coins');
     assert.deepEqual(errors,[],tag);await context.close();}
   }
-  console.log(`${engine} Coast Camp energy: 50/50 FULL, countdown, level panel (capacity, next milestone, maximum), +15 note, capacity 50 → 60 · +10 once, 135/120 BONUS, no clipping at 360/390/430 and 907×510, reduced motion passed`);
+  console.log(`${engine} Coast Camp energy: 50/50 FULL, countdown, level panel (capacity, next milestone, maximum), +15 note, capacity 50 → 60 · +10 once, 135/100 BONUS, no clipping at 360/390/430 and 907×510, reduced motion passed`);
   }finally{await browser.close();}
  }
 })().catch(e=>{console.error(e);process.exit(1);});

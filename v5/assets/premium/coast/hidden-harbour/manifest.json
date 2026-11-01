@@ -297,6 +297,16 @@
     768,
     512
    ]
+  },
+  "place-hb-boatyard-launched": {
+   "file": "place-hb-boatyard-launched.webp",
+   "from": "harbour-map-after",
+   "box": [
+    530,
+    450,
+    1000,
+    780
+   ]
   }
  }
 }
