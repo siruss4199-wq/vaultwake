@@ -431,11 +431,12 @@ export function makeOrder(s){
   // quick job for its first part; s.secIntro, cleared once such an order is on the board), then about
   // one everyday order in three asks a secondary part (secondaryNeed), as a quick job for that part
   // alone (measured: in a mixed order, a hard primary part held a Gear order for 300 actions in the
-  // mobile playthrough, and the chain's other parts with it). Only a crew favour or a token order
-  // keeps its first part and its bonus, with the secondary as its second. Never a gold order (above).
+  // mobile playthrough, and the chain's other parts with it). A crew favour or a token order asks no
+  // secondary part (its harder part and bonus stay as they are; the turn passes to the next order).
+  // Never a gold order (above).
   {const intro=(s.secIntro??[]).find(f=>!s.orders.some(o=>o?.needs?.some(r=>r.family===f)));
    if(intro&&bonus!=='chest'&&bonus!=='cog'&&s.orders.filter(asksSecondary).length<secondaryLimit(s)){needs=[{family:intro,tier:0,count:1}];role='quick';}
-   else{const sec=bonus&&role==='quick'?null:secondaryNeed(s,n,k);if(sec){const {use,...need}=sec;if(!bonus)role='quick';needs=role==='quick'?[need]:[{...needs[0],count:1},need];}}}
+   else{const sec=bonus?null:secondaryNeed(s,n,k);if(sec){const {use,...need}=sec;role='quick';needs=[need];}}}
   recent.push(key(needs));if(recent.length>RECENT)recent.splice(0,recent.length-RECENT);
   return {id:'o'+n,who:crewFor(needs),needs,coins:orderPrice(s,needs,role),role,born:s.moves,...(bonus?{bonus}:{})};
  }
