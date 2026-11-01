@@ -233,7 +233,7 @@ test('use orders ask the biggest part the unused drops make; goals are one drop 
 
 test('turns: one in three, sooner with unused stock; at most the limit on the board; the chain with most unused first',()=>{
  const s=opened();noSecondaryOrders(s);s.slots=4;s.orders.push({...s.orders[0],id:'o90'});s.board[15]=item('mech',0);
- s.recent=['rig1x1','chart1x1'];assert.deepEqual(secondaryNeed(s,50,10),{family:'mech',tier:0,count:1},'neither of the last two asked one');
+ s.recent=['rig1x1','chart1x1'];assert.deepEqual(secondaryNeed(s,50,10),{family:'mech',tier:0,count:1,use:true},'neither of the last two asked one (a use order: asked alone)');
  // one of the last two asked one and an extra order is on the board: not a turn, even with a Bolt unused
  s.board[16]=item('mech',0);s.orders[1]={...s.orders[1],needs:[{family:'rig',tier:1,count:1},{family:'mech',tier:0,count:1}]};
  s.recent=['rig1x1','mech0x1+rig1x1'];assert.equal(secondaryNeed(s,51,11),null,'one of the last two did');

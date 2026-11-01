@@ -434,7 +434,7 @@ export function makeOrder(s){
   // crew favour keeps its harder part and its bonus (the introduction waits a turn). Never a gold order.
   {const intro=(s.secIntro??[]).find(f=>!s.orders.some(o=>o?.needs?.some(r=>r.family===f)));
    if(intro&&bonus!=='chest'&&bonus!=='cog'&&s.orders.filter(asksSecondary).length<secondaryLimit(s)){needs=[{family:intro,tier:0,count:1}];role='quick';}
-   else{const sec=bonus&&role==='quick'?null:secondaryNeed(s,n,k);if(sec)needs=role==='quick'?[sec]:[{...needs[0],count:1},sec];}}
+   else{const sec=bonus&&role==='quick'?null:secondaryNeed(s,n,k);if(sec){const {use,...need}=sec;if(use&&!bonus)role='quick';needs=role==='quick'?[need]:[{...needs[0],count:1},need];}}}
   recent.push(key(needs));if(recent.length>RECENT)recent.splice(0,recent.length-RECENT);
   return {id:'o'+n,who:crewFor(needs),needs,coins:orderPrice(s,needs,role),role,born:s.moves,...(bonus?{bonus}:{})};
  }
@@ -444,14 +444,15 @@ export function makeOrder(s){
 // at most every third order, one secondary order at a time, and the playtest held unused extras 85-89 %
 // of the time). Now:
 // - a turn comes when neither of the last SECONDARY_ORDERS.share-1 everyday orders asked one (so about
-//   one in three when parts are there to ask), and also whenever extras are held unused and no order on
-//   the board asks any (supply first; measured: 39 % of new everyday orders, against 61 % of the time
-//   with unused extras and no order for them when only every third turn counted, 85-89 % in round 2);
+//   one in three when parts are there to ask), and also whenever a chain holds unused extras and no
+//   order on the board asks that chain (supply first; measured: 39-43 % of new everyday orders, and the
+//   time with unused extras and no order for them down from 85-89 % in round 2 to about 45 %);
 // - secondary orders on the board stay below the everyday crew slots, so at least one everyday order
 //   (and the gold order) never asks a rare part;
 // - the chain with the most unused units (held on the board, in the shed or waiting, less what orders
-//   already want) is asked first, for the biggest part those units make (a USE order), within `top`
-//   and the stage ramp (tier 1 from the first stage built, tier 2 from the third);
+//   already want) is asked first, for the biggest part those units make (a USE order, always a quick
+//   job for that part alone, so a hard primary part never holds it up), within `top` and the stage
+//   ramp (tier 1 from the first stage built, tier 2 from the third);
 // - with no unused units, a modest GOAL: a part at most SECONDARY_ORDERS.goal drops beyond them, only
 //   from a chain with a generator of level 2+ on the board (it can drop: one comes by the 20th eligible
 //   tap, and drops never pause while an order wants the chain), only once the chain has been met, and
@@ -478,12 +479,12 @@ export function secondaryNeed(s,n,k){
  const fams=Object.values(SECONDARY_OF).filter(f=>secondaryHeld(s,f)>0||secondaryOn(s,CHAINS[f].gen));if(!fams.length)return null;
  if(s.orders.filter(asksSecondary).length>=secondaryLimit(s))return null;
  const unused=f=>secondaryUnused(s,f),most=Math.max(...fams.map(unused));
- // a turn: neither of the last share-1 everyday orders asked one, or extras lie unused with no order for any
+ // a turn: neither of the last share-1 everyday orders asked one, or a chain's extras lie unused with no order for it
  const recent=(Array.isArray(s.recent)?s.recent:[]).slice(-(SECONDARY_ORDERS.share-1)),asked=recent.some(key=>key.split('+').some(p=>isSecondary(p.replace(/\d+x\d+$/,''))));
- const surplus=fams.some(f=>unused(f)>0)&&!s.orders.some(asksSecondary);
+ const surplus=fams.some(f=>unused(f)>0&&secondaryWanted(s,f)===0);
  if(asked&&!surplus)return null;
  const use=fams.filter(f=>secondaryTier(s,f)>=0&&unused(f)===most);
- if(use.length){const family=use[Math.floor(rand(n*37+11)*use.length)];return {family,tier:secondaryTier(s,family),count:1};}
+ if(use.length){const family=use[Math.floor(rand(n*37+11)*use.length)];return {family,tier:secondaryTier(s,family),count:1,use:true};}
  const goal=fams.filter(f=>secondaryGoal(s,f)>=0);if(!goal.length)return null;
  const family=goal[Math.floor(rand(n*37+11)*goal.length)];return {family,tier:secondaryGoal(s,family),count:1};
 }

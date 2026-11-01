@@ -569,7 +569,7 @@ function sourceNote(f,tier=null){const r=SECONDARY_RULES[CHAINS[f].gen],gen=SOUR
 function extrasNews(){
  for(const gen of Object.keys(state.secOpen??{})){const id='extras-'+gen;if(state.seen?.[id])continue;
   const f=SECONDARY_OF[gen],n=CHAINS[f].names[0],g=SOURCES[gen].name;
-  moment(`${g} extras unlocked`,`A level 2+ ${g} now sometimes adds a rare ${n} to a tap, at no extra energy. Your first ${n} is on the board (or waits for space), and a crew order will ask for it.`,item(f,0));
+  moment(`${g} extras unlocked`,`A level 2+ ${g} now sometimes adds a rare ${n} to a tap, at no extra energy. Your first ${n} is on the board (or waits for space), and the next new crew order will ask for it.`,item(f,0));
   markSeen(id);return true;}
  return false;
 }
