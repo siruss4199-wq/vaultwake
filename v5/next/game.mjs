@@ -51,49 +51,75 @@ export const BONUSES=['token','chest','cog'],BONUS_NAMES={token:'Tide token',che
 // the Survey Kite sometimes make a part of their secondary chain (chains.mjs SECONDARY_OF). Two output
 // models were measured (tests/v5-next-secondary-pilot-metrics.mjs): 'bonus' (the tap's own part AND,
 // sometimes, a secondary beside it) and 'replace' (sometimes a secondary INSTEAD of the tap's part,
-// compensated by what secondary orders pay); 'off' is the game before the pilot. The roll is the
-// tap's own number hashed (no re-roll by reloading), and a bounded bad-luck limit makes a drop
-// certain on the `pity`-th ELIGIBLE tap without one (`first` for the very first one, so the new part
-// is met soon after it opens). An eligible tap is a tap of that kind of generator that succeeds
-// (energy spent, part made) while its drops are open (secondaryOn) and not paused (secondaryPaused);
-// any other tap is neither rolled nor counted. s.secSince counts eligible taps without a drop, one
-// count per kind (copies of a generator share it, and merging two copies keeps it), and is saved.
-// It opens after the first lessons: once `orders` crew orders are delivered and the generator has
-// been tapped `taps` times (the Kite's comes a little after the Kite itself).
-// `salt` makes each generator's rolls its own. The rules are mutable only so the metrics script can
-// compare models (and vary the rolls); the game never changes them.
+// compensated by what secondary orders pay); 'off' is the game before the pilot.
+// Round 3 (playtest: rare parts came often, matching orders did not): only a generator of `level` 2
+// or more makes them; a level-1 copy makes its own parts only. A kind's chain opens for good the first
+// time one of its generators reaches level 2 (secondaryUnlock: its first part as a gift and an
+// introductory order), replacing the tap-count and delivered-order openers of rounds 1-2. The level-3
+// next-generator progression is unchanged.
+// An ELIGIBLE tap is a tap that succeeds (energy spent, its own part made) on a generator of level 2+
+// whose chain is open and whose drops are not paused (secondaryPaused). Only eligible taps are rolled
+// and counted: s.secTaps counts them (the roll is that number hashed, so neither reloading nor tapping
+// a level-1 copy in between can change an outcome) and s.secSince counts those without a drop; a drop
+// is certain on the `pity`-th one in a row without one. Both are per kind: copies share them and
+// merging copies keeps them. Trial rates (round 3): 5 % a tap, certain by the 20th, i.e. one drop every
+// 12.8 eligible taps on average (7.8 %). `salt` makes each kind's rolls its own. The rules are mutable
+// only so the metrics script can compare (and vary the rolls); the game never changes them.
 export const SECONDARY_RULES={
- rig:{model:'bonus',chance:.1,pity:14,first:3,orders:4,taps:0,hold:3,salt:101},
- chart:{model:'bonus',chance:.1,pity:14,first:3,orders:4,taps:8,hold:3,salt:211}
+ rig:{model:'bonus',chance:.05,pity:20,level:2,hold:4,salt:101},
+ chart:{model:'bonus',chance:.05,pity:20,level:2,hold:4,salt:211}
 };
-// Secondary orders: how often an everyday order may ask a secondary part (every `every`-th, and never
-// while another order on the board asks one); the highest tier ever asked (tier 3, the chain's top, is
-// a collectible for the book); and `rarity`, what a secondary part is worth: the coins of a part that
-// many tiers higher. Two, because tiers 0 and 1 both pay 5 coins: at one a Bolt would pay exactly what
-// a Copper offcut pays. So a Bolt pays like a Split spanner (10), a Gear like a Pocket winch (25), a Gear
-// assembly like a Crawler jack (45). Measured, see the pilot doc. Mutable for the metrics script only.
-// `goal` (round 2): how many drops beyond those held a near-term goal may ask (secondaryNeed).
-export const SECONDARY_ORDERS={every:3,top:2,rarity:2,goal:1};
-export const secondaryOn=(s,gen)=>{const r=SECONDARY_RULES[gen];return !!r&&r.model!=='off'&&!!SECONDARY_OF[gen]&&sourceOpen(s,gen)&&s.ordersDone>=r.orders&&(s.taps[gen]??0)>=r.taps;};
-// Board space is the bonus model's cost: a generator pauses its secondary drops while `hold` (its rule)
-// or more of its secondary parts (below the chain's top, which is a keepsake) lie on the board or wait
-// for space, and no order is waiting for one; and always while SECONDARY_PENDING_MAX secondary parts
-// already wait for space (round 2: before, such a drop was rolled, lost and counted). While paused
-// nothing is rolled or counted; drops resume as parts are merged, delivered, cleared or land.
+// Secondary orders (round 3): about one in `share` new everyday orders asks a secondary part (a turn
+// comes when neither of the last share-1 everyday orders asked one); the highest tier ever asked (tier
+// 3, the chain's top, is a collectible for the book); `rarity`, what a secondary part is worth: the
+// coins of a part that many tiers higher (2: a Bolt pays like a Split spanner, 10; a Gear like a Pocket
+// winch, 25; a Gear assembly like a Crawler jack, 45); and `goal`, how many drops beyond the unused
+// parts held a near-term goal may ask. Mutable for the metrics script only.
+export const SECONDARY_ORDERS={share:3,top:2,rarity:2,goal:1};
+// A kind's chain is open (s.secOpen, saved) once one of its generators has reached level 2.
+export const secondaryOn=(s,gen)=>{const r=SECONDARY_RULES[gen];return !!r&&r.model!=='off'&&!!SECONDARY_OF[gen]&&sourceOpen(s,gen)&&!!s.secOpen?.[gen];};
+// Whether the generator on cell i is one that makes secondary parts (level 2 or more, chain open).
+export const secondarySource=(s,i)=>{const x=s.board[i];return x?.type==='source'&&secondaryOn(s,x.id)&&producerLevel(x)>=SECONDARY_RULES[x.id].level;};
+// Supply follows demand (round 3). A chain's parts are counted in drops ("units": a part of tier t is
+// 2^t of them, the top keepsake included, so merging never lowers the count) on the board, in the shed
+// and waiting for space. Units wanted by the orders on the board are subtracted. Drops pause while the
+// unwanted units reach `hold` (4: four Bolts, two Gears or one Gear assembly), and always while
+// SECONDARY_PENDING_MAX secondary parts already wait for space (so an earned drop is never lost). While
+// paused nothing is rolled or counted; drops resume as parts are delivered or cleared, or an order
+// asks for them.
+export const secondaryUnits=(s,f)=>[...s.board,...s.shed,...s.pending].reduce((n,x)=>n+(x?.type==='item'&&x.family===f?2**x.tier:0),0);
+export const secondaryWanted=(s,f)=>s.orders.reduce((n,o)=>n+(o?.needs??[]).reduce((m,r)=>m+(r.family===f?r.count*2**r.tier:0),0),0);
 export const secondaryPaused=(s,gen)=>{const f=SECONDARY_OF[gen];
  if(s.pending.filter(isSecondaryPart).length>=SECONDARY_PENDING_MAX)return true;
- return [...s.board,...s.pending].filter(x=>x?.type==='item'&&x.family===f&&x.tier<maxTier(f)).length>=SECONDARY_RULES[gen].hold&&!s.orders.some(o=>o?.needs?.some(r=>r.family===f));};
-// Whether tap number n of generator gen makes a secondary part (read-only: the caller moves the counter).
-export function secondaryRoll(s,gen,n){
+ return secondaryUnits(s,f)-secondaryWanted(s,f)>=SECONDARY_RULES[gen].hold;};
+// Whether an eligible tap (the caller has checked secondarySource) makes a secondary part: read-only,
+// the caller moves the counters.
+export function secondaryRoll(s,gen){
  if(!secondaryOn(s,gen)||secondaryPaused(s,gen))return null;
- // met: the chain has dropped before (found on the board, or its first part still waiting for space)
- const r=SECONDARY_RULES[gen],fam=SECONDARY_OF[gen],limit=secondaryMet(s,fam)?r.pity:r.first,since=s.secSince?.[gen]??0;
- return since+1>=limit||rand(n*7919+r.salt)<r.chance?fam:null;
+ const r=SECONDARY_RULES[gen],n=(s.secTaps?.[gen]??0)+1,since=s.secSince?.[gen]??0;
+ return since+1>=r.pity||rand(n*7919+r.salt)<r.chance?SECONDARY_OF[gen]:null;
 }
 // A tap's secondary part that finds no free space waits with the other rewards (s.pending) and
 // lands after the next action that frees one. With this many secondary parts waiting, drops pause
 // (secondaryPaused), so the waiting list never grows past it and no drop is lost.
 export const SECONDARY_PENDING_MAX=4;
+// Round 3: the first time a generator of a kind reaches level 2, its secondary chain opens for good:
+// its first part as a gift (beside that generator, else waiting for space), and an introductory order
+// for it queued (s.secIntro) for the next crew slot. A chain the camp has already met (a pilot save)
+// opens without the gift or the order, so nothing is given twice. Called after every action and on
+// load (wait: the gift waits for space, so loading never rearranges the board); it answers the chains
+// it opened.
+export function secondaryUnlock(s,{wait=false}={}){
+ const out=[];
+ for(const gen of Object.keys(SECONDARY_OF)){
+  if(s.secOpen?.[gen]||SECONDARY_RULES[gen].model==='off')continue;
+  const i=s.board.findIndex(x=>x?.type==='source'&&x.id===gen&&producerLevel(x)>=SECONDARY_RULES[gen].level);if(i<0)continue;
+  const f=SECONDARY_OF[gen],met=secondaryMet(s,f)||secondaryUnits(s,f)>0;
+  s.secOpen={...s.secOpen,[gen]:true};
+  if(!met){const x=item(f,0),k=wait?-1:put(s,x,i);if(k<0)s.pending.push(x);if(!s.secIntro.includes(f))s.secIntro.push(f);out.push({gen,family:f,index:k});}
+ }
+ return out;
+}
 export const levelOf=s=>Number.isInteger(s?.level?.level)?s.level.level:1;
 export const unlocked=(s,id)=>levelOf(s)>=LEVEL_PATH.find(u=>u.id===id).level;
 // The camp shed (build 32, user: "aguulah bolon udur tutmiin shagnaliig nem"): four spaces off
@@ -238,7 +264,7 @@ export function fresh(now=Date.now()){
  const s={version:VERSION,board,energy:START_ENERGY,energyAt:now,coins:0,level:freshLevel(),taps:{},
   orders:[],slots:3,orderSeq:0,ordersDone:0,area:0,built:{},found:[],moves:0,merges:0,lastAt:now,
   shed:Array(SHED_SLOTS).fill(null),pending:[],seen:{},daily:{day:-1,count:0},book:{claimed:[],pages:[]},shop:{day:-1,bought:{}},swaps:{day:-1,n:0,ads:0},materials:{},
-  secSince:Object.fromEntries(Object.keys(SECONDARY_OF).map(g=>[g,0]))};
+  secSince:Object.fromEntries(Object.keys(SECONDARY_OF).map(g=>[g,0])),secTaps:Object.fromEntries(Object.keys(SECONDARY_OF).map(g=>[g,0])),secOpen:{},secIntro:[]};
  for(const g of Object.keys(GENERATOR_CHAINS))s.taps[g]=0;
  for(let i=0;i<s.slots;i++)s.orders.push(makeOrder(s));
  note(s);return s;
@@ -401,50 +427,65 @@ export function makeOrder(s){
   {const onBoard=new Set(others.map(o=>key(o.needs)));
    if(onBoard.has(key(needs))){const alt=pool.flatMap(f=>Array.from({length:hi(f)},(_,k)=>[1,2].map(c=>[{family:f,tier:k+1,count:c}])).flat()).find(v=>!onBoard.has(key(v)));
     if(alt){needs=alt;role='quick';}}}
-  // Secondary chains (pilot): every SECONDARY_ORDERS.every-th everyday order may ask one secondary
-  // part, while no other order on the board does (so the others never wait on a drop). A two-part job
-  // keeps its first part and asks the secondary as its second (a mixed order); every third such order
-  // is a quick job for the secondary alone (with ROLE_TURN's three turns, the turn alone would make
-  // them all two-part jobs). A crew favour or a token order keeps its first part and its bonus. Never a
-  // gold order (above), never more than one.
-  {const sec=bonus&&role==='quick'?null:secondaryNeed(s,n,k);if(sec){if(!bonus&&Math.floor(k/SECONDARY_ORDERS.every)%3===2)role='quick';needs=role==='quick'?[sec]:[{...needs[0],count:1},sec];}}
+  // Secondary chains (pilot, round 3): an introductory order for a chain just opened comes first (a
+  // quick job for its first part; s.secIntro, cleared once such an order is on the board), then about
+  // one everyday order in three asks a secondary part (secondaryNeed). A two-part job keeps its first
+  // (primary) part and asks the secondary as its second (a mixed order); a quick job asks it alone. A
+  // crew favour keeps its harder part and its bonus (the introduction waits a turn). Never a gold order.
+  {const intro=(s.secIntro??[]).find(f=>!s.orders.some(o=>o?.needs?.some(r=>r.family===f)));
+   if(intro&&bonus!=='chest'&&bonus!=='cog'&&s.orders.filter(asksSecondary).length<secondaryLimit(s)){needs=[{family:intro,tier:0,count:1}];role='quick';}
+   else{const sec=bonus&&role==='quick'?null:secondaryNeed(s,n,k);if(sec)needs=role==='quick'?[sec]:[{...needs[0],count:1},sec];}}
   recent.push(key(needs));if(recent.length>RECENT)recent.splice(0,recent.length-RECENT);
   return {id:'o'+n,who:crewFor(needs),needs,coins:orderPrice(s,needs,role),role,born:s.moves,...(bonus?{bonus}:{})};
  }
  return {id:'o'+n,who:crewFor(needs),needs,coins:priceOf(needs),born:s.moves};
 }
-// The secondary part an everyday order asks, if any (pilot). Two kinds take turns (round 2,
-// 2026-10-29; the director: asking only what is held was too restrictive):
-// - a USE order asks a part that the secondary parts the player already holds (board, shed, or waiting
-//   for space) make by merging (secondaryTier): it gives the extras collected a purpose;
-// - a GOAL order asks a part at most SECONDARY_ORDERS.goal drops beyond what is held (secondaryGoal):
-//   a Bolt when none is held, a Gear with one Bolt, a Gear assembly with three. It is a near-term goal,
-//   never a wall: one drop comes at the latest on the `pity`-th eligible tap, and drops never pause
-//   while an order wants the chain. Goals come only from a generator whose drops are open and only once
-//   its chain has been met, so the first meeting is the drop itself, not an order for something unseen.
-// Either way never above `top`, tier 1 only from the first stage built and tier 2 from the third; a
-// turn that cannot give its kind gives the other. Measured (pilot doc): in round 1, at 5 % drops, asking
-// one drop beyond what was held on EVERY secondary turn sent the scripted player tapping for luck (+80
-// min over Chapters 1-2); at 10 % with goals on every other turn, round 2 measured no such cost (R2.2).
+// The secondary part an everyday order asks, if any (pilot; round 3 rewrote demand: rounds 1-2 asked
+// at most every third order, one secondary order at a time, and the playtest held unused extras 85-89 %
+// of the time). Now:
+// - a turn comes when neither of the last SECONDARY_ORDERS.share-1 everyday orders asked one (so about
+//   one in three when parts are there to ask), and also whenever extras are held unused and no order on
+//   the board asks any (supply first; measured: 39 % of new everyday orders, against 61 % of the time
+//   with unused extras and no order for them when only every third turn counted, 85-89 % in round 2);
+// - secondary orders on the board stay below the everyday crew slots, so at least one everyday order
+//   (and the gold order) never asks a rare part;
+// - the chain with the most unused units (held on the board, in the shed or waiting, less what orders
+//   already want) is asked first, for the biggest part those units make (a USE order), within `top`
+//   and the stage ramp (tier 1 from the first stage built, tier 2 from the third);
+// - with no unused units, a modest GOAL: a part at most SECONDARY_ORDERS.goal drops beyond them, only
+//   from a chain with a generator of level 2+ on the board (it can drop: one comes by the 20th eligible
+//   tap, and drops never pause while an order wants the chain), only once the chain has been met, and
+//   only while no order on the board asks that chain and no other goal is waiting (one order waiting
+//   for a drop at a time: measured, two at once left an energy-starved player with nothing free to do).
+// Never in a gold order, and nothing on the way to a level-2 generator asks one: they come only after it.
 // Drops held: each part counts as the drops merged into it (a Gear is two Bolts); the chain's top part
-// is a keepsake and does not count (it cannot be split back).
+// is a keepsake: it counts for the oversupply guard, never for orders (it cannot be split back).
 export const secondaryHeld=(s,family)=>[...s.board,...s.shed,...s.pending].reduce((n,x)=>n+(x?.type==='item'&&x.family===family&&x.tier<maxTier(family)?2**x.tier:0),0);
+export const secondaryUnused=(s,family)=>Math.max(0,secondaryHeld(s,family)-secondaryWanted(s,family));
 const secondaryCap=s=>{const built=totalBuilt(s);return Math.min(SECONDARY_ORDERS.top,built>=3?2:built>=1?1:0);};
-export const secondaryTier=(s,family)=>{const held=secondaryHeld(s,family),cap=secondaryCap(s);
+export const secondaryTier=(s,family)=>{const held=secondaryUnused(s,family),cap=secondaryCap(s);
  if(held<1)return -1;let t=0;while(t<cap&&2**(t+1)<=held)t++;return t;};
 export const secondaryMet=(s,family)=>s.found.some(k=>k.replace(/\d+$/,'')===family)||s.pending.some(x=>x?.type==='item'&&x.family===family);
-export const secondaryGoal=(s,family)=>{if(!secondaryMet(s,family))return -1;const held=secondaryHeld(s,family);let best=-1;
+// A chain can drop right now: open, with a generator of level 2+ on the board.
+export const secondaryCanDrop=(s,family)=>{const gen=CHAINS[family]?.gen;return s.board.some((x,i)=>x?.type==='source'&&x.id===gen&&secondarySource(s,i));};
+// a goal is waiting while orders want more of a chain than is held
+const goalWaiting=s=>Object.values(SECONDARY_OF).some(f=>secondaryWanted(s,f)>secondaryHeld(s,f));
+export const secondaryGoal=(s,family)=>{if(!secondaryMet(s,family)||!secondaryCanDrop(s,family)||secondaryWanted(s,family)>0||goalWaiting(s))return -1;const held=secondaryUnused(s,family);let best=-1;
  for(let t=0;t<=secondaryCap(s);t++){const miss=2**t-held;if(miss>=1&&miss<=SECONDARY_ORDERS.goal)best=t;}return best;};
+const asksSecondary=o=>o?.needs?.some(r=>isSecondary(r.family));
+export const secondaryLimit=s=>Math.max(1,s.slots-1-1);// everyday slots (one is the gold order's), less one kept primary-only
 export function secondaryNeed(s,n,k){
- const every=SECONDARY_ORDERS.every;
- if(k%every!==every-1||s.orders.some(o=>o?.needs?.some(r=>isSecondary(r.family))))return null;
- const open=Object.keys(SECONDARY_OF).filter(g=>secondaryOn(s,g)).map(g=>SECONDARY_OF[g]);
- const use=open.filter(f=>secondaryTier(s,f)>=0),goal=open.filter(f=>secondaryGoal(s,f)>=0);
- // goal turns are every other secondary turn
- const kind=Math.floor(k/every)%2===1?(goal.length?'goal':'use'):(use.length?'use':'goal'),fams=kind==='use'?use:goal;if(!fams.length)return null;
- // a use order: the chain with more parts held, else either by the order's own seed; a goal: either
- const most=Math.max(...fams.map(f=>kind==='use'?secondaryHeld(s,f):0)),pick=fams.filter(f=>(kind==='use'?secondaryHeld(s,f):0)===most),family=pick[Math.floor(rand(n*37+11)*pick.length)];
- return {family,tier:kind==='use'?secondaryTier(s,family):secondaryGoal(s,family),count:1};
+ const fams=Object.values(SECONDARY_OF).filter(f=>secondaryHeld(s,f)>0||secondaryOn(s,CHAINS[f].gen));if(!fams.length)return null;
+ if(s.orders.filter(asksSecondary).length>=secondaryLimit(s))return null;
+ const unused=f=>secondaryUnused(s,f),most=Math.max(...fams.map(unused));
+ // a turn: neither of the last share-1 everyday orders asked one, or extras lie unused with no order for any
+ const recent=(Array.isArray(s.recent)?s.recent:[]).slice(-(SECONDARY_ORDERS.share-1)),asked=recent.some(key=>key.split('+').some(p=>isSecondary(p.replace(/\d+x\d+$/,''))));
+ const surplus=fams.some(f=>unused(f)>0)&&!s.orders.some(asksSecondary);
+ if(asked&&!surplus)return null;
+ const use=fams.filter(f=>secondaryTier(s,f)>=0&&unused(f)===most);
+ if(use.length){const family=use[Math.floor(rand(n*37+11)*use.length)];return {family,tier:secondaryTier(s,family),count:1};}
+ const goal=fams.filter(f=>secondaryGoal(s,f)>=0);if(!goal.length)return null;
+ const family=goal[Math.floor(rand(n*37+11)*goal.length)];return {family,tier:secondaryGoal(s,family),count:1};
 }
 // Board cells an order would take: exact matches, lowest index first.
 export function orderItems(s,o){
@@ -581,12 +622,16 @@ export function act(s,a,now=Date.now()){
  if(!r.ok)return r;
  if(wasFull&&s.energy<REFILL_CAP)s.energyAt=now;
  s.moves++;s.lastAt=now;
- const released=release(s),arrived=placePending(s);
+ // round 3: a generator that reached level 2 opens its kind's secondary chain (once); an introduction
+ // is no longer queued once an order on the board asks that chain
+ // (after any generator it brings out has its space)
+ const released=release(s),unlocks=secondaryUnlock(s);s.secIntro=s.secIntro.filter(f=>!s.orders.some(o=>o?.needs?.some(q=>q.family===f)));
+ const arrived=placePending(s);
  const found=note(s),xp=r.xp??0,levelUp=xp?gainXp(s,xp):[];
  if(levelUp.length)found.push(...note(s));
  if(levelUp.length)released.push(...release(s));
  if(released.length)r.message+=released.map(n=>` · the ${SOURCES[n.id].name} comes out`).join('');
- return {...r,...(released.length?{released}:{}),...(arrived.length?{arrived}:{}),...(found.length?{found}:{}),...(levelUp.length?{levelUp}:{})};
+ return {...r,...(released.length?{released}:{}),...(arrived.length?{arrived}:{}),...(found.length?{found}:{}),...(levelUp.length?{levelUp}:{}),...(unlocks.length?{unlocks}:{})};
 }
 export function tick(s,now=Date.now()){return settleEnergy(s,now);}
 
@@ -598,17 +643,24 @@ function step(s,a,now){
   if(i<0||!SOURCES[a.id])return fail('That generator is still sealed in cargo somewhere on the board.');
   if(!sourceOpen(s,a.id))return fail('Echo Crucible wakes at the Survey Worksite.');
   if(s.energy<1)return fail('Out of energy. It refills +1 every 2 minutes.');
-  const n=(s.taps[a.id]??0)+1,chain=GENERATOR_CHAINS[a.id][0][0],tier=Math.min(3,maxTier(chain),(n%4===0?1:0)+levelLift(producerLevel(s.board[i]),n)),sec=secondaryRoll(s,a.id,n),on=secondaryOn(s,a.id)&&!secondaryPaused(s,a.id);
+  // Round 3: only a generator of level 2+ (with its chain open) rolls for a secondary part; `eligible`
+  // is false on a level-1 copy, and false while drops are paused (nothing is rolled or counted then).
+  const n=(s.taps[a.id]??0)+1,chain=GENERATOR_CHAINS[a.id][0][0],tier=Math.min(3,maxTier(chain),(n%4===0?1:0)+levelLift(producerLevel(s.board[i]),n)),
+   source=secondarySource(s,i),eligible=source&&!secondaryPaused(s,a.id),sec=eligible?secondaryRoll(s,a.id):null;
   // Pilot: 'replace' makes the secondary part instead of the tap's own; 'bonus' makes it as well.
   const replace=sec&&SECONDARY_RULES[a.id].model==='replace',x=item(replace?sec:chain,replace?0:tier),j=put(s,x,i);
   // A full board refuses the tap before anything is spent or rolled: no energy, no part, no counter.
   if(j<0)return fail('The board is full. Merge, deliver or open cargo first.');
   s.energy--;s.taps[a.id]=n;
+  if(eligible)s.secTaps[a.id]=(s.secTaps[a.id]??0)+1;
   if(replace){s.secSince[a.id]=0;return {ok:true,event:'produce',index:j,secondary:{family:sec,index:j},message:nameOf(x)};}
   let extra=null;
+  // a drop with no space waits (s.pending) and is never lost: with 4 already waiting, drops pause
   if(sec){const y=item(sec,0),k=put(s,y,i);if(k<0)s.pending.push(y);s.secSince[a.id]=0;extra={family:sec,index:k};}
-  else if(on)s.secSince[a.id]=Math.min(SECONDARY_RULES[a.id].pity,(s.secSince[a.id]??0)+1);
-  return {ok:true,event:'produce',index:j,...(extra?{secondary:extra}:{}),message:nameOf(x)+(extra?' · and a '+nameOf(item(extra.family,0)):'')};
+  else if(eligible)s.secSince[a.id]=Math.min(SECONDARY_RULES[a.id].pity,(s.secSince[a.id]??0)+1);
+  // a level-2+ generator whose extras rest says so once in its message (rest: true)
+  const rest=source&&!eligible;
+  return {ok:true,event:'produce',index:j,...(extra?{secondary:extra}:{}),...(rest?{rest:true}:{}),message:nameOf(x)+(extra?' · and a '+nameOf(item(extra.family,0)):'')};
  }
  if(a.type==='merge'||a.type==='move'||a.type==='unseal'){
   const from=a.from,to=a.to??a.index;
@@ -681,8 +733,10 @@ function step(s,a,now){
   // action, 44 → 29 % at 6 s; +2 or more left no waiting at all, so energy stopped mattering).
   // Build 46f: the gold order gives no energy (its reward is the stage's materials); with orders
   // asking what the generators make, a stage takes more crew orders and their energy alone kept
-  // slower players from ever running out.
-  const gain=o.story?0:DELIVER_ENERGY;
+  // slower players from ever running out. Round 3 (secondary pilot): an order with a rare extra gives
+  // none either, like clearing one (a bonus drop never pays energy): with about one order in three
+  // asking one, their energy kept the 10 s player from ever running out (economy guard).
+  const gain=o.story||o.needs.some(r=>isSecondary(r.family))?0:DELIVER_ENERGY;
   s.coins+=o.coins;s.ordersDone++;s.orders[lane]=null;s.energy=Math.min(MAX_ENERGY,s.energy+gain);
   if(o.story&&TASKS[o.story]&&stageOf(s,o.story)<STAGES)s.materials[o.story]=stageOf(s,o.story)+1;
   s.orders[lane]=makeOrder(s);
@@ -910,6 +964,16 @@ export function load(raw,now=Date.now()){
   if(!s.secSince||typeof s.secSince!=='object'||Array.isArray(s.secSince))s.secSince={};
   for(const k of Object.keys(s.secSince))if(!SECONDARY_OF[k])delete s.secSince[k];
   for(const g of Object.keys(SECONDARY_OF))if(!integer(s.secSince[g],0,SECONDARY_RULES[g].pity))s.secSince[g]=0;
+  // Round 3: eligible taps (the roll's number), opened chains and queued introductions. Saves before it
+  // have none: eligible taps start at 0, and the chains of generators already at level 2+ open below
+  // (after the board is checked), with the gift and the introduction only for a chain never met.
+  // Damaged values only restart a count or drop an introduction; they never reset the camp.
+  if(!s.secTaps||typeof s.secTaps!=='object'||Array.isArray(s.secTaps))s.secTaps={};
+  for(const k of Object.keys(s.secTaps))if(!SECONDARY_OF[k])delete s.secTaps[k];
+  for(const g of Object.keys(SECONDARY_OF))if(!integer(s.secTaps[g],0,1e9))s.secTaps[g]=0;
+  if(!s.secOpen||typeof s.secOpen!=='object'||Array.isArray(s.secOpen))s.secOpen={};
+  s.secOpen=Object.fromEntries(Object.keys(SECONDARY_OF).filter(g=>s.secOpen[g]===true).map(g=>[g,true]));
+  s.secIntro=Array.isArray(s.secIntro)?[...new Set(s.secIntro.filter(f=>Object.values(SECONDARY_OF).includes(f)))]:[];
   if(!s.swaps||!integer(s.swaps.day,-1,1e7)||!integer(s.swaps.n,0,FREE_SWAPS)||!integer(s.swaps.ads,0,AD_SWAPS))return fresh(now);
   if(!s.shop||!integer(s.shop.day,-1,1e7)||!s.shop.bought||typeof s.shop.bought!=='object'||Array.isArray(s.shop.bought)||!Object.entries(s.shop.bought).every(([id,n])=>SHOP[id]&&integer(n,0,SHOP[id].limit)))return fresh(now);
   const bookKey=k=>typeof k==='string'&&/^[a-z]+\d$/.test(k)&&BOOK_CHAINS.includes(k.slice(0,-1))&&+k.slice(-1)<=maxTier(k.slice(0,-1));
@@ -931,6 +995,8 @@ export function load(raw,now=Date.now()){
   if(before41)for(const u of upgrades(s))s.materials[u.id]=u.stage;
   if(s.rationAt!==undefined&&!(Number.isFinite(s.rationAt)&&s.rationAt<=now))delete s.rationAt;
   if(!Number.isFinite(s.energyAt)||s.energyAt>now)s.energyAt=now;
+  // Round 3: a generator already at level 2+ (an older save) opens its kind's secondary chain now, once.
+  secondaryUnlock(s,{wait:true});
   settleEnergy(s,now);
   return s;
  }catch{return fresh(now);}

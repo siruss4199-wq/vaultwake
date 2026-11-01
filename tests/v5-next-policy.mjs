@@ -103,7 +103,11 @@ export function nextAction(s){
  if(open!==undefined&&free>0)return {type:'openKit',index:open};
  // Tap the generator that makes a wanted chain right now.
  const family=needs.map(r=>CHAINS[r.family].gen).find(g=>sourceOpen(s,g))??openFamilies(s)[0];
- if(free>0&&s.energy>0)return {type:'produce',id:family};
+ // Round 3: the player taps its best copy of that generator (higher levels make better parts, and only
+ // level 2+ makes rare extras). Before, the engine took the first copy on the board, so where a copy
+ // happened to land decided whether a level-1 or a level-3 Rover was tapped.
+ if(free>0&&s.energy>0){const i=b.reduce((best,x,i)=>x?.type==='source'&&x.id===family&&(best<0||(x.level??1)>(b[best].level??1))?i:best,-1);
+  return i>=0?{type:'produce',id:family,index:i}:{type:'produce',id:family};}
  if(free===0){const i=b.findIndex((x,i)=>x?.type==='item'&&!keep(i));if(i>=0)return {type:'recycle',index:i};}
  return null;// wait for energy
 }
