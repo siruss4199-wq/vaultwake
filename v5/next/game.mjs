@@ -714,7 +714,11 @@ export function blockedStage(s,id){const t=TASKS[id],n=stageOf(s,id),st=t?.stage
 // The cheapest upgrade whose materials are in (the one the main screen points to), and the
 // cheapest still waiting for them (the gold order is for that one).
 export const nextTask=s=>upgrades(s).find(u=>u.materials)??null;
-export const storyTarget=s=>upgrades(s).find(u=>!u.materials)??null;
+// Build 49a (Chapter 4's two branches): the player may choose which open stage the gold order is for
+// (s.aim, a place id, saved; optional, a save without it keeps the cheapest as before). The choice holds
+// while that place has a stage open without its materials, so after a build the place's next stage is
+// next; otherwise the cheapest, as before.
+export const storyTarget=s=>{const up=upgrades(s).filter(u=>!u.materials);return up.find(u=>u.id===s.aim)??up[0]??null;};
 export const areaDone=(s,a=currentArea(s))=>!!a&&a.tasks.length>0&&a.tasks.every(t=>stageOf(s,t.id)>=STAGES);
 export const builtCount=(s,a=currentArea(s))=>a?a.tasks.reduce((n,t)=>n+stageOf(s,t.id),0):0;
 // Every area that has places is finished: the end of this prototype (Build 41 M5).
@@ -900,6 +904,11 @@ function step(s,a,now){
   // Build 47b (from PR #80): a gold order for a place that needs no more materials (finished, or
   // already supplied) is replaced, so a finished area leaves no stale gold order behind.
   for(let k=0;k<s.orders.length;k++){const o=s.orders[k];if(o?.story&&(stageOf(s,o.story)>=STAGES||(s.materials[o.story]??0)>stageOf(s,o.story))){s.orders[k]=null;s.orders[k]=makeOrder(s);}}
+  // Build 49a: the place the player chose (s.aim) stays the objective: once it is built its next stage
+  // takes the gold order back from the other branch (which got it when the chosen stage's materials
+  // came in), but only while none of that order's parts is on the board yet, so no work is undone.
+  if(s.aim===t.id){const k=s.orders.findIndex(o=>o?.story),o=s.orders[k],next=upgrades(s).find(u=>u.id===t.id&&!u.materials);
+   if(o&&next&&o.story!==t.id&&orderProgress(s,o).every(r=>r.have===0)){s.orders[k]=null;const n=makeOrder(s);s.orders[k]=n.story===t.id?n:o;}}
   const gold=ensureGold(s);if(gold)effects.goldOrder=gold;
   return {ok:true,event:'restore',task:t.id,stage:t.stage,effects,xp:XP.restore,message:t.name+(t.stage===1?' · restored':` · stage ${t.stage}`)};
  }
@@ -943,6 +952,15 @@ function step(s,a,now){
  // The shop: buy with coins, or take an ad offer once its ad has played. Stock is per local day.
  // Change a crew order: the new one is made while the old still stands, so it asks for
  // something else.
+ // Build 49a: work on another open stage next. Only the gold order changes, to that stage's (its parts
+ // already on the board stay; materials delivered stay with their stage); crew orders are untouched.
+ if(a.type==='aim'){
+  const u=upgrades(s).find(u=>u.id===a.id&&!u.materials);if(!u)return fail('That place cannot be worked on now.');
+  s.aim=a.id;const lane=s.orders.findIndex(o=>o?.story);
+  if(lane>=0&&s.orders[lane].story===a.id)return {ok:true,event:'aim',id:a.id,message:`${u.name} is already next.`};
+  if(lane>=0){const old=s.orders[lane];s.orders[lane]=null;const o=makeOrder(s);s.orders[lane]=o.story?o:old;}else ensureGold(s);
+  return {ok:true,event:'aim',id:a.id,order:s.orders.find(o=>o?.story)?.id,message:`Next: ${u.name}. Its gold order is on the board.`};
+ }
  if(a.type==='swapOrder'){
   const lane=s.orders.findIndex(o=>o?.id===a.id),o=s.orders[lane];
   if(!o)return fail('That order has already changed.');
@@ -1119,7 +1137,12 @@ export function load(raw,now=Date.now()){
   // (Build 47b: the Vault door) sees the end card again when it reaches the new end.
   // Build 47e: a camp that had read the Tide Archive (Build 47d's end) has the Observatory to build:
   // its first stage gets its gold order at once, as a new area's does.
+  // Build 49a: a camp that saw Chapter 3's end card (the launch, then the end of the content) has seen
+  // the launch: its card, now Chapter 3's last story card leading on, is not shown again. Its Chapter 4
+  // arrival is still to come (seen flags are per card: Chapter 3's end is not Chapter 4's).
+  if(s.seenEnd&&!allDone(s)&&areaDone(s,AREAS.find(a=>a.id==='harbour')))s.seen['hb-launch']=true;
   if(s.seenEnd&&!allDone(s)){delete s.seenEnd;ensureGold(s);}
+  if(s.aim!==undefined&&!(typeof s.aim==='string'&&TASKS[s.aim]))delete s.aim;
   if(before41)for(const u of upgrades(s))s.materials[u.id]=u.stage;
   if(s.rationAt!==undefined&&!(Number.isFinite(s.rationAt)&&s.rationAt<=now))delete s.rationAt;
   if(!Number.isFinite(s.energyAt)||s.energyAt>now)s.energyAt=now;

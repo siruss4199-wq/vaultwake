@@ -96,16 +96,17 @@ test('a finished Chapter 2 save goes on into the harbour, keeping its board, she
   assert.equal(JSON.stringify(load(JSON.stringify(s),6000)),JSON.stringify({...s,lastAt:s.lastAt}),'loading again changes nothing');}
 });
 
-test('all 21 stages, as a player buys them: every gold order as authored, never stuck, then the end', ()=>{
+test('all 21 stages, as a player buys them: every gold order as authored, never stuck, then Chapter 4 opens', ()=>{
  const s=load(JSON.stringify(chapter2Done()),5000);s.coins=60000;const log={gold:[],stages:[]};let guard=0;
- while(!allDone(s)&&guard++<40)assert.ok(buyNext(s,log),'never stuck: '+JSON.stringify(upgrades(s)));
- assert.equal(allDone(s),true);assert.equal(areaDone(s,H),true);assert.equal(s.area,4);assert.equal(log.stages.length,21);
- assert.ok(!s.orders.some(o=>o?.story),'no gold order left');
+ while(!areaDone(s,H)&&guard++<40)assert.ok(buyNext(s,log),'never stuck: '+JSON.stringify(upgrades(s)));
+ assert.equal(areaDone(s,H),true);assert.equal(log.stages.length,21);
+ // build 49a: the launch opens Chapter 4, the Answering Light, with its landing's gold order up
+ assert.equal(s.area,5);assert.equal(allDone(s),false);assert.equal(s.orders.find(o=>o?.story)?.story,'ch4-landing');
  for(const [id,n,needs] of log.gold)assert.deepEqual(needs.map(r=>[r.family,r.tier,r.count]),TASKS[id].stages[n-1].gold,`${id} ${n}`);
  assert.deepEqual(log.stages.at(-1),['hb-departure',3],'the launch is last');
  assert.equal(totalBuilt(s),84,'63 stages in Chapters 1-2 and 21 here');
  // a reload at the end keeps it
- const t=load(JSON.stringify(s),9000);assert.equal(allDone(t),true);assert.equal(t.area,4);
+ const t=load(JSON.stringify(s),9000);assert.equal(areaDone(t,H),true);assert.equal(t.area,5);
 });
 
 test('a harbour stage on a full board: energy at once, the crate, token or cog waits for space, once', ()=>{
