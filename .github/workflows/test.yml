@@ -119,6 +119,7 @@ jobs:
           node tests/v5-next-extras-browser.cjs
           node tests/v5-next-energy-browser.cjs
           node tests/v5-next-rare-merges-browser.cjs
+          node tests/v5-next-chapter4-browser.cjs
           node tests/v5-next-chapter3-browser.cjs
           node tests/v5-next-chapter2-browser.cjs
       # Preserve compact debugging evidence only. Playwright videos can be >100 MB

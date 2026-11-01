@@ -182,12 +182,59 @@ export const AREAS=[
     {name:'Repair the jetty',cost:280,requires:{'hb-boatyard':1},gold:[['rope',3,1],['rig',3,1]],effect:{energy:12},lines:[['ivo','A jetty long enough for a boat with a sail.']]},
     {name:'Load the supplies',cost:310,gold:[['rig',4,1],['shell',3,1]],effect:{cog:1},lines:[['tamsin','Food, oil and rope from the warehouse, stowed and lashed.']]},
     {name:'Launch the boat',cost:350,requires:{'hb-boatyard':3,'hb-signal':3},gold:[['rope',4,1],['chart',4,1]],effect:{},lines:[['bram','Lines off. She floats true.']]}],'hb-departure')
+  ]},
+ // Chapter 4, The Answering Light (build 49a, 2026-11-02; docs/V5_CHAPTER4_ANSWERING_LIGHT_2026-11-02.md,
+ // from the director's handoff pack: data/chapter4-proposal.json translated into this schema, not pasted).
+ // A separate headland across the water, where the light that answered the harbour stands. Seven places,
+ // 21 stages: the landing, then the cliff steps; then two branches in either order (the keeper's cottage
+ // then the signal records; the reflector workshop then the lighthouse); the relay once the workshop and
+ // the records are done, and its last stage also needs the lighthouse, so it is the chapter's finale.
+ // Every stage asks two fixed gold materials (the proposal's zero-based tiers are this engine's); five
+ // ask a merged rare part directly (no dynamic step-down, no areas.mjs `rare` swap): an Expedition note,
+ // a Gear assembly, an Expedition note, a Travel notebook and a Gear. Stages 1-2 are their visible repair
+ // only (the pack's "visual progress"); stage 3 of each place gives a kit of 2 of one chain the camp has
+ // (the pack's candidates). No new generator, currency, energy rule or board. Picture: the director's
+ // damaged headland until the chapter is done, then the restored one (the masters are not registered
+ // layers, so no patch reveal); each stage shows on its place's card with its own sprite (art 'ch4-…').
+ // Prices: tuned against the build 48c economy (doc); the pack's 6,160 was a starting budget.
+ {id:'answering-light',name:'The Answering Light',short:'HEADLAND',picture:'answering-light',map:'coast/answering-light/headland-map-before',overview:'coast/answering-light/headland-map-after',
+  intro:[['bram','The tower is dark. That small light answered us.'],['ivo','First we need a safe way up.']],
+  tasks:[
+   place('ch4-landing','rope-2',[24,82],[
+    {name:'Brace the landing',cost:220,gold:[['rig',3,1],['rope',2,1]],effect:{},lines:[['ivo','The old frame still holds. We can brace it.']]},
+    {name:'Lay the deck',cost:240,gold:[['rig',4,1],['rope',2,1]],effect:{},lines:[['bram','A safe deck. Now the supplies can come ashore.']]},
+    {name:'Secure the landing',cost:260,gold:[['rope',3,1],['lamp',2,1]],effect:{kit:['rope',2]},lines:[['bram','Lines secure. The cliff path is next.']]}],'ch4-landing'),
+   place('ch4-steps','rig-3',[50,66],[
+    {name:'Clear the rockfall',cost:240,requires:{'ch4-landing':3},gold:[['rig',3,1],['rope',2,1]],effect:{},lines:[['ivo','There are steps beneath this rockfall.']]},
+    {name:'Rebuild the cliff steps',cost:260,gold:[['rig',4,1],['shell',2,1]],effect:{},lines:[['ivo','Solid stone all the way up.']]},
+    {name:'Fit the safety ropes',cost:280,gold:[['rope',3,1],['rig',2,1]],effect:{kit:['rig',2]},lines:[['bram','Now we can carry the heavy parts safely.']]}],'ch4-steps'),
+   place('ch4-cottage','shell-2',[36,40],[
+    {name:'Seal the keeper\'s roof',cost:260,requires:{'ch4-steps':3},gold:[['rig',3,1],['shell',2,1]],effect:{},lines:[['ivo','The roof will keep the records dry.']]},
+    {name:'Reopen the keeper\'s room',cost:280,gold:[['lamp',2,1],['rig',3,1]],effect:{},lines:[['neri','The keeper left a desk beside the window.']]},
+    {name:'Find the keeper\'s log',cost:300,gold:[['chart',3,1],['notes',1,1]],effect:{kit:['chart',2]},lines:[['neri','The log describes a reply mechanism. It does not name who last set it.']]}],'ch4-cottage'),
+   place('ch4-workshop','optic-3',[80,46],[
+    {name:'Restore the workbench',cost:260,requires:{'ch4-steps':3},gold:[['rig',4,1],['rope',3,1]],effect:{},lines:[['ivo','The reflector can be repaired on this bench.']]},
+    {name:'Fit the turning gears',cost:300,gold:[['rig',3,1],['mech',2,1]],effect:{},lines:[['ivo','These gears turn the reflector without a keeper.']]},
+    {name:'Polish the reflector',cost:320,gold:[['optic',3,1],['shell',3,1]],effect:{kit:['rig',2]},lines:[['tamsin','Now it can direct the light toward the relay.']]}],'ch4-workshop'),
+   place('ch4-records','chart-3',[26,22],[
+    {name:'Open the signal room',cost:280,requires:{'ch4-cottage':3},gold:[['rig',3,1],['lamp',2,1]],effect:{},lines:[['neri','The signal room belongs to the same installation.']]},
+    {name:'Sort the signal records',cost:300,gold:[['chart',3,1],['notes',1,1]],effect:{},lines:[['neri','Each short and long flash has a place in these records.']]},
+    {name:'Decode the signal pattern',cost:340,gold:[['chart',4,1],['notes',2,1]],effect:{kit:['chart',2]},lines:[['tamsin','The reply is stored here. We need the main light to read it.']]}],'ch4-records'),
+   place('ch4-lighthouse','lamp-3',[76,17],[
+    {name:'Repair the tower access',cost:300,requires:{'ch4-workshop':3},gold:[['rope',4,1],['rig',3,1]],effect:{},lines:[['bram','The tower is safe to climb again.']]},
+    {name:'Set the lighthouse lens',cost:340,gold:[['optic',4,1],['lamp',3,1]],effect:{},lines:[['tamsin','The lens is set. The lamp is still dark.']]},
+    {name:'Light the headland',cost:360,gold:[['lamp',3,1],['optic',3,1]],effect:{kit:['lamp',2]},lines:[['tamsin','There. The headland can guide ships again.']]}],'ch4-lighthouse'),
+   place('ch4-relay','optic-4',[54,17],[
+    {name:'Rebuild the relay base',cost:300,requires:{'ch4-workshop':3,'ch4-records':3},gold:[['rig',4,1],['rope',3,1]],effect:{},lines:[['ivo','A steady base for a very delicate machine.']]},
+    {name:'Set the timing cams',cost:340,gold:[['chart',4,1],['mech',1,1]],effect:{},lines:[['tamsin','The cams now match the recorded pattern.']]},
+    {name:'Read the stored message',cost:380,requires:{'ch4-lighthouse':3,'ch4-records':3},gold:[['optic',4,1],['lamp',3,1]],effect:{kit:['optic',2]},lines:[['neri','A route through the reef, marked for low water. Whoever left it wanted someone to find a way through.']]}],'ch4-relay')
   ]}
 ];
 // The next area opens when this one's last stage is bought (game.mjs restore and load).
 // Build 47f: what the Vault's places are called when one waits for another ("Finish the array first").
 export const LABELS={'vault-archive':'the archive','obs-hall':'the entrance hall','obs-desk':'the survey desk','obs-bench':'the lens bench','obs-array':'the array','obs-passage':'the sea gate',
- 'hb-landing':'the landing','hb-crane':'the crane','hb-warehouse':'the warehouse','hb-boatyard':'the boatyard','hb-registry':'the registry','hb-signal':'the signal tower','hb-departure':'the departure dock'};
+ 'hb-landing':'the landing','hb-crane':'the crane','hb-warehouse':'the warehouse','hb-boatyard':'the boatyard','hb-registry':'the registry','ch4-landing':'the arrival landing','ch4-steps':'the cliff steps','ch4-cottage':'the keeper\'s cottage','ch4-workshop':'the reflector workshop','ch4-records':'the signal records','ch4-lighthouse':'the lighthouse','ch4-relay':'the signal relay',
+ 'hb-signal':'the signal tower','hb-departure':'the departure dock'};
 export const TASKS=Object.fromEntries(AREAS.flatMap(a=>a.tasks.map(t=>[t.id,{...t,area:a.id}])));
 export const STAGES=3;
 export const areaOf=id=>AREAS.find(a=>a.id===id);

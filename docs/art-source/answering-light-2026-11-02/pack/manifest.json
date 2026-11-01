@@ -1,0 +1,393 @@
+{
+  "assetCount": 27,
+  "status": "generated masters; integration QA required",
+  "assets": [
+    {
+      "file": "assets/map-before.png",
+      "role": "damaged-map",
+      "place": null,
+      "stage": null,
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGB",
+      "alpha_extrema": null,
+      "bytes": 3410481,
+      "sha256": "45d8cb4e2a63621b34de75ff51c7acdb179ab643c413d74c48df098591b8d672"
+    },
+    {
+      "file": "assets/place-ch4-landing-1.png",
+      "role": "stage-sprite",
+      "place": "landing",
+      "stage": 1,
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "bytes": 1556774,
+      "sha256": "0520d14a1b0fd05ca046288c386f3d34c91efeebe4812ae2e4a04e797c1c2c7a"
+    },
+    {
+      "file": "assets/place-ch4-steps-1.png",
+      "role": "stage-sprite",
+      "place": "steps",
+      "stage": 1,
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "bytes": 2420066,
+      "sha256": "3d65e491ca909c2aa61ba65b60b8a4c78134c5ab0721c398904b01dcdf1020ed"
+    },
+    {
+      "file": "assets/place-ch4-cottage-1.png",
+      "role": "stage-sprite",
+      "place": "cottage",
+      "stage": 1,
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "bytes": 2461088,
+      "sha256": "a944594279dd80c9ca88c058cf80441b6d5ba6dd7385b3edd6d6f8da0d451dd5"
+    },
+    {
+      "file": "assets/place-ch4-workshop-1.png",
+      "role": "stage-sprite",
+      "place": "workshop",
+      "stage": 1,
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "bytes": 2390316,
+      "sha256": "6a807e6f7a1b249cbc0fb8439237736b16285b72118734acdd405cae3d580108"
+    },
+    {
+      "file": "assets/place-ch4-lighthouse-1.png",
+      "role": "stage-sprite",
+      "place": "lighthouse",
+      "stage": 1,
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "bytes": 1472825,
+      "sha256": "e5b916d8230f60ab91bde636defbb5cdae2ee4bb5c4b9eaf4b8d1dede3f9ee3f"
+    },
+    {
+      "file": "assets/place-ch4-records-1.png",
+      "role": "stage-sprite",
+      "place": "records",
+      "stage": 1,
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "bytes": 2585784,
+      "sha256": "e98cf93e065b0770e2551168155f800daa98a831223c23076804f27fd65a0e06"
+    },
+    {
+      "file": "assets/place-ch4-relay-1.png",
+      "role": "stage-sprite",
+      "place": "relay",
+      "stage": 1,
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "bytes": 2165746,
+      "sha256": "fe71d177d42496daf059e8edfd3d35e91bfb91df171fb2b32e4ad0aceaecb079"
+    },
+    {
+      "file": "assets/place-ch4-landing-2.png",
+      "role": "stage-sprite",
+      "place": "landing",
+      "stage": 2,
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "bytes": 1476826,
+      "sha256": "291aa07e254039ab5a6d374d353118f6f40d35b652a021da0133dd5c077d9928"
+    },
+    {
+      "file": "assets/place-ch4-cottage-2.png",
+      "role": "stage-sprite",
+      "place": "cottage",
+      "stage": 2,
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "bytes": 2305915,
+      "sha256": "8fee91c79cd3158a2d313a717aec4acb9a81d3efff3d02971d8d9bf869730474"
+    },
+    {
+      "file": "assets/place-ch4-steps-2.png",
+      "role": "stage-sprite",
+      "place": "steps",
+      "stage": 2,
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "bytes": 2211235,
+      "sha256": "1a68632b82f0dfa447de63cf12de62c907c2d4d6ff36314a378b27c1944ebeab"
+    },
+    {
+      "file": "assets/place-ch4-workshop-2.png",
+      "role": "stage-sprite",
+      "place": "workshop",
+      "stage": 2,
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "bytes": 2246898,
+      "sha256": "33c2888572677ba653904d682564bdb98e0afeb28113e209889124ce0c4bb6b9"
+    },
+    {
+      "file": "assets/place-ch4-records-2.png",
+      "role": "stage-sprite",
+      "place": "records",
+      "stage": 2,
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "bytes": 2359194,
+      "sha256": "552f6f1e308f5e45a1226354f576d4886a4c5f4f27dfc729da32cf9d4b2f016e"
+    },
+    {
+      "file": "assets/place-ch4-relay-2.png",
+      "role": "stage-sprite",
+      "place": "relay",
+      "stage": 2,
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "bytes": 2021819,
+      "sha256": "002ef6b5362f86e3a13fb77db1545c9b27889f0cb03f4aba7e294febeca6208b"
+    },
+    {
+      "file": "assets/place-ch4-lighthouse-2.png",
+      "role": "stage-sprite",
+      "place": "lighthouse",
+      "stage": 2,
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "bytes": 1378823,
+      "sha256": "93a1a89ccd608b8aa052ba347fad88f5be4e7bf02d101a6786a2da898c3cedf9"
+    },
+    {
+      "file": "assets/place-ch4-landing-3.png",
+      "role": "stage-sprite",
+      "place": "landing",
+      "stage": 3,
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "bytes": 1527697,
+      "sha256": "f254d9fff9a6111230bb4e8bed2ba037805b8e4405ac501efb0fcd7158b63f2a"
+    },
+    {
+      "file": "assets/place-ch4-steps-3.png",
+      "role": "stage-sprite",
+      "place": "steps",
+      "stage": 3,
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "bytes": 2284561,
+      "sha256": "c5ad579a469004af32002d5a8d5974adc59c224f6c44434efc7359b907ee477d"
+    },
+    {
+      "file": "assets/place-ch4-cottage-3.png",
+      "role": "stage-sprite",
+      "place": "cottage",
+      "stage": 3,
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "bytes": 2298476,
+      "sha256": "d2a9753d4fa3bfa0dfc2cdf0ffed46f373c8014c91deb13834dfc6872f103fa2"
+    },
+    {
+      "file": "assets/place-ch4-workshop-3.png",
+      "role": "stage-sprite",
+      "place": "workshop",
+      "stage": 3,
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "bytes": 2243354,
+      "sha256": "3760934e73a924d482d6376f8d61fce1699b3c732d4016ce28f86e6d42bb1966"
+    },
+    {
+      "file": "assets/place-ch4-records-3.png",
+      "role": "stage-sprite",
+      "place": "records",
+      "stage": 3,
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "bytes": 2398611,
+      "sha256": "841f5d6a44d1c9f6f721c2590836d63b04670fe04c57ebef0f9c2d282f75f9d0"
+    },
+    {
+      "file": "assets/place-ch4-lighthouse-3.png",
+      "role": "stage-sprite",
+      "place": "lighthouse",
+      "stage": 3,
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "bytes": 1515787,
+      "sha256": "bba6f97690c8c8cf71e4a0b400528aa927b163410dcdb303160c98e485a83c99"
+    },
+    {
+      "file": "assets/place-ch4-relay-3.png",
+      "role": "stage-sprite",
+      "place": "relay",
+      "stage": 3,
+      "width": 1254,
+      "height": 1254,
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "bytes": 1987264,
+      "sha256": "88beb2001fe33ea953a6067d16ef2ac8e4dbabd7d8f048b84e4cb48cb993068f"
+    },
+    {
+      "file": "assets/map-after.png",
+      "role": "restored-map",
+      "place": null,
+      "stage": null,
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGB",
+      "alpha_extrema": null,
+      "bytes": 3361055,
+      "sha256": "3d85481281498520049d7d202d42f7086e37e17044a81fb07fb1f92dfe80a673"
+    },
+    {
+      "file": "assets/story-01-arrival.png",
+      "role": "story",
+      "place": null,
+      "stage": null,
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGB",
+      "alpha_extrema": null,
+      "bytes": 3438475,
+      "sha256": "bee18f8f9cd40b29e3a08f6611888eb9d6d4725a21428de4088787f89ded4d9e"
+    },
+    {
+      "file": "assets/story-02-keeper-log.png",
+      "role": "story",
+      "place": null,
+      "stage": null,
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGB",
+      "alpha_extrema": null,
+      "bytes": 2757454,
+      "sha256": "8e45ac4aab63c8a43ba0602ef2e72af84c46d012c24854660e85b8058f83c04f"
+    },
+    {
+      "file": "assets/story-03-first-light.png",
+      "role": "story",
+      "place": null,
+      "stage": null,
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGB",
+      "alpha_extrema": null,
+      "bytes": 2776163,
+      "sha256": "d3ff7e04dba2e6cc49cc6c43c6a4db14fcc48d54c87044d77d94f3d712bbf368"
+    },
+    {
+      "file": "assets/story-04-route-message.png",
+      "role": "story",
+      "place": null,
+      "stage": null,
+      "width": 1024,
+      "height": 1536,
+      "mode": "RGB",
+      "alpha_extrema": null,
+      "bytes": 2806292,
+      "sha256": "54a827070f8f10304e395418e025f363e350a0ccd73593cbf3116b680433666e"
+    }
+  ]
+}

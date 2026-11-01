@@ -198,7 +198,10 @@ test('demand: about one new everyday order in three asks a secondary part once o
   if(lv2===null&&s.board.some(x=>x?.type==='source'&&(x.level??1)>=2))lv2=s.ordersDone;
   for(const o of s.orders){if(!o||seen.has(o.id))continue;seen.add(o.id);const sec=o.needs.filter(r=>isSecondary(r.family));
    // build 48b: a gold order asks a rare part only at a stage that names one (areas.mjs rare), at most its tier
-   if(o.story){const st=TASKS[o.story].stages[(s.built[o.story]??0)];if(sec.length){assert.ok(st.rare,`${o.story}: only a mapped stage`);assert.equal(sec[0].family,st.rare[0]);assert.ok(sec[0].tier>=1&&sec[0].tier<=st.rare[1],'its tier or one lower (bounded)');goldRare++;}continue;}
+   // build 49a: or a stage whose own fixed gold recipe names it (Chapter 4), exactly as authored
+   if(o.story){const st=TASKS[o.story].stages[(s.built[o.story]??0)];if(sec.length){const own=st.gold?.find(g=>g[0]===sec[0].family);
+    if(own)assert.deepEqual([sec[0].family,sec[0].tier,sec[0].count],own,`${o.story}: its own recipe`);
+    else{assert.ok(st.rare,`${o.story}: only a mapped stage`);assert.equal(sec[0].family,st.rare[0]);assert.equal(sec[0].tier,st.rare[1],'its fixed tier');}goldRare++;}continue;}
    if(Object.keys(s.secOpen).length)after++;
    if(!sec.length)continue;asked++;offered++;secIds.add(o.id);
    assert.ok(Object.keys(s.secOpen).length>0||secondaryHeld(s,sec[0].family)>0,'only once a chain is open, or for parts already held');

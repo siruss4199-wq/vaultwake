@@ -1,0 +1,645 @@
+{
+  "schema": "design-proposal-not-engine-data/v1",
+  "chapter": 4,
+  "id": "answering-light",
+  "title": "The Answering Light",
+  "status": "Prepared design; recipes and coins untested; integrate only after current balance pass",
+  "sourceCommit": "08fee578b0cfc53c6aac416df282e9b488b93993",
+  "entry": "Chapter 3 complete; existing board/save continues",
+  "totalStages": 21,
+  "provisionalTotalCoins": 6160,
+  "places": [
+    {
+      "id": "ch4-landing",
+      "key": "landing",
+      "name": "Arrival Landing",
+      "requires": {},
+      "stages": [
+        {
+          "stage": 1,
+          "title": "Brace the landing",
+          "provisionalCoins": 220,
+          "gold": [
+            {
+              "family": "rig",
+              "tier": 3,
+              "count": 1
+            },
+            {
+              "family": "rope",
+              "tier": 2,
+              "count": 1
+            }
+          ],
+          "requires": {},
+          "sprite": "assets/place-ch4-landing-1.png",
+          "line": {
+            "speaker": "Ivo",
+            "text": "The old frame still holds. We can brace it."
+          },
+          "rewardProposal": {
+            "type": "visual_progress_only"
+          }
+        },
+        {
+          "stage": 2,
+          "title": "Lay the deck",
+          "provisionalCoins": 240,
+          "gold": [
+            {
+              "family": "rig",
+              "tier": 4,
+              "count": 1
+            },
+            {
+              "family": "rope",
+              "tier": 2,
+              "count": 1
+            }
+          ],
+          "requires": {},
+          "sprite": "assets/place-ch4-landing-2.png",
+          "line": {
+            "speaker": "Bram",
+            "text": "A safe deck. Now the supplies can come ashore."
+          },
+          "rewardProposal": {
+            "type": "visual_progress_only"
+          }
+        },
+        {
+          "stage": 3,
+          "title": "Secure the landing",
+          "provisionalCoins": 260,
+          "gold": [
+            {
+              "family": "rope",
+              "tier": 3,
+              "count": 1
+            },
+            {
+              "family": "lamp",
+              "tier": 2,
+              "count": 1
+            }
+          ],
+          "requires": {},
+          "sprite": "assets/place-ch4-landing-3.png",
+          "line": {
+            "speaker": "Bram",
+            "text": "Lines secure. The cliff path is next."
+          },
+          "rewardProposal": {
+            "type": "existing_generator_kit",
+            "family": "rope",
+            "size": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "ch4-steps",
+      "key": "steps",
+      "name": "Cliff Steps",
+      "requires": {
+        "ch4-landing": 3
+      },
+      "stages": [
+        {
+          "stage": 1,
+          "title": "Clear the rockfall",
+          "provisionalCoins": 240,
+          "gold": [
+            {
+              "family": "rig",
+              "tier": 3,
+              "count": 1
+            },
+            {
+              "family": "rope",
+              "tier": 2,
+              "count": 1
+            }
+          ],
+          "requires": {},
+          "sprite": "assets/place-ch4-steps-1.png",
+          "line": {
+            "speaker": "Ivo",
+            "text": "There are steps beneath this rockfall."
+          },
+          "rewardProposal": {
+            "type": "visual_progress_only"
+          }
+        },
+        {
+          "stage": 2,
+          "title": "Rebuild the cliff steps",
+          "provisionalCoins": 260,
+          "gold": [
+            {
+              "family": "rig",
+              "tier": 4,
+              "count": 1
+            },
+            {
+              "family": "shell",
+              "tier": 2,
+              "count": 1
+            }
+          ],
+          "requires": {},
+          "sprite": "assets/place-ch4-steps-2.png",
+          "line": {
+            "speaker": "Ivo",
+            "text": "Solid stone all the way up."
+          },
+          "rewardProposal": {
+            "type": "visual_progress_only"
+          }
+        },
+        {
+          "stage": 3,
+          "title": "Fit the safety ropes",
+          "provisionalCoins": 280,
+          "gold": [
+            {
+              "family": "rope",
+              "tier": 3,
+              "count": 1
+            },
+            {
+              "family": "rig",
+              "tier": 2,
+              "count": 1
+            }
+          ],
+          "requires": {},
+          "sprite": "assets/place-ch4-steps-3.png",
+          "line": {
+            "speaker": "Bram",
+            "text": "Now we can carry the heavy parts safely."
+          },
+          "rewardProposal": {
+            "type": "existing_generator_kit",
+            "family": "rig",
+            "size": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "ch4-cottage",
+      "key": "cottage",
+      "name": "Keeper Cottage",
+      "requires": {
+        "ch4-steps": 3
+      },
+      "stages": [
+        {
+          "stage": 1,
+          "title": "Seal the keeper's roof",
+          "provisionalCoins": 260,
+          "gold": [
+            {
+              "family": "rig",
+              "tier": 3,
+              "count": 1
+            },
+            {
+              "family": "shell",
+              "tier": 2,
+              "count": 1
+            }
+          ],
+          "requires": {},
+          "sprite": "assets/place-ch4-cottage-1.png",
+          "line": {
+            "speaker": "Ivo",
+            "text": "The roof will keep the records dry."
+          },
+          "rewardProposal": {
+            "type": "visual_progress_only"
+          }
+        },
+        {
+          "stage": 2,
+          "title": "Reopen the keeper's room",
+          "provisionalCoins": 280,
+          "gold": [
+            {
+              "family": "lamp",
+              "tier": 2,
+              "count": 1
+            },
+            {
+              "family": "rig",
+              "tier": 3,
+              "count": 1
+            }
+          ],
+          "requires": {},
+          "sprite": "assets/place-ch4-cottage-2.png",
+          "line": {
+            "speaker": "Neri",
+            "text": "The keeper left a desk beside the window."
+          },
+          "rewardProposal": {
+            "type": "visual_progress_only"
+          }
+        },
+        {
+          "stage": 3,
+          "title": "Find the keeper's log",
+          "provisionalCoins": 300,
+          "gold": [
+            {
+              "family": "chart",
+              "tier": 3,
+              "count": 1
+            },
+            {
+              "family": "notes",
+              "tier": 1,
+              "count": 1
+            }
+          ],
+          "requires": {},
+          "sprite": "assets/place-ch4-cottage-3.png",
+          "line": {
+            "speaker": "Neri",
+            "text": "The log describes a reply mechanism. It does not name who last set it."
+          },
+          "rewardProposal": {
+            "type": "existing_generator_kit",
+            "family": "chart",
+            "size": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "ch4-workshop",
+      "key": "workshop",
+      "name": "Reflector Workshop",
+      "requires": {
+        "ch4-steps": 3
+      },
+      "stages": [
+        {
+          "stage": 1,
+          "title": "Restore the workbench",
+          "provisionalCoins": 260,
+          "gold": [
+            {
+              "family": "rig",
+              "tier": 4,
+              "count": 1
+            },
+            {
+              "family": "rope",
+              "tier": 3,
+              "count": 1
+            }
+          ],
+          "requires": {},
+          "sprite": "assets/place-ch4-workshop-1.png",
+          "line": {
+            "speaker": "Ivo",
+            "text": "The reflector can be repaired on this bench."
+          },
+          "rewardProposal": {
+            "type": "visual_progress_only"
+          }
+        },
+        {
+          "stage": 2,
+          "title": "Fit the turning gears",
+          "provisionalCoins": 300,
+          "gold": [
+            {
+              "family": "rig",
+              "tier": 3,
+              "count": 1
+            },
+            {
+              "family": "mech",
+              "tier": 2,
+              "count": 1
+            }
+          ],
+          "requires": {},
+          "sprite": "assets/place-ch4-workshop-2.png",
+          "line": {
+            "speaker": "Ivo",
+            "text": "These gears turn the reflector without a keeper."
+          },
+          "rewardProposal": {
+            "type": "visual_progress_only"
+          }
+        },
+        {
+          "stage": 3,
+          "title": "Polish the reflector",
+          "provisionalCoins": 320,
+          "gold": [
+            {
+              "family": "optic",
+              "tier": 3,
+              "count": 1
+            },
+            {
+              "family": "shell",
+              "tier": 3,
+              "count": 1
+            }
+          ],
+          "requires": {},
+          "sprite": "assets/place-ch4-workshop-3.png",
+          "line": {
+            "speaker": "Tamsin",
+            "text": "Now it can direct the light toward the relay."
+          },
+          "rewardProposal": {
+            "type": "existing_generator_kit",
+            "family": "rig",
+            "size": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "ch4-records",
+      "key": "records",
+      "name": "Signal Records",
+      "requires": {
+        "ch4-cottage": 3
+      },
+      "stages": [
+        {
+          "stage": 1,
+          "title": "Open the signal room",
+          "provisionalCoins": 280,
+          "gold": [
+            {
+              "family": "rig",
+              "tier": 3,
+              "count": 1
+            },
+            {
+              "family": "lamp",
+              "tier": 2,
+              "count": 1
+            }
+          ],
+          "requires": {},
+          "sprite": "assets/place-ch4-records-1.png",
+          "line": {
+            "speaker": "Neri",
+            "text": "The signal room belongs to the same installation."
+          },
+          "rewardProposal": {
+            "type": "visual_progress_only"
+          }
+        },
+        {
+          "stage": 2,
+          "title": "Sort the signal records",
+          "provisionalCoins": 300,
+          "gold": [
+            {
+              "family": "chart",
+              "tier": 3,
+              "count": 1
+            },
+            {
+              "family": "notes",
+              "tier": 1,
+              "count": 1
+            }
+          ],
+          "requires": {},
+          "sprite": "assets/place-ch4-records-2.png",
+          "line": {
+            "speaker": "Neri",
+            "text": "Each short and long flash has a place in these records."
+          },
+          "rewardProposal": {
+            "type": "visual_progress_only"
+          }
+        },
+        {
+          "stage": 3,
+          "title": "Decode the signal pattern",
+          "provisionalCoins": 340,
+          "gold": [
+            {
+              "family": "chart",
+              "tier": 4,
+              "count": 1
+            },
+            {
+              "family": "notes",
+              "tier": 2,
+              "count": 1
+            }
+          ],
+          "requires": {},
+          "sprite": "assets/place-ch4-records-3.png",
+          "line": {
+            "speaker": "Tamsin",
+            "text": "The reply is stored here. We need the main light to read it."
+          },
+          "rewardProposal": {
+            "type": "existing_generator_kit",
+            "family": "chart",
+            "size": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "ch4-lighthouse",
+      "key": "lighthouse",
+      "name": "Lighthouse",
+      "requires": {
+        "ch4-workshop": 3
+      },
+      "stages": [
+        {
+          "stage": 1,
+          "title": "Repair the tower access",
+          "provisionalCoins": 300,
+          "gold": [
+            {
+              "family": "rope",
+              "tier": 4,
+              "count": 1
+            },
+            {
+              "family": "rig",
+              "tier": 3,
+              "count": 1
+            }
+          ],
+          "requires": {},
+          "sprite": "assets/place-ch4-lighthouse-1.png",
+          "line": {
+            "speaker": "Bram",
+            "text": "The tower is safe to climb again."
+          },
+          "rewardProposal": {
+            "type": "visual_progress_only"
+          }
+        },
+        {
+          "stage": 2,
+          "title": "Set the lighthouse lens",
+          "provisionalCoins": 340,
+          "gold": [
+            {
+              "family": "optic",
+              "tier": 4,
+              "count": 1
+            },
+            {
+              "family": "lamp",
+              "tier": 3,
+              "count": 1
+            }
+          ],
+          "requires": {},
+          "sprite": "assets/place-ch4-lighthouse-2.png",
+          "line": {
+            "speaker": "Tamsin",
+            "text": "The lens is set. The lamp is still dark."
+          },
+          "rewardProposal": {
+            "type": "visual_progress_only"
+          }
+        },
+        {
+          "stage": 3,
+          "title": "Light the headland",
+          "provisionalCoins": 360,
+          "gold": [
+            {
+              "family": "lamp",
+              "tier": 3,
+              "count": 1
+            },
+            {
+              "family": "optic",
+              "tier": 3,
+              "count": 1
+            }
+          ],
+          "requires": {},
+          "sprite": "assets/place-ch4-lighthouse-3.png",
+          "line": {
+            "speaker": "Tamsin",
+            "text": "There. The headland can guide ships again."
+          },
+          "rewardProposal": {
+            "type": "existing_generator_kit",
+            "family": "lamp",
+            "size": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "ch4-relay",
+      "key": "relay",
+      "name": "Signal Relay",
+      "requires": {
+        "ch4-workshop": 3,
+        "ch4-records": 3
+      },
+      "stages": [
+        {
+          "stage": 1,
+          "title": "Rebuild the relay base",
+          "provisionalCoins": 300,
+          "gold": [
+            {
+              "family": "rig",
+              "tier": 4,
+              "count": 1
+            },
+            {
+              "family": "rope",
+              "tier": 3,
+              "count": 1
+            }
+          ],
+          "requires": {},
+          "sprite": "assets/place-ch4-relay-1.png",
+          "line": {
+            "speaker": "Ivo",
+            "text": "A steady base for a very delicate machine."
+          },
+          "rewardProposal": {
+            "type": "visual_progress_only"
+          }
+        },
+        {
+          "stage": 2,
+          "title": "Set the timing cams",
+          "provisionalCoins": 340,
+          "gold": [
+            {
+              "family": "chart",
+              "tier": 4,
+              "count": 1
+            },
+            {
+              "family": "mech",
+              "tier": 1,
+              "count": 1
+            }
+          ],
+          "requires": {},
+          "sprite": "assets/place-ch4-relay-2.png",
+          "line": {
+            "speaker": "Tamsin",
+            "text": "The cams now match the recorded pattern."
+          },
+          "rewardProposal": {
+            "type": "visual_progress_only"
+          }
+        },
+        {
+          "stage": 3,
+          "title": "Read the stored message",
+          "provisionalCoins": 380,
+          "gold": [
+            {
+              "family": "optic",
+              "tier": 4,
+              "count": 1
+            },
+            {
+              "family": "lamp",
+              "tier": 3,
+              "count": 1
+            }
+          ],
+          "requires": {
+            "ch4-lighthouse": 3,
+            "ch4-records": 3
+          },
+          "sprite": "assets/place-ch4-relay-3.png",
+          "line": {
+            "speaker": "Neri",
+            "text": "A route through the reef, marked for low water. Whoever left it wanted someone to find a way through."
+          },
+          "rewardProposal": {
+            "type": "existing_generator_kit",
+            "family": "optic",
+            "size": 2
+          }
+        }
+      ]
+    }
+  ]
+}

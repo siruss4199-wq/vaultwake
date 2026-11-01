@@ -4,7 +4,7 @@
 // screen shows the damaged harbour with nothing stood on it; each stage bought through the real UI (its
 // gold order delivered by hand, then built on the coast screen) uncovers its own spot from the restored
 // painting; the crane's cargo card and the signal's card once; the launch ends Chapter 3 with its card
-// once (no Chapter 4 offered), Keep playing goes back to the board, and a reload shows it no more.
+// (build 49a) the launch is Chapter 3's last story card, once, leading on to Chapter 4's arrival, once; a reload shows neither again.
 // At 390 x 844 all 21 stages are bought by hand; at 360, 430 and 907 x 510 the entry, the coast screen,
 // one story card and the end. Every picture loads; nothing overflows; buttons are 44 px.
 //   SHOTS=<dir> saves screenshots.
@@ -18,7 +18,7 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
  for(const [engine,type] of engines){
   let browser;try{browser=await type.launch();}catch(e){if(engine!=='chromium'&&/Executable doesn't exist/.test(e.message)){console.log(`${engine}: not installed here, skipped`);continue;}throw e;}
   try{for(const [W,H] of [[390,844],[360,780],[430,932],[907,510]]){
-   const full=W===390;
+   const full=W===390;let launchText='';
    const context=await browser.newContext({viewport:{width:W,height:H},isMobile:W<700&&engine==='chromium',hasTouch:W<700,reducedMotion:'reduce'});
    const page=await context.newPage(),errors=[],missing=[];throughHome(page);
    page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
@@ -76,6 +76,7 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
      const id=g?g.story:await page.evaluate(async k=>{const m=await import('/v5/next/game.mjs');const s=m.load(localStorage.getItem(k),Date.now());return m.upgrades(s).find(u=>u.materials)?.id;},KEY);
      assert.ok(id,tag('something to build at stage '+stages));
      const r=await build(id);stages++;
+     if(id==='hb-departure')launchText=r.text;
      if(/Recovered cargo/.test(r.text)&&/That mark again/.test(r.text))cargo=true;if(/An answering light/.test(r.text)&&/A light answered us/.test(r.text))signal=true;
      s=await save();
      if(stages<21){if(!(await page.locator('#coastMap[open]').count())){await page.locator('#mapButton').click();await page.waitForSelector('#coastMap[open]');}
@@ -100,29 +101,26 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
     await write(`for(const t of arg)s.built[t]=3,s.materials[t]=3;s.built['hb-departure']=2;s.materials['hb-departure']=3;s.seen['hb-cargo']=true;s.seen['hb-signal']=true;s.coins=3000;`,IDS);
     await reload();await beats();
     await page.locator('#mapButton').click();await page.waitForSelector('#coastMap[open]');await page.locator('#coastMap .places [data-select="hb-departure"]').click();await page.locator('#coastMap [data-restore="hb-departure"]').click();await page.waitForTimeout(300);
-    await beats();
+    // the launch's own lines, then (0.9 s later) its card and the Chapter 4 arrival, each taken in turn
+    launchText=await beats();await page.waitForTimeout(1300);launchText+=' | '+await beats();
    }
-   // the launch: Chapter 3's end card, once, with no Chapter 4 offered
-   await page.waitForSelector('#endDialog[open]',{timeout:6000});
-   const end=await page.locator('#endContent').textContent();assert.match(end,/Chapter 3 complete/);assert.match(end,/Now we have a direction/);assert.match(end,/84 \/ 84/,tag('every stage counted'));
-   assert.equal(await page.locator('#endContent button').count(),2,tag('Keep playing and feedback only: no Chapter 4 button'));assert.doesNotMatch(end,/Chapter 4/);
-   const art=await page.locator('#endContent .endArt img').evaluate(i=>({w:i.naturalWidth,alt:i.alt}));assert.ok(art.w>0&&/sail/.test(art.alt),tag('the departure picture'));
-   await fits('end card');await shot('5-end');
-   await page.locator('#endContent [data-keep]').click();assert.equal(await page.locator('#endDialog[open]').count(),0);assert.ok(await page.locator('#board .tile').count()>30,tag('back to the board'));
-   s=await save();assert.equal(s.seenEnd,true);
-   await reload();await page.waitForTimeout(400);assert.equal(await page.locator('#endDialog[open]').count(),0,tag('the end card once'));assert.equal(await beats(),'',tag('no story card again'));
-   // the finished harbour (build 48c): the boatyard's card is its finished yard after the launch (cradles
-   // empty, the boat at the dock), not the stage-1 cut-out; the picture loads
+   // the launch (build 49a): Chapter 3's last story card, once, leading on to Chapter 4 (no end card),
+   // then the Answering Light's arrival card, once (taken in turn above)
+   assert.match(launchText,/Chapter 3 complete[\s\S]*The boat is ready[\s\S]*Now we have a direction/,tag('the launch card'));
+   assert.match(launchText,/Chapter 4 · The Answering Light/,tag('it names what comes next'));
+   assert.match(launchText,/A light without a keeper[\s\S]*First we need a safe way up/,tag('then the Chapter 4 arrival'));
+   assert.equal(await page.locator('#endDialog[open]').count(),0,tag('no end card: the story goes on'));assert.ok(await page.locator('#board .tile').count()>30,tag('back to the board'));
+   s=await save();assert.equal(s.area,5);assert.equal(s.seen['hb-launch'],true);assert.equal(s.seen['ch4-arrival'],true);assert.notEqual(s.seenEnd,true);
+   assert.equal(s.orders.find(o=>o?.story)?.story,'ch4-landing',tag('the landing\'s gold order up'));
+   await reload();await page.waitForTimeout(400);assert.equal(await page.locator('#endDialog[open]').count(),0);assert.equal(await beats(),'',tag('no story card again'));
+   // the coast screen now shows the damaged headland, the harbour listed as complete
    await page.locator('#mapButton').click();await page.waitForSelector('#coastMap[open]');
-   await page.locator('#coastMap .places [data-select="hb-boatyard"]').click();
-   assert.match(await page.locator('#mapCard .cardArt img').getAttribute('src'),/place-hb-boatyard-launched\.webp$/,tag('no second boat in the yard, and no unbuilt-looking yard'));
-   assert.ok(await page.locator('#mapCard .cardArt img').evaluate(i=>i.complete&&i.naturalWidth>0),tag('the launched yard loads'));
-   assert.match(await page.locator('#mapCard').innerText(),/Rig the sail/,tag('still its last stage'));
-   assert.ok(await page.locator('#coastMap .beachScene.complete').count(),tag('the restored harbour'));await fits('finished coast');await shot('6-coast-complete');
+   assert.ok(await page.locator('#coastMap .beachScene.headland:not(.complete)').count(),tag('the damaged headland'));assert.match(await page.locator('#coastMap').innerText(),/The Hidden Harbour[\s\S]*Complete/);
+   await fits('headland coast');await shot('6-headland');
    assert.deepEqual(missing,[],tag('every harbour picture loads'));assert.deepEqual(errors,[],tag('no page errors'));
    await context.close();
   }
-  console.log(`${engine} Coast Camp Chapter 3: finished Chapter 2 save → arrival once → landing gold marked → coast (damaged harbour, nothing stood on it, 7 places) → 21 stages by hand at 390 (each uncovering its spot; cargo and signal cards once) → launch end card once, no Chapter 4 → board; 360/430/907×510 entry, cargo card, end; pictures load, no overflow passed`);
+  console.log(`${engine} Coast Camp Chapter 3: finished Chapter 2 save → arrival once → landing gold marked → coast (damaged harbour, nothing stood on it, 7 places) → 21 stages by hand at 390 (each uncovering its spot; cargo and signal cards once) → launch card once → Chapter 4 arrival once → board; 360/430/907×510 entry, cargo card, end; pictures load, no overflow passed`);
   }finally{await browser.close();}
  }
 })().catch(e=>{console.error(e);process.exit(1);});

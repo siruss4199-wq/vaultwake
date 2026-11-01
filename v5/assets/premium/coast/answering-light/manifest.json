@@ -1,0 +1,249 @@
+{
+ "maps": {
+  "before": {
+   "size": [
+    1024,
+    1195
+   ],
+   "crop": [
+    0,
+    60,
+    1024,
+    1255
+   ]
+  },
+  "after": {
+   "size": [
+    1024,
+    1195
+   ],
+   "crop": [
+    0,
+    60,
+    1024,
+    1255
+   ]
+  }
+ },
+ "sprites": {
+  "landing-1": {
+   "size": 512,
+   "opaque_box": [
+    0,
+    9,
+    1240,
+    1254
+   ]
+  },
+  "landing-2": {
+   "size": 512,
+   "opaque_box": [
+    33,
+    52,
+    1222,
+    1254
+   ]
+  },
+  "landing-3": {
+   "size": 512,
+   "opaque_box": [
+    0,
+    41,
+    1222,
+    1254
+   ]
+  },
+  "steps-1": {
+   "size": 512,
+   "opaque_box": [
+    0,
+    9,
+    1229,
+    1254
+   ]
+  },
+  "steps-2": {
+   "size": 512,
+   "opaque_box": [
+    43,
+    47,
+    1230,
+    1222
+   ]
+  },
+  "steps-3": {
+   "size": 512,
+   "opaque_box": [
+    0,
+    4,
+    1237,
+    1238
+   ]
+  },
+  "cottage-1": {
+   "size": 512,
+   "opaque_box": [
+    0,
+    23,
+    1243,
+    1254
+   ]
+  },
+  "cottage-2": {
+   "size": 512,
+   "opaque_box": [
+    0,
+    21,
+    1244,
+    1254
+   ]
+  },
+  "cottage-3": {
+   "size": 512,
+   "opaque_box": [
+    0,
+    5,
+    1241,
+    1254
+   ]
+  },
+  "workshop-1": {
+   "size": 512,
+   "opaque_box": [
+    0,
+    0,
+    1234,
+    1254
+   ]
+  },
+  "workshop-2": {
+   "size": 512,
+   "opaque_box": [
+    0,
+    33,
+    1225,
+    1238
+   ]
+  },
+  "workshop-3": {
+   "size": 512,
+   "opaque_box": [
+    0,
+    17,
+    1248,
+    1254
+   ]
+  },
+  "records-1": {
+   "size": 512,
+   "opaque_box": [
+    0,
+    17,
+    1236,
+    1254
+   ]
+  },
+  "records-2": {
+   "size": 512,
+   "opaque_box": [
+    0,
+    31,
+    1222,
+    1210
+   ]
+  },
+  "records-3": {
+   "size": 512,
+   "opaque_box": [
+    0,
+    44,
+    1238,
+    1228
+   ]
+  },
+  "lighthouse-1": {
+   "size": 512,
+   "opaque_box": [
+    0,
+    16,
+    1238,
+    1241
+   ]
+  },
+  "lighthouse-2": {
+   "size": 512,
+   "opaque_box": [
+    0,
+    14,
+    1194,
+    1242
+   ]
+  },
+  "lighthouse-3": {
+   "size": 512,
+   "opaque_box": [
+    0,
+    5,
+    1235,
+    1254
+   ]
+  },
+  "relay-1": {
+   "size": 512,
+   "opaque_box": [
+    0,
+    19,
+    1248,
+    1254
+   ]
+  },
+  "relay-2": {
+   "size": 512,
+   "opaque_box": [
+    0,
+    19,
+    1234,
+    1230
+   ]
+  },
+  "relay-3": {
+   "size": 512,
+   "opaque_box": [
+    49,
+    9,
+    1206,
+    1193
+   ]
+  }
+ },
+ "stories": {
+  "arrival": {
+   "size": [
+    768,
+    1152
+   ],
+   "from": "story-01-arrival"
+  },
+  "log": {
+   "size": [
+    768,
+    1152
+   ],
+   "from": "story-02-keeper-log"
+  },
+  "light": {
+   "size": [
+    768,
+    1152
+   ],
+   "from": "story-03-first-light"
+  },
+  "message": {
+   "size": [
+    768,
+    1152
+   ],
+   "from": "story-04-route-message"
+  }
+ }
+}

@@ -1,0 +1,74 @@
+[
+  {
+    "id": "ch4-arrival",
+    "trigger": "enter answering-light for the first time",
+    "image": "assets/story-01-arrival.png",
+    "title": "A light without a keeper",
+    "lines": [
+      [
+        "Bram",
+        "The tower is dark. That small light answered us."
+      ],
+      [
+        "Ivo",
+        "First we need a safe way up."
+      ]
+    ],
+    "cta": "Secure the landing",
+    "target": "ch4-landing"
+  },
+  {
+    "id": "ch4-log",
+    "trigger": "ch4-cottage reaches stage 3",
+    "image": "assets/story-02-keeper-log.png",
+    "title": "A reply left waiting",
+    "lines": [
+      [
+        "Neri",
+        "The keeper describes a machine that answers a signal on its own."
+      ],
+      [
+        "Tamsin",
+        "Then we have found the reply. We still do not know who left it."
+      ]
+    ],
+    "cta": "Open the signal room",
+    "target": "ch4-records"
+  },
+  {
+    "id": "ch4-light",
+    "trigger": "ch4-lighthouse reaches stage 3",
+    "image": "assets/story-03-first-light.png",
+    "title": "The headland wakes",
+    "lines": [
+      [
+        "Tamsin",
+        "The main light is steady. The relay can use it now."
+      ],
+      [
+        "Bram",
+        "A safe light for every boat that follows us."
+      ]
+    ],
+    "cta": "Check the relay",
+    "target": "ch4-relay"
+  },
+  {
+    "id": "ch4-message",
+    "trigger": "all 21 chapter stages complete; ch4-relay stage 3 must be last",
+    "image": "assets/story-04-route-message.png",
+    "title": "A route through the reef",
+    "lines": [
+      [
+        "Neri",
+        "A passage through the reef, marked for low water."
+      ],
+      [
+        "Bram",
+        "Someone left a way through. We still have to learn why."
+      ]
+    ],
+    "cta": "View the restored headland",
+    "target": "chapter4-map"
+  }
+]
