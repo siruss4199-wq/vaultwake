@@ -442,9 +442,9 @@ body.nextMode .orderTools .locate{width:44px;height:44px;flex:none;display:grid;
 body.nextMode .orderTools .locate :is(svg,img){width:32px;height:32px;object-fit:contain}
 body.nextMode .orderTools .goldCost{margin:4px 0 0;font-size:12px;color:var(--cb-ink,#173a52)}
 body.nextMode .orderTools .goldHow{margin-top:4px;font-size:12px}
-body.nextMode .orderTools .goldHow summary{min-height:32px;display:flex;align-items:center;cursor:pointer;font-weight:800;color:var(--cb-turq2,#0e7f78)}
+body.nextMode .orderTools .goldHow summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font-weight:800;color:var(--cb-turq2,#0e7f78)}
 body.nextMode .orderTools .goldHow .routes{margin-top:4px}
 /* the generator the panel points at glows for a moment (a still outline with reduced motion) */
-body.nextMode #board .tile.located{outline:3px solid #ffd34d;outline-offset:-3px;z-index:3;animation:locatePulse .9s ease-in-out 3}
+body.nextMode #board.board .tile.tile.located{outline:3px solid #ffb81f;outline-offset:-3px;box-shadow:inset 0 0 0 2px #fff6;z-index:3;animation:locatePulse .9s ease-in-out 3}
 @keyframes locatePulse{0%,100%{box-shadow:0 0 0 0 #ffd34d00}50%{box-shadow:0 0 0 6px #ffd34d99}}
-@media(prefers-reduced-motion:reduce){body.nextMode #board .tile.located{animation:none}}
+@media(prefers-reduced-motion:reduce){body.nextMode #board.board .tile.tile.located{animation:none}}

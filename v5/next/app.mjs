@@ -38,7 +38,7 @@ function moment(title,detail='',x=null){sharedMoment(title,detail,null);const el
 let adPlaying=false;
 const sfx=(kind,tier=0)=>sounds.play(kind,tier,{muted:adPlaying||platform.muted()});
 // Shown in the footer so a playtester can tell which build is running.
-export const BUILD='Build 48a · Chapter 3, the Hidden Harbour';
+export const BUILD='Build 48b · rare merges and restoration';
 // The level path (docs/V5_LEVEL_PATH_2026-10-27.md): a crew order that pays a tool on top shows it
 // beside its coins (a Tide token; a favour's Sea chest or Brass cog).
 const bonusThing=o=>o.bonus==='cog'?cog():o.bonus==='chest'?kit(newestGenerator(state),2):o.bonus==='token'?token():null;
@@ -234,7 +234,8 @@ function goldPanel(o){
  const need=needsOf(state,o).map(r=>{const why=routeWhy(r),gen=CHAINS[r.family].gen;
   return `<li class="goldNeed ${r.have>=r.count?'met':''}"><span class="goldIcon">${draw(item(r.family,r.tier))}</span><span class="goldText"><b>${nameOf(item(r.family,r.tier))} <em>${r.have}/${r.count}</em></b><small>${r.have>=r.count?'On the board':why.text}</small></span>${r.have<r.count&&why.ok?`<button class="locate" type="button" data-locate="${gen}" aria-label="Show the ${SOURCES[gen].name}">${draw({type:'source',id:gen})}</button>`:''}</li>`;}).join('');
  const short=Math.max(0,cost-state.coins);
- return `<p class="orderSay goldSay"><b>${st.name}</b><small>${t.name} · materials, then ${COIN}${cost} to build</small></p><ul class="goldNeeds">${need}</ul><p class="goldCost">${short?`${COIN}${state.coins} of ${cost}: <b>${short} more</b> from crew orders`:`${COIN}${cost} to build: <b>you have it</b>`}</p><details class="goldHow"><summary>How to make these</summary><ol class="routes">${missingOf(state,o).map(chainRoute).join('')}</ol></details>`;
+ const where=LABELS[t.id]?LABELS[t.id][0].toUpperCase()+LABELS[t.id].slice(1):AREAS.find(a=>a.id===t.area)?.name??t.name;
+ return `<p class="orderSay goldSay"><b>${st.name}</b><small>${where} · materials, then ${COIN}${cost} to build</small></p><ul class="goldNeeds">${need}</ul><p class="goldCost">${short?`${COIN}${state.coins} of ${cost}: <b>${short} more</b> from crew orders`:`${COIN}${cost} to build: <b>you have it</b>`}</p><details class="goldHow"><summary>How to make these</summary><ol class="routes">${missingOf(state,o).map(chainRoute).join('')}</ol></details>`;
 }
 function renderOrderTools(){
  const o=state.orders.find(o=>o.id===focusOrder),bar=$('#orderTools');
@@ -302,10 +303,12 @@ function renderShed(){
 // The next place (Build 44): a compact preview of the coast's next stage beside the guidance.
 // It says "Ready" only when the materials are in and the coins are there.
 function nextPlace(){
- // One goal at a time (Audit 2026-10-25): a stage ready to build, else the stage the live gold
+ // One goal at a time (Audit 2026-10-25): a stage ready to build, else (build 48b) a stage whose
+ // materials are secured and waits for coins (the next gold order is already up for the stage after,
+ // so the strip kept saying "3 parts missing" right after a delivery), else the stage the live gold
  // order is for (so the strip and the gold card name the same place), else as before.
  const ups=upgrades(state),gold=state.orders.find(o=>o?.story)?.story;
- const u=ups.find(canBuild)??ups.find(u=>u.id===gold)??ups.find(u=>u.materials)??storyTarget(state)??ups[0];
+ const u=ups.find(canBuild)??ups.find(u=>u.materials)??ups.find(u=>u.id===gold)??storyTarget(state)??ups[0];
  if(!u)return null;const t=TASKS[u.id];return {u,t,ready:canBuild(u)};
 }
 // The restoration strip (Build 45): the board's one way to the coast. It shows the place the next
@@ -348,7 +351,7 @@ function renderSelection(){
   if(who.length)desc=`★ ${who.join(' and ')} ${who.length>1?'need':'needs'} this. `+desc;
   // Build 48b: a rare part the gold order's materials take, as it is or merged up, says for which place
   {const gold=state.orders.find(o=>o?.story),r=gold&&CHAINS[x.family].secondary?gold.needs.find(q=>q.family===x.family&&q.tier>=x.tier):null;
-   if(r){const place=LABELS[gold.story]??TASKS[gold.story].name;desc=`Needed for ${place}${r.tier>x.tier?`: merge matching items to reach ${CHAINS[r.family].names[r.tier]}`:''}. `+desc;}}
+   if(r){const place=LABELS[gold.story]??TASKS[gold.story].stages[Math.min(STAGES,stageOf(state,gold.story)+1)-1].name;desc=`Needed for ${place}${r.tier>x.tier?`: merge matching items to reach ${CHAINS[r.family].names[r.tier]}`:''}. `+desc;}}
   // Clearing a part only appears when the board is nearly full (Build 41 M4): it is the way out of
   // a full board, not an everyday energy trick.
   // A secondary part (pilot) cost no energy, so clearing it gives none: it is not an energy trick, and

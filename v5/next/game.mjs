@@ -332,12 +332,12 @@ const crewFor=needs=>needs.length>1?'bram':CREW_OF[needs[0].family];
 // A secondary part is paid as a part SECONDARY_ORDERS.rarity tiers higher (the pilot's rarity price).
 export const partValue=r=>COIN_VALUE[Math.min(COIN_VALUE.length-1,r.tier+(isSecondary(r.family)?SECONDARY_ORDERS.rarity:0))];
 // What a gold order pays: its parts' worth times GOLD_PAY.rate. Build 48b (docs/V5_RARE_MERGES_RESTORATION_2026-11-01.md):
-// 1.0, was 1.5. Measured, at 1.5 the gold orders paid 71 % of Chapter 1's stages (63 % of Chapter 2's),
-// so the median Chapter 1 stage needed no crew order at all and the coins they paid piled up. A gold
-// order now pays its parts' worth and brings the stage's materials; crew orders fund about half of each
-// stage. The first GOLD_PAY.early stages (the harder start's six, GOLD_LIFT_STAGES) still pay 1.5, so
-// the first session keeps its pace (measured: at 1.0 throughout, a 6 s player built 2 stages in the
-// first 15 minutes instead of 3). Mutable for the coins metrics only.
+// 1.3, was 1.5. Measured (tests/v5-next-coins-metrics.mjs, 10 seeds, 4-10 s): at 1.5 gold orders paid
+// 71 % of Chapter 1's stage costs (65-67 % of Chapter 2's), so the median Chapter 1 stage needed no crew
+// order and crew coins piled up. At 1.3 they pay 61 % (Chapter 2: 49-52 %), the median stage needs one
+// crew order, and the whole game takes 5-7 % longer with no energy waiting. 1.0 was tried: the 4 s
+// player took 90 % longer and ran out of energy. The first GOLD_PAY.early stages (the harder start's six,
+// GOLD_LIFT_STAGES) still pay 1.5, so the first session keeps its pace. Mutable for the coins metrics only.
 export const GOLD_PAY={rate:1.3,early:6,earlyRate:1.5};
 export const priceOf=(needs,story=false)=>{const v=needs.reduce((v,r)=>v+r.count*partValue(r),0);return story?Math.round(v*1.5/5)*5:v;};
 // what a gold order pays, by the stages built so far
