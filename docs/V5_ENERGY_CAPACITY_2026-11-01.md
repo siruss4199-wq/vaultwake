@@ -1,5 +1,7 @@
 # Vaultwake V5 Coast Camp — level-based energy capacity and early energy bonuses (build 47v)
 
+> **Superseded schedule (build 48c, `docs/V5_RARE_MERGES_RESTORATION_2026-11-01.md`):** the capacity table is now 50 (levels 1–2), 60 (3–4), 70 (5–7), 80 (8–11) and **100 from level 12**, the maximum; level 12 pays +20 once. The 90, 110 and 120 steps below no longer exist. Saves past them keep their energy, and `load()` sets their paid capacity to 100.
+
 - **Date:** 2026-11-01
 - **Branch:** `claude/v5-secondary-pilot-r2` (draft PR #84). It builds on the secondary-chain pilot round 3 (build 47u), which is unchanged here: extras only from level-2+ Rover and Kite copies, 5 % per eligible tap, a drop certain by the 20th, the demand rules, at least one primary-only order, no extras in gold orders, full-board reward safety.
 - **Status:** trial balance values, set by the director. Not merged.

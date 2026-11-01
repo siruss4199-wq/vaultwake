@@ -24,11 +24,12 @@ const atLevel=(s,level,xp=0)=>{s.level={version:1,level,xp};s.capPaid=capacityAt
 const xpBetween=(from,to)=>{let n=0;for(let l=from;l<to;l++)n+=xpToNext(l);return n;};
 
 test('capacity: every boundary of the table, the next milestone and the maximum',()=>{
- const want=[[1,50],[2,50],[3,60],[4,60],[5,70],[7,70],[8,80],[11,80],[12,90],[16,90],[17,100],[22,100],[23,110],[29,110],[30,120],[31,120],[99,120]];
+ // build 48c: the approved schedule, 100 at most
+ const want=[[1,50],[2,50],[3,60],[4,60],[5,70],[7,70],[8,80],[11,80],[12,100],[16,100],[17,100],[23,100],[30,100],[99,100]];
  for(const [l,c] of want)assert.equal(capacityAt(l),c,`level ${l}`);
- assert.deepEqual(CAPACITY.map(([l])=>l),[1,3,5,8,12,17,23,30]);
+ assert.deepEqual(CAPACITY,[[1,50],[3,60],[5,70],[8,80],[12,100]]);
  assert.deepEqual(nextCapacity(1),{level:3,capacity:60});assert.deepEqual(nextCapacity(4),{level:5,capacity:70});
- assert.deepEqual(nextCapacity(29),{level:30,capacity:120});assert.equal(nextCapacity(30),null);assert.equal(MAX_CAPACITY,120);
+ assert.deepEqual(nextCapacity(11),{level:12,capacity:100});assert.equal(nextCapacity(12),null);assert.equal(MAX_CAPACITY,100);
  assert.equal(capacityOf(fresh(0)),50);assert.equal(STORE_ENERGY,200);assert.equal(MAX_ENERGY,200);
 });
 
@@ -62,6 +63,33 @@ test('several levels in one action: each milestone paid once, in order; the bar 
  // a reload pays nothing again, and the next level (9) is no milestone
  const t=load(JSON.stringify(s),0);assert.equal(t.energy,s.energy);assert.equal(t.capPaid,80);
  const r2=ok(t,{type:'deliver',id:ready(t,[['rig',0]],{coins:5*xpToNext(8)}).id});assert.equal(t.level.level,9);assert.equal(r2.levelUp[0].capacity,undefined);
+});
+
+test('build 48c: level 12 raises the capacity 80 → 100 and pays +20 once; no later level pays a capacity step',()=>{
+ const s=atLevel(fresh(0),11,xpToNext(11)-1);s.energy=30;s.boost.order=true;
+ const r=ok(s,{type:'deliver',id:ready(s,[['rig',0]],{coins:5}).id});
+ assert.equal(s.level.level,12);assert.deepEqual(r.levelUp[0].capacity,{from:80,to:100,energy:20},'the actual delta, once');
+ assert.equal(s.energy,30+1+r.levelUp[0].energy+20);assert.equal(capacityOf(s),100);assert.equal(s.capPaid,100);
+ // a reload pays nothing again; levels 13 to 40 pay no capacity step
+ const t=load(JSON.stringify(s),0);assert.equal(t.capPaid,100);assert.equal(t.energy,s.energy);
+ const r2=ok(t,{type:'deliver',id:ready(t,[['rig',0]],{coins:5*xpBetween(12,40)}).id});
+ assert.equal(t.level.level,40);assert.ok(r2.levelUp.every(u=>!u.capacity),'no capacity step after 12');assert.equal(t.capPaid,100);
+});
+
+test('build 48c: saves from the old schedule (capacity 90, 100, 110, 120): capacity 100, energy kept, nothing paid or taken',()=>{
+ for(const [level,oldCap,energy] of [[12,90,60],[14,90,95],[17,100,100],[23,110,105],[30,120,118],[35,120,190]]){
+  const s=fresh(0);s.level={version:1,level,xp:0};s.capPaid=oldCap;s.energy=energy;s.energyAt=0;s.boost={order:true,stage:true};
+  const t=load(JSON.stringify(s),3*3600e3);
+  assert.equal(capacityOf(t),100,`level ${level}`);assert.equal(t.capPaid,100,`level ${level}: capPaid ${oldCap} → 100`);
+  // energy is never cut; below 100 three hours away refills to 100 and no further; at or above 100 nothing is added
+  assert.equal(t.energy,energy>=100?energy:100,`level ${level}: ${energy} energy`);assert.equal(t.energyOwed,undefined,'no back-pay owed');
+  // the next level pays no capacity step (the old 90 → 100 at 17, 100 → 110 at 23 and 110 → 120 at 30 are gone)
+  t.boost.order=true;const r=ok(t,{type:'deliver',id:ready(t,[['rig',0]],{coins:5*xpToNext(level)}).id});
+  assert.equal(r.levelUp[0].capacity,undefined,`level ${level+1}: no capacity step`);
+ }
+ // a level-30 camp at 118 does not refill (it is above 100) however long it is away, and spends normally
+ const s=fresh(0);s.level={version:1,level:30,xp:0};s.capPaid=120;s.energy=118;s.energyAt=0;
+ const t=load(JSON.stringify(s),24*3600e3);assert.equal(t.energy,118);assert.equal(refillTimes(t,24*3600e3),null);
 });
 
 test('onboarding: the first ordinary crew order +15 once, the first stage +20 once, not again after a reload',()=>{
@@ -163,9 +191,9 @@ test('saves from before the pass: capacity for their level, nothing paid again, 
  const y=load(JSON.stringify(young),10*MIN);assert.equal(y.energy,35);assert.deepEqual(y.boost,{order:false,stage:false});
  // only gold orders delivered (counted by the materials they brought): the first-order bonus is still to come
  const gold=structuredClone(young);gold.ordersDone=1;gold.materials={'beach-path':1};assert.deepEqual(load(JSON.stringify(gold),0).boost,{order:false,stage:false});
- // the next milestone pays once: level 11 → 12 (80 → 90)
+ // the next milestone pays once: level 11 → 12 (80 → 100 since build 48c)
  const n=load(JSON.stringify(s),180*MIN);n.level={version:1,level:11,xp:xpToNext(11)-1};n.boost.order=true;
- const r=ok(n,{type:'deliver',id:ready(n,[['rig',0]],{coins:5}).id},180*MIN);assert.deepEqual(r.levelUp[0].capacity,{from:80,to:90,energy:10});
+ const r=ok(n,{type:'deliver',id:ready(n,[['rig',0]],{coins:5}).id},180*MIN);assert.deepEqual(r.levelUp[0].capacity,{from:80,to:100,energy:20});
  // damaged boost values are worked out again (never a second payment for a camp that has delivered)
  for(const bad of [null,[],{order:1,stage:true},'yes']){const d=structuredClone(s);d.boost=bad;assert.equal(load(JSON.stringify(d),0).boost.order,true,JSON.stringify(bad));}
 });

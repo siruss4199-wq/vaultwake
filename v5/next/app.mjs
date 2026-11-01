@@ -418,7 +418,7 @@ function header(){
 }
 // Energy pass (build 47v): the HUD shows energy over the player level's refill capacity. At the
 // capacity the timer says FULL; above it (bonus energy, which the refill does not add to) it says
-// BONUS and the pill is marked, e.g. 135/120.
+// BONUS and the pill is marked, e.g. 135/100.
 function energyHud(){
  const cap=capacityOf(state),over=state.energy>cap,t=refillTimes(state,Date.now());
  $('#energy').innerHTML=`${state.energy}<span class="energyCap">/${cap}</span>`;
