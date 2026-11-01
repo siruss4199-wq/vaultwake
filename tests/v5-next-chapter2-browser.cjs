@@ -54,7 +54,10 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast';
    assert.match(await page.textContent('#storyText'),/light runs down the seam/);assert.equal(await page.getAttribute('#story','data-fx'),'seam');
    assert.ok(await page.locator('#story .storyVault:not([hidden])').isVisible(),tag('the door is drawn over the picture'));
    const closed=await page.locator('#story .vHalf.l').evaluate(e=>getComputedStyle(e).transform);assert.equal(closed,'none',tag('closed: the halves lie flat on the picture'));
-   await page.locator('#storyNext').click();assert.equal(await page.getAttribute('#story','data-fx'),'open');assert.match(await page.textContent('#storyWho'),/Neri/);
+   // Build 48a: wait for the next scene instead of reading it the moment Next is clicked (WebKit in CI
+   // sometimes read the previous scene: "/Neri/" against '' and data-fx 'seam' against 'open')
+   await page.locator('#storyNext').click();await page.waitForFunction(()=>document.querySelector('#story')?.dataset.fx==='open'&&/Neri/.test(document.querySelector('#storyWho')?.textContent??''),null,{timeout:5000});
+   assert.equal(await page.getAttribute('#story','data-fx'),'open');assert.match(await page.textContent('#storyWho'),/Neri/);
    const open=await page.locator('#story .vHalf.l').evaluate(e=>getComputedStyle(e).transform);assert.notEqual(open,'none',tag('open: the halves have swung (reduced motion: at once)'));
    assert.equal(await page.locator('#story .vIn').evaluate(e=>getComputedStyle(e).opacity),'1',tag('the interior shows'));
    await page.locator('#storyNext').click();assert.match(await page.textContent('#storyText'),/Chapter 2 begins here/);assert.equal(await page.textContent('#storyNext'),'Enter the Vault');
