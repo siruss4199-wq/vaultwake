@@ -1,0 +1,302 @@
+{
+ "canvas": 360,
+ "ground": 0.9,
+ "scale": 1.0035,
+ "places": {
+  "landing": {
+   "1": {
+    "file": "place-hb-landing-1.webp",
+    "source": [
+     251,
+     158
+    ],
+    "width": 252,
+    "height": 159,
+    "left": 54,
+    "top": 165
+   },
+   "2": {
+    "file": "place-hb-landing-2.webp",
+    "source": [
+     252,
+     183
+    ],
+    "width": 253,
+    "height": 184,
+    "left": 53,
+    "top": 140
+   },
+   "3": {
+    "file": "place-hb-landing-3.webp",
+    "source": [
+     252,
+     265
+    ],
+    "width": 253,
+    "height": 266,
+    "left": 53,
+    "top": 58
+   }
+  },
+  "crane": {
+   "1": {
+    "file": "place-hb-crane-1.webp",
+    "source": [
+     197,
+     248
+    ],
+    "width": 198,
+    "height": 249,
+    "left": 81,
+    "top": 75
+   },
+   "2": {
+    "file": "place-hb-crane-2.webp",
+    "source": [
+     199,
+     256
+    ],
+    "width": 200,
+    "height": 257,
+    "left": 80,
+    "top": 67
+   },
+   "3": {
+    "file": "place-hb-crane-3.webp",
+    "source": [
+     220,
+     287
+    ],
+    "width": 221,
+    "height": 288,
+    "left": 69,
+    "top": 36
+   }
+  },
+  "warehouse": {
+   "1": {
+    "file": "place-hb-warehouse-1.webp",
+    "source": [
+     250,
+     235
+    ],
+    "width": 251,
+    "height": 236,
+    "left": 54,
+    "top": 88
+   },
+   "2": {
+    "file": "place-hb-warehouse-2.webp",
+    "source": [
+     254,
+     244
+    ],
+    "width": 255,
+    "height": 245,
+    "left": 52,
+    "top": 79
+   },
+   "3": {
+    "file": "place-hb-warehouse-3.webp",
+    "source": [
+     281,
+     263
+    ],
+    "width": 282,
+    "height": 264,
+    "left": 39,
+    "top": 60
+   }
+  },
+  "boatyard": {
+   "1": {
+    "file": "place-hb-boatyard-1.webp",
+    "source": [
+     278,
+     166
+    ],
+    "width": 279,
+    "height": 167,
+    "left": 40,
+    "top": 157
+   },
+   "2": {
+    "file": "place-hb-boatyard-2.webp",
+    "source": [
+     278,
+     201
+    ],
+    "width": 279,
+    "height": 202,
+    "left": 40,
+    "top": 122
+   },
+   "3": {
+    "file": "place-hb-boatyard-3.webp",
+    "source": [
+     278,
+     285
+    ],
+    "width": 279,
+    "height": 286,
+    "left": 40,
+    "top": 38
+   }
+  },
+  "registry": {
+   "1": {
+    "file": "place-hb-registry-1.webp",
+    "source": [
+     257,
+     251
+    ],
+    "width": 258,
+    "height": 252,
+    "left": 51,
+    "top": 72
+   },
+   "2": {
+    "file": "place-hb-registry-2.webp",
+    "source": [
+     265,
+     260
+    ],
+    "width": 266,
+    "height": 261,
+    "left": 47,
+    "top": 63
+   },
+   "3": {
+    "file": "place-hb-registry-3.webp",
+    "source": [
+     276,
+     273
+    ],
+    "width": 277,
+    "height": 274,
+    "left": 41,
+    "top": 50
+   }
+  },
+  "signal": {
+   "1": {
+    "file": "place-hb-signal-1.webp",
+    "source": [
+     210,
+     252
+    ],
+    "width": 211,
+    "height": 253,
+    "left": 74,
+    "top": 71
+   },
+   "2": {
+    "file": "place-hb-signal-2.webp",
+    "source": [
+     208,
+     257
+    ],
+    "width": 209,
+    "height": 258,
+    "left": 75,
+    "top": 66
+   },
+   "3": {
+    "file": "place-hb-signal-3.webp",
+    "source": [
+     219,
+     265
+    ],
+    "width": 220,
+    "height": 266,
+    "left": 70,
+    "top": 58
+   }
+  },
+  "departure": {
+   "1": {
+    "file": "place-hb-departure-1.webp",
+    "source": [
+     234,
+     154
+    ],
+    "width": 235,
+    "height": 155,
+    "left": 62,
+    "top": 169
+   },
+   "2": {
+    "file": "place-hb-departure-2.webp",
+    "source": [
+     237,
+     172
+    ],
+    "width": 238,
+    "height": 173,
+    "left": 61,
+    "top": 151
+   },
+   "3": {
+    "file": "place-hb-departure-3.webp",
+    "source": [
+     243,
+     284
+    ],
+    "width": 244,
+    "height": 285,
+    "left": 58,
+    "top": 39
+   }
+  }
+ },
+ "pictures": {
+  "harbour-map-before": {
+   "size": [
+    1024,
+    1195
+   ],
+   "crop": [
+    0,
+    40,
+    1024,
+    1235
+   ]
+  },
+  "harbour-map-after": {
+   "size": [
+    1024,
+    1195
+   ],
+   "crop": [
+    0,
+    40,
+    1024,
+    1235
+   ]
+  },
+  "story-arrival": {
+   "size": [
+    768,
+    512
+   ]
+  },
+  "story-cargo": {
+   "size": [
+    768,
+    512
+   ]
+  },
+  "story-signal": {
+   "size": [
+    768,
+    512
+   ]
+  },
+  "story-departure": {
+   "size": [
+    768,
+    512
+   ]
+  }
+ }
+}
