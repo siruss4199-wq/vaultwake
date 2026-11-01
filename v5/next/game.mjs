@@ -75,11 +75,11 @@ export const BONUSES=['token','chest','cog'],BONUS_NAMES={token:'Tide token',che
 // a level-1 copy in between can change an outcome) and s.secSince counts those without a drop; a drop
 // is certain on the `pity`-th one in a row without one. Both are per kind: copies share them and
 // merging copies keeps them. Trial rates (round 3): 5 % a tap, certain by the 20th, i.e. one drop every
-// 12.8 eligible taps on average (7.8 %). `salt` makes each kind's rolls its own. The rules are mutable
+// 12.8 eligible taps on average (7.8 %). goldPity: build 48c's gold-objective guarantee (goldChase). `salt` makes each kind's rolls its own. The rules are mutable
 // only so the metrics script can compare (and vary the rolls); the game never changes them.
 export const SECONDARY_RULES={
- rig:{model:'bonus',chance:.05,pity:20,level:2,hold:4,salt:101},
- chart:{model:'bonus',chance:.05,pity:20,level:2,hold:4,salt:211}
+ rig:{model:'bonus',chance:.05,pity:20,goldPity:8,level:2,hold:4,salt:101},
+ chart:{model:'bonus',chance:.05,pity:20,goldPity:8,level:2,hold:4,salt:211}
 };
 // Secondary orders (round 3): about one in `share` new everyday orders asks a secondary part (a turn
 // comes when neither of the last share-1 everyday orders asked one); the highest tier ever asked (tier
@@ -113,7 +113,22 @@ export const secondaryPaused=(s,gen)=>{const f=SECONDARY_OF[gen];
 export function secondaryRoll(s,gen){
  if(!secondaryOn(s,gen)||secondaryPaused(s,gen))return null;
  const r=SECONDARY_RULES[gen],n=(s.secTaps?.[gen]??0)+1,since=s.secSince?.[gen]??0;
- return since+1>=r.pity||rand(n*7919+r.salt)<r.chance?SECONDARY_OF[gen]:null;
+ return since+1>=(goldChase(s,SECONDARY_OF[gen])?r.goldPity:r.pity)||rand(n*7919+r.salt)<r.chance?SECONDARY_OF[gen]:null;
+}
+// Build 48c: the gold objective's guarantee. While the gold order on the board needs a rare part of a
+// chain that the parts held cannot make once every other order's rare needs are set aside (a part never
+// splits; secondaryFree), that chain's drop is certain on the goldPity-th eligible tap in a row without
+// one (SECONDARY_RULES goldPity, 8), instead of the pity-th (20). Nothing else changes: the 5 %
+// chance, the tap's own part and energy, the
+// eligible-tap rule (a successful tap on a level-2+ generator, drops not paused, so a full board with
+// four rare parts waiting counts nothing), the saved counters (s.secTaps, s.secSince: a reload replays
+// the same outcome), and the rest of the time the ordinary pity of 20. It ends by itself once the parts
+// held make the gold part, or the order is delivered. It counts taps, not time: a Gear assembly or a
+// Travel notebook (four drops) from nothing is made within 4 × 8 = 32 eligible taps of that chain.
+export function goldChase(s,f){
+ const gold=s.orders.find(o=>o?.story),need=gold?.needs.filter(r=>r.family===f)??[];if(!need.length)return false;
+ const have=secondaryFree({...s,orders:s.orders.filter(o=>o&&!o.story)},f).have;
+ return need.some(r=>secondaryDropsIn(have,r.tier,r.count)>0);
 }
 // A tap's secondary part that finds no free space waits with the other rewards (s.pending) and
 // lands after the next action that frees one. With this many secondary parts waiting, drops pause
@@ -405,12 +420,10 @@ export function makeOrder(s){
   if(story){needs=story.gold?story.gold.map(([family,tier,count])=>({family,tier,count})):goldNeeds(s,families,family,low,n);
    // Build 48b: a stage that names a merged rare part (areas.mjs rare) asks it instead of its second
    // material, but only when that chain can drop now; else its usual materials (never a wait on luck).
-   // Bounded: the part asked is at most SECONDARY_ORDERS.goal drops away from the parts the player holds
-   // free (each drop is certain by the generator's pity-th tap), so a tier-2 part steps down to tier 1
-   // until a basic part or two are in hand. Measured without it: a Gear assembly stood up to 76 minutes.
+   // Build 48c: the part is fixed (areas.mjs rare), never lowered for what the player holds; its wait is
+   // bounded by the gold-objective guarantee (goldChase, goldPity) instead of by a cheaper recipe.
    const rare=TASKS[story.id]?.stages[story.stage-1]?.rare;
-   if(rare&&secondaryCanDrop(s,rare[0])){let t=rare[1];while(t>1&&secondaryDrops(s,rare[0],t)>SECONDARY_ORDERS.goal)t--;
-    needs=[needs[0],{family:rare[0],tier:t,count:1}];}
+   if(rare&&secondaryCanDrop(s,rare[0]))needs=[needs[0],{family:rare[0],tier:rare[1],count:1}];
    return {id:'o'+n,who:crewFor(needs),needs,coins:goldPrice(s,needs),story:story.id};}
   // Build 44 (user, 2026-10-25: "orderuudiig utga uchirtai bolgoy"; docs/V5_ECONOMY_AUDIT_PROPOSAL,
   // proposal A): everyday orders take turns being a quick job (one small part of one chain) and a
@@ -563,13 +576,17 @@ export function secondaryNeed(s,n,k){
  const free=Object.fromEntries(fams.map(f=>[f,secondaryFree(s,f).have])),units=f=>free[f].reduce((a,c,t)=>a+(t<maxTier(f)?c*2**t:0),0);
  const order=[...fams].sort((a,b)=>units(b)-units(a)||rand(n*37+11)-.5);
  const canGoal=f=>secondaryMet(s,f)&&secondaryCanDrop(s,f)&&!goalWaiting(s);
- // merged parts: one the free parts make now, else a near goal
- for(const f of order)for(let t=secondaryReach(s,f);t>=1;t--)if(secondaryDropsIn(free[f],t)===0)return {family:f,tier:t,count:1,use:true};
- for(const f of order)if(canGoal(f))for(let t=secondaryReach(s,f);t>=1;t--)if(secondaryDropsIn(free[f],t)<=SECONDARY_ORDERS.goal)return {family:f,tier:t,count:1};
- // basic parts, when nothing merged can be asked
- for(const f of order)if(free[f][0]>=1)return {family:f,tier:0,count:Math.min(2,free[f][0]),use:true};
- for(const f of order)if(canGoal(f))return {family:f,tier:0,count:1};
- return null;
+ // Every candidate in order of preference: merged parts the free parts make now, then near goals, then
+ // basic parts. Build 48c: a candidate one of the last four everyday orders asked is passed over while
+ // another exists (measured: with the fixed gold recipes, single-Gear and single-note jobs repeated in
+ // 11 of 58 beach and worksite orders, against 6 before).
+ const c=[];
+ for(const f of order)for(let t=secondaryReach(s,f);t>=1;t--)if(secondaryDropsIn(free[f],t)===0)c.push({family:f,tier:t,count:1,use:true});
+ for(const f of order)if(canGoal(f))for(let t=secondaryReach(s,f);t>=1;t--)if(secondaryDropsIn(free[f],t)<=SECONDARY_ORDERS.goal)c.push({family:f,tier:t,count:1});
+ for(const f of order)if(free[f][0]>=1)c.push({family:f,tier:0,count:Math.min(2,free[f][0]),use:true});
+ for(const f of order)if(canGoal(f))c.push({family:f,tier:0,count:1});
+ const last4=new Set((Array.isArray(s.recent)?s.recent:[]).slice(-4).map(k=>k.replace(/x\d+/g,'')));
+ return c.find(r=>!last4.has(r.family+r.tier))??c[0]??null;
 }
 // Board cells an order would take: exact matches, lowest index first.
 export function orderItems(s,o){
