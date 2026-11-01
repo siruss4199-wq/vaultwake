@@ -8,8 +8,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {fresh,act,load,item,source,cog,nameOf,priceOf,orderPrice,COIN_VALUE,BOOK_CHAINS,bookKeys,bookReady,pageReady,SECONDARY_RULES,SECONDARY_ORDERS,SECONDARY_OF,SECONDARY_PENDING_MAX,isSecondary,secondaryOn,secondarySource,secondaryPaused,secondaryUnits,secondaryWanted,secondaryHeld,secondaryTier,secondaryNeed,secondaryGoal,secondaryLimit,secondaryUnlock,allDone,ROVER,MAX_ENERGY,makeOrder} from '../v5/next/game.mjs';
+import {fresh,act,load,item,source,cog,nameOf,priceOf,orderPrice,COIN_VALUE,BOOK_CHAINS,bookKeys,bookReady,pageReady,SECONDARY_RULES,SECONDARY_ORDERS,SECONDARY_OF,SECONDARY_PENDING_MAX,isSecondary,secondaryOn,secondarySource,secondaryPaused,secondaryUnits,secondaryWanted,secondaryHeld,secondaryNeed,secondaryLimit,secondaryDrops,secondaryUnlock,allDone,ROVER,MAX_ENERGY,makeOrder} from '../v5/next/game.mjs';
 import {CHAINS,maxTier} from '../v5/next/chains.mjs';
+import {TASKS} from '../v5/next/areas.mjs';
 import {artFit} from '../v5/next/art-fit.mjs';
 import {primaryAction} from '../v5/next/guide.mjs';
 import {nextAction} from './v5-next-policy.mjs';
@@ -147,7 +148,7 @@ test('a full board: no tap, no energy, no counter; a drop with no space waits, i
  const q=tapRover(w,5000);assert.equal(q.secondary,undefined);assert.equal(w.secSince.rig,SECONDARY_RULES.rig.pity-1,'nor counted');assert.equal(w.pending.length,SECONDARY_PENDING_MAX);
 });
 
-test('oversupply guard in drops: board, shed and waiting parts count; merging never lowers it; demand lifts it',()=>{
+test('oversupply guard in drops: board, shed and waiting parts count; merging below the keepsake never lowers it; demand lifts it',()=>{
  const s=opened();noSecondaryOrders(s);const hold=SECONDARY_RULES.rig.hold;assert.equal(hold,4);
  s.board[30]=item('mech',0);s.board[31]=item('mech',0);s.shed[0]=item('mech',0);s.pending=[item('mech',0)];
  assert.equal(secondaryUnits(s,'mech'),4);assert.equal(secondaryPaused(s,'rig'),true,'four Bolts across board, shed and waiting');
@@ -155,8 +156,9 @@ test('oversupply guard in drops: board, shed and waiting parts count; merging ne
  s.shed[0]=null;s.pending=[];s.board[32]=item('mech',0);s.board[33]=item('mech',0);
  ok(s,{type:'merge',from:30,to:31});ok(s,{type:'merge',from:32,to:33});assert.equal(secondaryUnits(s,'mech'),4);assert.equal(secondaryPaused(s,'rig'),true);
  ok(s,{type:'merge',from:31,to:33});assert.deepEqual(s.board[33],item('mech',2));assert.equal(secondaryPaused(s,'rig'),true,'a Gear assembly is four drops');
- // the keepsake counts too (eight drops), so merging to the top never escapes the guard
- s.board[33]=item('mech',3);assert.equal(secondaryUnits(s,'mech'),8);assert.equal(secondaryPaused(s,'rig'),true);
+ // build 48b: the keepsake (the chain's top part, asked by no order) does not count, so holding one
+ // never pauses the chain's drops for good (it counted 8 against a rest of 4)
+ s.board[33]=item('mech',3);assert.equal(secondaryUnits(s,'mech'),0);assert.equal(secondaryPaused(s,'rig'),false);
  // an order that wants them lifts the guard by what it wants
  s.board[33]=item('mech',2);s.orders[1]={...s.orders[1],needs:[{family:'mech',tier:1,count:1}]};assert.equal(secondaryWanted(s,'mech'),2);assert.equal(secondaryPaused(s,'rig'),false);
  // paused taps are neither rolled nor counted; the count goes on where it stopped
@@ -190,21 +192,22 @@ test('model A (replace) for the measurements: a secondary instead of the tap\'s 
  }finally{Object.assign(R,save);}
 });
 
-test('demand: about one new everyday order in three asks a secondary part once open; never gold; a primary-only order always',()=>{
- const s=fresh(0);let now=0;const seen=new Set();let after=0,asked=0,uses=0,goals=0,intros=0,offered=0,delivered=0,lv2=null;const secIds=new Set();
+test('demand: about one new everyday order in three asks a secondary part once open; gold only at its mapped stages; a primary-only order always',()=>{
+ const s=fresh(0);let now=0;const seen=new Set();let after=0,asked=0,uses=0,goals=0,intros=0,offered=0,delivered=0,lv2=null,goldRare=0,merged=0;const secIds=new Set();
  while(!allDone(s)&&now<14*3600e3){
   if(lv2===null&&s.board.some(x=>x?.type==='source'&&(x.level??1)>=2))lv2=s.ordersDone;
   for(const o of s.orders){if(!o||seen.has(o.id))continue;seen.add(o.id);const sec=o.needs.filter(r=>isSecondary(r.family));
-   if(o.story){assert.equal(sec.length,0,'a gold order never asks a secondary part');continue;}
+   // build 48b: a gold order asks a rare part only at a stage that names one (areas.mjs rare), at most its tier
+   if(o.story){const st=TASKS[o.story].stages[(s.built[o.story]??0)];if(sec.length){assert.ok(st.rare,`${o.story}: only a mapped stage`);assert.equal(sec[0].family,st.rare[0]);assert.ok(sec[0].tier>=1&&sec[0].tier<=st.rare[1],'its tier or one lower (bounded)');goldRare++;}continue;}
    if(Object.keys(s.secOpen).length)after++;
    if(!sec.length)continue;asked++;offered++;secIds.add(o.id);
    assert.ok(Object.keys(s.secOpen).length>0||secondaryHeld(s,sec[0].family)>0,'only once a chain is open, or for parts already held');
-   assert.equal(sec.length,1);assert.equal(sec[0].count,1);assert.ok(sec[0].tier<=SECONDARY_ORDERS.top);
+   assert.equal(sec.length,1);assert.ok(sec[0].count===1||sec[0].tier===0&&sec[0].count===2);assert.ok(sec[0].tier<=SECONDARY_ORDERS.top);if(sec[0].tier>0)merged++;
    assert.ok(s.orders.filter(x=>x?.needs.some(r=>isSecondary(r.family))).length<=secondaryLimit(s),'within the limit');
    assert.ok(s.orders.some(x=>x&&!x.story&&!x.needs.some(r=>isSecondary(r.family))),'an everyday order asks no rare part');
    const held=secondaryHeld(s,sec[0].family),want=secondaryWanted(s,sec[0].family);
    if(sec[0].tier===0&&o.needs.length===1&&o.role==='quick'&&!o.bonus&&want>held)intros++;
-   if(want<=held)uses++;else{goals++;assert.ok(want-held<=Math.max(SECONDARY_ORDERS.goal,1),`${JSON.stringify(sec[0])}: ${want-held} drops beyond the held`);}
+   if(want<=held)uses++;else goals++;
    assert.equal(o.coins,orderPrice(s,o.needs,o.role),'priced by the rules');}
   s.energy=Math.max(s.energy,5);
   const a=nextAction(s);if(!a){now+=10000;continue;}
@@ -215,23 +218,12 @@ test('demand: about one new everyday order in three asks a secondary part once o
  // the same rules measure 42-45 % across seeds (40-42 % before) and 46 % in this run, so the ceiling is .5.
  const share=asked/after;assert.ok(share>=.22&&share<=.5,`share of new everyday orders asking one: ${(100*share).toFixed(0)} % (${asked} of ${after})`);
  assert.ok(uses>=5&&goals>=2,`use ${uses}, goal ${goals}`);assert.ok(delivered>=offered*.6,`most are delivered (${delivered} of ${offered})`);
+ // build 48b: merged parts are most of what is asked, and some gold orders ask one
+ assert.ok(merged>=asked*.5,`merged parts: ${merged} of ${asked}`);assert.ok(goldRare>=3,`gold orders with a rare part: ${goldRare}`);
  for(const k of ['mech0','mech1','notes0'])assert.ok(s.found.includes(k),`${k} found`);
 });
 
-test('use orders ask the biggest part the unused drops make; goals are one drop away, one at a time, from a level-2 source',()=>{
- const s=opened();noSecondaryOrders(s);s.found=s.found.filter(k=>k!=='mech0');
- assert.equal(secondaryTier(s,'mech'),-1);assert.equal(secondaryGoal(s,'mech'),-1,'not met yet');
- s.found.push('mech0');assert.equal(secondaryGoal(s,'mech'),0,'none held: a Bolt, one drop away');
- s.board[15]=item('mech',0);assert.equal(secondaryTier(s,'mech'),0);assert.equal(secondaryGoal(s,'mech'),-1,'nothing built: a Gear is not asked yet');
- s.built={'beach-path':1};assert.equal(secondaryGoal(s,'mech'),1);
- s.board[20]=item('mech',0);assert.equal(secondaryTier(s,'mech'),1,'two held: a Gear (use)');assert.equal(secondaryGoal(s,'mech'),-1);
- // what orders already want is not held twice
- s.orders[0]={...s.orders[0],needs:[{family:'mech',tier:0,count:1}]};assert.equal(secondaryTier(s,'mech'),0);assert.equal(secondaryGoal(s,'mech'),-1,'an order already asks the chain');
- // no goal without a level-2 Rover on the board, and only one goal waiting at a time
- const t=opened();noSecondaryOrders(t);t.board[ROVER].level=1;assert.equal(secondaryGoal(t,'mech'),-1);
- const u=opened();noSecondaryOrders(u);u.board[9]={...source('chart'),level:2};u.secOpen.chart=true;u.found.push('notes0');
- assert.equal(secondaryGoal(u,'notes'),0);u.orders[0]={...u.orders[0],needs:[{family:'mech',tier:0,count:1}]};assert.equal(secondaryGoal(u,'notes'),-1,'a Bolt is already awaited');
-});
+// build 48b: what a request asks (merged parts, craftability, goals two drops away) is in v5-next-rare-merges.test.mjs.
 
 test('turns: one in three, sooner with unused stock; at most the limit on the board; the chain with most unused first',()=>{
  const s=opened();noSecondaryOrders(s);s.slots=4;s.orders.push({...s.orders[0],id:'o90'});s.board[15]=item('mech',0);
