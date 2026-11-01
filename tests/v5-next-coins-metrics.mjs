@@ -32,6 +32,9 @@ const SHOPS={shop:[true],noshop:[false],both:[false,true]}[pos[2]??'both'],RUNS=
 const OVER=Object.fromEntries(args.filter(a=>a.includes('=')).map(a=>a.split('=')).map(([k,v])=>[k,+v]));
 if('goldpay' in OVER)g.GOLD_PAY.rate=OVER.goldpay;
 if('goal' in OVER)g.SECONDARY_ORDERS.goal=OVER.goal;
+// capold=1 puts back the build 47v capacity table (90 at 12, 100 at 17, 110 at 23, 120 at 30), to tell the
+// capacity change apart from the recipes
+if(OVER.capold){const e=await import(pathToFileURL(path.join(ROOT,'v5/next/energy.mjs')).href);e.CAPACITY.splice(0,e.CAPACITY.length,[1,50],[3,60],[5,70],[8,80],[12,90],[17,100],[23,110],[30,120]);}
 // goldpity= sets the gold objective's guarantee (build 48c; 20 = none beyond the ordinary pity)
 if('goldpity' in OVER)for(const r of Object.values(g.SECONDARY_RULES))r.goldPity=OVER.goldpity;
 // norare=1: no stage asks its rare part (areas.mjs rare is ignored), to measure what those parts cost

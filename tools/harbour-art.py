@@ -17,6 +17,11 @@ sheet in the folder given as --sheet:
   harbour-map-before.webp / harbour-map-after.webp  the two concepts cropped to the seven places and
       the sea gate (1024 x 1195 from y 40); the after picture is revealed place by place in the game.
   story-arrival|cargo|signal|departure.webp  the four panels (768 x 512).
+  place-hb-boatyard-launched.webp  build 48c: the boatyard's card after the launch, cut from the restored
+      map (its finished yard: canopy, lanterns, tools, the cradles empty because the boat has sailed),
+      so the card matches the map and no longer falls back to the stage-1 cut-out. A painted vignette of
+      the restored concept, not a dedicated cut-out (see the asset brief in the build 48c report).
+  python3 tools/harbour-art.py --launched  writes only that picture.
   ../../hidden-harbour-vibrant.webp  the area's strip picture (1200 x 400) from the damaged map.
 
 Corrections (handoff production notes), each an interim one:
@@ -171,7 +176,33 @@ def mist(panel):
     return Image.composite(fogged, panel, m)
 
 
+# the restored map's boatyard (map pixels): the yard under its canopy and the empty cradles
+LAUNCHED_BOX = (530, 450, 1000, 780)
+
+
+def launched_boatyard():
+    """The boatyard after the launch: a soft-edged vignette of the restored map, on the 360 px canvas."""
+    after = Image.open(os.path.join(SRC, 'harbour-restored-concept-master.webp')).convert('RGB').crop(MAP_CROP)
+    c = after.crop(LAUNCHED_BOX).convert('RGBA')
+    m = Image.new('L', c.size, 0)
+    ImageDraw.Draw(m).ellipse((12, 12, c.width - 12, c.height - 12), fill=255)
+    c.putalpha(m.filter(ImageFilter.GaussianBlur(14)))
+    c.thumbnail((CANVAS, CANVAS), Image.LANCZOS)
+    out = Image.new('RGBA', (CANVAS, CANVAS), (0, 0, 0, 0))
+    out.alpha_composite(c, ((CANVAS - c.width) // 2, CANVAS - c.height - 18))
+    out.save(os.path.join(OUT, 'place-hb-boatyard-launched.webp'), quality=88, method=6)
+    return {'file': 'place-hb-boatyard-launched.webp', 'from': 'harbour-map-after', 'box': list(LAUNCHED_BOX)}
+
+
 def main():
+    if '--launched' in sys.argv:
+        info = launched_boatyard()
+        path = os.path.join(OUT, 'manifest.json')
+        manifest = json.load(open(path))
+        manifest['pictures']['place-hb-boatyard-launched'] = info
+        json.dump(manifest, open(path, 'w'), indent=1)
+        print(json.dumps(info))
+        return
     sheet_dir = sys.argv[sys.argv.index('--sheet') + 1] if '--sheet' in sys.argv else None
     os.makedirs(OUT, exist_ok=True)
     cells = cut_sheet(Image.open(os.path.join(SRC, 'harbour-restoration-21-sheet-master.webp')))
@@ -198,6 +229,7 @@ def main():
             p = mist(p)
         p.save(os.path.join(OUT, f'story-{name}.webp'), quality=84, method=6)
         manifest['pictures'][f'story-{name}'] = {'size': list(p.size)}
+    manifest['pictures']['place-hb-boatyard-launched'] = launched_boatyard()
     with open(os.path.join(OUT, 'manifest.json'), 'w') as f:
         json.dump(manifest, f, indent=1)
     if sheet_dir:

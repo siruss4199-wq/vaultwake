@@ -4,7 +4,7 @@ import {blockedStage,isStuck,allDone,swapsLeft,adSwapsLeft,SHOP,shopLeft,BOOK_CO
 import {AREAS,STAGES,TASKS,LABELS} from './areas.mjs';
 import {primaryAction} from './guide.mjs';
 import {needsOf,missingOf,levelOf} from './needs.mjs';
-import {LEVEL_PATH,BONUS_NAMES,CHEST_ENERGY,EARLY_LEVELS,EARLY_LEVEL_ENERGY,ONBOARDING} from './game.mjs';
+import {LEVEL_PATH,BONUS_NAMES,CHEST_ENERGY,EARLY_LEVELS,EARLY_LEVEL_ENERGY,ONBOARDING,goldChase} from './game.mjs';
 import {kit} from '../kits.mjs';
 import {iceNeed,weakIceBeside} from './ice.mjs';
 import {purposeOf} from './purposes.mjs';
@@ -38,7 +38,7 @@ function moment(title,detail='',x=null){sharedMoment(title,detail,null);const el
 let adPlaying=false;
 const sfx=(kind,tier=0)=>sounds.play(kind,tier,{muted:adPlaying||platform.muted()});
 // Shown in the footer so a playtester can tell which build is running.
-export const BUILD='Build 48b · rare merges and restoration';
+export const BUILD='Build 48c · gameplay pass before Chapter 4';
 // The level path (docs/V5_LEVEL_PATH_2026-10-27.md): a crew order that pays a tool on top shows it
 // beside its coins (a Tide token; a favour's Sea chest or Brass cog).
 const bonusThing=o=>o.bonus==='cog'?cog():o.bonus==='chest'?kit(newestGenerator(state),2):o.bonus==='token'?token():null;
@@ -119,9 +119,10 @@ const DEV=new URLSearchParams(location.search).has('dev');document.documentEleme
 const ADS=document.documentElement.dataset.ads==='on'||DEV&&document.documentElement.dataset.ads!=='off';
 const pips=n=>`<span class="pips" aria-label="stage ${n} of ${STAGES}">${Array.from({length:STAGES},(_,k)=>`<i class="${k<n?'on':''}"></i>`).join('')}</span>`;
 // Places with stage art (build 38: workshop, pier, beacon) are drawn as they stand at their stage.
-// Build 48a: the Hidden Harbour's cut-outs (tools/harbour-art.py) live in their own folder; after the
-// launch the boatyard shows its stage-1 picture, the empty cradles, so the boat is never drawn twice.
-const artStage=(t,n)=>t.id==='hb-boatyard'&&n>=STAGES&&stageOf(state,'hb-departure')>=STAGES?1:Math.max(1,n);
+// Build 48a: the Hidden Harbour's cut-outs (tools/harbour-art.py) live in their own folder. Build 48c:
+// after the launch the boatyard's card is its finished yard from the restored map, cradles empty because
+// the boat has sailed ('launched'); it no longer falls back to the stage-1 cut-out, which read as unbuilt.
+const artStage=(t,n)=>t.id==='hb-boatyard'&&n>=STAGES&&stageOf(state,'hb-departure')>=STAGES?'launched':Math.max(1,n);
 const stageArt=(t,n)=>`<img class="art" src="assets/premium/coast/${t.art.startsWith('hb-')?'hidden-harbour/':''}place-${t.art}-${artStage(t,n)}.webp" alt="" draggable="false">`;
 // Build 47f: the Vault door is drawn as itself (a crop of the Home picture's door) with its rings lit
 // for the stage, not as a part's icon; painted ring states do not exist (see the doc's missing art).
@@ -214,12 +215,14 @@ function renderOrders(){
 // then after an ad. Build 48b: "merge up N times" is gone (a chain's distance is not how many merges it
 // takes): it says "merge matching items to reach …"; a part whose generator cannot make it yet says what
 // opens it (routeWhy).
-function routeWhy(r){
+function routeWhy(r,gold=false){
  const gen=CHAINS[r.family].gen,name=SOURCES[gen].name,sec=CHAINS[r.family].secondary;
  if(!has(gen))return {ok:false,text:`${name} is still sealed in cargo on the board`};
  if(!sourceOpen(state,gen))return {ok:false,text:`${name} wakes in a later area`};
  if(sec&&!state.secOpen?.[gen])return {ok:false,text:`Opens when a ${name} reaches level ${SECONDARY_RULES[gen].level}`};
  const reach=r.tier?` · merge matching items to reach ${CHAINS[r.family].names[r.tier]}`:'';
+ // Build 48c: on the gold order the guarantee is said as it is: counted in taps, not time
+ if(sec&&gold&&goldChase(state,r.family))return {ok:true,text:`Tap a level ${SECONDARY_RULES[gen].level}+ ${name}: while this order waits, a ${CHAINS[r.family].names[0]} comes within every ${SECONDARY_RULES[gen].goldPity} taps${reach}`};
  return {ok:true,text:sec?`A rare extra from level ${SECONDARY_RULES[gen].level}+ ${name} taps${reach}`:`Tap ${name}${reach}`};
 }
 function chainRoute(r){
@@ -231,7 +234,7 @@ function chainRoute(r){
 // generator on the board. The full chains are behind "How to make these".
 function goldPanel(o){
  const t=TASKS[o.story],u=upgrades(state).find(v=>v.id===o.story),st=t.stages[Math.min(STAGES,stageOf(state,t.id)+1)-1],cost=u?.cost??st.cost;
- const need=needsOf(state,o).map(r=>{const why=routeWhy(r),gen=CHAINS[r.family].gen;
+ const need=needsOf(state,o).map(r=>{const why=routeWhy(r,true),gen=CHAINS[r.family].gen;
   return `<li class="goldNeed ${r.have>=r.count?'met':''}"><span class="goldIcon">${draw(item(r.family,r.tier))}</span><span class="goldText"><b>${nameOf(item(r.family,r.tier))} <em>${r.have}/${r.count}</em></b><small>${r.have>=r.count?'On the board':why.text}</small></span>${r.have<r.count&&why.ok?`<button class="locate" type="button" data-locate="${gen}" aria-label="Show the ${SOURCES[gen].name}">${draw({type:'source',id:gen})}</button>`:''}</li>`;}).join('');
  const short=Math.max(0,cost-state.coins);
  const where=LABELS[t.id]?LABELS[t.id][0].toUpperCase()+LABELS[t.id].slice(1):AREAS.find(a=>a.id===t.area)?.name??t.name;
