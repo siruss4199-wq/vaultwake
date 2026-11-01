@@ -404,9 +404,11 @@ test('the Survey Worksite: seven places in three stages, every stage a reward, t
  // Build 47b: the Vault Entrance has its finale (the Vault door, one place); Build 47d: the Vault
  // (Chapter 2) starts with the Tide Archive; any areas after it are still to come.
  // Build 47e: the Observatory's five places follow the archive in the same area.
- assert.equal(Object.keys(TASKS).length,21,'place ids are unique across areas');
+ // Build 48a: Chapter 3, the Hidden Harbour, has seven places (v5-next-chapter3.test.mjs); nothing
+ // after it is listed.
+ assert.equal(Object.keys(TASKS).length,28,'place ids are unique across areas');
  assert.deepEqual(AREAS[2].tasks.map(t=>t.id),['vault-door']);assert.equal(AREAS[3].tasks[0].id,'vault-archive');
- assert.ok(AREAS.slice(4).every(a=>a.coming&&!a.tasks.length),'later areas are still to come');
+ assert.equal(AREAS[4].id,'harbour');assert.equal(AREAS[4].tasks.length,7);assert.equal(AREAS.length,5);
  // Its stages are bought like the beach's and keep the beach's stages.
  const s=stock(fresh(0));s.area=1;s.built=beachDone();s.coins=5000;
  assert.equal(nextTask(s).id,'ws-camp');const r=ok(s,{type:'restore'});assert.equal(r.task,'ws-camp');assert.equal(r.effects.energy,0,'a new camp is full (50 of 50): the stage\'s +8 tops up to the capacity only');
@@ -439,9 +441,9 @@ test('a save that finished the beach before the worksite existed goes up the cli
  const s=fresh(0);s.built=beachDone();s.coins=40;s.moves=900;s.board[16]=source('rope');delete s.materials;
  const back=load(JSON.stringify(s),5);assert.equal(back.area,1);assert.equal(back.moves,900);assert.equal(back.coins,40);assert.deepEqual(back.built,s.built);assert.equal(nextTask(back).id,'ws-camp');
  const t=fresh(0);t.built={...beachDone(),'beach-cliff':2};t.moves=500;const u=load(JSON.stringify(t),5);assert.equal(u.area,0);assert.equal(u.moves,500);
- // An area out of range, or one still to come (no places yet: Build 47e lists the Hidden Harbour),
+ // An area out of range (Build 48a: the Hidden Harbour, area 4, is playable now),
  // still starts a new camp: no save ever stood there.
- for(const area of [4,AREAS.length]){const v=fresh(0);v.area=area;v.moves=3;assert.equal(load(JSON.stringify(v),5).moves,0);}
+ for(const area of [AREAS.length,AREAS.length+2]){const v=fresh(0);v.area=area;v.moves=3;assert.equal(load(JSON.stringify(v),5).moves,0);}
 });
 
 // Energy pass (build 47v; docs/V5_ENERGY_CAPACITY_2026-11-01.md): the approved design asks for a first

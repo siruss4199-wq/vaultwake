@@ -5,7 +5,7 @@
 // opens the Vault (the reveal, once, labelled "Chapter 1 complete", with Skip). Build 47d: inside,
 // the Tide Archive's intro, its three stages (late-generator gold orders, the seal line). Build 47e: the
 // Observatory (the Lens Bench's first copy, the sea gate waiting for the array, the signal and harbour
-// cards), then Chapter 2's end card.
+// cards), then (Build 48a) Chapter 2 complete leads into Chapter 3's arrival, with no end card.
 const assert=require('node:assert/strict');const {chromium,webkit}=require('playwright');const {throughHome}=require('./v5-next-home-helper.cjs');
 const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast';
 (async()=>{
@@ -119,21 +119,22 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast';
    await page.locator('#beatNext').click();s=await save();assert.equal(s.seen['obs-signal'],true);
    await page.waitForSelector('#coastMap[open]');assert.equal(await page.getAttribute('#mapCard','data-card'),'obs-passage',tag('View sea gate shows the sea gate'));
    await page.locator('#coastMap .close').click();
-   // the sea gate opens: the hidden harbour, then Chapter 2's end card
+   // the sea gate opens: the hidden harbour card (Chapter 2 complete), then (Build 48a) Chapter 3's arrival;
+   // no end card, since the Hidden Harbour is playable (v5-next-chapter3-browser.cjs goes on from here)
    await set({},{'obs-passage':3});
    await page.locator('#mapButton').click();await page.waitForSelector('#coastMap[open]');await page.locator('#coastMap [data-restore="obs-passage"]').click();await page.waitForTimeout(300);
    for(let n=0;n<4&&!await page.locator('#beat[open] .vaultReveal').count();n++){await beats();await page.waitForTimeout(500);}
-   assert.match(await page.textContent('#beatContent'),/A hidden harbour/,tag('the harbour card'));await page.locator('#beatNext').click();
-   await page.waitForSelector('#endDialog[open]',{timeout:5000});const end=await page.textContent('#endContent');
-   assert.match(end,/Chapter 2 complete.*The sea gate is open/s);assert.match(end,/The Hidden Harbour is not available yet/);assert.doesNotMatch(end,/in development|Chapter 3/);
-   assert.match(end,/Restoration stages\s*63 \/ 63/);assert.match(end,/Generator types found\s*\d/);assert.equal(await page.locator('#endContent button').count(),2,tag('Keep playing and Share feedback only'));
-   s=await save();assert.equal(s.seenEnd,true);assert.equal(s.seen['obs-harbour'],true);
-   await page.locator('#endContent [data-keep]').click();
-   // reload: neither a reveal nor the end card again
+   const gate=await page.textContent('#beatContent');assert.match(gate,/A hidden harbour/,tag('the harbour card'));assert.match(gate,/Chapter 2 complete/);
+   assert.equal(await page.textContent('#beatNext'),'Enter the harbour');await page.locator('#beatNext').click();
+   await page.waitForSelector('#beat[open] .revealPanel.story',{timeout:5000});assert.match(await page.textContent('#beatContent'),/This knot is fresh/,tag('Chapter 3 begins'));await page.locator('#beatNext').click();
+   await page.waitForTimeout(800);assert.equal(await page.locator('#endDialog[open]').count(),0,tag('no end card: Chapter 3 is playable'));
+   s=await save();assert.equal(s.area,4);assert.notEqual(s.seenEnd,true);assert.equal(s.seen['obs-harbour'],true);assert.equal(s.seen['hb-arrival'],true);
+   assert.ok(s.orders.some(o=>o?.story==='hb-landing'),tag('the landing\'s gold order'));
+   // reload: neither reveal again
    await page.reload();await page.waitForSelector('#board .tile');await page.waitForTimeout(800);
    assert.equal(await page.locator('#story:not([hidden])').count(),0,tag('the reveal plays once'));assert.equal(await page.locator('#endDialog[open]').count(),0);assert.equal(await beats(),'',tag('no intro again'));
    assert.deepEqual(errors,[],tag('no errors'));await context.close();}
-   console.log(`${engine} Coast Camp Chapter 2 integration: finished save (old ending seen) → Vault door intro once → rings through gold orders → Vault opens once → Tide Archive (intro, seal line, three stages) → Observatory (Lens Bench, the sea gate waits for the array, signal, harbour) → Chapter 2 end card passed`);
+   console.log(`${engine} Coast Camp Chapter 2 integration: finished save (old ending seen) → Vault door intro once → rings through gold orders → Vault opens once → Tide Archive (intro, seal line, three stages) → Observatory (Lens Bench, the sea gate waits for the array, signal, harbour) → Chapter 2 complete → Chapter 3 arrival passed`);
   }finally{await browser.close();}
  }
 })().catch(e=>{console.error(e);process.exit(1);});
