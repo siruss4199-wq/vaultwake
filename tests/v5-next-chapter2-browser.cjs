@@ -126,7 +126,8 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast';
    // no end card, since the Hidden Harbour is playable (v5-next-chapter3-browser.cjs goes on from here)
    await set({},{'obs-passage':3});
    await page.locator('#mapButton').click();await page.waitForSelector('#coastMap[open]');await page.locator('#coastMap [data-restore="obs-passage"]').click();await page.waitForTimeout(300);
-   for(let n=0;n<4&&!await page.locator('#beat[open] .vaultReveal').count();n++){await beats();await page.waitForTimeout(500);}
+   // close the stage's own lines only, then wait for the harbour card (it comes 0.9 s later)
+   for(let n=0;n<30&&!await page.locator('#beat[open] .vaultReveal').count();n++){if(await page.locator('#beat[open]').count()){await page.locator('#beatNext').click();await page.waitForTimeout(80);}else await page.waitForTimeout(250);}
    const gate=await page.textContent('#beatContent');assert.match(gate,/A hidden harbour/,tag('the harbour card'));assert.match(gate,/Chapter 2 complete/);
    assert.equal(await page.textContent('#beatNext'),'Enter the harbour');await page.locator('#beatNext').click();
    await page.waitForSelector('#beat[open] .revealPanel.story',{timeout:5000});assert.match(await page.textContent('#beatContent'),/This knot is fresh/,tag('Chapter 3 begins'));await page.locator('#beatNext').click();
