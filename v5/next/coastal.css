@@ -400,3 +400,27 @@ body.nextMode header #energyPill.overCap #energyTimer{background:#b5740d;color:#
 .energyNote{position:fixed;z-index:60;max-width:220px;padding:5px 10px;border-radius:12px;background:#fffdf8f5;color:#173840;font:800 12px/1.3 system-ui,sans-serif;box-shadow:0 0 0 2px #f5c24e,0 6px 16px #1f5b6a40;pointer-events:none;animation:energyNote 2.6s ease both}
 @keyframes energyNote{0%{opacity:0;transform:translateY(-6px)}12%,82%{opacity:1;transform:none}100%{opacity:0}}
 @media(prefers-reduced-motion:reduce){.energyNote{animation:none}}
+/* Build 48a: the Hidden Harbour (Chapter 3). Its picture already paints every building, so nothing is
+   stood on it: the damaged harbour is shown dimmed, and each stage bought uncovers its own repair from
+   the restored painting (and, for the boatyard before the launch, its own colour) on its spot. The
+   picture is taller than the other maps (1024 x 1195). */
+#coastMap .beachScene.harbour{aspect-ratio:1024/1195}
+#coastMap .beachScene.harbour .sceneBase{filter:grayscale(calc(.75 - .45*var(--p,0))) brightness(calc(.78 + .16*var(--p,0))) contrast(.95) sepia(.1)}
+#coastMap .beachScene.harbour :is(.sceneStorm,.sceneColor){display:block}
+#coastMap .beachScene.harbour .sceneOwn{filter:none}
+#coastMap .beachScene.harbour.complete .sceneOwn{display:none}
+@media(min-width:700px) and (min-aspect-ratio:13/10){#mapContent .sceneWrap:has(.harbour){width:min(100%,calc((100dvh - 110px) * 1024 / 1195))}#mapContent .sceneWrap .beachScene.harbour{aspect-ratio:1024/1195}}
+@media(prefers-reduced-motion:reduce){#coastMap .beachScene.harbour .sceneColor{transition:none}}
+/* Build 48a: the harbour's story panels are wide paintings: above the words in portrait, beside them in a
+   short landscape window; buttons stay 44 px high and the words wrap at 360 px. */
+.nextMode .revealPanel.story{width:min(100%,360px);aspect-ratio:3/2;max-height:34vh}
+.nextMode .beat.vaultReveal .storyCopy{display:flex;flex-direction:column;gap:8px;align-items:center;min-width:0}
+.nextMode .beat.vaultReveal .storyCopy .revealNext{max-width:100%;flex-wrap:wrap;justify-content:center}
+.nextMode .beat.vaultReveal .primary{min-height:44px}
+@media(min-aspect-ratio:13/10) and (max-height:600px){
+ .nextMode .beat.vaultReveal:has(.revealPanel.story){display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);grid-template-areas:"tag tag" "art copy" "art button";column-gap:16px;row-gap:8px;align-items:center}
+ .nextMode .beat.vaultReveal:has(.revealPanel.story)>small{grid-area:tag}
+ .nextMode .beat.vaultReveal:has(.revealPanel.story) .revealPanel.story{grid-area:art;width:100%;max-height:none}
+ .nextMode .beat.vaultReveal:has(.revealPanel.story) .storyCopy{grid-area:copy}
+ .nextMode .beat.vaultReveal:has(.revealPanel.story) .primary{grid-area:button}
+}

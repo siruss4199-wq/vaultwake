@@ -125,7 +125,7 @@ test('the Observatory opens only after the archive index is read; the hall says 
  const t=archiveRead();assert.equal(blockedStage(t,'obs-hall'),null);assert.deepEqual(upgrades(t).map(u=>u.id),['obs-hall']);
 });
 
-test('the Observatory: Lens Bench copies, optic gold, cogs, the sea gate waits for the array, then the chapter ends', ()=>{
+test('the Observatory: Lens Bench copies, optic gold, cogs, the sea gate waits for the array, then Chapter 3 opens', ()=>{
  const s=archiveRead(),log={gold:[],stages:[]},rewards=[];
  const t=AREAS[3].tasks.slice(1);assert.deepEqual(t.map(x=>x.id),OBS);
  assert.equal(AREAS[3].focus,'optic');assert.equal(AREAS[3].tasks.flatMap(x=>x.stages.map(y=>y.cost)).reduce((a,b)=>a+b),2970);
@@ -133,12 +133,14 @@ test('the Observatory: Lens Bench copies, optic gold, cogs, the sea gate waits f
  assert.deepEqual(TASK('obs-array').stages.map(x=>x.gold),[[['optic',2,1],['lamp',2,2]],[['optic',3,1],['chart',4,1]],[['optic',4,1],['lamp',3,1]]]);
  assert.deepEqual(TASK('obs-passage').stages[2].requires,{'obs-array':3});
  let guard=0;
- while(!allDone(s)&&guard++<40){
+ // Build 48a: the chapter ends at the sea gate and the camp goes on into the Hidden Harbour (Chapter 3)
+ while(s.area===3&&guard++<40){
   // the sea gate's last stage waits for the array, whatever else is left
   if(stageOf(s,'obs-passage')===2&&stageOf(s,'obs-array')<3)assert.ok(!upgrades(s).some(u=>u.id==='obs-passage'));
   const r=buyNext(s,log);assert.ok(r,'never stuck: '+JSON.stringify(upgrades(s)));rewards.push([r.task,r.stage,r.effects]);
  }
- assert.equal(allDone(s),true);assert.equal(s.area,3,'the Hidden Harbour is listed, never entered');assert.ok(!s.orders.some(o=>o?.story),'no gold order left');
+ assert.equal(allDone(s),false);assert.equal(s.area,4,'the Hidden Harbour is entered');
+ assert.deepEqual(s.orders.filter(o=>o?.story).map(o=>o.story),['hb-landing'],'with the landing\'s gold order ready');
  assert.equal(log.stages.length,15);
  // the bench gives two Lens Benches (on the board, or waiting), the array a cog and the tunnel a cog
  const benches=[...s.board,...s.pending].filter(x=>x?.type==='source'&&x.id==='optic').length;assert.equal(benches,2,'two Lens Benches');

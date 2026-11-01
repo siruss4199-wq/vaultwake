@@ -624,9 +624,14 @@ export const currentArea=s=>AREAS[s.area];
 export const stageOf=(s,id)=>s.built[id]??0;
 export function upgrades(s){
  const a=currentArea(s);if(!a)return [];
- return a.tasks.flatMap((t,k)=>{const n=stageOf(s,t.id);if(n>=STAGES||n===0&&k>0&&!stageOf(s,a.tasks[k-1].id))return [];
+ return a.tasks.flatMap((t,k)=>{const n=stageOf(s,t.id),st=t.stages[n];
   // Build 47b (from PR #80): a stage may wait for another place's stage (requires: {place: stage}).
-  const st=t.stages[n];if(!stageReady(s,st))return [];
+  // Build 48a (Chapter 3): a first stage that names what it waits for opens on that alone, so two
+  // places can open together (the harbour's crane and warehouse); a first stage that names nothing
+  // still waits for the place before it. Chapters 1-2 are unchanged (their only first stage with
+  // requires, the Observatory hall's, waits for the place before it, the archive, as before).
+  if(n>=STAGES||n===0&&k>0&&!st.requires&&!stageOf(s,a.tasks[k-1].id))return [];
+  if(!stageReady(s,st))return [];
   return [{id:t.id,stage:n+1,name:st.name,cost:st.cost,effect:st.effect,lines:st.lines,icon:t.icon,place:t.name,materials:(s.materials?.[t.id]??0)>n,...(st.gold?{gold:st.gold}:{})}];}).sort((x,y)=>x.cost-y.cost);
 }
 export const stageReady=(s,st)=>!st?.requires||Object.entries(st.requires).every(([id,n])=>stageOf(s,id)>=n);
