@@ -15,6 +15,12 @@
 // route (a Travel notebook). Only if the chain cannot drop at all (never opened, or no level-2+
 // generator on the board) does the stage ask its usual materials instead: no circular unlock. While
 // the gold order lacks its rare part, that chain's drops are certain sooner (game.mjs goldChase).
+// Build 51b (docs/V5_CH1_RARE_GOALS_2026-11-02.md): Chapter 1 gets six: the pier's cargo crane (a Gear),
+// the cliff gate up to the survey (an Expedition note), the hoist (a Gear, as before), the cliff chart (a
+// Travel notebook), the dial's map (an Expedition note) and the Vault door's middle ring (a Gear
+// assembly). A Gear is asked only with a level-2+ Rivet Rover on the board, a note only with a level-2+
+// Survey Kite (secondaryCanDrop, when the gold order is made); never right after another rare gold order
+// when another place is open (game.mjs storyTarget).
 const place=(id,icon,at,stages,art)=>({id,icon,at,name:stages[0].name,stages,...(art?{art}:{})});
 // art: a place drawn stage by stage on the area picture (v5/assets/premium/coast/place-<art>-<stage>.webp,
 // build 38); the others still show their icon.
@@ -42,7 +48,7 @@ export const AREAS=[
     {name:'Open the parts store',cost:150,effect:{kit:['newest',2]},lines:[['ivo','Shelves for every part we make. The Workshop runs like a clock.']]}],'workshop'),
    place('beach-pier','crate-survey',[66,80],[
     {name:'Build the supply pier',cost:120,effect:{kit:['newest',2]},lines:[['bram','A pier means supply boats. The first one brought a sea chest for our newest generator.']]},
-    {name:'Add a cargo crane',cost:150,effect:{copy:'newest'},lines:[['bram','A crane on the pier. Supply boats unload in half the time.'],['bram','The first load off the crane: a copy of our newest generator.']]},
+    {name:'Add a cargo crane',cost:150,rare:['mech',1],effect:{copy:'newest'},lines:[['bram','A crane on the pier. Supply boats unload in half the time.'],['bram','The first load off the crane: a copy of our newest generator.']]},
     {name:'Moor the supply boat',cost:180,effect:{kit:['newest',3]},lines:[['bram','Our own boat, tied up and ready. The beach is joined to the world again.']]}],'pier'),
    place('beach-beacon','flux-3',[76,40],[
     {name:'Light the beacon',cost:140,effect:{energy:10},lines:[['tamsin','The beacon burns all night. Nobody gets lost on this beach again.'],['ivo','The crew is rested and proud: +10 energy.']]},
@@ -51,7 +57,7 @@ export const AREAS=[
    place('beach-cliff','chart-1',[88,56],[
     {name:'Clear the cliff path',cost:160,effect:{energy:3},lines:[['neri','Rockfall cleared. The path climbs halfway up the cliff.']]},
     {name:'Rope the cliff steps',cost:200,effect:{copy:'newest'},lines:[['ivo','Ropes and pegs on every step. Even the carts can climb now.'],['neri','Halfway up we found an old cache: a copy of our newest generator.']]},
-    {name:'Open the cliff gate',cost:230,effect:{kit:['newest',3]},lines:[['neri','The cliff gate is open. Up there, the survey worksite and the Vault beyond it.'],['ivo','The beach is a camp now. Good work, everyone.']]}],'cliff')
+    {name:'Open the cliff gate',cost:230,rare:['notes',1],effect:{kit:['newest',3]},lines:[['neri','The cliff gate is open. Up there, the survey worksite and the Vault beyond it.'],['ivo','The beach is a camp now. Good work, everyone.']]}],'cliff')
   ]},
  // Area 2 (build 31, user: "ehleed ediin zasgiig changalaad 2-r busiig nem"): the same shape as the
  // beach, seven places in three stages, built around the Rope Winch. It opens when the beach's
@@ -69,7 +75,7 @@ export const AREAS=[
    place('ws-scope','chart-3',[28,64],[
     {name:'Set up the theodolite',cost:100,effect:{copy:'newest'},lines:[['neri','The old theodolite still turns. It points straight at the door in the rock.'],['ivo','Packed beside it: a copy of our newest generator. Merge it in.']]},
     {name:'Mark the survey lines',cost:130,effect:{energy:5},lines:[['neri','White lines across the whole worksite. Nobody digs in the wrong place again.']]},
-    {name:'Chart the whole cliff',cost:140,effect:{kit:['newest',2]},lines:[['neri','The cliff is charted, every ledge and crack. The door sits in the middle of an old quarry.']]}],'ws-scope'),
+    {name:'Chart the whole cliff',cost:140,rare:['notes',2],effect:{kit:['newest',2]},lines:[['neri','The cliff is charted, every ledge and crack. The door sits in the middle of an old quarry.']]}],'ws-scope'),
    place('ws-ropes','rope-1',[14,86],[
     {name:'Coil the hauling ropes',cost:110,effect:{copy:'newest'},lines:[['ivo','Rope everywhere, tangled by the storm. Coiled, it is worth more than gold up here.'],['ivo','Under the last coil: a copy of our newest generator.']]},
     {name:'Splice the long lines',cost:140,effect:{token:1},lines:[['ivo','Spliced lines long enough to reach the beach. Loads can come straight up.']]},
@@ -89,7 +95,7 @@ export const AREAS=[
    place('ws-door','lamp-2',[74,38],[
     {name:'Survey the vault door',cost:180,effect:{energy:5},lines:[['neri','The door is a dial, as tall as three of us. Every ring turns.']]},
     {name:'Light the door',cost:220,effect:{copy:'newest'},lines:[['tamsin','Lanterns all around the dial. The tideglass in it glows back at us.'],['tamsin','We will need lamps of our own up here. Packed with the lanterns: a copy of our newest generator.']]},
-    {name:'Map the dial',cost:240,effect:{kit:['newest',3]},lines:[['neri','Every ring of the dial is mapped. Now we know how it opens.'],['bram','The worksite is done. Next: the Vault Entrance itself.']]}],'ws-door')
+    {name:'Map the dial',cost:240,rare:['notes',1],effect:{kit:['newest',3]},lines:[['neri','Every ring of the dial is mapped. Now we know how it opens.'],['bram','The worksite is done. Next: the Vault Entrance itself.']]}],'ws-door')
   ]},
  // Build 47b: Chapter 1's finale (from PR #80's Vault door): the mapped dial, three rings, each turned
  // with its own stage; the inner ring names its materials (a Signal lamp and a Bearing dial). Turning
@@ -99,7 +105,7 @@ export const AREAS=[
   tasks:[
    place('vault-door','lamp-3',[48.7,50],[
     {name:'Turn the outer ring',cost:240,effect:{energy:10},lines:[['neri','The outer ring turns. Two to go.']]},
-    {name:'Turn the middle ring',cost:280,effect:{kit:['newest',3]},lines:[['tamsin','The middle ring is turning. The tideglass in the dial glows brighter.']]},
+    {name:'Turn the middle ring',cost:280,rare:['mech',2],effect:{kit:['newest',3]},lines:[['tamsin','The middle ring is turning. The tideglass in the dial glows brighter.']]},
     {name:'Turn the inner ring',cost:320,gold:[['lamp',3,1],['chart',4,1]],effect:{},lines:[['bram','The inner ring is set. Stand back.']]}])
   ]},
  // Chapter 2, The Silent Observatory (PR #80's chapter, kept by the director on 2026-10-28). Build

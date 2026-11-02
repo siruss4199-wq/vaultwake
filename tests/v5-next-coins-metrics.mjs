@@ -66,7 +66,7 @@ function run(speed,seed,shop){
  const stages=[],asked={crew:{},gold:{}},seen=new Set();let ordersSince=0,tickAt=0,acted=true,rareWait=0,idle=0;
  const T={ch1:null,ch2:null,ch3:null,ch4:null,ch5:null,ch6:null},occ={ch1:[],ch2:[],ch3:[],ch4:[],ch5:[],ch6:[]},goldRare={};let lastCh='ch1',fallback=0,lastBuild=0;const gaps={ch1:[],ch2:[],ch3:[],ch4:[],ch5:[],ch6:[]};
  const proxy={...g,
-  tick:(s,now)=>{if(!acted){const dt=now-tickAt;idle+=dt;
+  tick:(s,now)=>{if(!acted){const dt=now-tickAt;idle+=dt;idleBy[CH(s)]=(idleBy[CH(s)]??0)+dt;
     // waiting with energy in hand while the gold order lacks only rare parts: rare-only waiting
     const gold=s.orders.find(o=>o?.story);if(gold&&s.energy>=1){const miss=missingOf(s,gold);if(miss.length&&miss.every(r=>sec(r.family)))rareWait+=dt;}}
    tickAt=now;acted=false;return g.tick(s,now);},
@@ -85,6 +85,7 @@ function run(speed,seed,shop){
    return r;}};
  const missingOf=(s,o)=>{const have={};for(const x of s.board)if(x?.type==='item'){const k=x.family+x.tier;have[k]=(have[k]??0)+1;}return o.needs.filter(r=>(have[r.family+r.tier]??0)<r.count);};
  let end=null;
+ const idleBy={};// build 51b: waiting with nothing to do (energy), per chapter, in minutes below
  const comp={ch4:[],ch5:[],ch6:[]},src={ch4:{},ch5:{}},things=s=>{const n={cog:0,kit:0};for(const x of [...s.board,...s.shed,...s.pending])if(x&&n[x.type]!=null)n[x.type]++;return n;};
  const onStep=(s,now)=>{const ch=CH(s);end=s;
   occ[ch].push(s.board.filter(x=>x&&x.type!=='cargo'&&x.type!=='glass').length);
@@ -112,7 +113,7 @@ function run(speed,seed,shop){
  return {speed,seed,shop,finished:res.finished,...(OVER.board?{mix:{ch4:mixMed('ch4'),ch5:mixMed('ch5'),ch6:mixMed('ch6')},src}:{}),totalMin:r1(res.total/MIN),waitShare:Math.round(res.idle/res.total*100)/100,rareWaitMin:r1(rareWait/MIN),
   chapters:Object.fromEntries(['ch1','ch2','ch3','ch4','ch5','ch6'].map(k=>[k,{endMin:T[k]?.min,endCoins:T[k]?.coins,coins:C[k],goldCoverPct:cover(byCh(k)),coinShortPct:short(byCh(k)),
    ordersPerStage:r1(quantile(byCh(k).map(x=>x.ordersTotal??0),.5)),coinsAtMaterials:r1(quantile(byCh(k).map(x=>x.coinsAtMaterials),.5)),stageWaitMin:r1(quantile(byCh(k).map(x=>x.waitMin??0),.5)),stageWaitMax:r1(Math.max(0,...byCh(k).map(x=>x.waitMin??0))),boardMedian:quantile(occ[k],.5)}])),
-  asked,rareGoldWaitMed:r1(quantile(rareGold,.5)),rareGoldWaitMax:r1(Math.max(0,...rareGold)),rareGoldOrders:rareGold.length,rareGoldBy,
+  idleMin:Object.fromEntries(Object.entries(idleBy).map(([k,v])=>[k,r1(v/MIN)])),asked,rareGoldWaitMed:r1(quantile(rareGold,.5)),rareGoldWaitMax:r1(Math.max(0,...rareGold)),rareGoldOrders:rareGold.length,rareGoldBy,
   tier2Gold:t2.length,tier2Done:t2.filter(x=>x.done).length,chaseMed:r1(quantile(chase,.5)),chaseMax:r1(Math.max(0,...chase)),chaseTapsMax:Math.max(0,...done.map(x=>x.taps)),chaseEnergyMax:Math.max(0,...done.map(x=>x.energy)),chaseBoardMax:Math.max(0,...done.map(x=>x.board)),fallback,
   gapMax:Object.fromEntries(Object.entries(gaps).map(([k,v])=>[k,r1(Math.max(0,...v))]))};
 }
