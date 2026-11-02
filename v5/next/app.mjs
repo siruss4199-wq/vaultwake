@@ -1255,7 +1255,8 @@ let storyJustPlayed=false;
 function arrive(fromHome=true){
  if(holdSave&&!damaged){holdSave=false;persist();}
  syncPlaying();if(fromHome)$('#hint').focus({preventScroll:true});
- // Build 51c: the story's last line already says what to do first, so its new camp gets no second introduction
+ // Build 51c: a story played to its end already says what to do first, so no second introduction follows
+ // it; a skipped story is followed by the beach's one line (the same words)
  if(!state.moves){if(!storyJustPlayed)showIntro();}
  else{extrasNews();nextReveal(()=>{if(allDone(state)&&!state.seenEnd)setTimeout(showEnd,600);});}
  storyJustPlayed=false;
@@ -1269,6 +1270,6 @@ if(document.getElementById('home')){
   onNewCamp:()=>{if(!confirm('Start a new camp? The save that could not be read stays in this browser as a backup.'))return false;return newCamp();},
   onOpenChange:v=>{homeOpen=v;syncPlaying?.();},
   // The first-play story (Build 46q): once, on the first new camp's Play, never on Continue.
-  beforeEnter:reason=>reason==='play'&&!rawSave&&!storySeen(storage)?(storyJustPlayed=true,playIntro({storage,reduced,face:who=>`assets/premium/coast/ui/${FACES[who]}.webp`})):null});
+  beforeEnter:reason=>reason==='play'&&!rawSave&&!storySeen(storage)?playIntro({storage,reduced,face:who=>`assets/premium/coast/ui/${FACES[who]}.webp`}).then(how=>{storyJustPlayed=how==='done';return how;}):null});
  home.ready.then(()=>{if(!rawSave&&!storySeen(storage))preloadIntro();});
 }else{homeOpen=false;arrive(false);}

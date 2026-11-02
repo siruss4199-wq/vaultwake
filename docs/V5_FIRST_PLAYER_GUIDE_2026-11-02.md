@@ -17,8 +17,8 @@ The hint wandered between orders before it reached the gold order.
 ## What a new player now sees
 1. **The story's last scene**, with the same art and the same three scenes. Ivo now says "The letter brought us
    to that Vault. First, let's clear a landing.", and the button reads **Clear a landing**. On the board no
-   second introduction follows the story. The beach's own introduction, now this one line, shows only if the
-   story did not just play, for example on a second new camp in the same browser.
+   second introduction follows the story. The beach's own introduction, now this same one line, shows when the story was
+   skipped or not shown (a second new camp in the same browser), so the purpose is never missed.
 2. **The guide**: one short sentence in the existing hint line and one highlighted target.
    - The target gets a soft pulsing ring. For a pair to merge, a ghost of the first part slides onto the
      second.
