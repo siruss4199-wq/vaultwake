@@ -66,11 +66,13 @@ test('a keepsake never pauses drops; an order\'s demand, gold ones included, kee
  assert.equal(secondaryWanted(s,'mech'),4);assert.equal(secondaryPaused(s,'rig'),false,'the gold order\'s Gear assembly counts');
 });
 
-test('build 48c: six stages name a fixed merged rare part: Gears, an Expedition note, a Gear assembly and two Travel notebooks', ()=>{
+test('builds 48c and 51b: stages name a fixed merged rare part: Gears, Expedition notes, Gear assemblies and Travel notebooks', ()=>{
  const rare=Object.values(TASKS).flatMap(t=>t.stages.map((st,k)=>st.rare?[t.id,k+1,st.name,...st.rare]:null).filter(Boolean));
- assert.deepEqual(rare,[['ws-hoist',2,'Gear the hoist','mech',1],['obs-desk',2,'Unroll the old charts','notes',1],['obs-desk',3,'Read the last logbook','notes',2],
+ // build 51b: Chapter 1's five new ones (the pier's crane, the cliff gate, the cliff chart, the dial's map, the middle ring)
+ assert.deepEqual(rare,[['beach-pier',2,'Add a cargo crane','mech',1],['beach-cliff',3,'Open the cliff gate','notes',1],['ws-scope',3,'Chart the whole cliff','notes',2],['ws-hoist',2,'Gear the hoist','mech',1],['ws-door',3,'Map the dial','notes',1],['vault-door',2,'Turn the middle ring','mech',2],
+  ['obs-desk',2,'Unroll the old charts','notes',1],['obs-desk',3,'Read the last logbook','notes',2],
   ['obs-bench',2,'Fit the grinding wheel','mech',1],['hb-crane',3,'Recover the cargo','mech',2],['hb-registry',3,'Trace the route','notes',2]]);
- for(const [id,,,f,tier] of rare){assert.ok(CHAINS[f].secondary&&tier>=1&&tier<=2&&tier<maxTier(f),`${id}: a merged part below the keepsake`);assert.ok(!TASKS[id].area.startsWith('beach'),'the beach (where the Rover reaches level 2) asks none');}
+ for(const [id,,,f,tier] of rare)assert.ok(CHAINS[f].secondary&&tier>=1&&tier<=2&&tier<maxTier(f),`${id}: a merged part below the keepsake, never a single Bolt or note fragment`);
  // no stage gives the copy of the generator whose chain it asks (that copy would be needed first)
  for(const [id,n,,f] of rare)assert.notEqual(TASKS[id].stages[n-1].effect.copy,CHAINS[f].gen);
  // only the two pilot chains (the Winch, Shell and Kiln chains stay inactive)

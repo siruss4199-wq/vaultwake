@@ -121,6 +121,7 @@ jobs:
           node tests/v5-next-extras-browser.cjs
           node tests/v5-next-energy-browser.cjs
           node tests/v5-next-rare-merges-browser.cjs
+          node tests/v5-next-ch1-rare-browser.cjs
           node tests/v5-next-chapter4-browser.cjs
           node tests/v5-next-chapter5-browser.cjs
           node tests/v5-next-chapter6-browser.cjs

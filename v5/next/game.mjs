@@ -727,7 +727,14 @@ export const nextTask=s=>upgrades(s).find(u=>u.materials)??null;
 // (s.aim, a place id, saved; optional, a save without it keeps the cheapest as before). The choice holds
 // while that place has a stage open without its materials, so after a build the place's next stage is
 // next; otherwise the cheapest, as before.
-export const storyTarget=s=>{const up=upgrades(s).filter(u=>!u.materials);return up.find(u=>u.id===s.aim)??up[0]??null;};
+// Build 51b: in Chapter 1 a rare gold goal never follows another (s.rareLast: the last gold order delivered
+// asked a rare part): while another place is open, the next gold order goes to it and the rare stage
+// waits its turn (its goal is not dropped or lowered). The player's own choice (aim) still wins.
+const CH1_AREAS=new Set(['beach','worksite','entrance']);
+const rareAsked=(s,u)=>{const t=TASKS[u.id],r=t?.stages[u.stage-1]?.rare;return !!r&&CH1_AREAS.has(t.area)&&secondaryCanDrop(s,r[0]);};
+export const storyTarget=s=>{const up=upgrades(s).filter(u=>!u.materials),aimed=up.find(u=>u.id===s.aim);if(aimed)return aimed;
+ if(s.rareLast&&up[0]&&rareAsked(s,up[0]))return up.find(u=>!rareAsked(s,u))??up[0];
+ return up[0]??null;};
 export const areaDone=(s,a=currentArea(s))=>!!a&&a.tasks.length>0&&a.tasks.every(t=>stageOf(s,t.id)>=STAGES);
 export const builtCount=(s,a=currentArea(s))=>a?a.tasks.reduce((n,t)=>n+stageOf(s,t.id),0):0;
 // Every area that has places is finished: the end of this prototype (Build 41 M5).
@@ -872,6 +879,7 @@ function step(s,a,now){
   // again; only a quick job asking rare extras alone gives none (DELIVERY_ENERGY).
   const gain=DELIVERY_ENERGY[orderEnergyKind(o)];
   s.coins+=o.coins;s.ordersDone++;s.orders[lane]=null;s.energy=Math.min(MAX_ENERGY,s.energy+gain);
+  if(o.story){if(o.needs.some(r=>isSecondary(r.family)))s.rareLast=true;else delete s.rareLast;}
   // The first ordinary crew order delivered: +15 energy, once (s.boost.order).
   let boost=null;
   if(ordinaryOrder(o)&&!s.boost.order){s.boost.order=true;const paid=storeEnergy(s,ONBOARDING.order,{keep:true});boost={kind:'order',energy:ONBOARDING.order,...(paid<ONBOARDING.order?{owed:ONBOARDING.order-paid}:{})};}
@@ -1159,6 +1167,7 @@ export function load(raw,now=Date.now()){
   if(s.seenEnd&&!allDone(s)&&areaDone(s,AREAS.find(a=>a.id==='lowwater')))s.seen['ch5-station']=true;
   if(s.seenEnd&&!allDone(s)){delete s.seenEnd;ensureGold(s);}
   if(s.aim!==undefined&&!(typeof s.aim==='string'&&TASKS[s.aim]))delete s.aim;
+  if(s.rareLast!==undefined&&s.rareLast!==true)delete s.rareLast;
   if(before41)for(const u of upgrades(s))s.materials[u.id]=u.stage;
   if(s.rationAt!==undefined&&!(Number.isFinite(s.rationAt)&&s.rationAt<=now))delete s.rationAt;
   if(!Number.isFinite(s.energyAt)||s.energyAt>now)s.energyAt=now;
