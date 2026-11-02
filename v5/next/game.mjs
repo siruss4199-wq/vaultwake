@@ -49,7 +49,7 @@ export const levelEnergy=level=>level<=EARLY_LEVELS?EARLY_LEVEL_ENERGY:CHEST_ENE
 export const LEVEL_PATH=[
  {level:3,id:'triple',name:'Triple merge',text:'Drag a level 3 or bigger part onto its twin while a third one touches it: all three make two of the next level.'},
  {level:5,id:'token',name:'Tide tokens from the crew',text:'Every eighth crew order also pays a Tide token.'},
- {level:8,id:'favour',name:'Crew favours',text:'Every sixth crew order asks one part a level higher and pays a Sea chest too (a Brass cog from the Survey Worksite on).'}
+ {level:8,id:'favour',name:'Crew favours',text:'Every sixth crew order asks one part a level higher and pays a bonus too: a Sea chest on the beach; from the Survey Worksite on, a Brass cog while a generator can still go up a level, else a Tide token.'}
 ];
 // The triple merge is for parts of level 3 and up (tier 2+): measured with the economy harness,
 // triples of smaller parts used up the cheap pairs a player merges for free while energy is out
@@ -58,6 +58,8 @@ export const TOKEN_EVERY=8,FAVOUR_EVERY=6,TRIPLE_MIN_TIER=2;
 // What a level-path order pays on top of its coins. A favour pays a Sea chest at the beach and a
 // Brass cog from the worksite on: cogs at the beach brought the Shell Trap out before the beach was
 // finished (measured, 4 s an action: 45 min against the beach's 54).
+// Build 50b: from the worksite on, a Brass cog only while a generator can still take a level (cogRoom),
+// else a Tide token.
 export const BONUSES=['token','chest','cog'],BONUS_NAMES={token:'Tide token',chest:'Sea chest',cog:'Brass cog'};
 // Secondary chains (pilot, 2026-10-29; docs/V5_SECONDARY_PILOT_2026-10-29.md). The Rivet Rover and
 // the Survey Kite sometimes make a part of their secondary chain (chains.mjs SECONDARY_OF). Two output

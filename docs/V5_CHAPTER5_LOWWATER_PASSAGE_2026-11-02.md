@@ -170,8 +170,15 @@ they are.
 | Inner lock | Crawler jack + 2 Pearl oysters | 2 Crawler jacks + 2 Sight lenses | 2 Crawler jacks + 2 Signal lamps |
 
 Each recipe has two requirements (one or two of a common part; one rare part), is fixed, and is never
-stepped down. No two in a row match, every recipe is unique, and each place asks more drops at stage 3 than
-at stage 1. All of this is tested. The shelter's lamps are Signal lamps (lamp 3): 50a's comment wrongly
+stepped down. No two in a row match and every recipe is unique; both are tested.
+
+Correction (closeout): an earlier wording said the number of parts rises at every stage. It does not,
+and the PR text said the same; both are corrected here.
+- The merge demand rises across a place's common recipes. In the four places with no rare part (landing,
+  causeway, bridge, lock), the drops asked rise 1 → 2 → 3 (tested).
+- In the other three, the rare stage is a separate goal: gauge 3 (Expedition note), shelter 2 (Gear) and
+  desk 3 (Travel notebook) ask fewer common drops than the stage before. Their time goes to the rare part's
+  own pursuit, which the gold guarantee covers. They are not a step down: the recipe is fixed. The shelter's lamps are Signal lamps (lamp 3): 50a's comment wrongly
 called lamp 3 a Storm lantern.
 
 ### Pacing, build 50a → 50b
@@ -209,7 +216,7 @@ The prices were chosen by `ch5cost=` sweeps (1.0 / 0.85 / 0.8 / 0.7 / 0.6) over 
 
 ### Tests for 50b
 - `tests/v5-next-chapter5.test.mjs`:
-  - recipes: no repeats, each its own, rising drops, counts of one or two, the same rare parts;
+  - recipes: no repeats, each its own, rising common drops in the four places without a rare part, counts of one or two, the same rare parts;
   - prices: 5,520;
   - favours: a token when no level is free, a cog when one is, held cogs kept across a reload;
   - the full-board kit test lays two of a part where a recipe asks two.

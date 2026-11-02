@@ -8,7 +8,7 @@
 // the working route cards once each; the inner lock's last stage brings the end card, once (this chapter
 // 21 / 21, the camp's total apart, no Chapter 6 button), "View the restored passage" shows it, and a
 // reload shows nothing again.
-// At 390 x 844 all 21 stages by hand; at 360 x 780, 430 x 932 and 907 x 510 the entry, a stage and the end.
+// At 390 x 844 all 21 stages by hand (Chromium; WebKit as the other sizes); at 360 x 780, 430 x 932 and 907 x 510 the entry, a stage and the end.
 // Every picture loads; nothing scrolls sideways; buttons are 44 px.   SHOTS=<dir> saves screenshots.
 const assert=require('node:assert/strict');const path=require('node:path');const {chromium,webkit}=require('playwright');const {throughHome}=require('./v5-next-home-helper.cjs');
 const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=process.env.SHOTS;
@@ -20,7 +20,8 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
  for(const [engine,type] of engines){
   let browser;try{browser=await type.launch();}catch(e){if(engine!=='chromium'&&/Executable doesn't exist/.test(e.message)){console.log(`${engine}: not installed here, skipped`);continue;}throw e;}
   try{for(const [W,H] of [[390,844],[360,780],[430,932],[907,510]]){
-   const full=W===390,oldEnd=W!==360;
+   // the 21 stages by hand in Chromium only (CI's job budget, build 50b); WebKit plays the entry, a stage and the end at every size
+   const full=W===390&&engine==='chromium',oldEnd=W!==360;
    const context=await browser.newContext({viewport:{width:W,height:H},isMobile:W<700&&engine==='chromium',hasTouch:W<700,reducedMotion:'reduce'});
    const page=await context.newPage(),errors=[],missing=[];throughHome(page);
    page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
