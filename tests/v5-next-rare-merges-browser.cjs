@@ -58,7 +58,7 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
    const panel=await page.locator('#orderTools').innerText();
    assert.match(panel,/Raise the signal mast/,tag('the stage'));assert.match(panel,/materials, then .*100 to build/,tag('the build cost'));
    assert.match(panel,/Survey scope\s*1\/1/,tag('held/needed'));assert.match(panel,/Pocket winch\s*1\/2/,tag('held/needed'));assert.match(panel,/Landing Beach · materials/,tag('the place'));
-   assert.match(panel,/merge matching items to reach Pocket winch/i,tag('how to make it'));assert.match(panel,/you have it/,tag('the coins are in hand'));
+   assert.match(panel,/Pocket winch\s*1\/2\s*From Rivet Rover/,tag('where it comes from, in short (build 51d)'));assert.doesNotMatch(panel,/merge matching items to reach Pocket winch/i,tag('not said twice'));assert.match(panel,/you have it/,tag('the coins are in hand'));
    assert.doesNotMatch(panel,/merge up \d|times|stays/i,tag('no "merge up N times", no "the gold order stays"'));
    assert.equal(await page.locator('#orderTools .goldNeed').count(),2);assert.equal(await page.locator('#orderTools .goldNeed .goldIcon svg, #orderTools .goldNeed .goldIcon img').count()>=2,true,tag('item icons'));
    assert.equal(await page.locator('#orderTools details.goldHow[open]').count(),0,tag('the full chain is folded away'));

@@ -217,6 +217,18 @@ butsaaj burn hiideg songolt heregtei baina mun guide hesgiig sain tod bolgomoor 
 - The hand never takes a tap and sits under any dialog. It is hidden on goal steps and after the guide.
 - With reduced motion it stays still. Its label stays on screen near the edges.
 
+### A shorter gold order panel
+Request: "ene tailbar arai urt ih uu" (a screenshot of the gold order's panel).
+
+The panel said where each part comes from twice: "Tap Rivet Rover · merge matching items to reach Pocket winch"
+under the part, and the same sentence again under its chain in "How to make these". Now:
+- An everyday part's row says only "From Rivet Rover". The button beside it still shows the generator on the
+  board.
+- Under "How to make these", an everyday chain is its pictures only (generator › parts › the part wanted). The
+  words stay in its accessible label.
+- A rare part (its guarantee in taps) and a generator not open yet (what opens it) keep their words.
+- Crew orders' panels are unchanged: there the chain is the only explanation.
+
 ### Tests
 - **`tests/v5-next-gold-variety.test.mjs`:**
   - the four shapes are different, of about the same worth (±20 %) and within the chain;
@@ -230,5 +242,6 @@ butsaaj burn hiideg songolt heregtei baina mun guide hesgiig sain tod bolgomoor 
   - the hand is still with reduced motion;
   - Clear on a plain part (+1 energy, at once) and on a merged part (a second tap).
 - **`tests/v5-next-browser.cjs`:** its replay taps Clear twice when the part asks for it.
-- **`tests/v5-next-rare-merges-browser.cjs`:** it builds its mast and hoist gold orders with the shape turn pinned to the
+- **`tests/v5-next-rare-merges-browser.cjs`:** the mast's panel says "Pocket winch 1/2 · From Rivet Rover" and no longer
+  "merge matching items to reach Pocket winch". It builds its mast and hoist gold orders with the shape turn pinned to the
   usual recipe, since its flow is about the mast's usual materials and the hoist's Gear.

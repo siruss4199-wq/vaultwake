@@ -231,20 +231,25 @@ function routeWhy(r,gold=false){
  if(sec&&gold&&goldChase(state,r.family))return {ok:true,text:`Tap a level ${SECONDARY_RULES[gen].level}+ ${name}: while this order waits, a ${CHAINS[r.family].names[0]} comes within every ${SECONDARY_RULES[gen].goldPity} taps${reach}`};
  return {ok:true,text:sec?`A rare extra from level ${SECONDARY_RULES[gen].level}+ ${name} taps${reach}`:`Tap ${name}${reach}`};
 }
-function chainRoute(r){
- const gen=CHAINS[r.family].gen,why=routeWhy(r),steps=Array.from({length:r.tier+1},(_,k)=>k);
- return `<li class="route ${why.ok?'':'sealed'}"><span class="routeGen">${draw({type:'source',id:gen})}</span>${steps.map(k=>`<i class="routeArrow" aria-hidden="true"></i><span class="routeStep ${k===r.tier?'goal':''}" title="${CHAINS[r.family].names[k]}">${draw(item(r.family,k))}</span>`).join('')}<small>${why.text}</small></li>`;
+// brief (the gold panel, whose rows already say where each part comes from): an everyday chain is its
+// pictures only; a rare or not-yet-open one keeps its words
+function chainRoute(r,brief=false){
+ const gen=CHAINS[r.family].gen,why=routeWhy(r),steps=Array.from({length:r.tier+1},(_,k)=>k),words=!brief||!why.ok||CHAINS[r.family].secondary;
+ return `<li class="route ${why.ok?'':'sealed'}" aria-label="${CHAINS[r.family].names[r.tier]}: ${why.text}"><span class="routeGen">${draw({type:'source',id:gen})}</span>${steps.map(k=>`<i class="routeArrow" aria-hidden="true"></i><span class="routeStep ${k===r.tier?'goal':''}" title="${CHAINS[r.family].names[k]}">${draw(item(r.family,k))}</span>`).join('')}${words?`<small>${why.text}</small>`:''}</li>`;
 }
 // Build 48b: the gold order's panel is compact: the stage, each material with what is held of it, where
 // it comes from (or what opens it), the build cost against the coins held, and a button that shows the
 // generator on the board. The full chains are behind "How to make these".
+// Build 51d (user: "ene tailbar arai urt ih uu"): an everyday part says only "From Rivet Rover" (the button
+// beside it shows the generator) and its chain under "How to make these" is pictures only, so the panel no
+// longer says the same sentence twice per part. A rare or not-yet-open part keeps its words.
 function goldPanel(o){
  const t=TASKS[o.story],u=upgrades(state).find(v=>v.id===o.story),st=t.stages[Math.min(STAGES,stageOf(state,t.id)+1)-1],cost=u?.cost??st.cost;
  const need=needsOf(state,o).map(r=>{const why=routeWhy(r,true),gen=CHAINS[r.family].gen;
-  return `<li class="goldNeed ${r.have>=r.count?'met':''}"><span class="goldIcon">${draw(item(r.family,r.tier))}</span><span class="goldText"><b>${nameOf(item(r.family,r.tier))} <em>${r.have}/${r.count}</em></b><small>${r.have>=r.count?'On the board':why.text}</small></span>${r.have<r.count&&why.ok?`<button class="locate" type="button" data-locate="${gen}" aria-label="Show the ${SOURCES[gen].name}">${draw({type:'source',id:gen})}</button>`:''}</li>`;}).join('');
+  return `<li class="goldNeed ${r.have>=r.count?'met':''}"><span class="goldIcon">${draw(item(r.family,r.tier))}</span><span class="goldText"><b>${nameOf(item(r.family,r.tier))} <em>${r.have}/${r.count}</em></b><small>${r.have>=r.count?'On the board':why.ok&&!CHAINS[r.family].secondary?`From ${SOURCES[gen].name}`:why.text}</small></span>${r.have<r.count&&why.ok?`<button class="locate" type="button" data-locate="${gen}" aria-label="Show the ${SOURCES[gen].name}">${draw({type:'source',id:gen})}</button>`:''}</li>`;}).join('');
  const short=Math.max(0,cost-state.coins);
  const where=LABELS[t.id]?LABELS[t.id][0].toUpperCase()+LABELS[t.id].slice(1):AREAS.find(a=>a.id===t.area)?.name??t.name;
- return `<p class="orderSay goldSay"><b>${st.name}</b><small>${where} · materials, then ${COIN}${cost} to build</small></p><ul class="goldNeeds">${need}</ul><p class="goldCost">${short?`${COIN}${state.coins} of ${cost}: <b>${short} more</b> from crew orders`:`${COIN}${cost} to build: <b>you have it</b>`}</p><details class="goldHow"><summary>How to make these</summary><ol class="routes">${missingOf(state,o).map(chainRoute).join('')}</ol></details>`;
+ return `<p class="orderSay goldSay"><b>${st.name}</b><small>${where} · materials, then ${COIN}${cost} to build</small></p><ul class="goldNeeds">${need}</ul><p class="goldCost">${short?`${COIN}${state.coins} of ${cost}: <b>${short} more</b> from crew orders`:`${COIN}${cost} to build: <b>you have it</b>`}</p><details class="goldHow"><summary>How to make these</summary><ol class="routes">${missingOf(state,o).map(r=>chainRoute(r,true)).join('')}</ol></details>`;
 }
 function renderOrderTools(){
  const o=state.orders.find(o=>o.id===focusOrder),bar=$('#orderTools');
