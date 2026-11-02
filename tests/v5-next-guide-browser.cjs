@@ -129,7 +129,8 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
    assert.notEqual(await page.locator('#hint').getAttribute('data-kind'),'coach');await noHighlight('after the guide');await fits('after the guide');await shot('done');
    const secs=Math.round((Date.now()-t0)/1000);
    // later orders never restart it, across a reload: one ready part set is laid for the first crew order and delivered
-   await page.evaluate(k=>{const s=JSON.parse(localStorage.getItem(k));const o=s.orders.find(o=>o&&!o.story);let i=s.board.indexOf(null);for(const r of o.needs)for(let c=0;c<r.count;c++){s.board[i]={type:'item',family:r.family,tier:r.tier};i=s.board.indexOf(null);}localStorage.setItem(k,JSON.stringify(s));},KEY);
+   // (the daily gift is marked as taken today: after the guide it may open by itself, which is right, but it would cover the order)
+   await page.evaluate(k=>{const s=JSON.parse(localStorage.getItem(k));const o=s.orders.find(o=>o&&!o.story);let i=s.board.indexOf(null);for(const r of o.needs)for(let c=0;c<r.count;c++){s.board[i]={type:'item',family:r.family,tier:r.tier};i=s.board.indexOf(null);}s.daily={day:9e6,count:1};localStorage.setItem(k,JSON.stringify(s));},KEY);
    await page.reload();await page.waitForSelector('#homePlay:not([hidden])');await page.locator('#homePlay').click();await page.waitForSelector('#home',{state:'hidden'});await page.waitForTimeout(300);
    assert.notEqual(await page.locator('#hint').getAttribute('data-kind'),'coach',tag('no guide after a reload'));
    {const o=(await save()).orders.find(o=>o&&!o.story);await page.locator(`[data-order="${o.id}"]`).click();await page.waitForTimeout(1100);}
