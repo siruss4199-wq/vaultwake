@@ -41,10 +41,11 @@ V4, `v5/lab/`, Classic V5, PR #75, save keys and energy rules are unchanged.
 
 | Pack | Built | Why |
 |---|---|---|
-| Shelter 3: lamp 4 + rig 2 | lamp 3 + rig 3 | Lamp 4 (Beacon lens) is the top of the lamp chain, and no order asks for a chain's top (`maxTier−1`). Rig 3 keeps stage 3 harder than stage 1, which would otherwise be identical. |
+| Shelter 3: lamp 4 + rig 2 | 50b: 2 Signal lamps (lamp 3) + 2 Focus barrels | Lamp 4 (Beacon lens) is the top of the lamp chain, and no order asks for a chain's top (`maxTier−1`). |
 | Lock 3 "Open inner passage" | "Restore the inner lock" | ART_REVIEW warns that the stage-3 concept still looks closed. The gates are shut in the sprite, so the passage opening is told by the end card's painting (an open door). |
 | Story panel 2 (chest and ledger) | not shipped; the card shows the restored shelter sprite | Its emblem is generated and is not the letter's wave seal (ART_REVIEW), while Neri's line names that seal. |
-| Prices 7,665 | ×0.9 → 6,900 (270–385 per stage) | At the pack's prices the chapter took 1.11–1.19× Chapter 4 (median), up to 1.29×, and coins were the wait at every stage. |
+| Prices 7,665 | 50a: ×0.9 → 6,900; 50b: ×0.8 of that → 5,520 (215–310 per stage) | 50a: at the pack's prices the chapter took 1.11–1.19× Chapter 4 (median). 50b: the merge goals grew, so less is paid in crew-order coins (below). |
+| Recipes repeated (stage 1 = stage 2 at six of seven places) | 50b: every recipe its own (below) | The director asked for the repeats to be told apart and the coin wait moved into merge goals. |
 
 ## Saves
 No new field and no new key.
@@ -123,3 +124,95 @@ and are the same as Chapter 4's. These are simulation targets, not proof that th
 - **Story art and characters:** the storyboard's figure is not a verified crew member (the alt text names
   no one). Chapter 6 (Mara) was not touched.
 - **WebKit** cannot be installed here; it runs only in CI.
+
+## Build 50b: merge goals instead of crew-order coins, and the board (2026-11-02)
+The director's follow-up asked for four things: no new generator; tell the repeated gold recipes apart;
+cut the coin wait after the materials are in, without just shortening the chapter, by moving the
+crew-order repetition into merge goals; and measure the board load before fixing it, without deleting items.
+
+### What fills the board (measured first)
+`node tests/v5-next-coins-metrics.mjs 4,5,8,10 1,2,3,4,5,6,7,8,9,10 noshop --runs board=1` classifies every
+board space at every step. Means are over the chapter.
+
+| Space | Ch4 before | Ch5 before | Ch4 after | Ch5 after |
+|---|---|---|---|---|
+| Generators | 7.2 | 7.2 | 7.2 | 7.2 |
+| **Brass cogs** | **4.3** | **8.9** | 1.8 | 2.3 |
+| Unopened kits (stage-3 and chest crates) | 4.0 | 3.9 | 3.8 | 3.8 |
+| Parts an order asks / on the way to one | 6.6 | 6.5 | ≈ same | ≈ same |
+| Spare parts (no order asks them) | 4.2 | 5.0 | ≈ 4.5 | 4.8 |
+| Board median | 25.5–28 | 29–33 | 21–24 | 23–26 |
+
+**Cause:** by Chapter 4 every generator is at its top level. On average 0.01–0.18 generators are below
+level 5. Even so, every sixth crew order (a favour) still paid a Brass cog, about 5 a chapter. No generator
+could take them, so they piled up: Chapter 5's board carried Chapter 4's cogs as well as its own.
+
+**Fix:** `cogRoom(s)` is the number of generator levels still free across the board, shed and pending
+rewards, less the cogs already held. While it is 0 or less, a favour pays a Tide token instead. A token
+turns a spare part into one an order wants, so it feeds the merge goals rather than sitting on the board.
+- Cogs already held are never removed, moved or converted; a test shows them kept across a reload.
+- Book pages (about 0.5 a chapter) and the daily gift still give their cog, so their UI text is unchanged.
+- Chapters 1–3 are unchanged: their generators are never all at the top, and Chapter 3 ends at the same
+  minute in both builds (340.4 min median).
+
+Kits are about 4 in both chapters. They are rewards the player opens when they want to and are left as
+they are.
+
+### Recipes: every one its own, more merging, the same three rare parts
+| Place | Stage 1 (clearing) | Stage 2 (building) | Stage 3 (finishing) |
+|---|---|---|---|
+| Reef landing | Crawler jack + 2 Pulley blocks | 2 Crawler jacks + 2 Fishing nets | 2 Crawler jacks + 2 Survey scopes |
+| Causeway | Rope ladder + 2 Pearl oysters | 2 Rope ladders + 2 Split spanners | 2 Rope ladders + 2 Signal lamps |
+| Tide gauge | Bearing dial + 2 Brass-ringed lenses | 2 Bearing dials + 2 Fishing nets | Bearing dial + **Expedition note** |
+| Rope bridge | Nautilus + 2 Pocket winches | 2 Nautiluses + 2 Fishing nets | 2 Nautiluses + 2 Pocket winches |
+| Courier shelter | Signal lamp + 2 Split spanners | Signal lamp + **Gear** | 2 Signal lamps + 2 Focus barrels |
+| Mail desk | Focus barrel + 2 Pocket winches | 2 Focus barrels + 2 Sight lenses | Focus barrel + **Travel notebook** |
+| Inner lock | Crawler jack + 2 Pearl oysters | 2 Crawler jacks + 2 Sight lenses | 2 Crawler jacks + 2 Signal lamps |
+
+Each recipe has two requirements (one or two of a common part; one rare part), is fixed, and is never
+stepped down. No two in a row match, every recipe is unique, and each place asks more drops at stage 3 than
+at stage 1. All of this is tested. The shelter's lamps are Signal lamps (lamp 3): 50a's comment wrongly
+called lamp 3 a Storm lantern.
+
+### Pacing, build 50a → 50b
+Metrics command: `node tests/v5-next-coins-metrics.mjs 4,5,8,10 1,2,3,4,5,6,7,8,9,10 both --runs board=1`.
+The prices were chosen by `ch5cost=` sweeps (1.0 / 0.85 / 0.8 / 0.7 / 0.6) over four recipe sets:
+
+1. 50a's recipes only cut in price: at 0.6 the chapter took 0.71× Chapter 4 and 69 % of stages still
+   waited for coins.
+2. Bigger single parts barely moved anything.
+3. Two of the common part, at stages 2–3 and then at stage 1 too, at 0.8: the chapter keeps Chapter 4's
+   length while the crew-order repetition drops.
+
+| Chapter 5 (80 runs) | 50a | 50b |
+|---|---|---|
+| Runs finished | 80 / 80 | 80 / 80 |
+| Ch5 ÷ Ch4 duration, median [range] | 1.07 [0.93–1.20] | **0.98** [0.80–1.10] |
+| Minutes at 4 / 5 / 8 / 10 s per action (median) | 56 / 69 / 110 / 142 | 50 / 62 / 101 / 123 |
+| Crew orders between two stages (median) | 3 | **1** (Ch4: 2) |
+| Materials in → stage built, median wait | 2.65 min | **1.0 min** (Ch4: 3.3) |
+| Longest such wait | 9.5 min | 8.4 min (Ch4 ≤ 24.3) |
+| Stages still short of coins when materials came in | 95–100 % | 67 % (Ch4: 95 %) |
+| Gold order covers the stage's cost | 17.4 % | 51.6 %, earned by twice the merging |
+| Board median | 29–33 | **23–26** (Ch4 21–24, from 25.5–28) |
+| Tier-2 rare gold orders | 60 / 60 | 60 / 60; rare-only pursuit median 1.4–2.9 min, max 13.1 min, ≤ 33 taps |
+| Idle waiting for energy | same seeds as before (4 s: ≤ 13 % in 4 of 10 seeds) | unchanged |
+
+- **Chapter length:** Chapter 5 is now as long as Chapter 4 (0.98×), about 9 % shorter than 50a. The time
+  moved from repeating crew orders to the merge goals: 2 fewer crew orders a stage, more than twice the
+  drops per gold order.
+- **Gold cover:** gold now pays about half a stage (51.6 %). The handoff warns against a gold reward that
+  funds most of every restoration automatically. This one is not automatic: it is paid for parts that take
+  twice the merging. One crew order a stage still makes up the rest.
+- **Limits:** these are simulation results for one scripted policy. They do not prove that the chapter is
+  fun.
+
+### Tests for 50b
+- `tests/v5-next-chapter5.test.mjs`:
+  - recipes: no repeats, each its own, rising drops, counts of one or two, the same rare parts;
+  - prices: 5,520;
+  - favours: a token when no level is free, a cog when one is, held cogs kept across a reload;
+  - the full-board kit test lays two of a part where a recipe asks two.
+- `tests/v5-next-coins-metrics.mjs`:
+  - `board=1`: the board mix, plus where cogs and kits come from and go;
+  - `ch5cost=`: the price sweep.

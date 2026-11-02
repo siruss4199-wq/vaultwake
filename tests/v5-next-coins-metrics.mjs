@@ -40,9 +40,25 @@ if(OVER.capold){const e=await import(pathToFileURL(path.join(ROOT,'v5/next/energ
 if('goldpity' in OVER)for(const r of Object.values(g.SECONDARY_RULES))r.goldPity=OVER.goldpity;
 // norare=1: no stage asks its rare part (areas.mjs rare is ignored), to measure what those parts cost
 if(OVER.norare){const a=await import(pathToFileURL(path.join(ROOT,'v5/next/areas.mjs')).href);for(const ar of a.AREAS)for(const t of ar.tasks)for(const st of t.stages)delete st.rare;for(const t of Object.values(a.TASKS))for(const st of t.stages)delete st.rare;}
+// ch5cost= scales Chapter 5's stage prices (build 50b tuning; rounded to 5; this tree only)
+if(OVER.ch5cost){const a=await import(pathToFileURL(path.join(ROOT,'v5/next/areas.mjs')).href);for(const t of a.AREAS.find(x=>x.id==='lowwater')?.tasks??[])for(const st of t.stages)st.cost=Math.round(st.cost*OVER.ch5cost/5)*5;}
 const MIN=60000,r1=x=>x==null||!Number.isFinite(x)?null:Math.round(x*10)/10,sec=f=>g.isSecondary(f);
 const CH=s=>s.area<3?'ch1':s.area===3?'ch2':s.area===4?'ch3':s.area===5?'ch4':'ch5';
 const DEFAULT=structuredClone(g.SECONDARY_RULES);
+// board=1 (build 50b): what fills the board, per sample in Chapters 4 and 5: generators; parts an order on
+// the board asks (up to the count asked); parts of a chain an order asks at a higher tier (the way there);
+// secondary parts no order asks; other parts no order asks (spares, with how many of them have a twin to
+// merge with); anything else (tokens, cogs, chests). Cargo and tideglass are not counted, as in boardMedian.
+function boardMix(s){
+ const need={},top={};for(const o of s.orders)for(const r of o?.needs??[]){const k=r.family+r.tier;need[k]=(need[k]??0)+r.count;top[r.family]=Math.max(top[r.family]??-1,r.tier);}
+ const m={gen:0,want:0,way:0,sec:0,spare:0,spareTwin:0,other:0},seen={};
+ for(const x of s.board){if(!x||x.type==='cargo'||x.type==='glass')continue;
+  if(x.type==='source'){m.gen++;continue;}if(x.type!=='item'){m.other++;const t='o_'+x.type+(x.id?':'+x.id:'');m[t]=(m[t]??0)+1;continue;}
+  const k=x.family+x.tier;if((need[k]??0)>0){need[k]--;m.want++;continue;}
+  if((top[x.family]??-1)>x.tier){m.way++;continue;}
+  if(sec(x.family)){m.sec++;continue;}
+  m.spare++;seen[k]=(seen[k]??0)+1;}
+ m.spareTwin=Object.values(seen).reduce((a,n)=>a+n-n%2,0);return m;}
 function run(speed,seed,shop){
  for(const k of Object.keys(DEFAULT))Object.assign(g.SECONDARY_RULES[k],DEFAULT[k],{model:'bonus',salt:DEFAULT[k].salt+seed*1009});
  const C={ch1:{},ch2:{},ch3:{},ch4:{},ch5:{}},add=(ch,k,v)=>{if(v)C[ch][k]=(C[ch][k]??0)+v;};
@@ -53,7 +69,8 @@ function run(speed,seed,shop){
     // waiting with energy in hand while the gold order lacks only rare parts: rare-only waiting
     const gold=s.orders.find(o=>o?.story);if(gold&&s.energy>=1){const miss=missingOf(s,gold);if(miss.length&&miss.every(r=>sec(r.family)))rareWait+=dt;}}
    tickAt=now;acted=false;return g.tick(s,now);},
-  act:(s,a,now)=>{const ch=CH(s),c=s.coins,o=a.type==='deliver'?s.orders.find(o=>o?.id===a.id):null,e0=s.energy,r=g.act(s,a,now);if(!r.ok)return r;acted=true;
+  act:(s,a,now)=>{const ch=CH(s),c=s.coins,o=a.type==='deliver'?s.orders.find(o=>o?.id===a.id):null,e0=s.energy,k0=OVER.board&&things(s),r=g.act(s,a,now);if(!r.ok)return r;acted=true;
+   if(OVER.board&&src[ch]){const k1=things(s);for(const t of ['cog','kit']){const d=k1[t]-k0[t];if(d>0){const why=a.type+(o?.bonus?':'+o.bonus:'')+(r.effects?.kit?':stagekit':'');src[ch][t+' from '+why]=(src[ch][t+' from '+why]??0)+d;}else if(d<0){src[ch][t+' used by '+a.type]=(src[ch][t+' used by '+a.type]??0)-d;}}}
    if(a.type==='produce')for(const x of Object.values(goldRare))if(x.chase!=null&&!x.done&&a.id===x.gen){x.taps++;x.energy+=Math.max(0,e0-s.energy);}
    const dc=s.coins-c;
    if(o){const kind=o.story?'gold':o.needs.every(q=>sec(q.family))?'crewRare':o.needs.some(q=>sec(q.family))?'crewMixed':'crewPrimary';add(ch,'in_'+kind,o.coins);if(!o.story)ordersSince++;
@@ -67,8 +84,10 @@ function run(speed,seed,shop){
    return r;}};
  const missingOf=(s,o)=>{const have={};for(const x of s.board)if(x?.type==='item'){const k=x.family+x.tier;have[k]=(have[k]??0)+1;}return o.needs.filter(r=>(have[r.family+r.tier]??0)<r.count);};
  let end=null;
+ const comp={ch4:[],ch5:[]},src={ch4:{},ch5:{}},things=s=>{const n={cog:0,kit:0};for(const x of [...s.board,...s.shed,...s.pending])if(x&&n[x.type]!=null)n[x.type]++;return n;};
  const onStep=(s,now)=>{const ch=CH(s);end=s;
   occ[ch].push(s.board.filter(x=>x&&x.type!=='cargo'&&x.type!=='glass').length);
+  if(OVER.board&&comp[ch]){const m=boardMix(s);m.gensBelowTop=s.board.filter(x=>x?.type==='source'&&(x.level??1)<g.MAX_GENERATOR_LEVEL).length;comp[ch].push(m);}
   if(ch!==lastCh){T[lastCh]={min:r1(now/MIN),coins:s.coins};lastCh=ch;}
   for(const o of s.orders){if(!o||seen.has(o.id))continue;seen.add(o.id);
    for(const q of o.needs)if(sec(q.family)){const bag=o.story?asked.gold:asked.crew,k=q.family+q.tier;bag[k]=(bag[k]??0)+q.count;}
@@ -88,7 +107,8 @@ function run(speed,seed,shop){
  const rareGoldBy=Object.values(goldRare).filter(x=>x.done).map(x=>`${x.story} ${x.needs} ${r1((x.done-x.at)/MIN)}m chase ${x.chase!=null?r1((x.done-x.chase)/MIN):0}m ${x.taps}t`);
  const done=Object.values(goldRare).filter(x=>x.done),chase=done.map(x=>x.chase!=null?(x.done-x.chase)/MIN:0);
  const t2=Object.values(goldRare).filter(x=>x.tier>=2);
- return {speed,seed,shop,finished:res.finished,totalMin:r1(res.total/MIN),waitShare:Math.round(res.idle/res.total*100)/100,rareWaitMin:r1(rareWait/MIN),
+ const mixMed=ch=>comp[ch].length?Object.fromEntries([...new Set(comp[ch].flatMap(Object.keys))].map(k=>[k,r1(comp[ch].reduce((a,m)=>a+(m[k]??0),0)/comp[ch].length)])):null;
+ return {speed,seed,shop,finished:res.finished,...(OVER.board?{mix:{ch4:mixMed('ch4'),ch5:mixMed('ch5')},src}:{}),totalMin:r1(res.total/MIN),waitShare:Math.round(res.idle/res.total*100)/100,rareWaitMin:r1(rareWait/MIN),
   chapters:Object.fromEntries(['ch1','ch2','ch3','ch4','ch5'].map(k=>[k,{endMin:T[k]?.min,endCoins:T[k]?.coins,coins:C[k],goldCoverPct:cover(byCh(k)),coinShortPct:short(byCh(k)),
    ordersPerStage:r1(quantile(byCh(k).map(x=>x.ordersTotal??0),.5)),coinsAtMaterials:r1(quantile(byCh(k).map(x=>x.coinsAtMaterials),.5)),stageWaitMin:r1(quantile(byCh(k).map(x=>x.waitMin??0),.5)),stageWaitMax:r1(Math.max(0,...byCh(k).map(x=>x.waitMin??0))),boardMedian:quantile(occ[k],.5)}])),
   asked,rareGoldWaitMed:r1(quantile(rareGold,.5)),rareGoldWaitMax:r1(Math.max(0,...rareGold)),rareGoldOrders:rareGold.length,rareGoldBy,

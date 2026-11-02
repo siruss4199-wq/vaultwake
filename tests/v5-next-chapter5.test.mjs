@@ -6,7 +6,7 @@
 // and charged once, full-board kits, story flags once, and reloads that change nothing.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {fresh,load,act,item,allDone,upgrades,stageOf,blockedStage,areaDone,totalBuilt,cog,token,goldChase,makeOrder,source,ROVER,capacityOf,SEEN_ID} from '../v5/next/game.mjs';
+import {fresh,load,act,item,allDone,upgrades,stageOf,blockedStage,areaDone,totalBuilt,cog,token,goldChase,makeOrder,source,ROVER,capacityOf,SEEN_ID,cogRoom,MAX_GENERATOR_LEVEL,GENERATOR_ORDER} from '../v5/next/game.mjs';
 import {AREAS,STAGES,TASKS,LABELS} from '../v5/next/areas.mjs';
 import {CHAINS,maxTier} from '../v5/next/chains.mjs';
 
@@ -54,8 +54,8 @@ test('the Lowwater Passage: seven places in three stages, stable ids, a line eac
  for(const t of P.tasks){assert.deepEqual(t.stages[0].effect,{});assert.deepEqual(t.stages[1].effect,{});
   const k=t.stages[2].effect.kit;assert.ok(k&&k[1]===2&&CHAINS[k[0]]&&!CHAINS[k[0]].secondary,t.id);}
  assert.ok(P.tasks.every(t=>t.stages.every(x=>!x.effect.energy&&!x.effect.coins&&!x.effect.source)),'no energy, coin or generator reward');
- // the pack's candidate prices times 0.9 (doc: measured against Chapter 4)
- assert.equal(P.tasks.reduce((n,t)=>n+t.stages.reduce((m,x)=>m+x.cost,0),0),6900,'the pack\'s 7,665 times 0.9');
+ // build 50b prices (doc: measured against Chapter 4): the pack's 7,665 times 0.9, then 0.8 as the merge goals grew
+ assert.equal(P.tasks.reduce((n,t)=>n+t.stages.reduce((m,x)=>m+x.cost,0),0),5520);
 });
 
 test('one line: each place opens when the one before is fully restored; never two places open at once', ()=>{
@@ -69,14 +69,21 @@ test('one line: each place opens when the one before is fully restored; never tw
  const b=blockedStage(t,'ch5-causeway');assert.deepEqual(b.requires,{'ch5-landing':3});
 });
 
-test('fixed gold recipes: two parts each, active chains below the top, the three rare parts as authored, never lowered', ()=>{
+test('fixed gold recipes: two requirements each, active chains below the top, no stage repeating the one before, the three rare parts as authored, never lowered', ()=>{
  const rare=[];
  for(const t of P.tasks)for(const [k,x] of t.stages.entries()){
   assert.equal(x.gold.length,2,`${t.id} ${k+1}: two requirements`);assert.ok(!x.rare,'no dynamic rare swap');
-  for(const [f,tier,n] of x.gold){assert.ok(CHAINS[f],f);assert.ok(Number.isInteger(tier)&&tier>=0&&tier<maxTier(f),`${t.id} ${k+1}: ${f}${tier} below the top`);assert.equal(n,1);
+  for(const [f,tier,n] of x.gold){assert.ok(CHAINS[f],f);assert.ok(Number.isInteger(tier)&&tier>=0&&tier<maxTier(f),`${t.id} ${k+1}: ${f}${tier} below the top`);assert.ok(n===1||n===2&&!CHAINS[f].secondary,`${t.id} ${k+1}: one or two of a common part, one rare`);
    if(CHAINS[f].secondary)rare.push([t.id,k+1,f,tier]);
    assert.ok(['rig','rope','shell','lamp','chart','optic','mech','notes'].includes(f),'only active chains');}}
  assert.deepEqual(rare,[['ch5-gauge',3,'notes',1],['ch5-shelter',2,'mech',1],['ch5-desk',3,'notes',2]]);
+ // build 50b: no two stages in a row (within the chapter's one line) ask the same parts, and each place's
+ // later stages ask more drops than its first (a rare part counted as the drops it takes)
+ const key=x=>JSON.stringify(x.gold),all=P.tasks.flatMap(t=>t.stages);
+ for(let i=1;i<all.length;i++)assert.notEqual(key(all[i]),key(all[i-1]),`${all[i].name} repeats ${all[i-1].name}`);
+ assert.equal(new Set(all.map(key)).size,all.length,'every recipe its own');
+ const drops=x=>x.gold.reduce((n,[f,t,c])=>n+c*2**t,0);
+ for(const t of P.tasks)if(!t.stages.some(x=>x.gold.some(([f])=>CHAINS[f].secondary)))assert.ok(drops(t.stages[0])<drops(t.stages[1])&&drops(t.stages[1])<drops(t.stages[2]),t.id);
  // the shelter's Gear asked whatever the player holds: nothing, a Bolt, a Gear, or a Gear assembly
  const base=entry();for(let k=0;k<13;k++)buyNext(base);assert.equal(stageOf(base,'ch5-shelter'),1);
  for(const held of [[],[['mech',0]],[['mech',1]],[['mech',2]]]){const s=structuredClone(base);
@@ -129,7 +136,7 @@ test('all 21 stages as a player buys them: each gold order as authored, each sta
 
 test('a stage-3 kit on a full board waits for space, once; nothing is given twice across a reload', ()=>{
  const s=entry();for(let k=0;k<2;k++)buyNext(s);
- const gold=s.orders.find(o=>o?.story);for(const r of gold.needs)s.board[s.board.findIndex(x=>x===null||x.type==='cargo')]=item(r.family,r.tier);ok(s,{type:'deliver',id:gold.id});
+ const gold=s.orders.find(o=>o?.story);for(const r of gold.needs)for(let c=0;c<r.count;c++)s.board[s.board.findIndex(x=>x===null||x.type==='cargo')]=item(r.family,r.tier);ok(s,{type:'deliver',id:gold.id});
  s.board=s.board.map(x=>x===null||x.type==='cargo'?item('shell',0):x);const pend=s.pending.length;
  ok(s,{type:'restore',id:'ch5-landing'});assert.equal(stageOf(s,'ch5-landing'),3);
  assert.ok(s.pending.length>pend,'the kit waits for space');const t=load(JSON.stringify(s),9000);assert.equal(t.pending.length,s.pending.length,'kept once');
@@ -142,4 +149,19 @@ test('story flags: each Chapter 5 card id is a valid seen flag, marked once, kep
   if(!s.seen[id])ok(s,{type:'seen',id});assert.equal(act(s,{type:'seen',id}).ok,false,`${id} once`);}
  const t=load(JSON.stringify(s),9000);for(const id of ['ch5-arrival','ch5-crossing','ch5-ledger'])assert.equal(t.seen[id],true);
  assert.equal(t.area,6);assert.deepEqual(upgrades(t).map(u=>u.id),['ch5-landing'],'seeing a card moves nothing on');
+});
+
+test('build 50b: a favour pays a Tide token, not a Brass cog, once no generator can take another level; cogs held stay', ()=>{
+ const favours=s=>{const out=[];for(let k=0;k<36;k++){const o=makeOrder(s);if(o.bonus)out.push(o.bonus);}return out;};
+ // every generator at its top level, as Chapters 4 and 5 measured: no cog
+ const top=entry();for(const x of top.board)if(x?.type==='source')x.level=MAX_GENERATOR_LEVEL;for(const x of top.shed)if(x?.type==='source')x.level=MAX_GENERATOR_LEVEL;
+ assert.ok(cogRoom(top)<=0);const b=favours(structuredClone(top));assert.ok(b.includes('token'));assert.ok(!b.includes('cog'),JSON.stringify(b));
+ // a generator one level short, with no cog held: favours pay cogs again
+ const low=structuredClone(top);const g=low.board.findIndex(x=>x?.type==='source');low.board[g].level=MAX_GENERATOR_LEVEL-1;
+ for(const arr of [low.board,low.shed,low.pending])for(let i=0;i<arr.length;i++)if(arr[i]?.type==='cog')arr[i]=null;
+ assert.equal(cogRoom(low),1);assert.ok(favours(structuredClone(low)).includes('cog'));
+ // that one level covered by a cog already held: no more cogs
+ low.board[low.board.findIndex(x=>x===null)]=cog();assert.equal(cogRoom(low),0);assert.ok(!favours(structuredClone(low)).includes('cog'));
+ // nothing held is taken away: the shed's cog from the save stays across a reload
+ const t=load(JSON.stringify(top),9000);assert.deepEqual(t.shed[1],cog());assert.equal(t.board.filter(x=>x?.type==='cog').length,top.board.filter(x=>x?.type==='cog').length);
 });

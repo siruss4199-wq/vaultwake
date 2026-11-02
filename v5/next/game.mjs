@@ -216,6 +216,13 @@ export const coins=n=>({type:'coins',n});
 export const source=id=>({type:'source',id});
 // A Brass cog (found in cargo, user: "generator ahiulagch"): drag it onto a generator for +1 level.
 export const cog=()=>({type:'cog'});
+// Build 50b: how many generator levels a Brass cog could still give: the levels below the top of every
+// generator the camp has (board, shed, waiting) less the cogs already held. By Chapter 4 every generator
+// is at its top level, and favours still paid a cog no generator could take: measured
+// (tests/v5-next-coins-metrics.mjs board=1), about 5 a chapter, 4.3 of them lying on Chapter 4's board on
+// average and 8.9 on Chapter 5's. A favour then pays a Tide token instead (makeOrder); cogs already held
+// stay where they are.
+export const cogRoom=s=>{let n=0;for(const x of [...s.board,...s.shed,...s.pending]){if(x?.type==='source')n+=Math.max(0,MAX_GENERATOR_LEVEL-producerLevel(x));else if(x?.type==='cog')n--;}return n;};
 // A Tide token (found in cargo, build 18): lay it on a part and it becomes a part of the same
 // tier that a crew order is waiting for.
 export const token=()=>({type:'token'});
@@ -480,7 +487,7 @@ export function makeOrder(s){
   // at once left slow players never short of energy (economy harness, 10 s an action).
   const k=n-FIRST.length,opened=s.pathNext;let bonus;
   if(unlocked(s,'favour')&&k%FAVOUR_EVERY===FAVOUR_EVERY-1){const r=needs[0],up=Math.min(ORDER_TOP,maxTier(r.family)-1,hi(r.family)+1);
-   if(up>r.tier){needs=structuredClone(needs);needs[0]={family:r.family,tier:up,count:1};bonus=s.area>=1?'cog':'chest';}}
+   if(up>r.tier){needs=structuredClone(needs);needs[0]={family:r.family,tier:up,count:1};bonus=s.area>=1?(cogRoom(s)>0?'cog':'token'):'chest';}}
   if(!bonus&&unlocked(s,'token')&&(opened==='token'||k%TOKEN_EVERY===TOKEN_EVERY-1))bonus='token';
   if(opened==='token'&&bonus==='token')delete s.pathNext;
   // Never two identical cards (2026-10-26: with one generator out, two-part jobs of one chain could

@@ -232,50 +232,51 @@ export const AREAS=[
  // Build 50a: Chapter 5, the Lowwater Passage (the director's design pack of 2026-11-02, a proposal
  // translated here): the reef route the relay's message marked. Seven places in one line, each opening
  // when the one before is fully restored (the pack: "linear places deliberately avoid ambiguous
- // completion"); every gold recipe is the pack's, fixed at two parts, three of them merged secondary
- // parts (a Gear, an Expedition note, a Travel notebook), never stepped down. Stage 3 of each place
- // gives a kit of 2 of one chain the camp has, as Chapter 4 does; no new generator, currency, energy
- // rule or board. Picture: the damaged passage until the chapter is done, then the restored one (the
- // pack's two paintings are not registered layers); each stage shows on its place's card with its own
- // sprite cut from the pack's concept sheet (art 'ch5-…'). The lock's third stage is "Restore the
- // inner lock" (the pack's "Open inner passage"): its concept art shows the gates shut, so the passage
- // opening is told by the chapter's end card instead. The shelter's last stage asks a Storm lantern
- // (lamp 3), not the pack's lamp 4: that is the lamp chain's top, which no order asks (orders stop one
- // below a chain's top); its second part is a Pocket winch (rig 3, the pack's rig 2) so the last stage
- // still asks more than the first. Prices: the pack's candidates times 0.9, rounded to 5 (6,900 in all):
- // at the pack's 7,665 the chapter took 1.11-1.19x Chapter 4 (median), up to 1.29x, with coins the wait
- // at every stage (doc).
+ // completion"). Stage 3 of each place gives a kit of 2 of one chain the camp has, as Chapter 4 does; no
+ // new generator, currency, energy rule or board. Picture: the damaged passage until the chapter is done,
+ // then the restored one (the pack's two paintings are not registered layers); each stage shows on its
+ // place's card with its own sprite cut from the pack's concept sheet (art 'ch5-…'). The lock's third
+ // stage is "Restore the inner lock" (the pack's "Open inner passage"): its concept art shows the gates
+ // shut, so the passage opening is told by the chapter's end card instead.
+ // Build 50b (docs/V5_CHAPTER5_LOWWATER_PASSAGE_2026-11-02.md): the gold recipes, fixed at two
+ // requirements and never stepped down, are the chapter's merge goals. The pack's repeated stage 1 and 2
+ // recipes (the same two parts twice in a row at six of seven places) are told apart: a clearing job
+ // (one top part and two of a helper), a building job (two top parts and two smaller ones), a finishing
+ // job (two top parts and two of the place's finishing chain); three ask a merged rare part (an Expedition
+ // note, a Gear, a Travel notebook). No part asks a chain's top (orders stop one below it: the shelter's
+ // lamps are Signal lamps). Prices are 0.8 of build 50a's: measured, the merge work replaces about two
+ // crew orders a stage while the chapter keeps Chapter 4's length.
  {id:'lowwater',name:'The Lowwater Passage',short:'REEF',picture:'lowwater-passage',map:'coast/lowwater-passage/passage-map-before',overview:'coast/lowwater-passage/passage-map-after',
   intro:[['bram','The water has pulled back. The marked stones lead through the reef.']],
   tasks:[
    place('ch5-landing','rig-3',[22,85],[
-    {name:'Clear the driftwood',cost:270,gold:[['rig',3,1],['chart',2,1]],effect:{},lines:[['ivo','Driftwood, mostly. The old pier is still under it.']]},
-    {name:'Brace the landing',cost:290,gold:[['rig',3,1],['chart',2,1]],effect:{},lines:[['bram','Braced. The boat can tie up at any tide.']]},
-    {name:'Fit the mooring posts',cost:305,gold:[['rig',4,1],['chart',2,1]],effect:{kit:['rig',2]},lines:[['bram','Posts set. Now the stones.']]}],'ch5-landing'),
+    {name:'Clear the driftwood',cost:215,gold:[['rig',4,1],['rope',3,2]],effect:{},lines:[['ivo','Driftwood, mostly. The old pier is still under it.']]},
+    {name:'Brace the landing',cost:230,gold:[['rig',4,2],['rope',2,2]],effect:{},lines:[['bram','Braced. The boat can tie up at any tide.']]},
+    {name:'Fit the mooring posts',cost:245,gold:[['rig',4,2],['chart',3,2]],effect:{kit:['rig',2]},lines:[['bram','Posts set. Now the stones.']]}],'ch5-landing'),
    place('ch5-causeway','rope-3',[40,57],[
-    {name:'Reset the stones',cost:285,requires:{'ch5-landing':3},gold:[['rope',3,1],['shell',2,1]],effect:{},lines:[['ivo','These stones were laid by hand, a long time ago.']]},
-    {name:'Bridge the gaps',cost:300,gold:[['rope',3,1],['shell',2,1]],effect:{},lines:[['bram','No more jumping. We can carry loads across.']]},
-    {name:'Mark the safe crossing',cost:320,gold:[['rope',4,1],['shell',2,1]],effect:{kit:['rope',2]},lines:[['neri','Marked the way the old route was. The gauge should say when.']]}],'ch5-causeway'),
+    {name:'Reset the stones',cost:230,requires:{'ch5-landing':3},gold:[['rope',4,1],['shell',3,2]],effect:{},lines:[['ivo','These stones were laid by hand, a long time ago.']]},
+    {name:'Bridge the gaps',cost:240,gold:[['rope',4,2],['rig',2,2]],effect:{},lines:[['bram','No more jumping. We can carry loads across.']]},
+    {name:'Mark the safe crossing',cost:255,gold:[['rope',4,2],['lamp',3,2]],effect:{kit:['rope',2]},lines:[['neri','Marked the way the old route was. The gauge should say when.']]}],'ch5-causeway'),
    place('ch5-gauge','chart-3',[13,17],[
-    {name:'Clean the gauge',cost:295,requires:{'ch5-causeway':3},gold:[['chart',3,1],['lamp',2,1]],effect:{},lines:[['neri','A tide gauge. Someone read it every day.']]},
-    {name:'Fit the float',cost:315,gold:[['chart',3,1],['lamp',2,1]],effect:{},lines:[['ivo','The float moves freely again.']]},
-    {name:'Calibrate the tide marks',cost:335,gold:[['chart',4,1],['notes',1,1]],effect:{kit:['chart',2]},lines:[['tamsin','The marks match the notes. Now we know when the crossing is safe.']]}],'ch5-gauge'),
+    {name:'Clean the gauge',cost:235,requires:{'ch5-causeway':3},gold:[['chart',4,1],['optic',3,2]],effect:{},lines:[['neri','A tide gauge. Someone read it every day.']]},
+    {name:'Fit the float',cost:250,gold:[['chart',4,2],['rope',2,2]],effect:{},lines:[['ivo','The float moves freely again.']]},
+    {name:'Calibrate the tide marks',cost:270,gold:[['chart',4,1],['notes',1,1]],effect:{kit:['chart',2]},lines:[['tamsin','The marks match the notes. Now we know when the crossing is safe.']]}],'ch5-gauge'),
    place('ch5-bridge','shell-3',[45,12],[
-    {name:'Anchor the cables',cost:310,requires:{'ch5-gauge':3},gold:[['shell',3,1],['optic',2,1]],effect:{},lines:[['ivo','The anchors held. The cables were the problem.']]},
-    {name:'Lay the walkway',cost:330,gold:[['shell',3,1],['optic',2,1]],effect:{},lines:[['bram','Planks down. Walk in the middle.']]},
-    {name:'Secure the handrails',cost:345,gold:[['shell',4,1],['optic',2,1]],effect:{kit:['shell',2]},lines:[['bram','Safe across. There is a shelter on the far side.']]}],'ch5-bridge'),
+    {name:'Anchor the cables',cost:250,requires:{'ch5-gauge':3},gold:[['shell',4,1],['rig',3,2]],effect:{},lines:[['ivo','The anchors held. The cables were the problem.']]},
+    {name:'Lay the walkway',cost:265,gold:[['shell',4,2],['rope',2,2]],effect:{},lines:[['bram','Planks down. Walk in the middle.']]},
+    {name:'Secure the handrails',cost:275,gold:[['shell',4,2],['rig',3,2]],effect:{kit:['shell',2]},lines:[['bram','Safe across. There is a shelter on the far side.']]}],'ch5-bridge'),
    place('ch5-shelter','lamp-3',[12,69],[
-    {name:'Repair the roof',cost:325,requires:{'ch5-bridge':3},gold:[['lamp',3,1],['rig',2,1]],effect:{},lines:[['ivo','A courier shelter. Somewhere to wait for low water.']]},
-    {name:'Dry the shelter',cost:340,gold:[['lamp',3,1],['mech',1,1]],effect:{},lines:[['tamsin','Dry at last. The crates inside are addressed.']]},
-    {name:'Light the courier shelter',cost:360,gold:[['lamp',3,1],['rig',3,1]],effect:{kit:['lamp',2]},lines:[['tamsin','A light for anyone crossing at dusk.']]}],'ch5-shelter'),
+    {name:'Repair the roof',cost:260,requires:{'ch5-bridge':3},gold:[['lamp',3,1],['rig',2,2]],effect:{},lines:[['ivo','A courier shelter. Somewhere to wait for low water.']]},
+    {name:'Dry the shelter',cost:270,gold:[['lamp',3,1],['mech',1,1]],effect:{},lines:[['tamsin','Dry at last. The crates inside are addressed.']]},
+    {name:'Light the courier shelter',cost:290,gold:[['lamp',3,2],['optic',4,2]],effect:{kit:['lamp',2]},lines:[['tamsin','A light for anyone crossing at dusk.']]}],'ch5-shelter'),
    place('ch5-desk','optic-3',[88,13],[
-    {name:'Restore the desk',cost:340,requires:{'ch5-shelter':3},gold:[['optic',3,1],['rope',2,1]],effect:{},lines:[['neri','A mail desk, out here on the reef.']]},
-    {name:'Sort the dispatches',cost:355,gold:[['optic',3,1],['rope',2,1]],effect:{},lines:[['neri','Every dispatch goes the same way: inward.']]},
-    {name:'Read the route ledger',cost:375,gold:[['optic',4,1],['notes',2,1]],effect:{kit:['optic',2]},lines:[['neri','The ledger ends at the inner lock.']]}],'ch5-desk'),
+    {name:'Restore the desk',cost:270,requires:{'ch5-shelter':3},gold:[['optic',4,1],['rig',3,2]],effect:{},lines:[['neri','A mail desk, out here on the reef.']]},
+    {name:'Sort the dispatches',cost:285,gold:[['optic',4,2],['chart',2,2]],effect:{},lines:[['neri','Every dispatch goes the same way: inward.']]},
+    {name:'Read the route ledger',cost:300,gold:[['optic',4,1],['notes',2,1]],effect:{kit:['optic',2]},lines:[['neri','The ledger ends at the inner lock.']]}],'ch5-desk'),
    place('ch5-lock','rig-4',[82,53],[
-    {name:'Clear the lock entrance',cost:350,requires:{'ch5-desk':3},gold:[['rig',3,1],['chart',2,1]],effect:{},lines:[['ivo','A lock. The water level is controlled from here.']]},
-    {name:'Repair the lock gear',cost:370,gold:[['rig',3,1],['chart',2,1]],effect:{},lines:[['ivo','The gear turns. The gates will move.']]},
-    {name:'Restore the inner lock',cost:385,gold:[['rig',4,1],['chart',2,1]],effect:{kit:['rig',2]},lines:[['bram','The lock works again. The passage is ours to use.']]}],'ch5-lock')
+    {name:'Clear the lock entrance',cost:280,requires:{'ch5-desk':3},gold:[['rig',4,1],['shell',3,2]],effect:{},lines:[['ivo','A lock. The water level is controlled from here.']]},
+    {name:'Repair the lock gear',cost:295,gold:[['rig',4,2],['chart',2,2]],effect:{},lines:[['ivo','The gear turns. The gates will move.']]},
+    {name:'Restore the inner lock',cost:310,gold:[['rig',4,2],['lamp',3,2]],effect:{kit:['rig',2]},lines:[['bram','The lock works again. The passage is ours to use.']]}],'ch5-lock')
   ]}
 ];
 // The next area opens when this one's last stage is bought (game.mjs restore and load).
