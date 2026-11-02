@@ -1,5 +1,5 @@
 // Coast Camp first-play story (Build 46q) in a real browser: the first new camp's Play shows the
-// three scenes with the exact lines (Next → Next → Check supplies); Skip from every scene goes to
+// three scenes with the exact lines (Next → Next → Clear a landing); Skip from every scene goes to
 // the same board; the story gives nothing (the camp is exactly a new one); a reload mid-story
 // writes no save and starts the story again from the top, with no second start of the game;
 // Continue on a save, Home and back, and a new camp from the menu never show it; the board's
@@ -8,7 +8,7 @@ const assert=require('node:assert/strict');const {chromium,webkit}=require('play
 const BASE='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',STORY='vaultwake-v5-coast-story';
 const LINES=[[null,'An unsigned letter led you to this forgotten coast.','Next'],
  ['Bram','That seal… it’s on the Vault, too. Who sent you this?','Next'],
- ['Ivo','Answers can wait a moment. Let’s clear the landing and sort our supplies.','Check supplies']];
+ ['Ivo','The letter brought us to that Vault. First, let’s clear a landing.','Clear a landing']];// build 51c
 const COUNT=`window.__n={iv:0};{const si=window.setInterval;window.setInterval=function(...a){__n.iv++;return si.apply(this,a);};}`;
 const get=(page,k)=>page.evaluate(k=>localStorage.getItem(k),k);
 const usable=page=>page.waitForSelector('#homePlay:not([hidden])',{timeout:20000});
@@ -27,7 +27,7 @@ async function drag(page,a,z){const A=await page.locator(`#board [data-index="${
   const open=async(opts={})=>{const context=await browser.newContext({viewport:{width:390,height:844},isMobile:engine==='chromium',hasTouch:true,...opts});
    const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});page.on('dialog',d=>d.accept());await page.addInitScript(COUNT);return {context,page,errors};};
   try{
-   // 1. Play → the three scenes with the exact lines → Check supplies → the board.
+   // 1. Play → the three scenes with the exact lines → Clear a landing → the board.
    {const {context,page,errors}=await open();
     await page.goto(BASE);await usable(page);await page.locator('#homePlay').click();await page.waitForSelector('#story:not([hidden])');
     for(const [k,[who,text,next]] of LINES.entries()){
@@ -39,9 +39,9 @@ async function drag(page,a,z){const A=await page.locator(`#board [data-index="${
      await page.locator('#storyNext').click();}
     await page.waitForSelector('#home',{state:'hidden'});await page.waitForSelector('#story',{state:'hidden'});
     assert.equal(JSON.parse(await get(page,STORY)).intro,'done');isNew(JSON.parse(await get(page,KEY)),tag('the story gives nothing'));
-    // the board's own first-play beat is still there (unchanged), then the board works
-    assert.ok(await page.locator('#beat[open]').count(),tag('existing area intro still shown'));await skipBeats(page);
-    assert.match(await page.textContent('#hint'),/Tap Rivet Rover/,tag('guidance for an available action'));
+    // build 51c: no second introduction after the story (its last line says what to do); the guide's first line
+    assert.equal(await page.locator('#beat[open]').count(),0,tag('no second introduction'));
+    assert.match(await page.textContent('#hint'),/Tap the Rivet Rover for a part/,tag('guidance for an available action'));
     const rover=await page.evaluate(()=>document.querySelector('#board .tile.source').dataset.index);
     await page.locator(`#board [data-index="${rover}"]`).click();await page.waitForTimeout(250);assert.equal(JSON.parse(await get(page,KEY)).energy,49,tag('generator tap'));
     await page.evaluate(k=>{const s=JSON.parse(localStorage.getItem(k));s.board[30]={type:'item',family:'rig',tier:0};s.board[31]={type:'item',family:'rig',tier:0};s.daily={day:9e6,count:1};localStorage.setItem(k,JSON.stringify(s));},KEY);
@@ -98,7 +98,7 @@ async function drag(page,a,z){const A=await page.locator(`#board [data-index="${
     assert.equal(await page.locator('#story').isVisible(),false,tag('no fade out'));assert.equal(await page.locator('#home').isVisible(),false);
     await context.close();}
 
-   console.log(`${engine} Coast Camp story: three scenes and exact lines, Check supplies, Skip from each scene, nothing given, reload mid-story, Continue/Home/new camp without it, board taps and drags after, reduced motion, keyboard passed`);
+   console.log(`${engine} Coast Camp story: three scenes and exact lines, Clear a landing, Skip from each scene, nothing given, reload mid-story, Continue/Home/new camp without it, board taps and drags after, reduced motion, keyboard passed`);
   }finally{await browser.close();}
  }
 })().catch(e=>{console.error(e);process.exit(1);});

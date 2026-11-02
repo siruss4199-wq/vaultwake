@@ -116,6 +116,7 @@ jobs:
           node tests/v5-next-crazygames-browser.cjs
           node tests/v5-next-home-browser.cjs
           node tests/v5-next-story-browser.cjs
+          node tests/v5-next-guide-browser.cjs
           node tests/v5-next-rewards-browser.cjs
           node tests/v5-next-saves-browser.cjs
           node tests/v5-next-extras-browser.cjs

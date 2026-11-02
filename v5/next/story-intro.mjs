@@ -12,7 +12,7 @@ export const INTRO=[
   alt:'From a small boat, a closed round Vault door in a sea cliff, with a camp and a pier on the beach below it.'},
  {art:'letter',who:'bram',text:'That seal… it’s on the Vault, too. Who sent you this?',pos:'50% 42%',
   alt:'An unsigned letter closed with a turquoise wave seal, the Vault door behind it.'},
- {art:'landing',who:'ivo',text:'Answers can wait a moment. Let’s clear the landing and sort our supplies.',pos:'50% 50%',
+ {art:'landing',who:'ivo',text:'The letter brought us to that Vault. First, let’s clear a landing.',pos:'50% 50%',
   alt:'A broken wooden path up the beach, with supply crates beside it.'}
 ];
 const NAMES={bram:'Bram',ivo:'Ivo',neri:'Neri',tamsin:'Tamsin'};
@@ -20,9 +20,9 @@ export function storySeen(storage){try{return !!JSON.parse(storage.get(STORY_KEY
 // The pictures load ahead (Home is up), never holding anything back.
 export function preloadIntro(){for(const s of INTRO){const im=new Image();im.src=ART(s.art);}}
 
-// Plays the first-play story over Home; resolves once the player is done (Check supplies) or skips.
+// Plays the first-play story over Home; resolves once the player is done (Clear a landing) or skips.
 export function playIntro({storage,face,reduced}){
- return playScenes({scenes:INTRO.map(x=>({...x,src:ART(x.art),id:x.art})),face,reduced,last:'Check supplies'}).then(r=>{
+ return playScenes({scenes:INTRO.map(x=>({...x,src:ART(x.art),id:x.art})),face,reduced,last:'Clear a landing'}).then(r=>{
   try{storage.set(STORY_KEY,JSON.stringify({intro:r.how,scene:r.scene,at:Date.now()}));}catch{}
   return r.how;});
 }

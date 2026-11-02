@@ -3,6 +3,7 @@
 import {blockedStage,isStuck,allDone,swapsLeft,adSwapsLeft,SHOP,shopLeft,BOOK_COINS,BOOK_CHAINS,bookKeys,bookReady,pageReady,SHED_SLOTS,DAILY,newestGenerator,cog,token,SAVE_KEY,fresh,load,act,tick,nameOf,item,matches,count,orderItems,nextTask,currentArea,areaDone,upgrades,stageOf,builtCount,sourceOpen,SOURCES,chainsOf,CRATES,cargoKeys,reachable,generatorsMerge,MAX_GENERATOR_LEVEL,GLASS_HITS,nextKind,UNLOCK_LEVEL,GENERATOR_ORDER,storyTarget,roleOf,SECONDARY_RULES,SECONDARY_OF,secondarySource} from './game.mjs';
 import {AREAS,STAGES,TASKS,LABELS} from './areas.mjs';
 import {primaryAction} from './guide.mjs';
+import {coachStep,coachActive,laterTip,nextRareUse,COACH_ON,COACH_DONE,FIRST_PLACE} from './coach.mjs';
 import {needsOf,missingOf,levelOf} from './needs.mjs';
 import {LEVEL_PATH,BONUS_NAMES,CHEST_ENERGY,EARLY_LEVELS,EARLY_LEVEL_ENERGY,ONBOARDING,goldChase} from './game.mjs';
 import {kit} from '../kits.mjs';
@@ -38,7 +39,7 @@ function moment(title,detail='',x=null){sharedMoment(title,detail,null);const el
 let adPlaying=false;
 const sfx=(kind,tier=0)=>sounds.play(kind,tier,{muted:adPlaying||platform.muted()});
 // Shown in the footer so a playtester can tell which build is running.
-export const BUILD='Build 51b · Chapter 1 rare merge goals';
+export const BUILD='Build 51c · the first-player guide';
 // The level path (docs/V5_LEVEL_PATH_2026-10-27.md): a crew order that pays a tool on top shows it
 // beside its coins (a Tide token; a favour's Sea chest, Brass cog or, once no generator can go up, Tide token).
 const bonusThing=o=>o.bonus==='cog'?cog():o.bonus==='chest'?kit(newestGenerator(state),2):o.bonus==='token'?token():null;
@@ -402,9 +403,33 @@ const has=id=>state.board.some(x=>x?.type==='source'&&x.id===id);
 // The one primary action (Build 41 M3, from PR #77's contextual objective): what to do next,
 // and tapping it does it or shows where.
 let guide=null;
+// Build 51c: the first-player guide (coach.mjs) and later one-time tips speak through this same line:
+// one short sentence, one highlighted target (a pulse; a drag demonstration for a pair; still with
+// reduced motion). Nothing is blocked: every other control works as before.
+let coach=null,coachNote=null;
+function clearCoach(){for(const el of document.querySelectorAll('.coachTarget,.coachFrom,.coachTo'))el.classList.remove('coachTarget','coachFrom','coachTo');}
+function showCoachTarget(t){
+ clearCoach();if(!t)return;
+ if(t.kind==='cell')board.querySelector(`[data-index="${t.index}"]`)?.classList.add('coachTarget');
+ else if(t.kind==='pair'){const a=board.querySelector(`[data-index="${t.cells[0]}"]`),b=board.querySelector(`[data-index="${t.cells[1]}"]`);if(!a||!b)return;
+  const ra=a.getBoundingClientRect(),rb=b.getBoundingClientRect();a.style.setProperty('--dx',`${rb.left-ra.left}px`);a.style.setProperty('--dy',`${rb.top-ra.top}px`);a.classList.add('coachFrom');b.classList.add('coachTo');}
+ else if(t.kind==='order')$(`[data-order="${t.id}"]`)?.classList.add('coachTarget');
+ else if(t.kind==='strip')$('#mapButton')?.classList.add('coachTarget');
+ else if(t.kind==='coins')$('#coinPill')?.classList.add('coachTarget');
+}
+function renderCoach(){
+ const on=coachActive(state);$('#coachSkip').hidden=!on;
+ if(coachNote&&coachNote.until>performance.now())coach={id:'note',text:coachNote.text,target:coachNote.target};
+ else{coachNote=null;coach=coachStep(state)??laterTip(state);}
+ if(!coach){clearCoach();return false;}
+ const b=$('#hint');b.textContent=coach.text;b.dataset.kind='coach';b.dataset.step=coach.id;
+ requestAnimationFrame(()=>showCoachTarget(coach.target));
+ return true;
+}
 function renderHint(){
  // While a delivery's coins fly, the guidance waits too (it may be about to say "Upgrade").
  if(holdPlace>performance.now())return;
+ if(renderCoach())return;delete $('#hint').dataset.step;
  guide=primaryAction(state,focusOrder);let label=guide.label;
  if(guide.kind==='energy'){const t=refillTimes(state,Date.now());label+=' · +1 in '+clock(t?.next??0);}
  const b=$('#hint');b.textContent=label;b.dataset.kind=guide.kind;
@@ -412,6 +437,12 @@ function renderHint(){
  if(guide.kind==='merge'&&!state.merges)for(const i of guide.cells)board.querySelector(`[data-index="${i}"]`)?.classList.add('hintPair');
 }
 $('#hint').onclick=()=>{
+ if(coach){const t=coach.target;
+  if(coach.id==='tap'&&t)run({type:'produce',id:state.board[t.index]?.id,index:t.index});
+  else if((coach.id==='deliver'||coach.id==='gold')&&t)run({type:'deliver',id:t.id});
+  else if(t?.kind==='strip'){mapFocus=nextPlace()?.u.id??null;showMap();}
+  else if(t?.kind==='pair')$('#message').textContent='Drag the moving part onto the one it points at.';
+  return;}
  const g=guide;if(!g)return;
  if(g.kind==='deliver')run({type:'deliver',id:g.id});
  else if(g.kind==='upgrade'){mapFocus=g.id;showMap();}
@@ -438,6 +469,7 @@ function energyHud(){
 
 // ---------- actions ----------
 function run(a){
+ const coachBefore=coachActive(state)?coachStep(state):null;
  const before={coins:state.coins,energy:state.energy},fromRect=a.type==='produce'?board.querySelector(`[data-index="${a.index??state.board.findIndex(x=>x?.type==='source'&&x.id===a.id)}"]`)?.getBoundingClientRect():a.type==='openKit'?board.querySelector(`[data-index="${a.index}"]`)?.getBoundingClientRect():null;
  const orderRect=a.type==='deliver'?$(`[data-order="${a.id}"]`)?.getBoundingClientRect():null;
  // Build 44: what a delivery takes, and where from, is noted before the board changes, so the
@@ -453,6 +485,14 @@ function run(a){
  if(r.event==='merge'||r.event==='move'||r.event==='producerUp'||r.event==='unseal')selected=r.event==='producerUp'||r.event==='unseal'?null:r.index;
  if(r.event==='deliver'||r.event==='store'||r.event==='swapOrder'){focusOrder=null;selected=null;}
  if(r.event==='deliver'&&!reduced())holdPlace=performance.now()+880;
+ // Build 51c: the guide's own feedback. The first crew order's coins are named (the coin count pulses);
+ // after the restoration's result, the next delivery ends the guide.
+ if(coachBefore&&r.event==='deliver'&&order&&!order.story&&state.ordersDone===1){coachNote={text:`+${order.coins} coins from ${CREW[order.who]?.name??'the crew'}'s order: crew orders pay coins.`,until:performance.now()+3800,target:{kind:'coins'}};setTimeout(renderHint,3900);}
+ if(coachBefore?.id==='result'&&r.event==='deliver')markSeen(COACH_DONE);
+ // the guide is this camp's from its first action on (a seen flag is an action too, so not before: a new
+ // camp stays untouched until the player acts)
+ if(coachBefore&&!state.seen?.[COACH_ON])markSeen(COACH_ON);
+ laterTips(r);
  persist();render();
  const tile=r.index!=null?board.querySelector(`[data-index="${r.index}"]`):null;
  // Tideglass: a crack is a crisp tick; the third hit shatters it (fragments) and frees the part.
@@ -492,7 +532,7 @@ function run(a){
   // Build 48b: one clear step after the gold order: the materials are secured, the strip shows it at
   // once, and it says either "Build · cost" or how many coins are still short (crew orders pay them)
   if(r.materials){const t=TASKS[r.materials.id],u=t.stages[r.materials.stage-1],ok=state.coins>=u.cost;holdPlace=0;renderNextPlace();
-   setTimeout(()=>moment(`Materials secured · ${u.name}`,ok?`Build · ${u.cost} coins: tap the strip under the orders.`:`${u.cost-state.coins} more coins to build it: deliver crew orders.`),reduced()?0:950);}}
+   setTimeout(()=>moment(`Materials secured · ${u.name}`,(coachActive(state)?'The gold order brought what the repair needs. ':'')+(ok?`Build · ${u.cost} coins: tap the strip under the orders.`:`${u.cost-state.coins} more coins to build it: deliver crew orders.`)),reduced()?0:950);}}
  if(r.event==='producerUp'){const src=state.board[r.index],next=nextKind(src.id),waiting=next&&src.level<UNLOCK_LEVEL&&!state.board.some(y=>y?.type==='source'&&y.id===next);
   if(r.unlocks?.length)extrasNews();else moment(SOURCES[src.id].name+' · level '+src.level,LEVEL_GAIN[src.level]+(waiting?` Level ${UNLOCK_LEVEL} brings out the ${SOURCES[next].name}.`:''),src);tile?.classList.add('merge-pop');burst(tile?.getBoundingClientRect(),'gold',true);sfx('milestone');}
  // On the coast screen the build plays first (Build 41f), then its story.
@@ -637,13 +677,27 @@ function sourceNote(f,tier=null){const r=SECONDARY_RULES[CHAINS[f].gen],gen=SOUR
  const what=tier===null?'A':tier>0?`${n[tier]}: merged from ${n[0]}s, a`:`${n[0]}: a`;
  // round 3: only a level 2+ generator makes them; the limit counts its taps while extras are coming
  return `${what} rare ${gen} extra: a level 2+ ${gen} sometimes adds one to a tap, at no extra energy (at the latest on its ${r.pity}th tap, while you hold fewer than ${r.hold} unused).`;}
+// Build 51c: later mechanics, once each and only when they come up (seen flags 'tip-…'): merging two
+// generators (the hint names it while a matching copy is on the board, coach.mjs laterTip), tideglass
+// (its first crack), the shed (the first full board). Not during the first loop's guide, except the
+// tideglass, which the first merges crack.
+function laterTips(r){
+ if(r.event==='producerUp'&&!state.seen?.['tip-genmerge'])markSeen('tip-genmerge');
+ if(r.cracked?.length&&!r.broken?.length&&!state.seen?.['tip-ice']){markSeen('tip-ice');setTimeout(()=>moment('Tideglass cracked','Merge beside it once more to free the part inside.'),reduced()?0:700);}
+ if(!coachActive(state)&&!state.board.includes(null)&&!state.seen?.['tip-shed']){markSeen('tip-shed');moment('The board is full','Tap a part and choose Shed to keep it for later, or deliver and merge to make room.');}
+}
+$('#coachSkip').onclick=()=>{markSeen(COACH_DONE);coachNote=null;clearCoach();render();$('#message').textContent='Guide skipped. Help (in the menu) can replay it.';};
+// Help: a short replay of the guide (four lines with the crew's faces), whatever the camp's progress.
+const GUIDE_REPLAY=[['ivo','Tap a generator for parts, and drag matching parts together to merge them.'],['neri','Crew orders pay coins.'],['bram','A gold order secures the materials for the next repair.'],['tamsin','On the coast screen, coins and materials together rebuild a place.']];
+$('#helpReplay').onclick=()=>{$('#help').close();playLines('How the camp works',GUIDE_REPLAY,()=>render(),{last:'Back to the board'});};
 // Round 3: a kind's rare extras open when one of its generators first reaches level 2 (the engine's
 // secondaryUnlock: a first part as a gift and an introductory crew order). Said once per kind, also
 // for a save that opened on load; marked seen ('extras-rig').
 function extrasNews(){
  for(const gen of Object.keys(state.secOpen??{})){const id='extras-'+gen;if(state.seen?.[id])continue;
   const f=SECONDARY_OF[gen],n=CHAINS[f].names[0],g=SOURCES[gen].name;
-  moment(`${g} extras unlocked`,`A level 2+ ${g} now sometimes adds a rare ${n} to a tap, at no extra energy. Your first ${n} is on the board (or waits for space), and the next new crew order will ask for it.`,item(f,0));
+  const use=nextRareUse(state,f),where=use?` Merged, they are wanted later: ${use.name} (${use.area}) asks for one.`:'';
+  moment(`${g} extras unlocked`,`A level 2+ ${g} now sometimes adds a rare ${n} to a tap, at no extra energy. Your first ${n} is on the board (or waits for space), and the next new crew order will ask for it.${where}`,item(f,0));
   markSeen(id);return true;}
  return false;
 }
@@ -710,7 +764,8 @@ async function watchAd(action){
  if($('#shop').open)showShop();render();
 }
 // The gift opens by itself once a session is under way, never over another screen or a drag.
-function offerGift(){if(!homeOpen&&!adBusy&&giftReady()&&giftShown!==today()&&state.moves>=3&&!drag&&!document.querySelector('dialog[open]'))showDaily();}
+// Build 51c: not offered by itself while a new camp's first-loop guide runs (its button still shows the gift).
+function offerGift(){if(!homeOpen&&!adBusy&&giftReady()&&giftShown!==today()&&state.moves>=3&&!coachActive(state)&&!drag&&!document.querySelector('dialog[open]'))showDaily();}
 $('#soundButton').onclick=()=>{sounds.toggle();render();sfx('tap');};
 $('#hapticsButton').onclick=()=>{haptics.toggle();render();haptics.pulse('merge');};
 $('#helpButton').onclick=()=>$('#help').showModal();
@@ -863,6 +918,8 @@ function showMap(){
  const content=$('#mapContent'),opening=!$('#coastMap').open;
  content.classList.toggle('entering',opening);if(opening){clearTimeout(content._enter);content._enter=setTimeout(()=>content.classList.remove('entering'),1400);}
  if(!opening&&shownCard!==mapFocus)$('#mapCard')?.classList.add('swapIn');shownCard=mapFocus;
+ // Build 51c: the guide's build step points at the build button on the coast screen too
+ {const st=coachActive(state)?coachStep(state):null;if(st?.id==='build'){$(`#coastMap [data-restore="${FIRST_PLACE}"]`)?.classList.add('coachTarget');$('#mapCard')?.insertAdjacentHTML('afterbegin','<p class="coachLine">Coins and materials are ready: build it here.</p>');}}
  if(opening)$('#coastMap').showModal();
  // Opening on a chosen place (the next-place chip, an upgrade hint): the picture starts close on
  // it and pulls back to show the whole area, so the eye lands on the right building.
@@ -1194,11 +1251,14 @@ $('#playlogButton').onclick=()=>{$('#menu').close();showPlaylog();};
 function calmBadges(){let n=0;for(const el of [$('#mapReady'),$('#adEnergyButton'),$('#dailyButton'),$('#bookCount')]){if(el.hidden)continue;if(n>=2){el.hidden=true;if(el.id==='bookCount')$('#bookButton').classList.remove('ready');}else n++;}}
 render();header();setInterval(()=>{header();if(state.energy<1)renderHint();offerGift();$('#dailyButton').hidden=!giftReady();calmBadges();syncPlaying();},1000);
 // What happens on arriving at the board: once at the start without Home, and each time from Home.
+let storyJustPlayed=false;
 function arrive(fromHome=true){
  if(holdSave&&!damaged){holdSave=false;persist();}
  syncPlaying();if(fromHome)$('#hint').focus({preventScroll:true});
- if(!state.moves)showIntro();
+ // Build 51c: the story's last line already says what to do first, so its new camp gets no second introduction
+ if(!state.moves){if(!storyJustPlayed)showIntro();}
  else{extrasNews();nextReveal(()=>{if(allDone(state)&&!state.seenEnd)setTimeout(showEnd,600);});}
+ storyJustPlayed=false;
 }
 // Home and Loading (Build 46p): the board above is set up once; Home only covers and uncovers it.
 if(document.getElementById('home')){
@@ -1209,6 +1269,6 @@ if(document.getElementById('home')){
   onNewCamp:()=>{if(!confirm('Start a new camp? The save that could not be read stays in this browser as a backup.'))return false;return newCamp();},
   onOpenChange:v=>{homeOpen=v;syncPlaying?.();},
   // The first-play story (Build 46q): once, on the first new camp's Play, never on Continue.
-  beforeEnter:reason=>reason==='play'&&!rawSave&&!storySeen(storage)?playIntro({storage,reduced,face:who=>`assets/premium/coast/ui/${FACES[who]}.webp`}):null});
+  beforeEnter:reason=>reason==='play'&&!rawSave&&!storySeen(storage)?(storyJustPlayed=true,playIntro({storage,reduced,face:who=>`assets/premium/coast/ui/${FACES[who]}.webp`})):null});
  home.ready.then(()=>{if(!rawSave&&!storySeen(storage))preloadIntro();});
 }else{homeOpen=false;arrive(false);}

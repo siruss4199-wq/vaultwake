@@ -474,3 +474,18 @@ body.nextMode #board.board .tile.tile.located{outline:3px solid #ffb81f;outline-
    .headland scene class). A story card without a painting shows a place's sprite whole on the sea. */
 .nextMode .revealPanel.story.sprite{background:radial-gradient(ellipse at 50% 70%,#bfeef5,#7fd0e4 70%,#5bb8d6)}
 .nextMode .revealPanel.story.sprite img{object-fit:contain;padding:6% 10%;box-sizing:border-box}
+/* Build 51c: the first-player guide. One line (the hint, styled as the guide) and one target: a soft
+   pulsing ring; for a pair, a ghost of the first part slides onto the second. Reduced motion: still rings. */
+body.nextMode .boardHeading #hint.primaryAction[data-kind="coach"]{display:block!important;flex:1;min-width:0;background:linear-gradient(#fffaf0,#fff1cf)!important;color:#5a3c06!important;box-shadow:0 0 0 2px #f5c24e,0 3px 8px #e9a52140;font-weight:800;white-space:normal;line-height:1.25;text-align:left}
+body.nextMode .boardHeading:has(#hint[data-kind="coach"]) .nextPlace{display:none}
+body.nextMode .boardHeading .coachSkip{flex:none;min-height:44px;padding:0 10px;border:0;border-radius:999px;background:#ffffffb3;color:#2a5a62;font:700 12px/1 inherit;cursor:pointer}
+body.nextMode .coachTarget,body.nextMode .coachFrom,body.nextMode .coachTo{position:relative;z-index:2;outline:3px solid #f5c24e;outline-offset:2px;border-radius:12px}
+body.nextMode #board .tile.coachTarget,body.nextMode #board .tile.coachTo{box-shadow:0 0 0 3px #f5c24e,0 0 14px #f5c24ecc}
+@media (prefers-reduced-motion:no-preference){
+ body.nextMode .coachTarget,body.nextMode .coachTo{animation:coachPulse 1.4s ease-in-out infinite}
+ body.nextMode #board .tile.coachFrom::after{content:"";position:absolute;inset:18%;border-radius:50%;background:#ffffffb0;box-shadow:0 0 0 2px #f5c24e;pointer-events:none;animation:coachDrag 1.8s ease-in-out infinite}
+}
+@keyframes coachPulse{0%,100%{outline-color:#f5c24e}50%{outline-color:#f5c24e33}}
+@keyframes coachDrag{0%,15%{transform:translate(0,0);opacity:0}25%{opacity:1}75%{transform:translate(var(--dx,0),var(--dy,0));opacity:1}90%,100%{transform:translate(var(--dx,0),var(--dy,0));opacity:0}}
+#help .helpReplay{margin-top:12px;min-height:44px;width:100%}
+#coastMap .coachLine{margin:0 0 6px;padding:6px 10px;border-radius:10px;background:#fff1cf;color:#5a3c06;font-weight:800;font-size:13px;box-shadow:0 0 0 2px #f5c24e}
