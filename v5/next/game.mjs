@@ -1154,6 +1154,9 @@ export function load(raw,now=Date.now()){
   // card, which such a camp has seen (the Chapter 5 arrival is not marked: a Chapter 4 end is not a
   // Chapter 5 flag).
   if(s.seenEnd&&!allDone(s)&&areaDone(s,AREAS.find(a=>a.id==='answering-light')))s.seen['ch4-message']=true;
+  // Build 51a: and for Chapter 5: "Behind the Vault" was the end card; it is now Chapter 5's last card
+  // (the Chapter 6 arrival is still to come).
+  if(s.seenEnd&&!allDone(s)&&areaDone(s,AREAS.find(a=>a.id==='lowwater')))s.seen['ch5-station']=true;
   if(s.seenEnd&&!allDone(s)){delete s.seenEnd;ensureGold(s);}
   if(s.aim!==undefined&&!(typeof s.aim==='string'&&TASKS[s.aim]))delete s.aim;
   if(before41)for(const u of upgrades(s))s.materials[u.id]=u.stage;

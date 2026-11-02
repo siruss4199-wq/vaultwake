@@ -277,6 +277,50 @@ export const AREAS=[
     {name:'Clear the lock entrance',cost:280,requires:{'ch5-desk':3},gold:[['rig',4,1],['shell',3,2]],effect:{},lines:[['ivo','A lock. The water level is controlled from here.']]},
     {name:'Repair the lock gear',cost:295,gold:[['rig',4,2],['chart',2,2]],effect:{},lines:[['ivo','The gear turns. The gates will move.']]},
     {name:'Restore the inner lock',cost:310,gold:[['rig',4,2],['lamp',3,2]],effect:{kit:['rig',2]},lines:[['bram','The lock works again. The passage is ours to use.']]}],'ch5-lock')
+  ]},
+ // Build 51a: Chapter 6, the Keeper's Promise (the director's design pack of 2026-11-02, a proposal
+ // translated here): inside the Vault, the coastal station it guarded, and its keeper, Mara, who sent the
+ // unsigned letter. The end of the first story. Seven places in one line, each opening when the one
+ // before is fully restored; stage 3 of each place gives a kit of 2 of one chain the camp has, as in
+ // Chapters 4 and 5; no new generator, currency, energy rule, board or secondary chain. Gold recipes in
+ // build 50b's way: fixed, two requirements (one or two of a common part, or one rare part), never stepped
+ // down, none repeating the one before; common merge demand rises within a place; the three rare
+ // stages (records 3, regulator 2, desk 3) are a goal of their own. No part asks a chain's top (the
+ // regulator's lamps are Signal lamps, the pack's lamp 4 being the lamp chain's top). Mara has no approved
+ // portrait: her lines show her name only (app.mjs GUESTS). Picture: the damaged station until the
+ // chapter is done, then the restored one (two separate paintings, not layers). Prices: the pack's times
+ // 0.72 (Chapter 5's 50b scale), then 0.9 as measured against Chapter 5 (docs/V5_CHAPTER6_KEEPERS_PROMISE_2026-11-02.md).
+ {id:'keeper',name:'The Keeper\'s Promise',short:'STATION',picture:'keepers-promise',map:'coast/keepers-promise/station-map-before',overview:'coast/keepers-promise/station-map-after',
+  intro:[['tamsin','The Vault protected a coastal station. Its channels and lights once served the whole harbour.']],
+  tasks:[
+   place('ch6-landing','rig-4',[22,22],[
+    {name:'Secure the entrance',cost:220,gold:[['rig',4,1],['optic',3,2]],effect:{},lines:[['ivo','The station door held. Whoever closed it meant to come back.']]},
+    {name:'Repair the steps',cost:235,gold:[['rig',4,2],['shell',2,2]],effect:{},lines:[['bram','Steps first. Everything else is carried up them.']]},
+    {name:'Light the inner landing',cost:250,gold:[['rig',4,2],['lamp',3,2]],effect:{kit:['rig',2]},lines:[['tamsin','Lamps on the landing. The station can see us coming now.']]}],'ch6-landing'),
+   place('ch6-wheel','rope-4',[42,12],[
+    {name:'Clear the channel',cost:230,requires:{'ch6-landing':3},gold:[['rope',4,1],['rig',3,2]],effect:{},lines:[['ivo','Silt and driftwood. The wheel was starved of water.']]},
+    {name:'Rebuild the paddles',cost:245,gold:[['rope',4,2],['chart',2,2]],effect:{},lines:[['ivo','New paddles, set to the old marks.']]},
+    {name:'Turn the waterwheel',cost:255,gold:[['rope',4,2],['shell',3,2]],effect:{kit:['rope',2]},lines:[['bram','It turns! The whole station is shaking awake.']]}],'ch6-wheel'),
+   place('ch6-records','chart-4',[74,12],[
+    {name:'Prop the shelves',cost:240,requires:{'ch6-wheel':3},gold:[['chart',4,1],['rope',3,2]],effect:{},lines:[['neri','These shelves hold the station\'s whole history.']]},
+    {name:'Restore the records',cost:250,gold:[['chart',4,2],['lamp',2,2]],effect:{},lines:[['neri','Dry, sorted and readable again.']]},
+    {name:'Read the station history',cost:265,gold:[['chart',4,1],['notes',1,1]],effect:{kit:['chart',2]},lines:[['neri','The Vault was built to guard this station: its sluices, its channels and its lights.']]}],'ch6-records'),
+   place('ch6-workshop','shell-4',[86,39],[
+    {name:'Clear the workbench',cost:250,requires:{'ch6-records':3},gold:[['shell',4,1],['rig',3,2]],effect:{},lines:[['ivo','Someone worked here until very recently.']]},
+    {name:'Fit the tools',cost:260,gold:[['shell',4,2],['optic',2,2]],effect:{},lines:[['ivo','Every tool has its place, and every place is labelled.']]},
+    {name:'Restore the keeper\'s workshop',cost:275,gold:[['shell',4,2],['chart',3,2]],effect:{kit:['shell',2]},lines:[['tamsin','The workshop is ready for its keeper again.']]}],'ch6-workshop'),
+   place('ch6-regulator','lamp-3',[38,52],[
+    {name:'Repair the sluice',cost:260,requires:{'ch6-workshop':3},gold:[['lamp',3,1],['chart',3,2]],effect:{},lines:[['mara','The sluice first. The rest of the station drinks from it.']]},
+    {name:'Align the mechanism',cost:270,gold:[['lamp',3,1],['mech',1,1]],effect:{},lines:[['ivo','The gears mesh again. Mara, it moves!']]},
+    {name:'Restore safe water flow',cost:285,gold:[['lamp',3,2],['rope',4,2]],effect:{kit:['lamp',2]},lines:[['mara','Safe water in every channel. I have waited years to see this.']]}],'ch6-regulator'),
+   place('ch6-desk','optic-4',[24,83],[
+    {name:'Recover the letter case',cost:270,requires:{'ch6-regulator':3},gold:[['optic',4,1],['shell',3,2]],effect:{},lines:[['neri','A letter case, sealed with the wave.']]},
+    {name:'Match the dispatch seal',cost:285,gold:[['optic',4,2],['rig',2,2]],effect:{},lines:[['neri','The same wave seal as on your letter.']]},
+    {name:'Read Mara\'s letter',cost:295,gold:[['optic',4,1],['notes',2,1]],effect:{kit:['optic',2]},lines:[['mara','My copy of the letter. I kept it, in case no one came.']]}],'ch6-desk'),
+   place('ch6-overlook','rig-4',[64,85],[
+    {name:'Repair the terrace',cost:280,requires:{'ch6-desk':3},gold:[['rig',4,1],['chart',3,2]],effect:{},lines:[['bram','From up here you can see every route we opened.']]},
+    {name:'Connect the signal lamps',cost:290,gold:[['rig',4,2],['lamp',2,2]],effect:{},lines:[['tamsin','The station lamps answer the headland light.']]},
+    {name:'Reunite the coast',cost:305,gold:[['rig',4,2],['optic',3,2]],effect:{kit:['rig',2]},lines:[['mara','The coast is awake, and the promise is kept.']]}],'ch6-overlook')
   ]}
 ];
 // The next area opens when this one's last stage is bought (game.mjs restore and load).
@@ -284,6 +328,7 @@ export const AREAS=[
 export const LABELS={'vault-archive':'the archive','obs-hall':'the entrance hall','obs-desk':'the survey desk','obs-bench':'the lens bench','obs-array':'the array','obs-passage':'the sea gate',
  'hb-landing':'the landing','hb-crane':'the crane','hb-warehouse':'the warehouse','hb-boatyard':'the boatyard','hb-registry':'the registry','ch4-landing':'the arrival landing','ch4-steps':'the cliff steps','ch4-cottage':'the keeper\'s cottage','ch4-workshop':'the reflector workshop','ch4-records':'the signal records','ch4-lighthouse':'the lighthouse','ch4-relay':'the signal relay',
  'ch5-landing':'the reef landing','ch5-causeway':'the causeway','ch5-gauge':'the tide gauge','ch5-bridge':'the rope bridge','ch5-shelter':'the courier shelter','ch5-desk':'the mail desk','ch5-lock':'the inner lock',
+ 'ch6-landing':'the inner landing','ch6-wheel':'the waterwheel','ch6-records':'the records gallery','ch6-workshop':'the keeper\'s workshop','ch6-regulator':'the tide regulator','ch6-desk':'the dispatch desk','ch6-overlook':'the harbour overlook',
  'hb-signal':'the signal tower','hb-departure':'the departure dock'};
 export const TASKS=Object.fromEntries(AREAS.flatMap(a=>a.tasks.map(t=>[t.id,{...t,area:a.id}])));
 export const STAGES=3;

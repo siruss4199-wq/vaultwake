@@ -5,9 +5,8 @@
 // coast screen shows the damaged passage (the restored one only when the chapter is done) with one pin;
 // each stage bought through the real UI puts its own sprite (cut from the pack's sheet) on its place's
 // card and tile and says its line as a caption; only one place is open at a time; the safe crossing and
-// the working route cards once each; the inner lock's last stage brings the end card, once (this chapter
-// 21 / 21, the camp's total apart, no Chapter 6 button), "View the restored passage" shows it, and a
-// reload shows nothing again.
+// the working route cards once each; the inner lock's last stage brings "Behind the Vault" (build 51a:
+// Chapter 5's last card, naming Chapter 6) and the station's arrival, no end card, nothing again on reload.
 // At 390 x 844 all 21 stages by hand (Chromium; WebKit as the other sizes); at 360 x 780, 430 x 932 and 907 x 510 the entry, a stage and the end.
 // Every picture loads; nothing scrolls sideways; buttons are 44 px.   SHOTS=<dir> saves screenshots.
 const assert=require('node:assert/strict');const path=require('node:path');const {chromium,webkit}=require('playwright');const {throughHome}=require('./v5-next-home-helper.cjs');
@@ -107,27 +106,22 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
     await write(`for(const t of arg)s.built[t]=3,s.materials[t]=3;s.built['ch5-lock']=2;s.materials['ch5-lock']=3;s.seen['ch5-crossing']=true;s.seen['ch5-ledger']=true;`,IDS);
     await reload();await beats();
    }
-   // the inner lock's last stage: the end card, once
-   await build('ch5-lock');
-   await page.waitForSelector('#endDialog[open]',{timeout:6000});
-   const end=await page.locator('#endContent').textContent();
-   assert.match(end,/Chapter 5 complete/);assert.match(end,/The passage is open/);assert.match(end,/The passage leads back beneath the Vault/);assert.match(end,/The inner station is not open yet/);
-   assert.match(end,/This chapter's stages\s*21 \/ 21/,tag('this chapter\'s count'));assert.match(end,/All chapters so far\s*126 \/ 126/,tag('the camp\'s total, labelled apart'));
-   assert.doesNotMatch(end,/Chapter 6|not available yet/,tag('no Chapter 6 offered'));assert.equal(await page.locator('#endContent button').count(),3);
-   const endImg=await page.locator('#endContent .endArt img').evaluate(async i=>{await i.decode().catch(()=>{});return i.naturalWidth;});assert.ok(endImg>0,tag('the end picture loads'));
-   for(const b of await page.locator('#endContent button').all()){const r=await b.boundingBox();if(r)assert.ok(r.height>=43.5,tag('end buttons 44 px'));}
-   for(const f of await page.locator('#endContent .revealLine img.face').all()){const r=await f.boundingBox();assert.ok(r.width<=48,tag('speaker portraits are small'));}
-   await fits('end card');await shot('5-end');
-   s=await save();assert.equal(s.seenEnd,true);assert.equal(s.built['ch5-lock'],3);
-   await page.locator('#endContent [data-view]').click();await page.waitForSelector('#coastMap[open]');await page.waitForTimeout(400);
-   assert.match(await page.locator('#coastMap .sceneBase').getAttribute('src'),/passage-map-after\.webp$/,tag('the restored passage'));assert.ok(await page.locator('#coastMap .beachScene.headland.complete').count());
-   assert.equal(await page.locator('#coastMap .siteMarker').count(),0,tag('no pins on the restored painting'));
-   await fits('restored passage');await shot('6-restored');await page.locator('#coastMap .close').click();
-   await reload();await page.waitForTimeout(500);assert.equal(await page.locator('#endDialog[open]').count(),0,tag('the end card once'));assert.equal(await beats(),'',tag('no story card again'));
+   // the inner lock's last stage: "Behind the Vault" is Chapter 5's last story card (build 51a: no longer
+   // the end card), naming Chapter 6, then the station's arrival; no end card, nothing again after a reload
+   const last=await build('ch5-lock');
+   assert.match(last.text,/Chapter 5 complete/);assert.match(last.text,/Behind the Vault/);assert.match(last.text,/The passage leads back beneath the Vault/);
+   assert.match(last.text,/Chapter 6 · The Keeper's Promise/,tag('the next chapter named'));assert.match(last.text,/The Vault protected a coastal station/,tag('then the Chapter 6 arrival'));
+   assert.equal(await page.locator('#endDialog[open]').count(),0,tag('no end card: Chapter 6 follows'));
+   s=await save();assert.equal(s.area,7);assert.equal(s.built['ch5-lock'],3);assert.equal(s.seen['ch5-station'],true);assert.equal(s.seen['ch6-arrival'],true);assert.notEqual(s.seenEnd,true);
+   assert.equal(s.orders.find(o=>o?.story)?.story,'ch6-landing',tag('the inner landing\'s gold order up'));
+   await openMap();assert.match(await page.locator('#coastMap .sceneBase').getAttribute('src'),/station-map-before\.webp$/,tag('the damaged station next'));
+   assert.match(await page.locator('#coastMap .mapArea.done').last().textContent(),/The Lowwater Passage\s*Complete/,tag('the passage listed as complete'));
+   await fits('next chapter');await shot('5-next');await page.locator('#coastMap .close').click();
+   await reload();await page.waitForTimeout(500);assert.equal(await page.locator('#endDialog[open]').count(),0,tag('no end card'));assert.equal(await beats(),'',tag('no story card again'));
    assert.deepEqual(missing,[],tag('every passage picture loads'));assert.deepEqual(errors,[],tag('no page errors'));
    await context.close();
   }
-  console.log(`${engine} Coast Camp Chapter 5: finished Chapter 4 save → (message once when unseen) → arrival once → landing gold marked → damaged passage, one pin, 7 places → 21 stages by hand at 390 (captions, own sprites, one place open at a time, crossing and route cards once) → end card once (21/21, 126/126 apart, no Chapter 6) → restored passage; 360/430/907×510 entry, stage, end; pictures load, no overflow passed`);
+  console.log(`${engine} Coast Camp Chapter 5: finished Chapter 4 save → (message once when unseen) → arrival once → landing gold marked → damaged passage, one pin, 7 places → 21 stages by hand at 390 (captions, own sprites, one place open at a time, crossing and route cards once) → "Behind the Vault" then the Chapter 6 arrival (no end card) → the station next; 360/430/907×510 entry, stage, end; pictures load, no overflow passed`);
   }finally{await browser.close();}
  }
 })().catch(e=>{console.error(e);process.exit(1);});

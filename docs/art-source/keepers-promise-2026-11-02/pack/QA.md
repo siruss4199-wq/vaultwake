@@ -1,0 +1,11 @@
+# Review gates
+- Verify family and tier availability before each required recipe.
+- Rare goals reachable with existing protection and no inventory-dependent recipe replacement.
+- No full-board reward loss; reload never duplicates awards.
+- Old completed chapter saves advance once; in-progress saves preserve all fields.
+- Story skip and reduced motion reach same state.
+- Coins have visible next spending goal; no unnecessary secondary coin wall after materials.
+- Scene visibly differs before/after; no finished building in damaged state.
+- Sheets require visual inspection after cutting; no masks over wrong perspective.
+- Mobile text/CTA fit, focus trap closes, safe area respected, zero horizontal scroll.
+- Finale gives real completion, no forced grind or fake next button.
