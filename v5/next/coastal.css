@@ -434,19 +434,25 @@ body.nextMode header #energyPill.overCap #energyTimer{background:#b5740d;color:#
    only behind "How to make these". */
 body.nextMode .orderTools .goldSay b{font-size:13px;letter-spacing:0;text-transform:none;color:var(--cb-ink,#173a52)}
 body.nextMode .orderTools .goldSay small{display:block;font-size:11px;color:var(--bc-ink2,#4d6470)}
-body.nextMode .orderTools .goldNeeds{list-style:none;margin:4px 0 0;padding:0;display:flex;flex-direction:column;gap:4px}
-body.nextMode .orderTools .goldNeed{display:flex;align-items:center;gap:8px;min-height:44px}
+body.nextMode .orderTools .goldSay small b{display:inline;font-size:inherit;color:var(--cb-ink,#173a52)}
+/* Build 51d: the parts as chips side by side; one generator button per generator, at the end of the row */
+body.nextMode .orderTools .goldRow{display:flex;align-items:center;gap:6px;margin-top:4px}
+body.nextMode .orderTools .goldNeeds{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:4px 10px;flex:1;min-width:0}
+body.nextMode .orderTools .goldNeed{display:flex;align-items:center;gap:6px;min-height:36px}
+body.nextMode .orderTools .goldNeed.wide{flex-basis:100%}
+body.nextMode .orderTools .goldFind{display:flex;gap:4px;flex:none;align-self:flex-start}
 body.nextMode .orderTools .goldIcon{width:34px;height:34px;flex:none;display:grid;place-items:center;border-radius:9px;background:#fff7e2;box-shadow:inset 0 0 0 1.5px #f5c24e}
 body.nextMode .orderTools .goldIcon :is(svg,img){width:30px;height:30px;object-fit:contain}
 body.nextMode .orderTools .goldNeed.met .goldIcon{background:#e3f6ee;box-shadow:inset 0 0 0 1.5px #3bb58a}
-body.nextMode .orderTools .goldText{flex:1;min-width:0;display:flex;flex-direction:column}
+body.nextMode .orderTools .goldText{min-width:0;display:flex;flex-direction:column}
+body.nextMode .orderTools .goldNeed.wide .goldText{flex:1}
 body.nextMode .orderTools .goldText b{font-size:12.5px;color:var(--cb-ink,#173a52)}
 body.nextMode .orderTools .goldText b em{font-style:normal;color:var(--cb-turq2,#0e7f78);margin-left:4px}
 body.nextMode .orderTools .goldText small{font-size:11px;line-height:1.25;color:var(--bc-ink2,#4d6470);overflow-wrap:anywhere}
 body.nextMode .orderTools .locate{width:44px;height:44px;flex:none;display:grid;place-items:center;border-radius:12px;border:0;background:#d9f4f2;box-shadow:inset 0 0 0 1.5px #2fb3a6;cursor:pointer}
 body.nextMode .orderTools .locate :is(svg,img){width:32px;height:32px;object-fit:contain}
 body.nextMode .orderTools .goldCost{margin:4px 0 0;font-size:12px;color:var(--cb-ink,#173a52)}
-body.nextMode .orderTools .goldHow{margin-top:4px;font-size:12px}
+body.nextMode .orderTools .goldHow{margin-top:0;font-size:12px}
 body.nextMode .orderTools .goldHow summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font-weight:800;color:var(--cb-turq2,#0e7f78)}
 body.nextMode .orderTools .goldHow .routes{margin-top:4px}
 /* the generator the panel points at glows for a moment (a still outline with reduced motion) */

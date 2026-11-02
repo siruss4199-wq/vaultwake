@@ -229,6 +229,15 @@ under the part, and the same sentence again under its chain in "How to make thes
 - A rare part (its guarantee in taps) and a generator not open yet (what opens it) keep their words.
 - Crew orders' panels are unchanged: there the chain is the only explanation.
 
+Then (request: "tom zai ezelsen heveeree l bainadaa", the panel still took a lot of room), more compact:
+- **One line for the place and the coins:** "Landing Beach · 🪙70 to build: you have it" (or "🪙40 of 200: 160 more
+  from crew orders"). The second line that repeated the build cost is gone.
+- **The parts as small chips side by side:** icon, name, held/needed. "From Rivet Rover" is dropped from the chip
+  and kept in its accessible label.
+- **One generator button per generator,** not one per part.
+- **A rare or not-yet-open part keeps its words** on a chip of its own.
+- **Measured** (390×844, the signal mast's panel): about two thirds of its former height.
+
 ### Tests
 - **`tests/v5-next-gold-variety.test.mjs`:**
   - the four shapes are different, of about the same worth (±20 %) and within the chain;
@@ -242,6 +251,6 @@ under the part, and the same sentence again under its chain in "How to make thes
   - the hand is still with reduced motion;
   - Clear on a plain part (+1 energy, at once) and on a merged part (a second tap).
 - **`tests/v5-next-browser.cjs`:** its replay taps Clear twice when the part asks for it.
-- **`tests/v5-next-rare-merges-browser.cjs`:** the mast's panel says "Pocket winch 1/2 · From Rivet Rover" and no longer
-  "merge matching items to reach Pocket winch". It builds its mast and hoist gold orders with the shape turn pinned to the
+- **`tests/v5-next-rare-merges-browser.cjs`:** the mast's panel says the build cost once ("100 to build: you have it"),
+  has one "Show the Rivet Rover" button, and no longer says "merge matching items to reach Pocket winch". It builds its mast and hoist gold orders with the shape turn pinned to the
   usual recipe, since its flow is about the mast's usual materials and the hoist's Gear.

@@ -245,11 +245,19 @@ function chainRoute(r,brief=false){
 // longer says the same sentence twice per part. A rare or not-yet-open part keeps its words.
 function goldPanel(o){
  const t=TASKS[o.story],u=upgrades(state).find(v=>v.id===o.story),st=t.stages[Math.min(STAGES,stageOf(state,t.id)+1)-1],cost=u?.cost??st.cost;
- const need=needsOf(state,o).map(r=>{const why=routeWhy(r,true),gen=CHAINS[r.family].gen;
-  return `<li class="goldNeed ${r.have>=r.count?'met':''}"><span class="goldIcon">${draw(item(r.family,r.tier))}</span><span class="goldText"><b>${nameOf(item(r.family,r.tier))} <em>${r.have}/${r.count}</em></b><small>${r.have>=r.count?'On the board':why.ok&&!CHAINS[r.family].secondary?`From ${SOURCES[gen].name}`:why.text}</small></span>${r.have<r.count&&why.ok?`<button class="locate" type="button" data-locate="${gen}" aria-label="Show the ${SOURCES[gen].name}">${draw({type:'source',id:gen})}</button>`:''}</li>`;}).join('');
+ // Build 51d (user: "tom zai ezelsen heveeree l bainadaa"): one line for the place and the coins, the parts as
+ // small chips side by side, and one button per generator (not per part). A rare or not-yet-open part keeps
+ // its words on a chip of its own.
+ const gens=[];
+ const need=needsOf(state,o).map(r=>{const why=routeWhy(r,true),gen=CHAINS[r.family].gen,met=r.have>=r.count,plain=why.ok&&!CHAINS[r.family].secondary;
+  if(!met&&why.ok&&!gens.includes(gen))gens.push(gen);
+  const name=nameOf(item(r.family,r.tier));
+  return `<li class="goldNeed ${met?'met':''} ${met||plain?'':'wide'}" aria-label="${name} ${r.have} of ${r.count}${met?', on the board':plain?`, from ${SOURCES[gen].name}`:`: ${why.text}`}"><span class="goldIcon">${draw(item(r.family,r.tier))}</span><span class="goldText"><b>${name} <em>${r.have}/${r.count}</em></b>${met||plain?'':`<small>${why.text}</small>`}</span></li>`;}).join('');
  const short=Math.max(0,cost-state.coins);
  const where=LABELS[t.id]?LABELS[t.id][0].toUpperCase()+LABELS[t.id].slice(1):AREAS.find(a=>a.id===t.area)?.name??t.name;
- return `<p class="orderSay goldSay"><b>${st.name}</b><small>${where} · materials, then ${COIN}${cost} to build</small></p><ul class="goldNeeds">${need}</ul><p class="goldCost">${short?`${COIN}${state.coins} of ${cost}: <b>${short} more</b> from crew orders`:`${COIN}${cost} to build: <b>you have it</b>`}</p><details class="goldHow"><summary>How to make these</summary><ol class="routes">${missingOf(state,o).map(r=>chainRoute(r,true)).join('')}</ol></details>`;
+ const coins=short?`${COIN}${state.coins} of ${cost}: <b>${short} more</b> from crew orders`:`${COIN}${cost} to build: <b>you have it</b>`;
+ const find=gens.map(gen=>`<button class="locate" type="button" data-locate="${gen}" aria-label="Show the ${SOURCES[gen].name}">${draw({type:'source',id:gen})}</button>`).join('');
+ return `<p class="orderSay goldSay"><b>${st.name}</b><small>${where} · ${coins}</small></p><div class="goldRow"><ul class="goldNeeds">${need}</ul>${find?`<span class="goldFind">${find}</span>`:''}</div><details class="goldHow"><summary>How to make these</summary><ol class="routes">${missingOf(state,o).map(r=>chainRoute(r,true)).join('')}</ol></details>`;
 }
 function renderOrderTools(){
  const o=state.orders.find(o=>o.id===focusOrder),bar=$('#orderTools');
