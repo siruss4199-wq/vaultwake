@@ -21,6 +21,8 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
    const full=W===390;
    const context=await browser.newContext({viewport:{width:W,height:H},isMobile:W<700&&engine==='chromium',hasTouch:true,reducedMotion:motion});
    const page=await context.newPage(),errors=[];let shotN=0;
+   // every moment shown is noted across reloads (they fade), to check the tideglass tip's words
+   await page.addInitScript(()=>{addEventListener('DOMContentLoaded',()=>{new MutationObserver(()=>{const k='__moments',l=JSON.parse(sessionStorage.getItem(k)??'[]');for(const m of document.querySelectorAll('.moment'))if(m.innerText&&!l.includes(m.innerText))l.push(m.innerText);sessionStorage.setItem(k,JSON.stringify(l));}).observe(document.body,{subtree:true,childList:true,characterData:true});});});
    page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
    const tag=s=>`${engine} ${W}×${H}: ${s}`,save=()=>page.evaluate(k=>JSON.parse(localStorage.getItem(k)??'null'),KEY);
    const shot=async name=>{if(SHOTS)await page.screenshot({path:path.join(SHOTS,`guide-${W}x${H}-${String(++shotN).padStart(2,'0')}-${name}.png`)});};
@@ -52,7 +54,7 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
     await page.reload();await page.waitForSelector('#homePlay:not([hidden])');await page.locator('#homePlay').click();await page.waitForSelector('#home',{state:'hidden'});
     assert.notEqual(await page.locator('#hint').getAttribute('data-kind'),'coach',tag('stays skipped after a reload'));
     await page.locator('#helpButton').click();await page.locator('#helpReplay').click();
-    const replay=await beats();assert.match(replay,/Crew orders pay coins/);assert.match(replay,/gold order secures the materials/);await fits('help replay');
+    const replay=await beats();assert.match(replay,/Crew orders pay coins/);assert.match(replay,/gold order pays coins too, and secures the materials/);await fits('help replay');
     // 4. an existing camp played before the guide: no guide
     await page.evaluate(k=>{const s=JSON.parse(localStorage.getItem(k));delete s.seen['coach-on'];delete s.seen['coach-done'];localStorage.setItem(k,JSON.stringify(s));},KEY);
     await page.reload();await page.waitForSelector('#homePlay:not([hidden])');await page.locator('#homePlay').click();await page.waitForSelector('#home',{state:'hidden'});
@@ -69,9 +71,12 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
     else if(id==='deliver'||id==='gold'||id==='note'){if(id==='note'){assert.match(await line(),/\+\d+ coins from .*: crew orders pay coins/);await shot('coins');await page.waitForTimeout(3900);continue;}
      try{await page.waitForSelector('#requests .coachTarget',{timeout:4000});}catch(e){throw new Error(tag(`no marked order for ${id}: "${await line()}" ${await page.evaluate(()=>[...document.querySelectorAll('[data-order]')].map(e=>e.tagName+':'+e.dataset.order+':'+e.className).join(' | '))}`));}
      await page.locator('#requests .coachTarget').click();await page.waitForTimeout(1000);// the coins fly first, then the line moves on
-     if(id==='gold'){await page.waitForSelector('.moment:has-text("Materials secured")',{timeout:4000});assert.match(await page.locator('.moment').innerText(),/gold order brought what the repair needs/);await shot('materials');}}
+     if(id==='gold'){await page.waitForSelector('.moment:has-text("Materials secured")',{timeout:4000});const m=await page.locator('.moment').innerText();
+      assert.match(m,/Materials secured · \+70 coins/,tag('both rewards in the title'));assert.match(m,/The gold order paid 70 coins and brought the materials for Clear the landing path/);await shot('materials');}}
     else if(id==='build'){await page.locator('#mapButton.coachTarget').click();await page.waitForSelector('#coastMap[open]');
-     assert.match(await page.locator('#coastMap .coachLine').innerText(),/build it here/);assert.equal(await page.locator('#coastMap [data-restore="beach-path"].coachTarget').count(),1);await shot('coast');
+     assert.match(await page.locator('#coastMap .coachLine').innerText(),/build it here/);assert.equal(await page.locator('#coastMap [data-restore="beach-path"].coachTarget').count(),1);
+     // the Build button comes into view by itself (no scrolling by the player)
+     await page.waitForTimeout(1200);{const r=await page.locator('#coastMap [data-restore="beach-path"]').boundingBox(),vh=await page.evaluate(()=>innerHeight);assert.ok(r&&r.y>=0&&r.y+r.height<=vh,tag(`the Build button in view: ${JSON.stringify(r)} of ${vh}`));}await shot('coast');
      await page.locator('#coastMap [data-restore="beach-path"]').click({force:true});await page.waitForTimeout(1300);
      const lines=await beats();assert.match(lines,/A path from the boats to dry ground/);await page.locator('#coastMap .close').click().catch(()=>{});await page.waitForTimeout(300);}
     else assert.fail(tag(`unexpected step ${id}: ${await line()}`));
@@ -83,7 +88,9 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
    }
    s=await save();assert.equal(s.built['beach-path'],1,tag('the first restoration'));
    const order=['tap','merge','deliver','gold','build','result'];let k=0;for(const id of seen)if(id===order[k])k++;assert.equal(k,order.length,tag('the loop in order: '+seen.join(' ')));
-   assert.match(await line(),/Next: Lay a boardwalk/);assert.equal(await page.locator('#mapButton.coachTarget').count(),1,tag('the next objective marked'));await fits('result');await shot('result');
+   {const ms=await page.evaluate(()=>JSON.parse(sessionStorage.getItem('__moments')??'[]'));const ice=ms.find(m=>/Tideglass cracked/.test(m));
+    assert.ok(ice,tag('the first loop cracks tideglass, and its tip shows: '+JSON.stringify(ms)));{assert.match(ice,/Tideglass cracked · 1 of 3/,tag('the hits so far'));assert.match(ice,/2 more merges beside it free the part inside/,tag('the hits left'));assert.match(ice,/Any merge counts|Each must make a level \d part or better/,tag('how strong a merge must be'));}}
+   assert.match(await line(),/Next: Lay a boardwalk: its gold order brings the materials and coins/);assert.equal(await page.locator('#mapButton.coachTarget').count(),1,tag('the next objective marked'));await fits('result');await shot('result');
    const secs=Math.round((Date.now()-t0)/1000);
    // a reload keeps the result step; then the next delivery ends the guide (checked after the playthrough:
    // one ready part is laid for the first crew order, so the check does not depend on more play)

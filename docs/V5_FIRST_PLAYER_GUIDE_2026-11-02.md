@@ -31,10 +31,10 @@ The hint wandered between orders before it reached the gold order.
 | merge | "Drag one part onto its twin to merge them." The first time, then "Merge twins up to the part the order shows." | the pair (drag demonstration) |
 | deliver | "Ivo's order is ready: tap it to deliver for coins." | the order card |
 | coins | "+10 coins from Ivo's order: crew orders pay coins." (about 4 s) | the coin count |
-| gold | "Make the gold order's parts: they are the path's materials." Then "Tap the gold order: it secures the path's materials." | the pair or Rover, then the gold order |
-| materials | "Materials secured · Clear the landing path". The moment's text: "The gold order brought what the repair needs. Build · 40 coins: tap the strip under the orders." | (the moment) |
+| gold | "Make the gold order's parts: it pays coins and brings the path's materials." Then "Tap the gold order: it pays coins and secures the path's materials." | the pair or Rover, then the gold order |
+| materials | "Materials secured · +70 coins". The moment's text: "The gold order paid 70 coins and brought the materials for Clear the landing path. Build · 40 coins: tap the strip under the orders." It shows on every gold delivery, guided or not. | (the moment) |
 | build | "Materials secured. Open the coast and build: Clear the landing path." On the coast screen: "Coins and materials are ready: build it here." | the strip, then the Build button |
-| result | "The path is clear. Next: Lay a boardwalk, with materials from its gold order and coins from crew orders." | the strip (the next objective) |
+| result | "The path is clear. Next: Lay a boardwalk: its gold order brings the materials and coins, crew orders add more coins." | the strip (the next objective) |
 
 The next delivery ends the guide.
 
@@ -73,7 +73,7 @@ the guide. The tests cover this.
 - **Rare extras** (the existing first-level-2 moment): it now also says where they are wanted. For example
   "Merged, they are wanted later: Add a cargo crane (Landing Beach) asks for one.", taken from the stages ahead.
   It names nothing when no later stage asks, and it never promises an immediate rare gold order.
-- **Tideglass, at its first crack:** "Merge beside it once more to free the part inside."
+- **Tideglass, at its first crack:** the hits so far and left, and how strong a merge must be: "Tideglass cracked · 1 of 3 — 2 more merges beside it free the part inside. Any merge counts." (or "Each must make a level N part or better" for glass holding a level 3+ part, the rule in `crack()`).
 - **The shed, the first time the board is full:** "Tap a part and choose Shed to keep it for later…". This
   is not shown during the first loop's guide.
 - **Cargo** is still taught by the existing hint line ("Lay the X on its crate") when a key is in hand.
@@ -115,3 +115,16 @@ the guide. The tests cover this.
 - **The guide marks only its own order.** Ready crew orders are left to the player and still glow in the
   existing way, so two ready orders can briefly compete for attention.
 - **WebKit** cannot be installed here; it runs in CI only.
+
+## PR #91 closeout fixes
+- **Tideglass tip:** it said "merge beside it once more" after the first crack, but glass breaks on its third
+  hit. It now gives the hits so far and the hits left. It also says how strong a merge must be: one that
+  makes a part at least the level of the part inside (any merge for level 1–2 glass).
+- **Gold orders pay coins too:** the guide's gold lines, the result line, the Help recap ("A gold order pays
+  coins too, and secures the materials…") and the gold delivery moment now say so. The moment reads
+  "Materials secured · +70 coins" and "paid 70 coins and brought the materials for …". No economy value
+  changed.
+- **The coast screen during the guided build:** the Build button scrolls into view by itself. It scrolls
+  smoothly after the screen opens, or at once with reduced motion, so the beginner does not have to scroll.
+  The guide's line sits above the place card at full width. The browser test checks the button lies inside
+  the 390×844 viewport.

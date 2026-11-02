@@ -81,7 +81,7 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
    await page.waitForFunction(()=>document.querySelector('#mapButton')?.dataset.ready==='1',null,{timeout:3000});
    assert.equal(await page.locator('#mapButton .rsText b').textContent(),'Ready to build',tag('the strip turns at once'));assert.equal(await page.locator('#mapButton .rsAction').textContent(),'Build');
    await page.waitForSelector('.moment:has-text("Materials secured")',{timeout:4000});
-   const m=await page.locator('.moment').innerText();assert.match(m,/Materials secured · Raise the signal mast/);assert.match(m,/Build · 100 coins/,tag('Build · cost'));
+   const m=await page.locator('.moment').innerText();assert.match(m,/Materials secured · \+\d+ coins/);assert.match(m,/paid \d+ coins and brought the materials for Raise the signal mast/,tag('both rewards (build 51c)'));assert.match(m,/Build · 100 coins/,tag('Build · cost'));
    assert.equal(await page.locator('dialog[open]').count(),0,tag('nothing blocks the board'));
    s=await save();assert.equal(s.materials['beach-mast'],1);assert.equal(s.coins,coins+mastGold.coins,tag('the gold order paid its coins'));
    await fits('materials secured');await shot('4-materials-secured');

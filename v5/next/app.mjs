@@ -532,7 +532,7 @@ function run(a){
   // Build 48b: one clear step after the gold order: the materials are secured, the strip shows it at
   // once, and it says either "Build · cost" or how many coins are still short (crew orders pay them)
   if(r.materials){const t=TASKS[r.materials.id],u=t.stages[r.materials.stage-1],ok=state.coins>=u.cost;holdPlace=0;renderNextPlace();
-   setTimeout(()=>moment(`Materials secured · ${u.name}`,(coachActive(state)?'The gold order brought what the repair needs. ':'')+(ok?`Build · ${u.cost} coins: tap the strip under the orders.`:`${u.cost-state.coins} more coins to build it: deliver crew orders.`)),reduced()?0:950);}}
+   setTimeout(()=>moment(`Materials secured · +${r.coins} coins`,`The gold order paid ${r.coins} coins and brought the materials for ${u.name}. `+(ok?`Build · ${u.cost} coins: tap the strip under the orders.`:`${u.cost-state.coins} more coins to build it: deliver crew orders.`)),reduced()?0:950);}}
  if(r.event==='producerUp'){const src=state.board[r.index],next=nextKind(src.id),waiting=next&&src.level<UNLOCK_LEVEL&&!state.board.some(y=>y?.type==='source'&&y.id===next);
   if(r.unlocks?.length)extrasNews();else moment(SOURCES[src.id].name+' · level '+src.level,LEVEL_GAIN[src.level]+(waiting?` Level ${UNLOCK_LEVEL} brings out the ${SOURCES[next].name}.`:''),src);tile?.classList.add('merge-pop');burst(tile?.getBoundingClientRect(),'gold',true);sfx('milestone');}
  // On the coast screen the build plays first (Build 41f), then its story.
@@ -683,12 +683,15 @@ function sourceNote(f,tier=null){const r=SECONDARY_RULES[CHAINS[f].gen],gen=SOUR
 // tideglass, which the first merges crack.
 function laterTips(r){
  if(r.event==='producerUp'&&!state.seen?.['tip-genmerge'])markSeen('tip-genmerge');
- if(r.cracked?.length&&!r.broken?.length&&!state.seen?.['tip-ice']){markSeen('tip-ice');setTimeout(()=>moment('Tideglass cracked','Merge beside it once more to free the part inside.'),reduced()?0:700);}
+ if(r.cracked?.length&&!r.broken?.length&&!state.seen?.['tip-ice']){const g=state.board[r.cracked[0]];
+  if(g?.type==='glass'){const done=g.cracks??1,left=GLASS_HITS-done,need=g.tier+1;markSeen('tip-ice');
+   // a merge beside it cracks it only if it makes a part at least as strong as the one inside (crack())
+   setTimeout(()=>moment(`Tideglass cracked · ${done} of ${GLASS_HITS}`,`${left} more ${left===1?'merge':'merges'} beside it free the part inside. ${need<=2?'Any merge counts.':`Each must make a level ${need} part or better.`}`),reduced()?0:700);}}
  if(!coachActive(state)&&!state.board.includes(null)&&!state.seen?.['tip-shed']){markSeen('tip-shed');moment('The board is full','Tap a part and choose Shed to keep it for later, or deliver and merge to make room.');}
 }
 $('#coachSkip').onclick=()=>{markSeen(COACH_DONE);coachNote=null;clearCoach();render();$('#message').textContent='Guide skipped. Help (in the menu) can replay it.';};
 // Help: a short replay of the guide (four lines with the crew's faces), whatever the camp's progress.
-const GUIDE_REPLAY=[['ivo','Tap a generator for parts, and drag matching parts together to merge them.'],['neri','Crew orders pay coins.'],['bram','A gold order secures the materials for the next repair.'],['tamsin','On the coast screen, coins and materials together rebuild a place.']];
+const GUIDE_REPLAY=[['ivo','Tap a generator for parts, and drag matching parts together to merge them.'],['neri','Crew orders pay coins.'],['bram','A gold order pays coins too, and secures the materials for the next repair.'],['tamsin','On the coast screen, coins and materials together rebuild a place.']];
 $('#helpReplay').onclick=()=>{$('#help').close();playLines('How the camp works',GUIDE_REPLAY,()=>render(),{last:'Back to the board'});};
 // Round 3: a kind's rare extras open when one of its generators first reaches level 2 (the engine's
 // secondaryUnlock: a first part as a gift and an introductory crew order). Said once per kind, also
@@ -919,8 +922,10 @@ function showMap(){
  content.classList.toggle('entering',opening);if(opening){clearTimeout(content._enter);content._enter=setTimeout(()=>content.classList.remove('entering'),1400);}
  if(!opening&&shownCard!==mapFocus)$('#mapCard')?.classList.add('swapIn');shownCard=mapFocus;
  // Build 51c: the guide's build step points at the build button on the coast screen too
- {const st=coachActive(state)?coachStep(state):null;if(st?.id==='build'){$(`#coastMap [data-restore="${FIRST_PLACE}"]`)?.classList.add('coachTarget');$('#mapCard')?.insertAdjacentHTML('afterbegin','<p class="coachLine">Coins and materials are ready: build it here.</p>');}}
+ let coachBuild=null;{const st=coachActive(state)?coachStep(state):null;if(st?.id==='build'){coachBuild=$(`#coastMap [data-restore="${FIRST_PLACE}"]`);coachBuild?.classList.add('coachTarget');$('#mapCard')?.insertAdjacentHTML('beforebegin','<p class="coachLine">Coins and materials are ready: build it here.</p>');}}
  if(opening)$('#coastMap').showModal();
+ // the guided build: the Build button comes into view by itself (a smooth scroll; at once with reduced motion)
+ if(coachBuild)setTimeout(()=>coachBuild.isConnected&&coachBuild.scrollIntoView({block:'center',behavior:reduced()?'auto':'smooth'}),opening&&!reduced()?450:0);
  // Opening on a chosen place (the next-place chip, an upgrade hint): the picture starts close on
  // it and pulls back to show the whole area, so the eye lands on the right building.
  if(opening&&focusOnOpen&&!reduced()){const sc=$('#coastMap .beachScene');if(sc){sc.style.setProperty('--fx',focus.at[0]+'%');sc.style.setProperty('--fy',focus.at[1]+'%');sc.classList.add('focusIn');setTimeout(()=>sc.classList.remove('focusIn'),1200);}}

@@ -24,15 +24,15 @@ export function coachStep(s){
  const path=TASKS[FIRST_PLACE],built=stageOf(s,FIRST_PLACE);
  // 6. the first restoration is done: the result and the next objective, until the next delivery
  if(built>=1){const next=path.stages[built]??null;
-  return {id:'result',text:next?`The path is clear. Next: ${next.name}, with materials from its gold order and coins from crew orders.`:'The path is clear.',target:{kind:'strip'}};}
+  return {id:'result',text:next?`The path is clear. Next: ${next.name}: its gold order brings the materials and coins, crew orders add more coins.`:'The path is clear.',target:{kind:'strip'}};}
  const gold=s.orders.find(o=>o?.story===FIRST_PLACE),secured=(s.materials[FIRST_PLACE]??0)>=1,cost=path.stages[0].cost;
  // 5. materials secured: build it on the coast screen (coins in hand), else crew orders for the rest
  if(secured){
   if(s.coins>=cost)return {id:'build',text:`Materials secured. Open the coast and build: ${path.stages[0].name}.`,target:{kind:'strip'}};
   return board(s,`Materials secured. Deliver crew orders for the ${cost-s.coins} more coins.`,{crewOnly:true});}
  // 4. the gold order (it comes after the first crew order): deliver it when ready, else make its parts
- if(gold){if(orderItems(s,gold))return {id:'gold',text:'Tap the gold order: it secures the path\'s materials.',target:{kind:'order',id:gold.id}};
-  return board(s,'Make the gold order\'s parts: they are the path\'s materials.',{only:[gold.id]});}
+ if(gold){if(orderItems(s,gold))return {id:'gold',text:'Tap the gold order: it pays coins and secures the path\'s materials.',target:{kind:'order',id:gold.id}};
+  return board(s,'Make the gold order\'s parts: it pays coins and brings the path\'s materials.',{only:[gold.id]});}
  // 3. the first crew order: deliver it for coins
  const ready=s.orders.find(o=>o&&!o.story&&orderItems(s,o));
  if(ready)return {id:'deliver',text:`${name(ready.who)}'s order is ready: tap it to deliver for coins.`,target:{kind:'order',id:ready.id}};
