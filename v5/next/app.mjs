@@ -486,9 +486,10 @@ function run(a){
  if(r.event==='deliver'||r.event==='store'||r.event==='swapOrder'){focusOrder=null;selected=null;}
  if(r.event==='deliver'&&!reduced())holdPlace=performance.now()+880;
  // Build 51c: the guide's own feedback. The first crew order's coins are named (the coin count pulses);
- // after the restoration's result, the next delivery ends the guide.
+ // the first restoration ends the guide (the message line names the next objective once).
  if(coachBefore&&r.event==='deliver'&&order&&!order.story&&state.ordersDone===1){coachNote={text:`+${order.coins} coins from ${CREW[order.who]?.name??'the crew'}'s order: crew orders pay coins.`,until:performance.now()+3800,target:{kind:'coins'}};setTimeout(renderHint,3900);}
- if(coachBefore?.id==='result'&&r.event==='deliver')markSeen(COACH_DONE);
+ if(coachBefore&&r.event==='restore'){markSeen(COACH_DONE);coachNote=null;const next=TASKS[FIRST_PLACE].stages[stageOf(state,FIRST_PLACE)];
+  $('#message').textContent=`Guide complete. Next: ${next?next.name+': its gold order brings the materials and coins, crew orders add more coins.':'the coast\'s next place.'}`;}
  // the guide is this camp's from its first action on (a seen flag is an action too, so not before: a new
  // camp stays untouched until the player acts)
  if(coachBefore&&!state.seen?.[COACH_ON])markSeen(COACH_ON);
@@ -642,10 +643,10 @@ $('#selection').addEventListener('click',e=>{
  // The panel keeps its text to two lines (Build 45); a tap on it shows the rest.
  if(e.target.closest('.copy')){$('#selection').classList.toggle('open');return;}
  const b=e.target.closest('[data-action]');if(!b)return;if(b.dataset.action==='store')shedOpen=true;const x=state.board[selected];run({type:b.dataset.action,index:selected,id:x?.id});});
-$('#orderTools').addEventListener('click',e=>{const b=e.target.closest('[data-locate]');if(!b)return;locateGen=b.dataset.locate;locateUntil=performance.now()+2600;renderBoard();
+$('#orderTools').addEventListener('click',e=>{const b=e.target.closest('[data-locate]');if(!b)return;locateGen=b.dataset.locate;locateUntil=performance.now()+2600;renderBoard();if(coach)showCoachTarget(coach.target);
  board.querySelector('.tile.located')?.scrollIntoView({block:'nearest',behavior:reduced()?'auto':'smooth'});
  const i=locateIndex();if(i>=0)$('#message').textContent=`${SOURCES[locateGen].name}${state.board[i]?.level>1?` (level ${state.board[i].level})`:''}: tap it for parts.`;
- setTimeout(()=>{if(performance.now()>=locateUntil)renderBoard();},2700);});
+ setTimeout(()=>{if(performance.now()>=locateUntil){renderBoard();if(coach)showCoachTarget(coach.target);}},2700);});
 $('#requests').addEventListener('click',e=>{const c=e.target.closest('[data-order]');if(!c)return;const o=state.orders.find(o=>o.id===c.dataset.order);if(!o)return;if(orderItems(state,o)){run({type:'deliver',id:o.id});return;}focusOrder=focusOrder===o.id?null:o.id;render();$('#message').textContent=`${CREW[o.who].name} needs ${needsOf(state,o).map(r=>r.count+' × '+nameOf(item(r.family,r.tier))+(r.sibling?` (level ${levelOf(r)})`:'')).join(' and ')}. Their parts are marked on the board.`+o.needs.filter(r=>CHAINS[r.family].secondary).map(r=>' '+sourceNote(r.family,r.tier)).join('');});
 // The upgrading happens on the beach screen (user: "tusdaa orchinruu ochij upgrade hiih").
 $('#mapButton').onclick=()=>{mapFocus=$('#mapButton').dataset.place||null;sfx('tap');showMap();};

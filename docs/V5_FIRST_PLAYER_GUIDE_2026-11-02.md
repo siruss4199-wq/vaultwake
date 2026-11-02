@@ -19,35 +19,41 @@ The hint wandered between orders before it reached the gold order.
    to that Vault. First, let's clear a landing.", and the button reads **Clear a landing**. On the board no
    second introduction follows the story. The beach's own introduction, now this same one line, shows when the story was
    skipped or not shown (a second new camp in the same browser), so the purpose is never missed.
-2. **The guide**: one short sentence in the existing hint line and one highlighted target.
-   - The target gets a soft pulsing ring. For a pair to merge, a ghost of the first part slides onto the
-     second.
-   - With reduced motion the rings stay still and nothing moves.
+2. **The guide**: a short, one-time introduction to the basic controls, not an order-solving assistant.
+   - Each control is highlighted **once**, the first time it is needed: a soft pulsing ring, and for a
+     merge pair a ghost of the first part sliding onto the second. With reduced motion the rings stay still
+     and nothing moves.
+   - Once the player has done that action, it is not taught again. Between highlights the line is a short
+     goal with no highlight, and the order cards show the progress as usual (0/1, 1/2…).
    - The steps follow the real starting board and the real first orders:
 
-| Step | The line | The target |
+| Step | The line | Highlighted |
 |---|---|---|
-| tap | "Tap the Rivet Rover for a part." | the Rover |
-| merge | "Drag one part onto its twin to merge them." The first time, then "Merge twins up to the part the order shows." | the pair (drag demonstration) |
-| deliver | "Ivo's order is ready: tap it to deliver for coins." | the order card |
+| tap | "Tap the Rivet Rover for a part." | the Rover, until the first tap |
+| goal | "Goal: Ivo's order. Tap and merge to make the parts it shows." | nothing |
+| merge | "Drag one part onto its twin to merge them." | the pair (drag demonstration), until the first merge |
+| deliver | "Ivo's order is ready: tap it to deliver for coins." | the order card, until the first delivery |
 | coins | "+10 coins from Ivo's order: crew orders pay coins." (about 4 s) | the coin count |
-| gold | "Make the gold order's parts: it pays coins and brings the path's materials." Then "Tap the gold order: it pays coins and secures the path's materials." | the pair or Rover, then the gold order |
+| goal | "Goal: the gold order. Make its parts for the path's materials and coins." | nothing |
+| gold | "Tap the gold order: it pays coins and secures the path's materials." | the gold order |
 | materials | "Materials secured · +70 coins". The moment's text: "The gold order paid 70 coins and brought the materials for Clear the landing path. Build · 40 coins: tap the strip under the orders." It shows on every gold delivery, guided or not. | (the moment) |
-| build | "Materials secured. Open the coast and build: Clear the landing path." On the coast screen: "Coins and materials are ready: build it here." | the strip, then the Build button |
-| result | "The path is clear. Next: Lay a boardwalk: its gold order brings the materials and coins, crew orders add more coins." | the strip (the next objective) |
+| goal | "Materials secured. Deliver crew orders for the N more coins." (only when coins are short) | nothing |
+| build | "Materials secured. Open the coast and build: Clear the landing path." On the coast screen: "Coins and materials are ready: build it here." | the strip, then the Build button (scrolled into view) |
 
-The next delivery ends the guide.
+**The first restoration ends the guide.** The message line says once: "Guide complete. Next: Lay a boardwalk:
+its gold order brings the materials and coins, crew orders add more coins." From then on the normal hint line
+takes over. Later orders, reloads and later restorations never restart it.
 
 - **Coins versus materials:** the distinction is made through the actions themselves. A crew order's coins
-  are named as they arrive, the gold order "secures the path's materials", and the build step says both
-  are ready.
-- **One focus at a time:** the guide points only at the order the step is about, first the first crew
-  order and then the gold order. Other ready orders are left to the player, who can still deliver them.
+  are named as they arrive, the gold order "pays coins and secures the path's materials", and the build step
+  says both are ready.
+- **One focus at a time:** the goal names only the order the step is about, first the first crew order and
+  then the gold order. Other ready orders are left to the player, who can still deliver them.
 
 ### Rules the guide keeps
 - **Worked out from the camp every time** (`v5/next/coach.mjs`, pure): steps already done are skipped. A player
-  who merges or delivers before being asked is not asked again, and a reload resumes the same step.
-- **Never asks for something the board can't give.** Board targets come from the existing `primaryAction`: a
+  who taps, merges or delivers before being asked is not taught it, and a reload resumes the same step.
+- **Never asks for something the board can't give.** Highlights come from the existing `primaryAction`: a
   pair only if one exists, the generator only with energy and a free space. Otherwise the line says what to
   do about energy or space and points at nothing.
 - **Nothing is blocked:** every control works as before, and the guide only re-words the hint line and adds
@@ -61,7 +67,10 @@ The next delivery ends the guide.
 ### Saves
 No new key and no new field. The guide uses two flags in the existing `seen` map:
 - `coach-on` is set on the camp's first action.
-- `coach-done` is set when the guide is finished or skipped.
+- `coach-done` is set at the first restoration, or on Skip.
+
+The guide is also off for any camp with a stage built, so a camp saved by an earlier 51c build in the middle
+of the old "result" step (path built, `coach-done` not yet set) loads without the guide.
 
 A camp saved before the guide existed that has already played (any action or any stage built) does not get
 the guide. The tests cover this.
@@ -80,28 +89,32 @@ the guide. The tests cover this.
 
 ## Measured
 - **Rule test, a new camp following only the guide on the real starting board** (nothing laid on the board,
-  no coins given): the **first restoration takes 26 actions**, with 1 crew order and the gold order. The old
-  hint alone took 63 actions and 6 crew orders.
+  no coins given): the **first restoration takes 26 actions**, with 1 crew order and the gold order, and **5 of
+  them are highlighted** (tap, merge, deliver, gold, build). The old hint alone took 63 actions and 6 crew
+  orders.
 - **Browser, 390×844, a genuinely new camp** (Home → Play → the story → the guide only, through the real UI:
   taps, drags, order cards, the strip, the coast screen's Build button): the first restoration takes **26
-  guided actions**.
+  actions, 5 highlighted**.
   - A player at 3–5 s per action would need about 1.5–2.5 minutes after the story.
   - This is an estimate, not a timed playtest.
 
 ## Tests
 - **`tests/v5-next-coach.test.mjs`** (5 tests):
-  - the guide alone reaches the first restoration in order (tap, merge, deliver, gold, build, result), with no
-    target that isn't there;
-  - steps already done are skipped;
+  - a new camp on the real board reaches its first restoration with each control highlighted exactly once,
+    in order (tap, merge, deliver, gold, build), goals with no target in between; the restoration ends the
+    guide, and a reload or a later ready order does not restart it;
+  - steps already done are skipped, and a tap or merge done before being asked is not taught;
   - no energy, or a full board, gives no false target;
   - a reload resumes, older played camps get no guide, and Skip ends it;
   - the generator-merge tip and the rare uses.
 - **`tests/v5-next-guide-browser.cjs`** (in CI):
-  - **390×844, a new camp through the story and the guide only:** no second introduction; the coins line;
-    "Materials secured"; the coast screen's marked Build button; the result; a reload mid-loop resumes the
-    step; a reload keeps the result; the next delivery ends the guide.
-  - **360×780 and 907×510 with reduced motion:** the line and its target fit, and the demonstration stays
-    still; Skip, a reload, Help → Replay the guide, and an older played camp with no guide.
+  - **390×844, a new camp through the story and the guide:** no second introduction; each control highlighted
+    once, no highlight on the goal steps; the coins line; "Materials secured · +70 coins"; the coast screen's
+    Build button in view; "Guide complete. Next: Lay a boardwalk…"; a reload mid-loop resumes the step; after
+    the restoration, a reload and a later delivery bring no guide.
+  - **360×780 and 907×510 with reduced motion:** the line and its target fit, a tap is not taught twice, and
+    the demonstration stays still; Skip, a reload, Help → Replay the guide, and an older played camp with no
+    guide.
 - **Updated:** `tests/v5-next-story-browser.cjs` for the new last line and button, and for no second
   introduction after the story.
 
@@ -110,9 +123,7 @@ the guide. The tests cover this.
   strictly needed for the first restoration. The guide still shows the loop as "crew orders pay coins; the gold
   order brings materials". From the second stage (the boardwalk, 70 coins, with a smaller gold share) the
   split matters more. This is an economy observation for the opening, reported rather than changed.
-- **The coast screen at 390 px** shows the picture first. The marked Build button and the guide's line sit
-  below the picture, so a player may need to scroll a little.
-- **The guide marks only its own order.** Ready crew orders are left to the player and still glow in the
+- **The guide marks only its own order, once.** Ready crew orders are left to the player and still glow in the
   existing way, so two ready orders can briefly compete for attention.
 - **WebKit** cannot be installed here; it runs in CI only.
 
@@ -120,7 +131,7 @@ the guide. The tests cover this.
 - **Tideglass tip:** it said "merge beside it once more" after the first crack, but glass breaks on its third
   hit. It now gives the hits so far and the hits left. It also says how strong a merge must be: one that
   makes a part at least the level of the part inside (any merge for level 1–2 glass).
-- **Gold orders pay coins too:** the guide's gold lines, the result line, the Help recap ("A gold order pays
+- **Gold orders pay coins too:** the guide's gold lines, the closing "Guide complete. Next…" line, the Help recap ("A gold order pays
   coins too, and secures the materials…") and the gold delivery moment now say so. The moment reads
   "Materials secured · +70 coins" and "paid 70 coins and brought the materials for …". No economy value
   changed.
@@ -128,3 +139,15 @@ the guide. The tests cover this.
   smoothly after the screen opens, or at once with reduced motion, so the beginner does not have to scroll.
   The guide's line sits above the place card at full width. The browser test checks the button lies inside
   the 390×844 viewport.
+
+## PR #91: a one-time introduction
+Clarified scope: a short, one-time introduction to the basic controls, not a permanent order-solving assistant.
+- **Before:** every tap and merge toward the first orders was highlighted (26 highlighted actions), and the
+  guide ended only on the delivery after the first restoration.
+- **Now:** each control is highlighted once (5 highlights). Between them the line is a short goal with no
+  highlight, and the order cards show progress. The first restoration ends the guide. Any built stage keeps it
+  off, so later orders never restart it.
+- **Also fixed:**
+  - The order tools' "locate" button redrew the board without the guide's highlight. It now redraws it too.
+  - A CI-only failure in the browser test, which counted the merge highlight before its frame was drawn
+    (360×780, Chromium), now waits for the highlight.
