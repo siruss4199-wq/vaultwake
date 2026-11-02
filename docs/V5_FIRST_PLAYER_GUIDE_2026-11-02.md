@@ -57,7 +57,8 @@ takes over. Later orders, reloads and later restorations never restart it.
   pair only if one exists, the generator only with energy and a free space. Otherwise the line says what to
   do about energy or space and points at nothing.
 - **Nothing is blocked:** every control works as before, and the guide only re-words the hint line and adds
-  a ring. It sits behind any story card or dialog.
+  a ring. It sits behind any story card or dialog. Tapping a goal line works like tapping the normal hint
+  line (it taps the generator, delivers a ready order or marks a pair), so help comes on request only.
 - **Skip guide** sits beside the line. **Help → Replay the guide** plays four crew lines (tap and merge; crew
   orders pay coins; a gold order secures materials; the coast screen rebuilds a place), whatever the camp's
   progress.

@@ -437,13 +437,14 @@ function renderHint(){
  if(guide.kind==='merge'&&!state.merges)for(const i of guide.cells)board.querySelector(`[data-index="${i}"]`)?.classList.add('hintPair');
 }
 $('#hint').onclick=()=>{
- if(coach){const t=coach.target;
+ // a goal line (no highlight) still works like the normal hint line when tapped: its advice, on request
+ if(coach&&coach.id!=='goal'){const t=coach.target;
   if(coach.id==='tap'&&t)run({type:'produce',id:state.board[t.index]?.id,index:t.index});
   else if((coach.id==='deliver'||coach.id==='gold')&&t)run({type:'deliver',id:t.id});
   else if(t?.kind==='strip'){mapFocus=nextPlace()?.u.id??null;showMap();}
   else if(t?.kind==='pair')$('#message').textContent='Drag the moving part onto the one it points at.';
   return;}
- const g=guide;if(!g)return;
+ const g=coach?.id==='goal'?coach.advice:guide;if(!g)return;
  if(g.kind==='deliver')run({type:'deliver',id:g.id});
  else if(g.kind==='upgrade'){mapFocus=g.id;showMap();}
  else if(g.kind==='tap'){selected=g.index;run({type:'produce',id:g.id,index:g.index});render();}
