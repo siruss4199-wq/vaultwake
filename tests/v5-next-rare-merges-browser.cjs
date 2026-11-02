@@ -27,7 +27,10 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
  const mast=withKite(camp(0,{'beach-path':3,'beach-tent':3},540)),hoist=withKite(camp(1,{...done(AREAS[0]),...done(AREAS[1]),'ws-hoist':1,'ws-door':1},40));
  const rover=mast.board.findIndex(x=>x?.type==='source'&&x.id==='rig');
  const goldOf=s=>{const o=g.makeOrder(s);assert.ok(o.story);return o;};
- const mastGold=goldOf(mast),hoistGold=goldOf(hoist);
+ // build 51d: Chapter 1 gold orders take turns between recipe shapes (game.mjs goldShape); this flow is about the
+ // mast's usual materials and the hoist's Gear, so the turn is pinned to the usual shape while the orders are made
+ const turn=[...g.GOLD_TURN];g.GOLD_TURN.splice(0,turn.length,...turn.map(()=>0));
+ const mastGold=goldOf(mast),hoistGold=goldOf(hoist);g.GOLD_TURN.splice(0,turn.length,...turn);
  assert.equal(mastGold.story,'beach-mast');assert.deepEqual(mastGold.needs,[{family:'chart',tier:3,count:1},{family:'rig',tier:3,count:2}],'the mast\'s materials');assert.deepEqual(hoistGold.needs,[{family:'chart',tier:3,count:1},{family:'mech',tier:1,count:1}],'Gear the hoist asks a Gear instead of its second material');
  const engines=(process.env.ENGINES||'chromium,webkit').split(',').map(e=>[e,{chromium,webkit}[e]]);
  for(const [engine,type] of engines){

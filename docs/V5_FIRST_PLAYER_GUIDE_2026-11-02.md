@@ -230,3 +230,5 @@ butsaaj burn hiideg songolt heregtei baina mun guide hesgiig sain tod bolgomoor 
   - the hand is still with reduced motion;
   - Clear on a plain part (+1 energy, at once) and on a merged part (a second tap).
 - **`tests/v5-next-browser.cjs`:** its replay taps Clear twice when the part asks for it.
+- **`tests/v5-next-rare-merges-browser.cjs`:** it builds its mast and hoist gold orders with the shape turn pinned to the
+  usual recipe, since its flow is about the mast's usual materials and the hoist's Gear.
