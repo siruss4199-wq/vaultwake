@@ -51,8 +51,8 @@ test('the Answering Light: seven places in three stages, stable ids, a line each
  assert.ok(L.tasks.every(t=>t.stages.every(x=>x.lines.length===1&&x.cost>0)));
  assert.ok(L.tasks.every(t=>t.stages[0].cost<t.stages[1].cost&&t.stages[1].cost<t.stages[2].cost),'each stage costs more');
  // earlier chapters keep their indices and ids
- assert.deepEqual(AREAS.map(a=>a.id),['beach','worksite','entrance','vault','harbour','answering-light']);
- assert.equal(Object.keys(TASKS).length,35);for(const id of IDS)assert.equal(TASKS[id].area,'answering-light');
+ assert.deepEqual(AREAS.slice(0,6).map(a=>a.id),['beach','worksite','entrance','vault','harbour','answering-light']);
+ assert.equal(Object.keys(TASKS).filter(id=>!id.startsWith('ch5-')).length,35);for(const id of IDS)assert.equal(TASKS[id].area,'answering-light');
  assert.ok(IDS.every(id=>LABELS[id]),'every place has a label');
  // rewards: stages 1-2 their visible repair only; stage 3 a kit of 2 of a chain the camp already has
  for(const t of L.tasks){assert.deepEqual(t.stages[0].effect,{});assert.deepEqual(t.stages[1].effect,{});
@@ -117,17 +117,17 @@ test('a finished Chapter 3 save enters Chapter 4: board, shed, rewards, energy, 
  }
 });
 
-test('all 21 stages as a player buys them: each gold order as authored, each stage charged once, the relay last, then the end', ()=>{
+test('all 21 stages as a player buys them: each gold order as authored, each stage charged once, the relay last, then Chapter 5', ()=>{
  const s=load(JSON.stringify(chapter3Done()),5000);s.coins=90000;const log={gold:[],stages:[],paid:[]};let guard=0;
- while(!allDone(s)&&guard++<40)assert.ok(buyNext(s,log),'never stuck: '+JSON.stringify(upgrades(s)));
- assert.equal(allDone(s),true);assert.equal(areaDone(s,L),true);assert.equal(s.area,5);assert.equal(log.stages.length,21);
+ while(!areaDone(s,L)&&guard++<40)assert.ok(buyNext(s,log),'never stuck: '+JSON.stringify(upgrades(s)));
+ assert.equal(areaDone(s,L),true);assert.equal(s.area,6,'on to the Lowwater Passage (build 50a)');assert.equal(log.stages.length,21);
  for(const [id,n,needs] of log.gold)assert.deepEqual(needs.map(r=>[r.family,r.tier,r.count]),TASKS[id].stages[n-1].gold,`${id} ${n}`);
  for(const [k,[id,n]] of log.stages.entries())assert.equal(log.paid[k],TASKS[id].stages[n-1].cost,`${id} ${n}: charged its cost once`);
  assert.deepEqual(log.stages.at(-1),['ch4-relay',3],'the relay\'s stored message is last');
  assert.equal(new Set(log.stages.map(x=>x.join())).size,21,'each stage once');
- assert.equal(totalBuilt(s),105,'84 stages before and 21 here');assert.ok(!s.orders.some(o=>o?.story),'no gold order left');
+ assert.equal(totalBuilt(s),105,'84 stages before and 21 here');assert.deepEqual(s.orders.filter(o=>o?.story).map(o=>o.story),['ch5-landing'],'Chapter 5\'s first gold order, no Chapter 4 one left');
  // nothing is bought twice, after a reload either
- const t=load(JSON.stringify(s),9000);assert.equal(allDone(t),true);
+ const t=load(JSON.stringify(s),9000);assert.equal(areaDone(t,L),true);
  for(const id of IDS)assert.equal(act(t,{type:'restore',id},9000).ok,false);
 });
 

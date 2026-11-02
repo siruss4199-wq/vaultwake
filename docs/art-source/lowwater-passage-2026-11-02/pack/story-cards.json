@@ -1,0 +1,30 @@
+[
+  {
+    "title": "Arrival",
+    "speaker": "Bram",
+    "text": "The water has pulled back. The marked stones lead through the reef.",
+    "next_action": "Secure the reef landing",
+    "trigger": "entry"
+  },
+  {
+    "title": "The safe crossing",
+    "speaker": "Tamsin",
+    "text": "These tide marks explain when the route is safe. We can repair the crossing.",
+    "next_action": "Secure the rope bridge",
+    "trigger": "ch5-p3-s3"
+  },
+  {
+    "title": "A working route",
+    "speaker": "Neri",
+    "text": "The same wave seal. This ledger records deliveries to the inner station.",
+    "next_action": "Restore the mail desk",
+    "trigger": "ch5-p5-s3"
+  },
+  {
+    "title": "Behind the Vault",
+    "speaker": "Ivo",
+    "text": "The passage leads back beneath the Vault. Someone kept this route marked.",
+    "next_action": "Enter the inner station",
+    "trigger": "chapter5-complete"
+  }
+]

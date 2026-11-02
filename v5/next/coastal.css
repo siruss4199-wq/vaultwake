@@ -470,3 +470,7 @@ body.nextMode #board.board .tile.tile.located{outline:3px solid #ffb81f;outline-
 #endDialog .revealLine{margin:6px 0;display:flex;gap:10px;align-items:flex-start;text-align:left;background:#fff3dc;border-radius:14px;padding:8px 12px}
 #endDialog .revealLine img.face,#endDialog .revealLine svg{width:40px;height:40px;flex:none;border-radius:50%;object-fit:cover;object-position:50% 12%}
 #endDialog .revealLine b{display:block;color:var(--cb-turq2,#0e7f78);font-size:12px}
+/* Build 50a: Chapter 5, the Lowwater Passage. Its map is the same 1024 x 1195 crop as the headland's (the
+   .headland scene class). A story card without a painting shows a place's sprite whole on the sea. */
+.nextMode .revealPanel.story.sprite{background:radial-gradient(ellipse at 50% 70%,#bfeef5,#7fd0e4 70%,#5bb8d6)}
+.nextMode .revealPanel.story.sprite img{object-fit:contain;padding:6% 10%;box-sizing:border-box}

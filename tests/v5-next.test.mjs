@@ -406,11 +406,13 @@ test('the Survey Worksite: seven places in three stages, every stage a reward, t
  // Build 47e: the Observatory's five places follow the archive in the same area.
  // Build 48a: Chapter 3, the Hidden Harbour, has seven places (v5-next-chapter3.test.mjs); nothing
  // after it is listed.
- assert.equal(Object.keys(TASKS).length,35,'place ids are unique across areas');
+ assert.equal(Object.keys(TASKS).length,42,'place ids are unique across areas');
  assert.deepEqual(AREAS[2].tasks.map(t=>t.id),['vault-door']);assert.equal(AREAS[3].tasks[0].id,'vault-archive');
  assert.equal(AREAS[4].id,'harbour');assert.equal(AREAS[4].tasks.length,7);
  // build 49a: Chapter 4, the Answering Light, seven places after the harbour (v5-next-chapter4.test.mjs)
- assert.equal(AREAS[5].id,'answering-light');assert.equal(AREAS[5].tasks.length,7);assert.equal(AREAS.length,6);
+ assert.equal(AREAS[5].id,'answering-light');assert.equal(AREAS[5].tasks.length,7);
+ // build 50a: Chapter 5, the Lowwater Passage, seven places after the headland (v5-next-chapter5.test.mjs)
+ assert.equal(AREAS[6].id,'lowwater');assert.equal(AREAS[6].tasks.length,7);assert.equal(AREAS.length,7);
  // Its stages are bought like the beach's and keep the beach's stages.
  const s=stock(fresh(0));s.area=1;s.built=beachDone();s.coins=5000;
  assert.equal(nextTask(s).id,'ws-camp');const r=ok(s,{type:'restore'});assert.equal(r.task,'ws-camp');assert.equal(r.effects.energy,0,'a new camp is full (50 of 50): the stage\'s +8 tops up to the capacity only');

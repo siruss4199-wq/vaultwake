@@ -49,7 +49,7 @@ export const levelEnergy=level=>level<=EARLY_LEVELS?EARLY_LEVEL_ENERGY:CHEST_ENE
 export const LEVEL_PATH=[
  {level:3,id:'triple',name:'Triple merge',text:'Drag a level 3 or bigger part onto its twin while a third one touches it: all three make two of the next level.'},
  {level:5,id:'token',name:'Tide tokens from the crew',text:'Every eighth crew order also pays a Tide token.'},
- {level:8,id:'favour',name:'Crew favours',text:'Every sixth crew order asks one part a level higher and pays a Sea chest too (a Brass cog from the Survey Worksite on).'}
+ {level:8,id:'favour',name:'Crew favours',text:'Every sixth crew order asks one part a level higher and pays a bonus too: a Sea chest on the beach; from the Survey Worksite on, a Brass cog while a generator can still go up a level, else a Tide token.'}
 ];
 // The triple merge is for parts of level 3 and up (tier 2+): measured with the economy harness,
 // triples of smaller parts used up the cheap pairs a player merges for free while energy is out
@@ -58,6 +58,8 @@ export const TOKEN_EVERY=8,FAVOUR_EVERY=6,TRIPLE_MIN_TIER=2;
 // What a level-path order pays on top of its coins. A favour pays a Sea chest at the beach and a
 // Brass cog from the worksite on: cogs at the beach brought the Shell Trap out before the beach was
 // finished (measured, 4 s an action: 45 min against the beach's 54).
+// Build 50b: from the worksite on, a Brass cog only while a generator can still take a level (cogRoom),
+// else a Tide token.
 export const BONUSES=['token','chest','cog'],BONUS_NAMES={token:'Tide token',chest:'Sea chest',cog:'Brass cog'};
 // Secondary chains (pilot, 2026-10-29; docs/V5_SECONDARY_PILOT_2026-10-29.md). The Rivet Rover and
 // the Survey Kite sometimes make a part of their secondary chain (chains.mjs SECONDARY_OF). Two output
@@ -216,6 +218,13 @@ export const coins=n=>({type:'coins',n});
 export const source=id=>({type:'source',id});
 // A Brass cog (found in cargo, user: "generator ahiulagch"): drag it onto a generator for +1 level.
 export const cog=()=>({type:'cog'});
+// Build 50b: how many generator levels a Brass cog could still give: the levels below the top of every
+// generator the camp has (board, shed, waiting) less the cogs already held. By Chapter 4 every generator
+// is at its top level, and favours still paid a cog no generator could take: measured
+// (tests/v5-next-coins-metrics.mjs board=1), about 5 a chapter, 4.3 of them lying on Chapter 4's board on
+// average and 8.9 on Chapter 5's. A favour then pays a Tide token instead (makeOrder); cogs already held
+// stay where they are.
+export const cogRoom=s=>{let n=0;for(const x of [...s.board,...s.shed,...s.pending]){if(x?.type==='source')n+=Math.max(0,MAX_GENERATOR_LEVEL-producerLevel(x));else if(x?.type==='cog')n--;}return n;};
 // A Tide token (found in cargo, build 18): lay it on a part and it becomes a part of the same
 // tier that a crew order is waiting for.
 export const token=()=>({type:'token'});
@@ -480,7 +489,7 @@ export function makeOrder(s){
   // at once left slow players never short of energy (economy harness, 10 s an action).
   const k=n-FIRST.length,opened=s.pathNext;let bonus;
   if(unlocked(s,'favour')&&k%FAVOUR_EVERY===FAVOUR_EVERY-1){const r=needs[0],up=Math.min(ORDER_TOP,maxTier(r.family)-1,hi(r.family)+1);
-   if(up>r.tier){needs=structuredClone(needs);needs[0]={family:r.family,tier:up,count:1};bonus=s.area>=1?'cog':'chest';}}
+   if(up>r.tier){needs=structuredClone(needs);needs[0]={family:r.family,tier:up,count:1};bonus=s.area>=1?(cogRoom(s)>0?'cog':'token'):'chest';}}
   if(!bonus&&unlocked(s,'token')&&(opened==='token'||k%TOKEN_EVERY===TOKEN_EVERY-1))bonus='token';
   if(opened==='token'&&bonus==='token')delete s.pathNext;
   // Never two identical cards (2026-10-26: with one generator out, two-part jobs of one chain could
@@ -1141,6 +1150,10 @@ export function load(raw,now=Date.now()){
   // the launch: its card, now Chapter 3's last story card leading on, is not shown again. Its Chapter 4
   // arrival is still to come (seen flags are per card: Chapter 3's end is not Chapter 4's).
   if(s.seenEnd&&!allDone(s)&&areaDone(s,AREAS.find(a=>a.id==='harbour')))s.seen['hb-launch']=true;
+  // Build 50a: the same for Chapter 4: its stored message was the end card; it is now Chapter 4's last
+  // card, which such a camp has seen (the Chapter 5 arrival is not marked: a Chapter 4 end is not a
+  // Chapter 5 flag).
+  if(s.seenEnd&&!allDone(s)&&areaDone(s,AREAS.find(a=>a.id==='answering-light')))s.seen['ch4-message']=true;
   if(s.seenEnd&&!allDone(s)){delete s.seenEnd;ensureGold(s);}
   if(s.aim!==undefined&&!(typeof s.aim==='string'&&TASKS[s.aim]))delete s.aim;
   if(before41)for(const u of upgrades(s))s.materials[u.id]=u.stage;

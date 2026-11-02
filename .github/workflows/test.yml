@@ -36,7 +36,9 @@ jobs:
     runs-on: ubuntu-latest
     # Full mobile matrix approaches 15 minutes before the final viewport checks; the Coast Camp step
     # (Chromium and WebKit, Chapters 1-2) took about 10 more in Build 47e, so the job gets 30.
-    timeout-minutes: 30
+    # Build 50b: Chapters 3-5 grew the Coast step past that (run 477 was cancelled at 30 min), so 45;
+    # the chapter suites play all 21 stages by hand in Chromium only.
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -120,6 +122,7 @@ jobs:
           node tests/v5-next-energy-browser.cjs
           node tests/v5-next-rare-merges-browser.cjs
           node tests/v5-next-chapter4-browser.cjs
+          node tests/v5-next-chapter5-browser.cjs
           node tests/v5-next-chapter3-browser.cjs
           node tests/v5-next-chapter2-browser.cjs
       # Preserve compact debugging evidence only. Playwright videos can be >100 MB

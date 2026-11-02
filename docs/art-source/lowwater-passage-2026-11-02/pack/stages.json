@@ -1,0 +1,464 @@
+[
+  {
+    "id": "ch5-p1-s1",
+    "place": "Reef landing",
+    "stage": 1,
+    "name": "Clear driftwood",
+    "requires": [
+      "chapter4-complete"
+    ],
+    "coin_cost_candidate": 300,
+    "materials_candidate": [
+      {
+        "family": "rig",
+        "tier": 3,
+        "count": 1
+      },
+      {
+        "family": "chart",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch5-p1-s2",
+    "place": "Reef landing",
+    "stage": 2,
+    "name": "Brace landing",
+    "requires": [
+      "ch5-p1-s1"
+    ],
+    "coin_cost_candidate": 320,
+    "materials_candidate": [
+      {
+        "family": "rig",
+        "tier": 3,
+        "count": 1
+      },
+      {
+        "family": "chart",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch5-p1-s3",
+    "place": "Reef landing",
+    "stage": 3,
+    "name": "Fit mooring posts",
+    "requires": [
+      "ch5-p1-s2"
+    ],
+    "coin_cost_candidate": 340,
+    "materials_candidate": [
+      {
+        "family": "rig",
+        "tier": 4,
+        "count": 1
+      },
+      {
+        "family": "chart",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch5-p2-s1",
+    "place": "Causeway",
+    "stage": 1,
+    "name": "Reset stones",
+    "requires": [
+      "ch5-p1-s3"
+    ],
+    "coin_cost_candidate": 315,
+    "materials_candidate": [
+      {
+        "family": "rope",
+        "tier": 3,
+        "count": 1
+      },
+      {
+        "family": "shell",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch5-p2-s2",
+    "place": "Causeway",
+    "stage": 2,
+    "name": "Bridge gaps",
+    "requires": [
+      "ch5-p2-s1"
+    ],
+    "coin_cost_candidate": 335,
+    "materials_candidate": [
+      {
+        "family": "rope",
+        "tier": 3,
+        "count": 1
+      },
+      {
+        "family": "shell",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch5-p2-s3",
+    "place": "Causeway",
+    "stage": 3,
+    "name": "Mark safe crossing",
+    "requires": [
+      "ch5-p2-s2"
+    ],
+    "coin_cost_candidate": 355,
+    "materials_candidate": [
+      {
+        "family": "rope",
+        "tier": 4,
+        "count": 1
+      },
+      {
+        "family": "shell",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch5-p3-s1",
+    "place": "Tide gauge",
+    "stage": 1,
+    "name": "Clean gauge",
+    "requires": [
+      "ch5-p2-s3"
+    ],
+    "coin_cost_candidate": 330,
+    "materials_candidate": [
+      {
+        "family": "chart",
+        "tier": 3,
+        "count": 1
+      },
+      {
+        "family": "lamp",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch5-p3-s2",
+    "place": "Tide gauge",
+    "stage": 2,
+    "name": "Fit float",
+    "requires": [
+      "ch5-p3-s1"
+    ],
+    "coin_cost_candidate": 350,
+    "materials_candidate": [
+      {
+        "family": "chart",
+        "tier": 3,
+        "count": 1
+      },
+      {
+        "family": "lamp",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch5-p3-s3",
+    "place": "Tide gauge",
+    "stage": 3,
+    "name": "Calibrate tide marks",
+    "requires": [
+      "ch5-p3-s2"
+    ],
+    "coin_cost_candidate": 370,
+    "materials_candidate": [
+      {
+        "family": "chart",
+        "tier": 4,
+        "count": 1
+      },
+      {
+        "family": "notes",
+        "tier": 1,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch5-p4-s1",
+    "place": "Rope bridge",
+    "stage": 1,
+    "name": "Anchor cables",
+    "requires": [
+      "ch5-p3-s3"
+    ],
+    "coin_cost_candidate": 345,
+    "materials_candidate": [
+      {
+        "family": "shell",
+        "tier": 3,
+        "count": 1
+      },
+      {
+        "family": "optic",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch5-p4-s2",
+    "place": "Rope bridge",
+    "stage": 2,
+    "name": "Lay walkway",
+    "requires": [
+      "ch5-p4-s1"
+    ],
+    "coin_cost_candidate": 365,
+    "materials_candidate": [
+      {
+        "family": "shell",
+        "tier": 3,
+        "count": 1
+      },
+      {
+        "family": "optic",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch5-p4-s3",
+    "place": "Rope bridge",
+    "stage": 3,
+    "name": "Secure handrails",
+    "requires": [
+      "ch5-p4-s2"
+    ],
+    "coin_cost_candidate": 385,
+    "materials_candidate": [
+      {
+        "family": "shell",
+        "tier": 4,
+        "count": 1
+      },
+      {
+        "family": "optic",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch5-p5-s1",
+    "place": "Courier shelter",
+    "stage": 1,
+    "name": "Repair roof",
+    "requires": [
+      "ch5-p4-s3"
+    ],
+    "coin_cost_candidate": 360,
+    "materials_candidate": [
+      {
+        "family": "lamp",
+        "tier": 3,
+        "count": 1
+      },
+      {
+        "family": "rig",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch5-p5-s2",
+    "place": "Courier shelter",
+    "stage": 2,
+    "name": "Dry shelter",
+    "requires": [
+      "ch5-p5-s1"
+    ],
+    "coin_cost_candidate": 380,
+    "materials_candidate": [
+      {
+        "family": "lamp",
+        "tier": 3,
+        "count": 1
+      },
+      {
+        "family": "mech",
+        "tier": 1,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch5-p5-s3",
+    "place": "Courier shelter",
+    "stage": 3,
+    "name": "Light courier shelter",
+    "requires": [
+      "ch5-p5-s2"
+    ],
+    "coin_cost_candidate": 400,
+    "materials_candidate": [
+      {
+        "family": "lamp",
+        "tier": 4,
+        "count": 1
+      },
+      {
+        "family": "rig",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch5-p6-s1",
+    "place": "Mail desk",
+    "stage": 1,
+    "name": "Restore desk",
+    "requires": [
+      "ch5-p5-s3"
+    ],
+    "coin_cost_candidate": 375,
+    "materials_candidate": [
+      {
+        "family": "optic",
+        "tier": 3,
+        "count": 1
+      },
+      {
+        "family": "rope",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch5-p6-s2",
+    "place": "Mail desk",
+    "stage": 2,
+    "name": "Sort dispatches",
+    "requires": [
+      "ch5-p6-s1"
+    ],
+    "coin_cost_candidate": 395,
+    "materials_candidate": [
+      {
+        "family": "optic",
+        "tier": 3,
+        "count": 1
+      },
+      {
+        "family": "rope",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch5-p6-s3",
+    "place": "Mail desk",
+    "stage": 3,
+    "name": "Read route ledger",
+    "requires": [
+      "ch5-p6-s2"
+    ],
+    "coin_cost_candidate": 415,
+    "materials_candidate": [
+      {
+        "family": "optic",
+        "tier": 4,
+        "count": 1
+      },
+      {
+        "family": "notes",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch5-p7-s1",
+    "place": "Inner lock",
+    "stage": 1,
+    "name": "Clear lock entrance",
+    "requires": [
+      "ch5-p6-s3"
+    ],
+    "coin_cost_candidate": 390,
+    "materials_candidate": [
+      {
+        "family": "rig",
+        "tier": 3,
+        "count": 1
+      },
+      {
+        "family": "chart",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch5-p7-s2",
+    "place": "Inner lock",
+    "stage": 2,
+    "name": "Repair lock gear",
+    "requires": [
+      "ch5-p7-s1"
+    ],
+    "coin_cost_candidate": 410,
+    "materials_candidate": [
+      {
+        "family": "rig",
+        "tier": 3,
+        "count": 1
+      },
+      {
+        "family": "chart",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch5-p7-s3",
+    "place": "Inner lock",
+    "stage": 3,
+    "name": "Open inner passage",
+    "requires": [
+      "ch5-p7-s2"
+    ],
+    "coin_cost_candidate": 430,
+    "materials_candidate": [
+      {
+        "family": "rig",
+        "tier": 4,
+        "count": 1
+      },
+      {
+        "family": "chart",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  }
+]
