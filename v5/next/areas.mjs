@@ -28,7 +28,8 @@ export const AREAS=[
  // map (Build 41n): the coast screen's own picture, painted from above, with each place's stage
  // drawn on it as a separate layer standing on its point (at = where its ground sits, in %).
  {id:'beach',name:'Landing Beach',short:'BEACH',picture:'landing',map:'landing-map',
-  intro:[['neri','The storm left us one beach and a lot of sand. Somewhere under the cliff is the Tideglass Vault.'],['ivo','First we make this beach a camp. Bring me parts and I will put them to work.']],
+  // build 51c: one line, the story's own (shown only when a new camp's story was not just played)
+  intro:[['ivo','The letter brought us to that Vault. First, let\'s clear a landing.']],
   tasks:[
    place('beach-path','rock',[27,86],[
     {name:'Clear the landing path',cost:40,effect:{kit:['rig',1]},lines:[['ivo','A path from the boats to dry ground. Now the crew can carry real loads.'],['ivo','Somebody left a driftwood crate on it: it is ours now.']]},

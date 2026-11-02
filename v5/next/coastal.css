@@ -434,19 +434,25 @@ body.nextMode header #energyPill.overCap #energyTimer{background:#b5740d;color:#
    only behind "How to make these". */
 body.nextMode .orderTools .goldSay b{font-size:13px;letter-spacing:0;text-transform:none;color:var(--cb-ink,#173a52)}
 body.nextMode .orderTools .goldSay small{display:block;font-size:11px;color:var(--bc-ink2,#4d6470)}
-body.nextMode .orderTools .goldNeeds{list-style:none;margin:4px 0 0;padding:0;display:flex;flex-direction:column;gap:4px}
-body.nextMode .orderTools .goldNeed{display:flex;align-items:center;gap:8px;min-height:44px}
+body.nextMode .orderTools .goldSay small b{display:inline;font-size:inherit;color:var(--cb-ink,#173a52)}
+/* Build 51d: the parts as chips side by side; one generator button per generator, at the end of the row */
+body.nextMode .orderTools .goldRow{display:flex;align-items:center;gap:6px;margin-top:4px}
+body.nextMode .orderTools .goldNeeds{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:4px 10px;flex:1;min-width:0}
+body.nextMode .orderTools .goldNeed{display:flex;align-items:center;gap:6px;min-height:36px}
+body.nextMode .orderTools .goldNeed.wide{flex-basis:100%}
+body.nextMode .orderTools .goldFind{display:flex;gap:4px;flex:none;align-self:flex-start}
 body.nextMode .orderTools .goldIcon{width:34px;height:34px;flex:none;display:grid;place-items:center;border-radius:9px;background:#fff7e2;box-shadow:inset 0 0 0 1.5px #f5c24e}
 body.nextMode .orderTools .goldIcon :is(svg,img){width:30px;height:30px;object-fit:contain}
 body.nextMode .orderTools .goldNeed.met .goldIcon{background:#e3f6ee;box-shadow:inset 0 0 0 1.5px #3bb58a}
-body.nextMode .orderTools .goldText{flex:1;min-width:0;display:flex;flex-direction:column}
+body.nextMode .orderTools .goldText{min-width:0;display:flex;flex-direction:column}
+body.nextMode .orderTools .goldNeed.wide .goldText{flex:1}
 body.nextMode .orderTools .goldText b{font-size:12.5px;color:var(--cb-ink,#173a52)}
 body.nextMode .orderTools .goldText b em{font-style:normal;color:var(--cb-turq2,#0e7f78);margin-left:4px}
 body.nextMode .orderTools .goldText small{font-size:11px;line-height:1.25;color:var(--bc-ink2,#4d6470);overflow-wrap:anywhere}
 body.nextMode .orderTools .locate{width:44px;height:44px;flex:none;display:grid;place-items:center;border-radius:12px;border:0;background:#d9f4f2;box-shadow:inset 0 0 0 1.5px #2fb3a6;cursor:pointer}
 body.nextMode .orderTools .locate :is(svg,img){width:32px;height:32px;object-fit:contain}
 body.nextMode .orderTools .goldCost{margin:4px 0 0;font-size:12px;color:var(--cb-ink,#173a52)}
-body.nextMode .orderTools .goldHow{margin-top:4px;font-size:12px}
+body.nextMode .orderTools .goldHow{margin-top:0;font-size:12px}
 body.nextMode .orderTools .goldHow summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font-weight:800;color:var(--cb-turq2,#0e7f78)}
 body.nextMode .orderTools .goldHow .routes{margin-top:4px}
 /* the generator the panel points at glows for a moment (a still outline with reduced motion) */
@@ -474,3 +480,32 @@ body.nextMode #board.board .tile.tile.located{outline:3px solid #ffb81f;outline-
    .headland scene class). A story card without a painting shows a place's sprite whole on the sea. */
 .nextMode .revealPanel.story.sprite{background:radial-gradient(ellipse at 50% 70%,#bfeef5,#7fd0e4 70%,#5bb8d6)}
 .nextMode .revealPanel.story.sprite img{object-fit:contain;padding:6% 10%;box-sizing:border-box}
+/* Build 51c: the first-player guide. One line (the hint, styled as the guide) and one target: a soft
+   pulsing ring; for a pair, a ghost of the first part slides onto the second. Reduced motion: still rings. */
+body.nextMode .boardHeading #hint.primaryAction[data-kind="coach"]{display:block!important;flex:1;min-width:0;background:linear-gradient(#fffaf0,#fff1cf)!important;color:#5a3c06!important;box-shadow:0 0 0 2px #f5c24e,0 3px 8px #e9a52140;font-weight:800;white-space:normal;line-height:1.25;text-align:left}
+body.nextMode .boardHeading:has(#hint[data-kind="coach"]) .nextPlace{display:none}
+body.nextMode .boardHeading .coachSkip{flex:none;min-height:44px;padding:0 10px;border:0;border-radius:999px;background:#ffffffb3;color:#2a5a62;font:700 12px/1 inherit;cursor:pointer}
+body.nextMode .coachTarget,body.nextMode .coachFrom,body.nextMode .coachTo{position:relative;z-index:2;outline:3px solid #f5c24e;outline-offset:2px;border-radius:12px}
+body.nextMode #board .tile.coachTarget,body.nextMode #board .tile.coachTo{box-shadow:0 0 0 3px #f5c24e,0 0 14px #f5c24ecc}
+@media (prefers-reduced-motion:no-preference){
+ body.nextMode .coachTarget,body.nextMode .coachTo{animation:coachPulse 1.4s ease-in-out infinite}
+ body.nextMode #board .tile.coachFrom::after{content:"";position:absolute;inset:18%;border-radius:50%;background:#ffffffb0;box-shadow:0 0 0 2px #f5c24e;pointer-events:none;animation:coachDrag 1.8s ease-in-out infinite}
+}
+@keyframes coachPulse{0%,100%{outline-color:#f5c24e}50%{outline-color:#f5c24e33}}
+@keyframes coachDrag{0%,15%{transform:translate(0,0);opacity:0}25%{opacity:1}75%{transform:translate(var(--dx,0),var(--dy,0));opacity:1}90%,100%{transform:translate(var(--dx,0),var(--dy,0));opacity:0}}
+#help .helpReplay{margin-top:12px;min-height:44px;width:100%}
+#coastMap .coachLine{margin:0 0 6px;padding:6px 10px;border-radius:10px;background:#fff1cf;color:#5a3c06;font-weight:800;font-size:13px;box-shadow:0 0 0 2px #f5c24e}
+/* Build 51d: the guide's pointing hand and its label ("Tap here"); the fingertip sits on the target's middle.
+   It never takes a tap and stays still with reduced motion. */
+#coachHand{position:fixed;left:0;top:0;width:0;height:0;z-index:40;pointer-events:none}
+#coachHand[hidden]{display:none}
+#coachHand svg,#coastMap .coachHand svg{position:absolute;left:-14px;top:-3px;width:34px;height:40px;fill:#fff;stroke:#3a2a10;stroke-width:2.6;stroke-linejoin:round;filter:drop-shadow(0 2px 3px #0007)}
+#coachHand .handLabel,#coastMap .coachHand .handLabel{position:absolute;top:40px;left:0;transform:translateX(calc(-50% + var(--lx,0px)));white-space:nowrap;padding:5px 9px;border-radius:999px;background:#3a2a10;color:#fff;font:800 12px/1.1 system-ui,sans-serif;box-shadow:0 2px 6px #0005}
+#coastMap .coachHand{position:absolute;left:50%;top:50%;width:0;height:0;pointer-events:none;z-index:3}
+#coastMap [data-restore].coachTarget{overflow:visible}
+@media (prefers-reduced-motion:no-preference){
+ #coachHand:not(.drag) svg,#coastMap .coachHand svg{animation:coachTap 1.1s ease-in-out infinite}
+ #coachHand.drag svg{animation:coachHandDrag 1.8s ease-in-out infinite}
+}
+@keyframes coachTap{0%,100%{transform:translateY(7px) scale(1)}45%{transform:translateY(0) scale(.94)}}
+@keyframes coachHandDrag{0%,15%{transform:translate(0,0)}75%,100%{transform:translate(var(--dx,0),var(--dy,0))}}

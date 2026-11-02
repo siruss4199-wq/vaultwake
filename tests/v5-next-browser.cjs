@@ -20,7 +20,7 @@ async function perform(page,a){
  else if(a.type==='deliver')await page.locator(`[data-order="${a.id}"]`).tap();
  // Upgrades happen on the separate beach screen: go there, upgrade, watch the story, come back.
  else if(a.type==='restore'){await page.locator('#mapButton').tap();await page.locator(`#coastMap .place[data-place="${a.id}"] button`).tap();await page.locator(`#coastMap [data-restore="${a.id}"]`).tap();await closeBeats(page);await page.locator('#coastMap [data-back]').tap();}
- else if(a.type==='recycle'){if(!await pressed(a.index))await tile(a.index).tap();await page.locator('#selection [data-action="recycle"]').tap();}
+ else if(a.type==='recycle'){if(!await pressed(a.index))await tile(a.index).tap();const c=page.locator('#selection [data-action="recycle"]');const confirm=await c.getAttribute('data-confirm');await c.tap();if(confirm)await page.locator('#selection [data-action="recycle"]').tap();}// build 51d: a second tap for a merged, wanted or rare part
  else if(a.type==='ration')await page.locator('#rationButton').tap();
  else if(a.type==='unseal')await dragTo(page,a.from,a.index);
  // The book (build 33): open it, tick the part off (or claim the page's cog), close it.

@@ -3,6 +3,7 @@
 import {blockedStage,isStuck,allDone,swapsLeft,adSwapsLeft,SHOP,shopLeft,BOOK_COINS,BOOK_CHAINS,bookKeys,bookReady,pageReady,SHED_SLOTS,DAILY,newestGenerator,cog,token,SAVE_KEY,fresh,load,act,tick,nameOf,item,matches,count,orderItems,nextTask,currentArea,areaDone,upgrades,stageOf,builtCount,sourceOpen,SOURCES,chainsOf,CRATES,cargoKeys,reachable,generatorsMerge,MAX_GENERATOR_LEVEL,GLASS_HITS,nextKind,UNLOCK_LEVEL,GENERATOR_ORDER,storyTarget,roleOf,SECONDARY_RULES,SECONDARY_OF,secondarySource} from './game.mjs';
 import {AREAS,STAGES,TASKS,LABELS} from './areas.mjs';
 import {primaryAction} from './guide.mjs';
+import {coachStep,coachActive,laterTip,nextRareUse,COACH_ON,COACH_DONE,FIRST_PLACE} from './coach.mjs';
 import {needsOf,missingOf,levelOf} from './needs.mjs';
 import {LEVEL_PATH,BONUS_NAMES,CHEST_ENERGY,EARLY_LEVELS,EARLY_LEVEL_ENERGY,ONBOARDING,goldChase} from './game.mjs';
 import {kit} from '../kits.mjs';
@@ -38,7 +39,7 @@ function moment(title,detail='',x=null){sharedMoment(title,detail,null);const el
 let adPlaying=false;
 const sfx=(kind,tier=0)=>sounds.play(kind,tier,{muted:adPlaying||platform.muted()});
 // Shown in the footer so a playtester can tell which build is running.
-export const BUILD='Build 51b · Chapter 1 rare merge goals';
+export const BUILD='Build 51d · varied gold orders, Clear, a pointing guide';
 // The level path (docs/V5_LEVEL_PATH_2026-10-27.md): a crew order that pays a tool on top shows it
 // beside its coins (a Tide token; a favour's Sea chest, Brass cog or, once no generator can go up, Tide token).
 const bonusThing=o=>o.bonus==='cog'?cog():o.bonus==='chest'?kit(newestGenerator(state),2):o.bonus==='token'?token():null;
@@ -230,20 +231,33 @@ function routeWhy(r,gold=false){
  if(sec&&gold&&goldChase(state,r.family))return {ok:true,text:`Tap a level ${SECONDARY_RULES[gen].level}+ ${name}: while this order waits, a ${CHAINS[r.family].names[0]} comes within every ${SECONDARY_RULES[gen].goldPity} taps${reach}`};
  return {ok:true,text:sec?`A rare extra from level ${SECONDARY_RULES[gen].level}+ ${name} taps${reach}`:`Tap ${name}${reach}`};
 }
-function chainRoute(r){
- const gen=CHAINS[r.family].gen,why=routeWhy(r),steps=Array.from({length:r.tier+1},(_,k)=>k);
- return `<li class="route ${why.ok?'':'sealed'}"><span class="routeGen">${draw({type:'source',id:gen})}</span>${steps.map(k=>`<i class="routeArrow" aria-hidden="true"></i><span class="routeStep ${k===r.tier?'goal':''}" title="${CHAINS[r.family].names[k]}">${draw(item(r.family,k))}</span>`).join('')}<small>${why.text}</small></li>`;
+// brief (the gold panel, whose rows already say where each part comes from): an everyday chain is its
+// pictures only; a rare or not-yet-open one keeps its words
+function chainRoute(r,brief=false){
+ const gen=CHAINS[r.family].gen,why=routeWhy(r),steps=Array.from({length:r.tier+1},(_,k)=>k),words=!brief||!why.ok||CHAINS[r.family].secondary;
+ return `<li class="route ${why.ok?'':'sealed'}" aria-label="${CHAINS[r.family].names[r.tier]}: ${why.text}"><span class="routeGen">${draw({type:'source',id:gen})}</span>${steps.map(k=>`<i class="routeArrow" aria-hidden="true"></i><span class="routeStep ${k===r.tier?'goal':''}" title="${CHAINS[r.family].names[k]}">${draw(item(r.family,k))}</span>`).join('')}${words?`<small>${why.text}</small>`:''}</li>`;
 }
 // Build 48b: the gold order's panel is compact: the stage, each material with what is held of it, where
 // it comes from (or what opens it), the build cost against the coins held, and a button that shows the
 // generator on the board. The full chains are behind "How to make these".
+// Build 51d (user: "ene tailbar arai urt ih uu"): an everyday part says only "From Rivet Rover" (the button
+// beside it shows the generator) and its chain under "How to make these" is pictures only, so the panel no
+// longer says the same sentence twice per part. A rare or not-yet-open part keeps its words.
 function goldPanel(o){
  const t=TASKS[o.story],u=upgrades(state).find(v=>v.id===o.story),st=t.stages[Math.min(STAGES,stageOf(state,t.id)+1)-1],cost=u?.cost??st.cost;
- const need=needsOf(state,o).map(r=>{const why=routeWhy(r,true),gen=CHAINS[r.family].gen;
-  return `<li class="goldNeed ${r.have>=r.count?'met':''}"><span class="goldIcon">${draw(item(r.family,r.tier))}</span><span class="goldText"><b>${nameOf(item(r.family,r.tier))} <em>${r.have}/${r.count}</em></b><small>${r.have>=r.count?'On the board':why.text}</small></span>${r.have<r.count&&why.ok?`<button class="locate" type="button" data-locate="${gen}" aria-label="Show the ${SOURCES[gen].name}">${draw({type:'source',id:gen})}</button>`:''}</li>`;}).join('');
+ // Build 51d (user: "tom zai ezelsen heveeree l bainadaa"): one line for the place and the coins, the parts as
+ // small chips side by side, and one button per generator (not per part). A rare or not-yet-open part keeps
+ // its words on a chip of its own.
+ const gens=[];
+ const need=needsOf(state,o).map(r=>{const why=routeWhy(r,true),gen=CHAINS[r.family].gen,met=r.have>=r.count,plain=why.ok&&!CHAINS[r.family].secondary;
+  if(!met&&why.ok&&!gens.includes(gen))gens.push(gen);
+  const name=nameOf(item(r.family,r.tier));
+  return `<li class="goldNeed ${met?'met':''} ${met||plain?'':'wide'}" aria-label="${name} ${r.have} of ${r.count}${met?', on the board':plain?`, from ${SOURCES[gen].name}`:`: ${why.text}`}"><span class="goldIcon">${draw(item(r.family,r.tier))}</span><span class="goldText"><b>${name} <em>${r.have}/${r.count}</em></b>${met||plain?'':`<small>${why.text}</small>`}</span></li>`;}).join('');
  const short=Math.max(0,cost-state.coins);
  const where=LABELS[t.id]?LABELS[t.id][0].toUpperCase()+LABELS[t.id].slice(1):AREAS.find(a=>a.id===t.area)?.name??t.name;
- return `<p class="orderSay goldSay"><b>${st.name}</b><small>${where} · materials, then ${COIN}${cost} to build</small></p><ul class="goldNeeds">${need}</ul><p class="goldCost">${short?`${COIN}${state.coins} of ${cost}: <b>${short} more</b> from crew orders`:`${COIN}${cost} to build: <b>you have it</b>`}</p><details class="goldHow"><summary>How to make these</summary><ol class="routes">${missingOf(state,o).map(chainRoute).join('')}</ol></details>`;
+ const coins=short?`${COIN}${state.coins} of ${cost}: <b>${short} more</b> from crew orders`:`${COIN}${cost} to build: <b>you have it</b>`;
+ const find=gens.map(gen=>`<button class="locate" type="button" data-locate="${gen}" aria-label="Show the ${SOURCES[gen].name}">${draw({type:'source',id:gen})}</button>`).join('');
+ return `<p class="orderSay goldSay"><b>${st.name}</b><small>${where} · ${coins}</small></p><div class="goldRow"><ul class="goldNeeds">${need}</ul>${find?`<span class="goldFind">${find}</span>`:''}</div><details class="goldHow"><summary>How to make these</summary><ol class="routes">${missingOf(state,o).map(r=>chainRoute(r,true)).join('')}</ol></details>`;
 }
 function renderOrderTools(){
  const o=state.orders.find(o=>o.id===focusOrder),bar=$('#orderTools');
@@ -360,12 +374,12 @@ function renderSelection(){
   // Build 48b: a rare part the gold order's materials take, as it is or merged up, says for which place
   {const gold=state.orders.find(o=>o?.story),r=gold&&CHAINS[x.family].secondary?gold.needs.find(q=>q.family===x.family&&q.tier>=x.tier):null;
    if(r){const place=LABELS[gold.story]??TASKS[gold.story].stages[Math.min(STAGES,stageOf(state,gold.story)+1)-1].name;desc=`Needed for ${place}${r.tier>x.tier?`: merge matching items to reach ${CHAINS[r.family].names[r.tier]}`:''}. `+desc;}}
-  // Clearing a part only appears when the board is nearly full (Build 41 M4): it is the way out of
-  // a full board, not an everyday energy trick.
-  // A secondary part (pilot) cost no energy, so clearing it gives none: it is not an energy trick, and
-  // a finished keepsake can be cleared at any time.
-  if(CHAINS[x.family].secondary)buttons='<button data-action="recycle">Clear</button>';
-  else if(state.board.filter(y=>y===null).length<=2)buttons='<button data-action="recycle">Clear space · +1 ϟ</button>';
+  // Build 51d (user, 2026-11-02: "itemaa butsaaj burn hiideg songolt heregtei baina"): every loose part can
+  // be cleared, not only on a nearly full board (Build 41 M4). The rule is unchanged (game.mjs recycle):
+  // an everyday part gives back the 1 energy a tap costs, so it is no energy trick; a rare part (pilot) cost
+  // no energy and gives none. A part an order wants, a merged part or a rare part asks for a second tap.
+  {const rare=!!CHAINS[x.family].secondary,careful=rare||x.tier>=1||who.length>0,nearlyFull=state.board.filter(y=>y===null).length<=2;
+   buttons=`<button data-action="recycle"${careful?' data-confirm="1"':''}>${rare?'Clear':nearlyFull?'Clear space · +1 ϟ':'Clear · +1 ϟ'}</button>`;}
  }else if(x.type==='source'){
   const chain=CHAINS[GENERATOR_CHAINS[x.id][0][0]];
   const next=nextKind(x.id),waiting=next&&!state.board.some(y=>y?.type==='source'&&y.id===next);
@@ -402,9 +416,56 @@ const has=id=>state.board.some(x=>x?.type==='source'&&x.id===id);
 // The one primary action (Build 41 M3, from PR #77's contextual objective): what to do next,
 // and tapping it does it or shows where.
 let guide=null;
+// Build 51c: the first-player guide (coach.mjs) and later one-time tips speak through this same line:
+// one short sentence, one highlighted target (a pulse; a drag demonstration for a pair; still with
+// reduced motion). Nothing is blocked: every other control works as before.
+let coach=null,coachNote=null;
+function clearCoach(){for(const el of document.querySelectorAll('.coachTarget,.coachFrom,.coachTo'))el.classList.remove('coachTarget','coachFrom','coachTo');coachHand(null);}
+// Build 51d (user, 2026-11-02: "guide hesgiig sain tod bolgomoor baina yag end touch hii geed"): a pointing
+// hand and a short label on the guide's target ("Tap here", "Drag onto its twin"). It never takes a tap
+// (pointer-events: none), it sits under any dialog, and with reduced motion it stays still.
+const HAND_SVG='<svg viewBox="0 0 48 56" aria-hidden="true"><path d="M20 4c-2.8 0-5 2.2-5 5v21l-3.2-3.1c-2-2-5.2-2-7.1 0-1.9 1.9-1.9 5 0 7l11.3 11.6c2.6 2.6 6 4.5 9.7 4.5h6.3c6.9 0 12-5.6 12-12.5V24c0-2.5-2-4.5-4.5-4.5-1 0-1.9.3-2.6.8-.6-2-2.4-3.3-4.4-3.3-1.2 0-2.3.4-3.1 1.1-.7-1.7-2.4-2.9-4.4-2.9-.9 0-1.7.2-2.4.6V9c0-2.8-2.2-5-5-5z"/></svg>';
+let handFor=null,handLow=false;
+// low: the fingertip on the target's bottom row (an order card's Deliver line), so the parts stay visible
+function coachHand(el,label,drag,low=false){
+ let h=document.getElementById('coachHand');
+ if(!el){handFor=null;if(h)h.hidden=true;return;}
+ if(!h){h=document.createElement('div');h.id='coachHand';h.setAttribute('aria-hidden','true');h.innerHTML=HAND_SVG+'<span class="handLabel"></span>';document.body.append(h);}
+ handFor=el;handLow=low;h.querySelector('.handLabel').textContent=label;h.classList.toggle('drag',!!drag);
+ h.style.setProperty('--dx',`${drag?.dx??0}px`);h.style.setProperty('--dy',`${drag?.dy??0}px`);placeHand();
+}
+function placeHand(){
+ const h=document.getElementById('coachHand');if(!h)return;
+ const r=handFor?.isConnected&&!homeOpen&&!document.querySelector('#story:not([hidden])')?handFor.getBoundingClientRect():null;
+ if(!r?.width){h.hidden=true;return;}
+ h.hidden=false;h.style.left=`${r.left+r.width/2}px`;h.style.top=`${handLow?r.bottom-14:r.top+r.height/2}px`;
+ // the label stays on screen near the edges
+ const l=h.querySelector('.handLabel'),w=l.offsetWidth,cx=r.left+r.width/2;h.style.setProperty('--lx',`${Math.max(8-cx+w/2,Math.min(0,innerWidth-8-cx-w/2))}px`);
+}
+addEventListener('resize',placeHand);addEventListener('scroll',placeHand,true);
+function showCoachTarget(t){
+ clearCoach();if(!t)return;
+ if(t.kind==='cell'){const el=board.querySelector(`[data-index="${t.index}"]`);el?.classList.add('coachTarget');coachHand(el,'Tap here');}
+ else if(t.kind==='pair'){const a=board.querySelector(`[data-index="${t.cells[0]}"]`),b=board.querySelector(`[data-index="${t.cells[1]}"]`);if(!a||!b)return;
+  const ra=a.getBoundingClientRect(),rb=b.getBoundingClientRect(),dx=rb.left-ra.left,dy=rb.top-ra.top;a.style.setProperty('--dx',`${dx}px`);a.style.setProperty('--dy',`${dy}px`);a.classList.add('coachFrom');b.classList.add('coachTo');
+  coachHand(a,'Drag onto its twin',{dx,dy});}
+ else if(t.kind==='order'){const el=$(`[data-order="${t.id}"]`);el?.classList.add('coachTarget');coachHand(el,'Tap to deliver',null,true);}
+ else if(t.kind==='strip'){const el=$('#mapButton');el?.classList.add('coachTarget');coachHand(el,'Tap to open the coast');}
+ else if(t.kind==='coins')$('#coinPill')?.classList.add('coachTarget');
+}
+function renderCoach(){
+ const on=coachActive(state);$('#coachSkip').hidden=!on;
+ if(coachNote&&coachNote.until>performance.now())coach={id:'note',text:coachNote.text,target:coachNote.target};
+ else{coachNote=null;coach=coachStep(state)??laterTip(state);}
+ if(!coach){clearCoach();return false;}
+ const b=$('#hint');b.textContent=coach.text;b.dataset.kind='coach';b.dataset.step=coach.id;
+ requestAnimationFrame(()=>showCoachTarget(coach.target));
+ return true;
+}
 function renderHint(){
  // While a delivery's coins fly, the guidance waits too (it may be about to say "Upgrade").
  if(holdPlace>performance.now())return;
+ if(renderCoach())return;delete $('#hint').dataset.step;
  guide=primaryAction(state,focusOrder);let label=guide.label;
  if(guide.kind==='energy'){const t=refillTimes(state,Date.now());label+=' · +1 in '+clock(t?.next??0);}
  const b=$('#hint');b.textContent=label;b.dataset.kind=guide.kind;
@@ -412,7 +473,14 @@ function renderHint(){
  if(guide.kind==='merge'&&!state.merges)for(const i of guide.cells)board.querySelector(`[data-index="${i}"]`)?.classList.add('hintPair');
 }
 $('#hint').onclick=()=>{
- const g=guide;if(!g)return;
+ // a goal line (no highlight) still works like the normal hint line when tapped: its advice, on request
+ if(coach&&coach.id!=='goal'){const t=coach.target;
+  if(coach.id==='tap'&&t)run({type:'produce',id:state.board[t.index]?.id,index:t.index});
+  else if((coach.id==='deliver'||coach.id==='gold')&&t)run({type:'deliver',id:t.id});
+  else if(t?.kind==='strip'){mapFocus=nextPlace()?.u.id??null;showMap();}
+  else if(t?.kind==='pair')$('#message').textContent='Drag the moving part onto the one it points at.';
+  return;}
+ const g=coach?.id==='goal'?coach.advice:guide;if(!g)return;
  if(g.kind==='deliver')run({type:'deliver',id:g.id});
  else if(g.kind==='upgrade'){mapFocus=g.id;showMap();}
  else if(g.kind==='tap'){selected=g.index;run({type:'produce',id:g.id,index:g.index});render();}
@@ -438,6 +506,7 @@ function energyHud(){
 
 // ---------- actions ----------
 function run(a){
+ const coachBefore=coachActive(state)?coachStep(state):null;
  const before={coins:state.coins,energy:state.energy},fromRect=a.type==='produce'?board.querySelector(`[data-index="${a.index??state.board.findIndex(x=>x?.type==='source'&&x.id===a.id)}"]`)?.getBoundingClientRect():a.type==='openKit'?board.querySelector(`[data-index="${a.index}"]`)?.getBoundingClientRect():null;
  const orderRect=a.type==='deliver'?$(`[data-order="${a.id}"]`)?.getBoundingClientRect():null;
  // Build 44: what a delivery takes, and where from, is noted before the board changes, so the
@@ -453,6 +522,15 @@ function run(a){
  if(r.event==='merge'||r.event==='move'||r.event==='producerUp'||r.event==='unseal')selected=r.event==='producerUp'||r.event==='unseal'?null:r.index;
  if(r.event==='deliver'||r.event==='store'||r.event==='swapOrder'){focusOrder=null;selected=null;}
  if(r.event==='deliver'&&!reduced())holdPlace=performance.now()+880;
+ // Build 51c: the guide's own feedback. The first crew order's coins are named (the coin count pulses);
+ // the first restoration ends the guide (the message line names the next objective once).
+ if(coachBefore&&r.event==='deliver'&&order&&!order.story&&state.ordersDone===1){coachNote={text:`+${order.coins} coins from ${CREW[order.who]?.name??'the crew'}'s order: crew orders pay coins.`,until:performance.now()+3800,target:{kind:'coins'}};setTimeout(renderHint,3900);}
+ if(coachBefore&&r.event==='restore'){markSeen(COACH_DONE);coachNote=null;const next=TASKS[FIRST_PLACE].stages[stageOf(state,FIRST_PLACE)];
+  $('#message').textContent=`Guide complete. Next: ${next?next.name+': its gold order brings the materials and coins, crew orders add more coins.':'the coast\'s next place.'}`;}
+ // the guide is this camp's from its first action on (a seen flag is an action too, so not before: a new
+ // camp stays untouched until the player acts)
+ if(coachBefore&&!state.seen?.[COACH_ON])markSeen(COACH_ON);
+ laterTips(r);
  persist();render();
  const tile=r.index!=null?board.querySelector(`[data-index="${r.index}"]`):null;
  // Tideglass: a crack is a crisp tick; the third hit shatters it (fragments) and frees the part.
@@ -492,7 +570,7 @@ function run(a){
   // Build 48b: one clear step after the gold order: the materials are secured, the strip shows it at
   // once, and it says either "Build · cost" or how many coins are still short (crew orders pay them)
   if(r.materials){const t=TASKS[r.materials.id],u=t.stages[r.materials.stage-1],ok=state.coins>=u.cost;holdPlace=0;renderNextPlace();
-   setTimeout(()=>moment(`Materials secured · ${u.name}`,ok?`Build · ${u.cost} coins: tap the strip under the orders.`:`${u.cost-state.coins} more coins to build it: deliver crew orders.`),reduced()?0:950);}}
+   setTimeout(()=>moment(`Materials secured · +${r.coins} coins`,`The gold order paid ${r.coins} coins and brought the materials for ${u.name}. `+(ok?`Build · ${u.cost} coins: tap the strip under the orders.`:`${u.cost-state.coins} more coins to build it: deliver crew orders.`)),reduced()?0:950);}}
  if(r.event==='producerUp'){const src=state.board[r.index],next=nextKind(src.id),waiting=next&&src.level<UNLOCK_LEVEL&&!state.board.some(y=>y?.type==='source'&&y.id===next);
   if(r.unlocks?.length)extrasNews();else moment(SOURCES[src.id].name+' · level '+src.level,LEVEL_GAIN[src.level]+(waiting?` Level ${UNLOCK_LEVEL} brings out the ${SOURCES[next].name}.`:''),src);tile?.classList.add('merge-pop');burst(tile?.getBoundingClientRect(),'gold',true);sfx('milestone');}
  // On the coast screen the build plays first (Build 41f), then its story.
@@ -601,11 +679,17 @@ board.addEventListener('touchmove',e=>{if(drag?.moved)e.preventDefault();},{pass
 $('#selection').addEventListener('click',e=>{
  // The panel keeps its text to two lines (Build 45); a tap on it shows the rest.
  if(e.target.closest('.copy')){$('#selection').classList.toggle('open');return;}
- const b=e.target.closest('[data-action]');if(!b)return;if(b.dataset.action==='store')shedOpen=true;const x=state.board[selected];run({type:b.dataset.action,index:selected,id:x?.id});});
-$('#orderTools').addEventListener('click',e=>{const b=e.target.closest('[data-locate]');if(!b)return;locateGen=b.dataset.locate;locateUntil=performance.now()+2600;renderBoard();
+ const b=e.target.closest('[data-action]');if(!b)return;if(b.dataset.action==='store')shedOpen=true;const x=state.board[selected];
+ // Build 51d: clearing a part an order wants, a merged part or a rare part takes a second tap within 3 s
+ if(b.dataset.action==='recycle'&&b.dataset.confirm&&!(clearArm?.index===selected&&clearArm.until>performance.now())){
+  const at=selected;clearArm={index:at,until:performance.now()+3000};b.textContent='Tap again to clear';b.classList.add('confirm');
+  $('#message').textContent=`Clear the ${nameOf(x)}? Tap again to clear it for good.`;setTimeout(()=>{if(clearArm?.index===at&&clearArm.until<=performance.now()){clearArm=null;renderSelection();}},3100);return;}
+ clearArm=null;run({type:b.dataset.action,index:selected,id:x?.id});});
+let clearArm=null;
+$('#orderTools').addEventListener('click',e=>{const b=e.target.closest('[data-locate]');if(!b)return;locateGen=b.dataset.locate;locateUntil=performance.now()+2600;renderBoard();if(coach)showCoachTarget(coach.target);
  board.querySelector('.tile.located')?.scrollIntoView({block:'nearest',behavior:reduced()?'auto':'smooth'});
  const i=locateIndex();if(i>=0)$('#message').textContent=`${SOURCES[locateGen].name}${state.board[i]?.level>1?` (level ${state.board[i].level})`:''}: tap it for parts.`;
- setTimeout(()=>{if(performance.now()>=locateUntil)renderBoard();},2700);});
+ setTimeout(()=>{if(performance.now()>=locateUntil){renderBoard();if(coach)showCoachTarget(coach.target);}},2700);});
 $('#requests').addEventListener('click',e=>{const c=e.target.closest('[data-order]');if(!c)return;const o=state.orders.find(o=>o.id===c.dataset.order);if(!o)return;if(orderItems(state,o)){run({type:'deliver',id:o.id});return;}focusOrder=focusOrder===o.id?null:o.id;render();$('#message').textContent=`${CREW[o.who].name} needs ${needsOf(state,o).map(r=>r.count+' × '+nameOf(item(r.family,r.tier))+(r.sibling?` (level ${levelOf(r)})`:'')).join(' and ')}. Their parts are marked on the board.`+o.needs.filter(r=>CHAINS[r.family].secondary).map(r=>' '+sourceNote(r.family,r.tier)).join('');});
 // The upgrading happens on the beach screen (user: "tusdaa orchinruu ochij upgrade hiih").
 $('#mapButton').onclick=()=>{mapFocus=$('#mapButton').dataset.place||null;sfx('tap');showMap();};
@@ -637,13 +721,30 @@ function sourceNote(f,tier=null){const r=SECONDARY_RULES[CHAINS[f].gen],gen=SOUR
  const what=tier===null?'A':tier>0?`${n[tier]}: merged from ${n[0]}s, a`:`${n[0]}: a`;
  // round 3: only a level 2+ generator makes them; the limit counts its taps while extras are coming
  return `${what} rare ${gen} extra: a level 2+ ${gen} sometimes adds one to a tap, at no extra energy (at the latest on its ${r.pity}th tap, while you hold fewer than ${r.hold} unused).`;}
+// Build 51c: later mechanics, once each and only when they come up (seen flags 'tip-…'): merging two
+// generators (the hint names it while a matching copy is on the board, coach.mjs laterTip), tideglass
+// (its first crack), the shed (the first full board). Not during the first loop's guide, except the
+// tideglass, which the first merges crack.
+function laterTips(r){
+ if(r.event==='producerUp'&&!state.seen?.['tip-genmerge'])markSeen('tip-genmerge');
+ if(r.cracked?.length&&!r.broken?.length&&!state.seen?.['tip-ice']){const g=state.board[r.cracked[0]];
+  if(g?.type==='glass'){const done=g.cracks??1,left=GLASS_HITS-done,need=g.tier+1;markSeen('tip-ice');
+   // a merge beside it cracks it only if it makes a part at least as strong as the one inside (crack())
+   setTimeout(()=>moment(`Tideglass cracked · ${done} of ${GLASS_HITS}`,`${left} more ${left===1?'merge':'merges'} beside it free the part inside. ${need<=2?'Any merge counts.':`Each must make a level ${need} part or better.`}`),reduced()?0:700);}}
+ if(!coachActive(state)&&!state.board.includes(null)&&!state.seen?.['tip-shed']){markSeen('tip-shed');moment('The board is full','Tap a part and choose Shed to keep it for later, or deliver and merge to make room.');}
+}
+$('#coachSkip').onclick=()=>{markSeen(COACH_DONE);coachNote=null;clearCoach();render();$('#message').textContent='Guide skipped. Help (in the menu) can replay it.';};
+// Help: a short replay of the guide (four lines with the crew's faces), whatever the camp's progress.
+const GUIDE_REPLAY=[['ivo','Tap a generator for parts, and drag matching parts together to merge them.'],['neri','Crew orders pay coins.'],['bram','A gold order pays coins too, and secures the materials for the next repair.'],['tamsin','On the coast screen, coins and materials together rebuild a place.']];
+$('#helpReplay').onclick=()=>{$('#help').close();playLines('How the camp works',GUIDE_REPLAY,()=>render(),{last:'Back to the board'});};
 // Round 3: a kind's rare extras open when one of its generators first reaches level 2 (the engine's
 // secondaryUnlock: a first part as a gift and an introductory crew order). Said once per kind, also
 // for a save that opened on load; marked seen ('extras-rig').
 function extrasNews(){
  for(const gen of Object.keys(state.secOpen??{})){const id='extras-'+gen;if(state.seen?.[id])continue;
   const f=SECONDARY_OF[gen],n=CHAINS[f].names[0],g=SOURCES[gen].name;
-  moment(`${g} extras unlocked`,`A level 2+ ${g} now sometimes adds a rare ${n} to a tap, at no extra energy. Your first ${n} is on the board (or waits for space), and the next new crew order will ask for it.`,item(f,0));
+  const use=nextRareUse(state,f),where=use?` Merged, they are wanted later: ${use.name} (${use.area}) asks for one.`:'';
+  moment(`${g} extras unlocked`,`A level 2+ ${g} now sometimes adds a rare ${n} to a tap, at no extra energy. Your first ${n} is on the board (or waits for space), and the next new crew order will ask for it.${where}`,item(f,0));
   markSeen(id);return true;}
  return false;
 }
@@ -710,7 +811,8 @@ async function watchAd(action){
  if($('#shop').open)showShop();render();
 }
 // The gift opens by itself once a session is under way, never over another screen or a drag.
-function offerGift(){if(!homeOpen&&!adBusy&&giftReady()&&giftShown!==today()&&state.moves>=3&&!drag&&!document.querySelector('dialog[open]'))showDaily();}
+// Build 51c: not offered by itself while a new camp's first-loop guide runs (its button still shows the gift).
+function offerGift(){if(!homeOpen&&!adBusy&&giftReady()&&giftShown!==today()&&state.moves>=3&&!coachActive(state)&&!drag&&!document.querySelector('dialog[open]'))showDaily();}
 $('#soundButton').onclick=()=>{sounds.toggle();render();sfx('tap');};
 $('#hapticsButton').onclick=()=>{haptics.toggle();render();haptics.pulse('merge');};
 $('#helpButton').onclick=()=>$('#help').showModal();
@@ -863,7 +965,11 @@ function showMap(){
  const content=$('#mapContent'),opening=!$('#coastMap').open;
  content.classList.toggle('entering',opening);if(opening){clearTimeout(content._enter);content._enter=setTimeout(()=>content.classList.remove('entering'),1400);}
  if(!opening&&shownCard!==mapFocus)$('#mapCard')?.classList.add('swapIn');shownCard=mapFocus;
+ // Build 51c: the guide's build step points at the build button on the coast screen too
+ let coachBuild=null;{const st=coachActive(state)?coachStep(state):null;if(st?.id==='build'){coachBuild=$(`#coastMap [data-restore="${FIRST_PLACE}"]`);coachBuild?.classList.add('coachTarget');coachBuild?.insertAdjacentHTML('beforeend',`<span class="coachHand" aria-hidden="true">${HAND_SVG}<span class="handLabel">Tap to build</span></span>`);$('#mapCard')?.insertAdjacentHTML('beforebegin','<p class="coachLine">Coins and materials are ready: build it here.</p>');}}
  if(opening)$('#coastMap').showModal();
+ // the guided build: the Build button comes into view by itself (a smooth scroll; at once with reduced motion)
+ if(coachBuild)setTimeout(()=>coachBuild.isConnected&&coachBuild.scrollIntoView({block:'center',behavior:reduced()?'auto':'smooth'}),opening&&!reduced()?450:0);
  // Opening on a chosen place (the next-place chip, an upgrade hint): the picture starts close on
  // it and pulls back to show the whole area, so the eye lands on the right building.
  if(opening&&focusOnOpen&&!reduced()){const sc=$('#coastMap .beachScene');if(sc){sc.style.setProperty('--fx',focus.at[0]+'%');sc.style.setProperty('--fy',focus.at[1]+'%');sc.classList.add('focusIn');setTimeout(()=>sc.classList.remove('focusIn'),1200);}}
@@ -1192,13 +1298,17 @@ $('#playlogButton').onclick=()=>{$('#menu').close();showPlaylog();};
 // At most two things call for attention outside the board at once (Build 41 M3), in this order:
 // an affordable upgrade, energy from an ad when low, the daily gift, parts waiting in the book.
 function calmBadges(){let n=0;for(const el of [$('#mapReady'),$('#adEnergyButton'),$('#dailyButton'),$('#bookCount')]){if(el.hidden)continue;if(n>=2){el.hidden=true;if(el.id==='bookCount')$('#bookButton').classList.remove('ready');}else n++;}}
-render();header();setInterval(()=>{header();if(state.energy<1)renderHint();offerGift();$('#dailyButton').hidden=!giftReady();calmBadges();syncPlaying();},1000);
+render();header();setInterval(()=>{header();placeHand();if(state.energy<1)renderHint();offerGift();$('#dailyButton').hidden=!giftReady();calmBadges();syncPlaying();},1000);
 // What happens on arriving at the board: once at the start without Home, and each time from Home.
+let storyJustPlayed=false;
 function arrive(fromHome=true){
  if(holdSave&&!damaged){holdSave=false;persist();}
  syncPlaying();if(fromHome)$('#hint').focus({preventScroll:true});
- if(!state.moves)showIntro();
+ // Build 51c: a story played to its end already says what to do first, so no second introduction follows
+ // it; a skipped story is followed by the beach's one line (the same words)
+ if(!state.moves){if(!storyJustPlayed)showIntro();}
  else{extrasNews();nextReveal(()=>{if(allDone(state)&&!state.seenEnd)setTimeout(showEnd,600);});}
+ storyJustPlayed=false;
 }
 // Home and Loading (Build 46p): the board above is set up once; Home only covers and uncovers it.
 if(document.getElementById('home')){
@@ -1207,8 +1317,8 @@ if(document.getElementById('home')){
   chapter:()=>{const a=currentArea(state);return a?.tasks?.length?`${a.name} · ${stagesBuilt()} of ${a.tasks.length*STAGES} stages built`:a?.name??'';},
   onEnter:arrive,onSettings:()=>$('#menuButton').onclick(),onBook:showBook,
   onNewCamp:()=>{if(!confirm('Start a new camp? The save that could not be read stays in this browser as a backup.'))return false;return newCamp();},
-  onOpenChange:v=>{homeOpen=v;syncPlaying?.();},
+  onOpenChange:v=>{homeOpen=v;syncPlaying?.();placeHand();},
   // The first-play story (Build 46q): once, on the first new camp's Play, never on Continue.
-  beforeEnter:reason=>reason==='play'&&!rawSave&&!storySeen(storage)?playIntro({storage,reduced,face:who=>`assets/premium/coast/ui/${FACES[who]}.webp`}):null});
+  beforeEnter:reason=>reason==='play'&&!rawSave&&!storySeen(storage)?playIntro({storage,reduced,face:who=>`assets/premium/coast/ui/${FACES[who]}.webp`}).then(how=>{storyJustPlayed=how==='done';return how;}):null});
  home.ready.then(()=>{if(!rawSave&&!storySeen(storage))preloadIntro();});
 }else{homeOpen=false;arrive(false);}

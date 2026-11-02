@@ -27,7 +27,10 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
  const mast=withKite(camp(0,{'beach-path':3,'beach-tent':3},540)),hoist=withKite(camp(1,{...done(AREAS[0]),...done(AREAS[1]),'ws-hoist':1,'ws-door':1},40));
  const rover=mast.board.findIndex(x=>x?.type==='source'&&x.id==='rig');
  const goldOf=s=>{const o=g.makeOrder(s);assert.ok(o.story);return o;};
- const mastGold=goldOf(mast),hoistGold=goldOf(hoist);
+ // build 51d: Chapter 1 gold orders take turns between recipe shapes (game.mjs goldShape); this flow is about the
+ // mast's usual materials and the hoist's Gear, so the turn is pinned to the usual shape while the orders are made
+ const turn=[...g.GOLD_TURN];g.GOLD_TURN.splice(0,turn.length,...turn.map(()=>0));
+ const mastGold=goldOf(mast),hoistGold=goldOf(hoist);g.GOLD_TURN.splice(0,turn.length,...turn);
  assert.equal(mastGold.story,'beach-mast');assert.deepEqual(mastGold.needs,[{family:'chart',tier:3,count:1},{family:'rig',tier:3,count:2}],'the mast\'s materials');assert.deepEqual(hoistGold.needs,[{family:'chart',tier:3,count:1},{family:'mech',tier:1,count:1}],'Gear the hoist asks a Gear instead of its second material');
  const engines=(process.env.ENGINES||'chromium,webkit').split(',').map(e=>[e,{chromium,webkit}[e]]);
  for(const [engine,type] of engines){
@@ -53,9 +56,9 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
    await load(mast,mastGold,[['chart',3],['rig',3],['rig',2],['mech',1],['notes',0]]);
    await page.locator(`[data-order="${mastGold.id}"]`).click();await page.waitForSelector('#orderTools .goldNeeds');
    const panel=await page.locator('#orderTools').innerText();
-   assert.match(panel,/Raise the signal mast/,tag('the stage'));assert.match(panel,/materials, then .*100 to build/,tag('the build cost'));
-   assert.match(panel,/Survey scope\s*1\/1/,tag('held/needed'));assert.match(panel,/Pocket winch\s*1\/2/,tag('held/needed'));assert.match(panel,/Landing Beach · materials/,tag('the place'));
-   assert.match(panel,/merge matching items to reach Pocket winch/i,tag('how to make it'));assert.match(panel,/you have it/,tag('the coins are in hand'));
+   assert.match(panel,/Raise the signal mast/,tag('the stage'));assert.match(panel,/100 to build: you have it/,tag('the build cost, once (build 51d)'));
+   assert.match(panel,/Survey scope\s*1\/1/,tag('held/needed'));assert.match(panel,/Pocket winch\s*1\/2/,tag('held/needed'));assert.match(panel,/Landing Beach · /,tag('the place'));
+   assert.equal(await page.locator('#orderTools .locate').count(),1,tag('one button for the Rivet Rover, not one per part (build 51d)'));assert.equal(await page.locator('#orderTools .locate').getAttribute('aria-label'),'Show the Rivet Rover');assert.doesNotMatch(panel,/merge matching items to reach Pocket winch/i,tag('not said twice'));assert.match(panel,/you have it/,tag('the coins are in hand'));
    assert.doesNotMatch(panel,/merge up \d|times|stays/i,tag('no "merge up N times", no "the gold order stays"'));
    assert.equal(await page.locator('#orderTools .goldNeed').count(),2);assert.equal(await page.locator('#orderTools .goldNeed .goldIcon svg, #orderTools .goldNeed .goldIcon img').count()>=2,true,tag('item icons'));
    assert.equal(await page.locator('#orderTools details.goldHow[open]').count(),0,tag('the full chain is folded away'));
@@ -81,7 +84,7 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
    await page.waitForFunction(()=>document.querySelector('#mapButton')?.dataset.ready==='1',null,{timeout:3000});
    assert.equal(await page.locator('#mapButton .rsText b').textContent(),'Ready to build',tag('the strip turns at once'));assert.equal(await page.locator('#mapButton .rsAction').textContent(),'Build');
    await page.waitForSelector('.moment:has-text("Materials secured")',{timeout:4000});
-   const m=await page.locator('.moment').innerText();assert.match(m,/Materials secured · Raise the signal mast/);assert.match(m,/Build · 100 coins/,tag('Build · cost'));
+   const m=await page.locator('.moment').innerText();assert.match(m,/Materials secured · \+\d+ coins/);assert.match(m,/paid \d+ coins and brought the materials for Raise the signal mast/,tag('both rewards (build 51c)'));assert.match(m,/Build · 100 coins/,tag('Build · cost'));
    assert.equal(await page.locator('dialog[open]').count(),0,tag('nothing blocks the board'));
    s=await save();assert.equal(s.materials['beach-mast'],1);assert.equal(s.coins,coins+mastGold.coins,tag('the gold order paid its coins'));
    await fits('materials secured');await shot('4-materials-secured');
