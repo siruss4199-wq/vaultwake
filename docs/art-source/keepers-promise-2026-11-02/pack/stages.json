@@ -1,0 +1,464 @@
+[
+  {
+    "id": "ch6-p1-s1",
+    "place": "Inner landing",
+    "stage": 1,
+    "name": "Secure entrance",
+    "requires": [
+      "chapter5-complete"
+    ],
+    "coin_cost_candidate": 340,
+    "materials_candidate": [
+      {
+        "family": "rig",
+        "tier": 3,
+        "count": 1
+      },
+      {
+        "family": "chart",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch6-p1-s2",
+    "place": "Inner landing",
+    "stage": 2,
+    "name": "Repair steps",
+    "requires": [
+      "ch6-p1-s1"
+    ],
+    "coin_cost_candidate": 360,
+    "materials_candidate": [
+      {
+        "family": "rig",
+        "tier": 3,
+        "count": 1
+      },
+      {
+        "family": "chart",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch6-p1-s3",
+    "place": "Inner landing",
+    "stage": 3,
+    "name": "Light inner landing",
+    "requires": [
+      "ch6-p1-s2"
+    ],
+    "coin_cost_candidate": 380,
+    "materials_candidate": [
+      {
+        "family": "rig",
+        "tier": 4,
+        "count": 1
+      },
+      {
+        "family": "chart",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch6-p2-s1",
+    "place": "Waterwheel",
+    "stage": 1,
+    "name": "Clear channel",
+    "requires": [
+      "ch6-p1-s3"
+    ],
+    "coin_cost_candidate": 355,
+    "materials_candidate": [
+      {
+        "family": "rope",
+        "tier": 3,
+        "count": 1
+      },
+      {
+        "family": "shell",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch6-p2-s2",
+    "place": "Waterwheel",
+    "stage": 2,
+    "name": "Rebuild paddles",
+    "requires": [
+      "ch6-p2-s1"
+    ],
+    "coin_cost_candidate": 375,
+    "materials_candidate": [
+      {
+        "family": "rope",
+        "tier": 3,
+        "count": 1
+      },
+      {
+        "family": "shell",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch6-p2-s3",
+    "place": "Waterwheel",
+    "stage": 3,
+    "name": "Turn waterwheel",
+    "requires": [
+      "ch6-p2-s2"
+    ],
+    "coin_cost_candidate": 395,
+    "materials_candidate": [
+      {
+        "family": "rope",
+        "tier": 4,
+        "count": 1
+      },
+      {
+        "family": "shell",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch6-p3-s1",
+    "place": "Records gallery",
+    "stage": 1,
+    "name": "Prop shelves",
+    "requires": [
+      "ch6-p2-s3"
+    ],
+    "coin_cost_candidate": 370,
+    "materials_candidate": [
+      {
+        "family": "chart",
+        "tier": 3,
+        "count": 1
+      },
+      {
+        "family": "lamp",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch6-p3-s2",
+    "place": "Records gallery",
+    "stage": 2,
+    "name": "Restore records",
+    "requires": [
+      "ch6-p3-s1"
+    ],
+    "coin_cost_candidate": 390,
+    "materials_candidate": [
+      {
+        "family": "chart",
+        "tier": 3,
+        "count": 1
+      },
+      {
+        "family": "lamp",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch6-p3-s3",
+    "place": "Records gallery",
+    "stage": 3,
+    "name": "Read station history",
+    "requires": [
+      "ch6-p3-s2"
+    ],
+    "coin_cost_candidate": 410,
+    "materials_candidate": [
+      {
+        "family": "chart",
+        "tier": 4,
+        "count": 1
+      },
+      {
+        "family": "notes",
+        "tier": 1,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch6-p4-s1",
+    "place": "Keeper workshop",
+    "stage": 1,
+    "name": "Clear workbench",
+    "requires": [
+      "ch6-p3-s3"
+    ],
+    "coin_cost_candidate": 385,
+    "materials_candidate": [
+      {
+        "family": "shell",
+        "tier": 3,
+        "count": 1
+      },
+      {
+        "family": "optic",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch6-p4-s2",
+    "place": "Keeper workshop",
+    "stage": 2,
+    "name": "Fit tools",
+    "requires": [
+      "ch6-p4-s1"
+    ],
+    "coin_cost_candidate": 405,
+    "materials_candidate": [
+      {
+        "family": "shell",
+        "tier": 3,
+        "count": 1
+      },
+      {
+        "family": "optic",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch6-p4-s3",
+    "place": "Keeper workshop",
+    "stage": 3,
+    "name": "Restore keeper workshop",
+    "requires": [
+      "ch6-p4-s2"
+    ],
+    "coin_cost_candidate": 425,
+    "materials_candidate": [
+      {
+        "family": "shell",
+        "tier": 4,
+        "count": 1
+      },
+      {
+        "family": "optic",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch6-p5-s1",
+    "place": "Tide regulator",
+    "stage": 1,
+    "name": "Repair sluice",
+    "requires": [
+      "ch6-p4-s3"
+    ],
+    "coin_cost_candidate": 400,
+    "materials_candidate": [
+      {
+        "family": "lamp",
+        "tier": 3,
+        "count": 1
+      },
+      {
+        "family": "rig",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch6-p5-s2",
+    "place": "Tide regulator",
+    "stage": 2,
+    "name": "Align mechanism",
+    "requires": [
+      "ch6-p5-s1"
+    ],
+    "coin_cost_candidate": 420,
+    "materials_candidate": [
+      {
+        "family": "lamp",
+        "tier": 3,
+        "count": 1
+      },
+      {
+        "family": "mech",
+        "tier": 1,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch6-p5-s3",
+    "place": "Tide regulator",
+    "stage": 3,
+    "name": "Restore safe water flow",
+    "requires": [
+      "ch6-p5-s2"
+    ],
+    "coin_cost_candidate": 440,
+    "materials_candidate": [
+      {
+        "family": "lamp",
+        "tier": 4,
+        "count": 1
+      },
+      {
+        "family": "rig",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch6-p6-s1",
+    "place": "Dispatch desk",
+    "stage": 1,
+    "name": "Recover letter case",
+    "requires": [
+      "ch6-p5-s3"
+    ],
+    "coin_cost_candidate": 415,
+    "materials_candidate": [
+      {
+        "family": "optic",
+        "tier": 3,
+        "count": 1
+      },
+      {
+        "family": "rope",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch6-p6-s2",
+    "place": "Dispatch desk",
+    "stage": 2,
+    "name": "Match dispatch seal",
+    "requires": [
+      "ch6-p6-s1"
+    ],
+    "coin_cost_candidate": 435,
+    "materials_candidate": [
+      {
+        "family": "optic",
+        "tier": 3,
+        "count": 1
+      },
+      {
+        "family": "rope",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch6-p6-s3",
+    "place": "Dispatch desk",
+    "stage": 3,
+    "name": "Read Mara\u2019s letter",
+    "requires": [
+      "ch6-p6-s2"
+    ],
+    "coin_cost_candidate": 455,
+    "materials_candidate": [
+      {
+        "family": "optic",
+        "tier": 4,
+        "count": 1
+      },
+      {
+        "family": "notes",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch6-p7-s1",
+    "place": "Harbour overlook",
+    "stage": 1,
+    "name": "Repair terrace",
+    "requires": [
+      "ch6-p6-s3"
+    ],
+    "coin_cost_candidate": 430,
+    "materials_candidate": [
+      {
+        "family": "rig",
+        "tier": 3,
+        "count": 1
+      },
+      {
+        "family": "chart",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch6-p7-s2",
+    "place": "Harbour overlook",
+    "stage": 2,
+    "name": "Connect signal lamps",
+    "requires": [
+      "ch6-p7-s1"
+    ],
+    "coin_cost_candidate": 450,
+    "materials_candidate": [
+      {
+        "family": "rig",
+        "tier": 3,
+        "count": 1
+      },
+      {
+        "family": "chart",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "ch6-p7-s3",
+    "place": "Harbour overlook",
+    "stage": 3,
+    "name": "Reunite the coast",
+    "requires": [
+      "ch6-p7-s2"
+    ],
+    "coin_cost_candidate": 470,
+    "materials_candidate": [
+      {
+        "family": "rig",
+        "tier": 4,
+        "count": 1
+      },
+      {
+        "family": "chart",
+        "tier": 2,
+        "count": 1
+      }
+    ]
+  }
+]

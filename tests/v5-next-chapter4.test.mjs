@@ -52,7 +52,7 @@ test('the Answering Light: seven places in three stages, stable ids, a line each
  assert.ok(L.tasks.every(t=>t.stages[0].cost<t.stages[1].cost&&t.stages[1].cost<t.stages[2].cost),'each stage costs more');
  // earlier chapters keep their indices and ids
  assert.deepEqual(AREAS.slice(0,6).map(a=>a.id),['beach','worksite','entrance','vault','harbour','answering-light']);
- assert.equal(Object.keys(TASKS).filter(id=>!id.startsWith('ch5-')).length,35);for(const id of IDS)assert.equal(TASKS[id].area,'answering-light');
+ assert.equal(Object.keys(TASKS).filter(id=>!/^ch[56]-/.test(id)).length,35);for(const id of IDS)assert.equal(TASKS[id].area,'answering-light');
  assert.ok(IDS.every(id=>LABELS[id]),'every place has a label');
  // rewards: stages 1-2 their visible repair only; stage 3 a kit of 2 of a chain the camp already has
  for(const t of L.tasks){assert.deepEqual(t.stages[0].effect,{});assert.deepEqual(t.stages[1].effect,{});

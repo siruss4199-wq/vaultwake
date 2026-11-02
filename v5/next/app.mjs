@@ -38,7 +38,7 @@ function moment(title,detail='',x=null){sharedMoment(title,detail,null);const el
 let adPlaying=false;
 const sfx=(kind,tier=0)=>sounds.play(kind,tier,{muted:adPlaying||platform.muted()});
 // Shown in the footer so a playtester can tell which build is running.
-export const BUILD='Build 50b · Chapter 5, the Lowwater Passage';
+export const BUILD='Build 51a · Chapter 6, the Keeper\'s Promise';
 // The level path (docs/V5_LEVEL_PATH_2026-10-27.md): a crew order that pays a tool on top shows it
 // beside its coins (a Tide token; a favour's Sea chest, Brass cog or, once no generator can go up, Tide token).
 const bonusThing=o=>o.bonus==='cog'?cog():o.bonus==='chest'?kit(newestGenerator(state),2):o.bonus==='token'?token():null;
@@ -124,7 +124,7 @@ const pips=n=>`<span class="pips" aria-label="stage ${n} of ${STAGES}">${Array.f
 // the boat has sailed ('launched'); it no longer falls back to the stage-1 cut-out, which read as unbuilt.
 const artStage=(t,n)=>t.id==='hb-boatyard'&&n>=STAGES&&stageOf(state,'hb-departure')>=STAGES?'launched':Math.max(1,n);
 // Build 49a: Chapter 4's 21 separate stage sprites live in coast/answering-light (tools/headland-art.py).
-const artDir=a=>a.startsWith('hb-')?'hidden-harbour/':a.startsWith('ch4-')?'answering-light/':a.startsWith('ch5-')?'lowwater-passage/':'';
+const artDir=a=>a.startsWith('hb-')?'hidden-harbour/':a.startsWith('ch4-')?'answering-light/':a.startsWith('ch5-')?'lowwater-passage/':a.startsWith('ch6-')?'keepers-promise/':'';
 const stageArt=(t,n)=>`<img class="art" src="assets/premium/coast/${artDir(t.art)}place-${t.art}-${artStage(t,n)}.webp" alt="" draggable="false" loading="lazy">`;
 // Build 47f: the Vault door is drawn as itself (a crop of the Home picture's door) with its rings lit
 // for the stage, not as a part's icon; painted ring states do not exist (see the doc's missing art).
@@ -189,7 +189,10 @@ function render(){
 // The supplied Nara and Sela portraits are Neri's and Tamsin's faces (user, 2026-10-26: "Nara Sela-г
 // Neri Tamsin-д ашигла"); the names and roles stay Neri and Tamsin.
 const FACES={ivo:'crew-ivo',bram:'crew-bram',neri:'crew-nara',tamsin:'crew-sela'};
-const face=who=>FACES[who]?`<img class="art face" src="assets/premium/coast/ui/${FACES[who]}.webp" alt="" draggable="false">`:portrait(who);
+// Build 51a: Mara, the keeper (Chapter 6), has no approved portrait (the pack's notes): her lines show her
+// name only, never another character's face. CREW (../crew.mjs) is shared with Classic V5 and left alone.
+const GUESTS={mara:'Mara'},who$=w=>CREW[w]?.name??GUESTS[w]??w;
+const face=who=>FACES[who]?`<img class="art face" src="assets/premium/coast/ui/${FACES[who]}.webp" alt="" draggable="false">`:GUESTS[who]?'':portrait(who);
 function renderOrders(){
  const held=state.board[selected],heldKey=held?.type==='item'?held.family+held.tier:null;
  $('#requests').style.setProperty('--slots',state.orders.length);
@@ -775,10 +778,11 @@ function harbourScene(area){
 // Build 49a: Chapter 4's headland. The director's two paintings are not registered layers (the pack's
 // art notes), so the map shows the damaged headland until every stage is built, then the restored one;
 // it never uncovers patches. Each stage shows on its place's card and tile, with its own sprite.
+const SCENE_ALT={'answering-light':['the headland restored and its light lit','headland'],lowwater:['the passage restored, its route lit and the lock working','reef passage'],keeper:['the station restored: the waterwheel turning, channels running and its lamps lit','station inside the Vault']};
 function headlandScene(area){
  const done=areaDone(state,area),built=builtCount(state,area),all=area.tasks.length*STAGES;
  const pic=`assets/premium/${done?area.overview:area.map}.webp`;
- return `<div class="beachScene mapped headland ${done?'complete':''}" data-area="${area.id}" data-built="${built}"><img class="sceneBase" src="${pic}" alt="${area.name}, ${done?(area.id==='lowwater'?'the passage restored, its route lit and the lock working':'the headland restored and its light lit'):`the damaged ${area.id==='lowwater'?'reef passage':'headland'}: ${built} of ${all} stages built (each place's card shows its stage)`}"><div class="restored"></div></div>`;
+ return `<div class="beachScene mapped headland ${done?'complete':''}" data-area="${area.id}" data-built="${built}"><img class="sceneBase" src="${pic}" alt="${area.name}, ${done?(SCENE_ALT[area.id]??SCENE_ALT['answering-light'])[0]:`the damaged ${(SCENE_ALT[area.id]??SCENE_ALT['answering-light'])[1]}: ${built} of ${all} stages built (each place's card shows its stage)`}"><div class="restored"></div></div>`;
 }
 // After the picture is drawn with the old size, the new one is set so the colour spreads.
 function growScene(){
@@ -926,7 +930,7 @@ function showBeat(id,effects,stage=stageOf(state,id)){
   // The stage's rewards, said once the story has been told (build 22: every stage gives one).
   // One clear next step after the story: the next place to build, said with its rewards.
   const next=nxt&&!effects?.nextArea?` · Next: ${nxt.u.name}${nxt.ready?' (ready)':''}`:'';
-  const said=caption?st.lines.map(([w,l])=>`${CREW[w].name}: “${l}” `).join(''):'';
+  const said=caption?st.lines.map(([w,l])=>`${who$(w)}: “${l}” `).join(''):'';
   if(caption||effects&&Object.keys(effects).length)moment(`${st.name} · stage ${stage} of ${STAGES}`,said+(effects&&Object.keys(effects).length?rewardText(effects):'')+next,null);burst(($('#coastMap').open?$('#coastMap .beachScene'):board).getBoundingClientRect(),'gold',true);
   for(const i of [effects?.kit,effects?.copy,effects?.token,effects?.cog])if(i>=0)board.querySelector(`[data-index="${i}"]`)?.classList.add('unsealed');
   // Build 47e (from PR #80): a first generator of its kind from a stage (the Lens Bench) shows its chain.
@@ -939,7 +943,7 @@ function showBeat(id,effects,stage=stageOf(state,id)){
 let receipt=null;
 function playLines(title,lines,done,{last='Continue'}={}){
  let n=0;const dlg=$('#beat'),spent=receipt;receipt=null;
- const show=()=>{const [who,line]=lines[n];$('#beatContent').innerHTML=`<div class="beat"><small>${title}</small>${spent?`<b class="beatReceipt">−${spent} coins</b>`:''}<div class="beatLine">${face(who)}<p><b>${CREW[who].name}</b>${line}</p></div><div class="beatDots">${lines.map((_,k)=>`<i class="${k===n?'on':''}"></i>`).join('')}</div><button class="primary" id="beatNext">${n<lines.length-1?'Next':last}</button></div>`;
+ const show=()=>{const [who,line]=lines[n];$('#beatContent').innerHTML=`<div class="beat"><small>${title}</small>${spent?`<b class="beatReceipt">−${spent} coins</b>`:''}<div class="beatLine">${face(who)}<p><b>${who$(who)}</b>${line}</p></div><div class="beatDots">${lines.map((_,k)=>`<i class="${k===n?'on':''}"></i>`).join('')}</div><button class="primary" id="beatNext">${n<lines.length-1?'Next':last}</button></div>`;
   $('#beatNext').onclick=()=>{n++;if(n<lines.length)show();else{dlg.close();done?.();}};};
  show();if(!dlg.open)dlg.showModal();
 }
@@ -987,7 +991,16 @@ const REVEALS=[
  // chapter's end card (showEnd). One the camp has moved past is marked seen without playing.
  {id:'ch5-arrival',when:s=>s.area>=6,live:s=>s.area===6&&!builtCount(s,AREAS[6]),play:done=>revealCard(passageCard('arrival'),()=>{done();const o=firstGold();if(o)markGold(o);},'Secure the reef landing')},
  {id:'ch5-crossing',when:s=>stageOf(s,'ch5-gauge')>=STAGES,live:s=>stageOf(s,'ch5-lock')<STAGES,play:done=>revealCard(passageCard('crossing'),()=>{done();mapFocus='ch5-bridge';showMap();},'Secure the rope bridge')},
- {id:'ch5-ledger',when:s=>stageOf(s,'ch5-shelter')>=STAGES,live:s=>stageOf(s,'ch5-lock')<STAGES,play:done=>revealCard(passageCard('ledger'),()=>{done();mapFocus='ch5-desk';showMap();},'Restore the mail desk')}
+ {id:'ch5-ledger',when:s=>stageOf(s,'ch5-shelter')>=STAGES,live:s=>stageOf(s,'ch5-lock')<STAGES,play:done=>revealCard(passageCard('ledger'),()=>{done();mapFocus='ch5-desk';showMap();},'Restore the mail desk')},
+ // Build 51a: "Behind the Vault" was the end of the content; it is now Chapter 5's last card and leads on
+ // into the station (a camp that already saw it as the end card has it marked seen by load()).
+ {id:'ch5-station',when:s=>stageOf(s,'ch5-lock')>=STAGES,live:()=>true,play:done=>revealCard(stationCard(),done,AREAS[7]?.tasks.length?'Enter the inner station':'Continue')},
+ // Chapter 6, the Keeper's Promise (the pack's story-cards.json): the station once (its button marks the
+ // landing's gold order), the keeper after her workshop, the letter after the dispatch desk; "A coast
+ // awake" is the end card of the first story (showEnd). One the camp has moved past is marked seen.
+ {id:'ch6-arrival',when:s=>s.area>=7,live:s=>s.area===7&&!builtCount(s,AREAS[7]),play:done=>revealCard(keeperCard('station'),()=>{done();const o=firstGold();if(o)markGold(o);},'Secure the inner landing')},
+ {id:'ch6-keeper',when:s=>stageOf(s,'ch6-workshop')>=STAGES,live:s=>stageOf(s,'ch6-overlook')<STAGES,play:done=>revealCard(keeperCard('keeper'),()=>{done();mapFocus='ch6-regulator';showMap();},'Restore the tide regulator')},
+ {id:'ch6-letter',when:s=>stageOf(s,'ch6-desk')>=STAGES,live:s=>stageOf(s,'ch6-overlook')<STAGES,play:done=>revealCard(keeperCard('letter'),()=>{done();mapFocus='ch6-overlook';showMap();},'Connect the signal lamps')}
 ];
 const markSeen=id=>{if(!state.seen?.[id]&&act(state,{type:'seen',id},Date.now()).ok){persist();playlog.event('reveal',{id});}};
 const pendingReveals=()=>REVEALS.filter(v=>v.when(state)&&!state.seen?.[v.id]);
@@ -1019,7 +1032,7 @@ function markGold(o){
  const t=TASKS[o.story],u=upgrades(state).find(u=>u.id===o.story),short=goldShort(o.story);
  $('#message').textContent=`${u?u.name:t.name}: ${short?.parts?`make ${missText(short.miss)} for its gold order.`:'its gold order is ready to deliver.'}`;
 }
-const revealLine=(who,line)=>`<p class="revealLine">${face(who)}<span><b>${CREW[who].name}</b>${line}</span></p>`;
+const revealLine=(who,line)=>`<p class="revealLine ${GUESTS[who]?'noFace':''}">${face(who)}<span><b>${who$(who)}</b>${line}</span></p>`;
 const nextLine=()=>{const u=upgrades(state)[0];if(!u)return '';const gold=state.orders.some(o=>o?.story===u.id);return `<p class="revealNext"><b>Next</b>${u.name}${gold?' · its gold order is on the board':''}</p>`;};
 // The array wakes (its own stage-3 picture, with a beam of light in CSS).
 function signalCard(){return `<small>The Silent Observatory · the array</small><div class="revealStage signal" aria-hidden="true"><img class="revealDoor" src="assets/premium/coast/place-obs-array-3.webp" alt="" draggable="false"><i class="beam"></i></div><h3>A signal on one bearing</h3>${revealLine('tamsin','Three long, two short: the call sign in their logs. I can tell where it comes from. Not who sends it, or how long it has been sending.')}${nextLine()}`;}
@@ -1057,6 +1070,18 @@ const PASSAGE_STORY={
  ledger:{tag:'The Lowwater Passage · the courier shelter',title:'A working route',lines:[['neri','The same wave seal. This ledger records deliveries to the inner station.']],sprite:'place-ch5-shelter-3',alt:'The courier shelter restored: a striped canopy, lanterns lit and crates ready to carry on.',next:['ch5-desk']}
 };
 function passageCard(key){const v=PASSAGE_STORY[key];return `<small>${v.tag}</small><div class="revealPanel story ${v.sprite?'sprite':''}"><img class="panelTo" src="assets/premium/coast/lowwater-passage/${v.pic??v.sprite}.webp" alt="${v.alt}" draggable="false"></div><div class="storyCopy"><h3>${v.title}</h3>${v.lines.map(([w,l])=>revealLine(w,l)).join('')}${harbourNext(v.next)}</div>`;}
+// Build 51a: Chapter 5's end card ("Behind the Vault") as its last story card, leading on.
+function stationCard(){const next=AREAS[7];return `<small>${next?'Chapter 5 complete':'The Lowwater Passage'} · the inner lock</small><div class="revealPanel story"><img class="panelTo" src="assets/premium/coast/lowwater-passage/story-station.webp" alt="Beyond the restored lock, a tall brass door with a sun-wheel stands open on lit steps; water runs in channels on either side." draggable="false"></div><div class="storyCopy"><h3>Behind the Vault</h3>${revealLine('ivo','The passage leads back beneath the Vault. Someone kept this route marked.')}${next?`<p class="revealNext"><b>Next</b>Chapter 6 · ${next.name}</p>`:''}</div>`;}
+// Chapter 6's story cards: lines from the pack's story-cards.json, adjusted to the intro's letter (it was
+// unsigned and closed with the wave seal; its words were never shown, so Mara says why she sent it and
+// why it bore the seal, not what it said). The relay's automatic reply (Chapter 4) is a separate thing:
+// Mara says so. Her picture is the pack's storyboard panel; her lines show her name only (no portrait).
+const KEEPER_STORY={
+ station:{tag:'Chapter 6 · The Keeper\'s Promise',title:'The station',lines:[['tamsin','The Vault protected a coastal station. Its channels and lights once served the whole harbour.']],pic:'story-station',alt:'Inside the Vault: a great hall of stone channels and fountains under a sunburst window, a traveller with a pack looking in.',next:['ch6-landing']},
+ keeper:{tag:'The Keeper\'s Promise · the keeper\'s workshop',title:'The keeper',lines:[['mara','I sent the letter. When the routes failed, I could no longer maintain this station alone.'],['mara','The light on the headland answers by itself. The letter was mine.']],pic:'story-keeper',alt:'In a workshop full of charts and brass instruments, an elderly keeper with a silver braid and a navy coat smiles and holds out a sealed letter.',next:['ch6-regulator']},
+ letter:{tag:'The Keeper\'s Promise · the dispatch desk',title:'Why the letter',lines:[['mara','The wave seal was our promise: a safe way home. I left the letter unsigned and trusted the seal to lead you to the Vault, so that promise could live again.']],pic:'story-work',alt:'Crews on scaffolds repair the station\'s arches while water pours through its restored channels.',next:['ch6-overlook']}
+};
+function keeperCard(key){const v=KEEPER_STORY[key];return `<small>${v.tag}</small><div class="revealPanel story"><img class="panelTo" src="assets/premium/coast/keepers-promise/${v.pic}.webp" alt="${v.alt}" draggable="false"></div><div class="storyCopy"><h3>${v.title}</h3>${v.lines.map(([w,l])=>revealLine(w,l)).join('')}${harbourNext(v.next)}</div>`;}
 function harbourNext(ids){
  for(const id of ids){const u=upgrades(state).find(u=>u.id===id);if(u){const gold=state.orders.some(o=>o?.story===u.id);return `<p class="revealNext"><b>Next</b>${u.name}${gold?' · its gold order is on the board':''}</p>`;}}
  for(const id of ids){const b=blockedStage(state,id);if(b){const wait=Object.entries(b.requires).filter(([p,n])=>stageOf(state,p)<n).map(([p,n])=>TASKS[p].stages[n-1].name);return `<p class="revealNext"><b>Next</b>${b.name} · after ${wait.join(' and ')}</p>`;}}
@@ -1118,21 +1143,21 @@ function showEnd(){
  // Build 49a: the content ends with Chapter 4, the Answering Light: the relay's stored message (the
  // pack's fourth story card) is its end card, once, with this chapter's own count and the camp's
  // labelled apart. No Chapter 5 is offered or promised (no button): "the story so far" only.
- // Build 50a: the content ends with Chapter 5, the Lowwater Passage: "Behind the Vault" (the pack's
- // fourth story card) is its end card, once, with this chapter's own count and the camp's labelled
- // apart. Chapter 4's message is now its last story card (messageCard). The inner station is named as
- // not open yet: no Chapter 6 button and no promise (the pack: "no fake next button").
- const harbour=last.id==='harbour',passage=last.id==='lowwater';
- if(passage){const here=builtCount(state,last),all5=last.tasks.length*STAGES;
-  $('#endContent').innerHTML=`<figure class="endArt"><img src="assets/premium/coast/lowwater-passage/story-station.webp" alt="Beyond the restored lock, a tall brass door with a sun-wheel stands open on lit steps; water runs in channels on either side." draggable="false"></figure>
-  <small class="endTag">Chapter 5 complete · Behind the Vault</small><h2 id="endTitle">The passage is open</h2>
-  ${revealLine('ivo','The passage leads back beneath the Vault. Someone kept this route marked.')}
-  <p class="endLine">You restored the reef route and the inner lock.</p>
-  <p class="endNext">This is the end of the story so far. The inner station is not open yet.</p>
-  <section class="endStats" aria-label="This chapter and your camp"><h3>The Lowwater Passage</h3><dl>
-   <div><dt>This chapter's stages</dt><dd>${here} / ${all5}</dd></div><div><dt>All chapters so far</dt><dd>${stages} / ${all}</dd></div><div><dt>Crew orders delivered</dt><dd>${state.ordersDone}</dd></div><div><dt>Generator types found</dt><dd>${kinds}</dd></div></dl>
-   <p>Crew orders keep coming. Their coins carry over, and the shop takes them.</p></section>
-  <button class="primary" type="button" data-view>View the restored passage</button><button class="menuButton" type="button" data-keep>Return to board</button><button class="menuButton" type="button" data-feedback>Share feedback</button>`;
+ // Build 51a: the content ends with Chapter 6, the Keeper's Promise, the end of the first story: "A coast
+ // awake" (the pack's fourth card) is its end card, once: the crew and Mara together, this chapter's
+ // count and the camp's labelled apart. Its buttons are real: the restored station on the coast screen,
+ // the board (crew orders, the shop and the book go on). Chapter 5's "Behind the Vault" is now its last
+ // story card (stationCard). Nothing further is offered or promised: no Chapter 7 button.
+ const harbour=last.id==='harbour',keeper=last.id==='keeper';
+ if(keeper){const here=builtCount(state,last),all6=last.tasks.length*STAGES;
+  $('#endContent').innerHTML=`<figure class="endArt"><img src="assets/premium/coast/keepers-promise/story-coast.webp" alt="At sunset the restored harbour is full of boats under wave-seal sails; on the quay the crew and the keeper celebrate among the townsfolk." draggable="false"></figure>
+  <small class="endTag">Chapter 6 complete · The first story</small><h2 id="endTitle">A coast awake</h2>
+  ${revealLine('bram','The routes are open, the lights are answering, and the harbour is home again.')}${revealLine('mara','You kept the promise. This station is yours to visit, any day.')}
+  <p class="endLine">You opened the Vault, restored the station it guarded and answered the keeper's letter.</p>
+  <p class="endNext">The first story is complete. Crew orders, the shop and the collection book carry on.</p>
+  <section class="endStats" aria-label="This chapter and your camp"><h3>The Keeper's Promise</h3><dl>
+   <div><dt>This chapter's stages</dt><dd>${here} / ${all6}</dd></div><div><dt>All chapters</dt><dd>${stages} / ${all}</dd></div><div><dt>Crew orders delivered</dt><dd>${state.ordersDone}</dd></div><div><dt>Generator types found</dt><dd>${kinds}</dd></div></dl></section>
+  <button class="primary" type="button" data-view>View the restored coast</button><button class="menuButton" type="button" data-keep>Return to board</button><button class="menuButton" type="button" data-feedback>Share feedback</button>`;
   $('#endDialog').showModal();return;}
  $('#endContent').innerHTML=(harbour?`<figure class="endArt"><img src="assets/premium/coast/hidden-harbour/story-departure.webp" alt="The repaired boat with its ivory and coral sail leaves the harbour in daylight, the restored landing, warehouse and signal tower behind it." draggable="false"></figure>
   <small class="endTag">Chapter 3 complete</small><h2 id="endTitle">The boat is ready</h2>

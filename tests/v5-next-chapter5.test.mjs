@@ -48,8 +48,8 @@ test('the Lowwater Passage: seven places in three stages, stable ids, a line eac
  assert.deepEqual(P.tasks.map(t=>t.id),IDS);assert.ok(P.tasks.every(t=>t.stages.length===STAGES&&t.art===t.id));
  assert.ok(P.tasks.every(t=>t.stages.every(x=>x.lines.length===1&&x.cost>0)));
  assert.ok(P.tasks.every(t=>t.stages[0].cost<t.stages[1].cost&&t.stages[1].cost<t.stages[2].cost),'each stage costs more');
- assert.deepEqual(AREAS.map(a=>a.id),['beach','worksite','entrance','vault','harbour','answering-light','lowwater']);
- assert.equal(Object.keys(TASKS).length,42);for(const id of IDS)assert.equal(TASKS[id].area,'lowwater');
+ assert.deepEqual(AREAS.slice(0,7).map(a=>a.id),['beach','worksite','entrance','vault','harbour','answering-light','lowwater']);
+ assert.equal(Object.keys(TASKS).filter(id=>!id.startsWith('ch6-')).length,42);for(const id of IDS)assert.equal(TASKS[id].area,'lowwater');
  assert.ok(IDS.every(id=>LABELS[id]),'every place has a label');
  for(const t of P.tasks){assert.deepEqual(t.stages[0].effect,{});assert.deepEqual(t.stages[1].effect,{});
   const k=t.stages[2].effect.kit;assert.ok(k&&k[1]===2&&CHAINS[k[0]]&&!CHAINS[k[0]].secondary,t.id);}
@@ -119,19 +119,18 @@ test('an unfinished Chapter 4 save stays on the headland: nothing of Chapter 5 o
  assert.equal(act(t,{type:'restore',id:'ch5-landing'}).ok,false);
 });
 
-test('all 21 stages as a player buys them: each gold order as authored, each stage charged once, the lock last, then the end', ()=>{
+test('all 21 stages as a player buys them: each gold order as authored, each stage charged once, the lock last, then Chapter 6', ()=>{
  const s=entry();const log={gold:[],stages:[],paid:[]};let guard=0;
- while(!allDone(s)&&guard++<40)assert.ok(buyNext(s,log),'never stuck: '+JSON.stringify(upgrades(s)));
- assert.equal(allDone(s),true);assert.equal(areaDone(s,P),true);assert.equal(s.area,6);assert.equal(log.stages.length,21);
+ while(!areaDone(s,P)&&guard++<40)assert.ok(buyNext(s,log),'never stuck: '+JSON.stringify(upgrades(s)));
+ assert.equal(areaDone(s,P),true);assert.equal(s.area,7,'on to the Keeper\'s Promise (build 51a)');assert.equal(log.stages.length,21);
  for(const [id,n,needs] of log.gold)assert.deepEqual(needs.map(r=>[r.family,r.tier,r.count]),TASKS[id].stages[n-1].gold,`${id} ${n}`);
  for(const [k,[id,n]] of log.stages.entries())assert.equal(log.paid[k],TASKS[id].stages[n-1].cost,`${id} ${n}: charged its cost once`);
  assert.deepEqual(log.stages.at(-1),['ch5-lock',3],'the inner lock is last');
  assert.equal(new Set(log.stages.map(x=>x.join())).size,21,'each stage once');
- assert.equal(totalBuilt(s),126,'105 stages before and 21 here');assert.ok(!s.orders.some(o=>o?.story),'no gold order left');
- const t=load(JSON.stringify(s),9000);assert.equal(allDone(t),true);
+ assert.equal(totalBuilt(s),126,'105 stages before and 21 here');assert.deepEqual(s.orders.filter(o=>o?.story).map(o=>o.story),['ch6-landing'],'Chapter 6\'s first gold order, none of Chapter 5 left');
+ const t=load(JSON.stringify(s),9000);assert.equal(areaDone(t,P),true);assert.equal(t.area,7);
  for(const id of IDS)assert.equal(act(t,{type:'restore',id},9000).ok,false);
- // the end card is marked once
- ok(t,{type:'seenEnd'});assert.equal(act(t,{type:'seenEnd'}).ok,false);assert.equal(load(JSON.stringify(t),9500).seenEnd,true);
+ assert.equal(act(t,{type:'seenEnd'}).ok,false,'no end card: the story goes on');
 });
 
 test('a stage-3 kit on a full board waits for space, once; nothing is given twice across a reload', ()=>{

@@ -1,0 +1,72 @@
+[
+  {
+    "file": "ART_REVIEW.md",
+    "bytes": 877,
+    "sha256": "961e6a2b096496148f2cc1b645ff251f95d4c542ad25bf6eed65caaa70a4ee5c"
+  },
+  {
+    "file": "CLAUDE_HANDOFF.md",
+    "bytes": 2677,
+    "sha256": "99e07c93798e8139d40759ebb6c4ce0df1b9cb187eee943892788bb240b60930"
+  },
+  {
+    "file": "NARRATIVE.md",
+    "bytes": 1147,
+    "sha256": "bf38cf3b3d35c9c97b5053b5e7ffb1316dc1a8730ac3d34b55a31a508253024d"
+  },
+  {
+    "file": "QA.md",
+    "bytes": 780,
+    "sha256": "97d0a9b6808345a9e662aa382266222ac5962978660eecd877ce54a4083565c2"
+  },
+  {
+    "file": "README.md",
+    "bytes": 686,
+    "sha256": "fdd5271151454b797988d01f181d4de1628fb086b0f40891b3947310196b8e8d"
+  },
+  {
+    "file": "assets/after.png",
+    "bytes": 3539430,
+    "sha256": "916aa7b80693ab9c5c74c9e5c3093985aaad9830e8d725b6f2f272d52a40fe68"
+  },
+  {
+    "file": "assets/before.png",
+    "bytes": 3647900,
+    "sha256": "8d9bee52025c277d0b2db094f88af1323fd5046f600ac98c7441a040db05e825"
+  },
+  {
+    "file": "assets/stages.png",
+    "bytes": 2910563,
+    "sha256": "a3591db1dc3bbd134f64f1627671faa900bf2589c5ee702e4d076c831a6eb6b9"
+  },
+  {
+    "file": "assets/story.png",
+    "bytes": 2944319,
+    "sha256": "7a74db1a108e7995da0acd92c42262d38dfed4ab7c8093d1f1b6b41eab9db359"
+  },
+  {
+    "file": "gallery.html",
+    "bytes": 489,
+    "sha256": "7a4e6736bd785e8b603838185ac5f367a7829cd1bb4a6fc232d533d3f5fa3535"
+  },
+  {
+    "file": "prompts.json",
+    "bytes": 2732,
+    "sha256": "dcb69e08d7bc2d086c4651b7c4ceb71e666bbc1ec915de912d5fecc2b6e157e6"
+  },
+  {
+    "file": "stages.csv",
+    "bytes": 3297,
+    "sha256": "18bc2ac3d2b2db82ace0c8997b5b89919adcc8eea2d88f39d93af2251c7302a0"
+  },
+  {
+    "file": "stages.json",
+    "bytes": 8051,
+    "sha256": "05e5190f428ad676e6371a764ecae8d57a33ea34e0f6d5d4df53c3708932454b"
+  },
+  {
+    "file": "story-cards.json",
+    "bytes": 985,
+    "sha256": "e87d7189276cf6d058c8bcacdecfe4ef476fba1ff40a6e10ca1659ede8364b7d"
+  }
+]

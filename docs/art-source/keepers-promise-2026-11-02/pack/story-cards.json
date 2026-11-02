@@ -1,0 +1,30 @@
+[
+  {
+    "title": "The station",
+    "speaker": "Tamsin",
+    "text": "The Vault protected a coastal station. Its channels and lights once served the whole harbour.",
+    "next_action": "Secure the inner landing",
+    "trigger": "entry"
+  },
+  {
+    "title": "The keeper",
+    "speaker": "Mara",
+    "text": "I sent the letter. When the routes failed, I could no longer maintain this station alone.",
+    "next_action": "Restore the tide regulator",
+    "trigger": "ch6-p4-s3"
+  },
+  {
+    "title": "Why the letter",
+    "speaker": "Mara",
+    "text": "The wave seal was our promise: a safe way home. I asked you to open the Vault so that promise could live again.",
+    "next_action": "Reconnect the signal lamps",
+    "trigger": "ch6-p6-s3"
+  },
+  {
+    "title": "A coast awake",
+    "speaker": "Bram",
+    "text": "The routes are open, the lights are answering, and the harbour is home again.",
+    "next_action": "View the restored coast",
+    "trigger": "chapter6-complete"
+  }
+]
