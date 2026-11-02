@@ -38,7 +38,7 @@ function moment(title,detail='',x=null){sharedMoment(title,detail,null);const el
 let adPlaying=false;
 const sfx=(kind,tier=0)=>sounds.play(kind,tier,{muted:adPlaying||platform.muted()});
 // Shown in the footer so a playtester can tell which build is running.
-export const BUILD='Build 49a · Chapter 4, the Answering Light';
+export const BUILD='Build 50a · Chapter 5, the Lowwater Passage';
 // The level path (docs/V5_LEVEL_PATH_2026-10-27.md): a crew order that pays a tool on top shows it
 // beside its coins (a Tide token; a favour's Sea chest or Brass cog).
 const bonusThing=o=>o.bonus==='cog'?cog():o.bonus==='chest'?kit(newestGenerator(state),2):o.bonus==='token'?token():null;
@@ -124,7 +124,7 @@ const pips=n=>`<span class="pips" aria-label="stage ${n} of ${STAGES}">${Array.f
 // the boat has sailed ('launched'); it no longer falls back to the stage-1 cut-out, which read as unbuilt.
 const artStage=(t,n)=>t.id==='hb-boatyard'&&n>=STAGES&&stageOf(state,'hb-departure')>=STAGES?'launched':Math.max(1,n);
 // Build 49a: Chapter 4's 21 separate stage sprites live in coast/answering-light (tools/headland-art.py).
-const artDir=a=>a.startsWith('hb-')?'hidden-harbour/':a.startsWith('ch4-')?'answering-light/':'';
+const artDir=a=>a.startsWith('hb-')?'hidden-harbour/':a.startsWith('ch4-')?'answering-light/':a.startsWith('ch5-')?'lowwater-passage/':'';
 const stageArt=(t,n)=>`<img class="art" src="assets/premium/coast/${artDir(t.art)}place-${t.art}-${artStage(t,n)}.webp" alt="" draggable="false" loading="lazy">`;
 // Build 47f: the Vault door is drawn as itself (a crop of the Home picture's door) with its rings lit
 // for the stage, not as a part's icon; painted ring states do not exist (see the doc's missing art).
@@ -778,7 +778,7 @@ function harbourScene(area){
 function headlandScene(area){
  const done=areaDone(state,area),built=builtCount(state,area),all=area.tasks.length*STAGES;
  const pic=`assets/premium/${done?area.overview:area.map}.webp`;
- return `<div class="beachScene mapped headland ${done?'complete':''}" data-area="${area.id}" data-built="${built}"><img class="sceneBase" src="${pic}" alt="${area.name}, ${done?'the headland restored and its light lit':`the damaged headland: ${built} of ${all} stages built (each place's card shows its stage)`}"><div class="restored"></div></div>`;
+ return `<div class="beachScene mapped headland ${done?'complete':''}" data-area="${area.id}" data-built="${built}"><img class="sceneBase" src="${pic}" alt="${area.name}, ${done?(area.id==='lowwater'?'the passage restored, its route lit and the lock working':'the headland restored and its light lit'):`the damaged ${area.id==='lowwater'?'reef passage':'headland'}: ${built} of ${all} stages built (each place's card shows its stage)`}"><div class="restored"></div></div>`;
 }
 // After the picture is drawn with the old size, the new one is set so the colour spreads.
 function growScene(){
@@ -978,7 +978,16 @@ const REVEALS=[
  // chapter's end card (showEnd). One the camp has moved past is marked seen without playing.
  {id:'ch4-arrival',when:s=>s.area>=5,live:s=>s.area===5&&!builtCount(s,AREAS[5]),play:done=>revealCard(headlandCard('arrival'),()=>{done();const o=firstGold();if(o)markGold(o);},'Secure the landing')},
  {id:'ch4-log',when:s=>stageOf(s,'ch4-cottage')>=STAGES,live:s=>stageOf(s,'ch4-relay')<STAGES,play:done=>revealCard(headlandCard('log'),()=>{done();mapFocus='ch4-records';showMap();},'Open the signal room')},
- {id:'ch4-light',when:s=>stageOf(s,'ch4-lighthouse')>=STAGES,live:s=>stageOf(s,'ch4-relay')<STAGES,play:done=>revealCard(headlandCard('light'),()=>{done();mapFocus='ch4-relay';showMap();},'Check the relay')}
+ {id:'ch4-light',when:s=>stageOf(s,'ch4-lighthouse')>=STAGES,live:s=>stageOf(s,'ch4-relay')<STAGES,play:done=>revealCard(headlandCard('light'),()=>{done();mapFocus='ch4-relay';showMap();},'Check the relay')},
+ // Build 50a: the stored message was the end of the content; it is now Chapter 4's last card and leads
+ // on to the reef (a camp that already saw it as the end card has it marked seen by load()).
+ {id:'ch4-message',when:s=>stageOf(s,'ch4-relay')>=STAGES,live:()=>true,play:done=>revealCard(messageCard(),done,AREAS[6]?.tasks.length?'Follow the route':'Continue')},
+ // Chapter 5, the Lowwater Passage (the pack's story-cards.json): the arrival once (its button marks the
+ // landing's gold order), the safe crossing and the working route each once; "Behind the Vault" is the
+ // chapter's end card (showEnd). One the camp has moved past is marked seen without playing.
+ {id:'ch5-arrival',when:s=>s.area>=6,live:s=>s.area===6&&!builtCount(s,AREAS[6]),play:done=>revealCard(passageCard('arrival'),()=>{done();const o=firstGold();if(o)markGold(o);},'Secure the reef landing')},
+ {id:'ch5-crossing',when:s=>stageOf(s,'ch5-gauge')>=STAGES,live:s=>stageOf(s,'ch5-lock')<STAGES,play:done=>revealCard(passageCard('crossing'),()=>{done();mapFocus='ch5-bridge';showMap();},'Secure the rope bridge')},
+ {id:'ch5-ledger',when:s=>stageOf(s,'ch5-shelter')>=STAGES,live:s=>stageOf(s,'ch5-lock')<STAGES,play:done=>revealCard(passageCard('ledger'),()=>{done();mapFocus='ch5-desk';showMap();},'Restore the mail desk')}
 ];
 const markSeen=id=>{if(!state.seen?.[id]&&act(state,{type:'seen',id},Date.now()).ok){persist();playlog.event('reveal',{id});}};
 const pendingReveals=()=>REVEALS.filter(v=>v.when(state)&&!state.seen?.[v.id]);
@@ -1036,6 +1045,18 @@ const HEADLAND_STORY={
  light:{tag:'The Answering Light · the lighthouse',title:'The headland wakes',lines:[['tamsin','The main light is steady. The relay can use it now.'],['bram','A safe light for every boat that follows us.']],alt:'At sunset the lighthouse on the headland is lit, its sea-green beam reaching out over the water.',pos:'50% 22%',beam:true,next:['ch4-relay']}
 };
 function headlandCard(key){const v=HEADLAND_STORY[key];return `<small>${v.tag}</small><div class="revealPanel story portrait ${v.beam?'beamOnce':''}"><img class="panelTo" src="assets/premium/coast/answering-light/story-${key}.webp" alt="${v.alt}" draggable="false" style="object-position:${v.pos}">${v.beam?'<i class="beamSweep" aria-hidden="true"></i>':''}</div><div class="storyCopy"><h3>${v.title}</h3>${v.lines.map(([w,l])=>revealLine(w,l)).join('')}${harbourNext(v.next)}</div>`;}
+// Build 50a: Chapter 4's end card (the relay's stored message) as its last story card, leading on.
+function messageCard(){const next=AREAS[6];return `<small>${next?'Chapter 4 complete':'The Answering Light'} · the signal relay</small><div class="revealPanel story portrait"><img class="panelTo" src="assets/premium/coast/answering-light/story-message.webp" alt="On the headland the relay's brass frame holds a lit sea-green orb; below it a chart is unrolled, a route marked through the reef." draggable="false" style="object-position:50% 40%"></div><div class="storyCopy"><h3>A route through the reef</h3>${revealLine('neri','A passage through the reef, marked for low water.')}${revealLine('bram','Someone left a way through. We still have to learn why.')}${next?`<p class="revealNext"><b>Next</b>Chapter 5 · ${next.name}</p>`:''}</div>`;}
+// Chapter 5's story cards: lines from the pack's story-cards.json. Its storyboard's panels are concept
+// art, cut by tools/lowwater-art.py. The working route has no painting: the pack's panel for it shows a
+// generated emblem that is not the letter's wave seal (its ART_REVIEW.md), and Neri's line names the
+// seal, so the card shows the restored shelter's own sprite instead of a wrong seal.
+const PASSAGE_STORY={
+ arrival:{tag:'Chapter 5 · The Lowwater Passage',title:'The water has pulled back',lines:[['bram','The water has pulled back. The marked stones lead through the reef.']],pic:'story-arrival',alt:'At low water a line of mossy stepping stones runs through the reef toward a white city on the far cliffs.',next:['ch5-landing']},
+ crossing:{tag:'The Lowwater Passage · the tide gauge',title:'The safe crossing',lines:[['tamsin','These tide marks explain when the route is safe. We can repair the crossing.']],pic:'story-route',alt:'An old chart held open: a dotted route runs from the reef through the stepping stones toward the cliffs.',next:['ch5-bridge']},
+ ledger:{tag:'The Lowwater Passage · the courier shelter',title:'A working route',lines:[['neri','The same wave seal. This ledger records deliveries to the inner station.']],sprite:'place-ch5-shelter-3',alt:'The courier shelter restored: a striped canopy, lanterns lit and crates ready to carry on.',next:['ch5-desk']}
+};
+function passageCard(key){const v=PASSAGE_STORY[key];return `<small>${v.tag}</small><div class="revealPanel story ${v.sprite?'sprite':''}"><img class="panelTo" src="assets/premium/coast/lowwater-passage/${v.pic??v.sprite}.webp" alt="${v.alt}" draggable="false"></div><div class="storyCopy"><h3>${v.title}</h3>${v.lines.map(([w,l])=>revealLine(w,l)).join('')}${harbourNext(v.next)}</div>`;}
 function harbourNext(ids){
  for(const id of ids){const u=upgrades(state).find(u=>u.id===id);if(u){const gold=state.orders.some(o=>o?.story===u.id);return `<p class="revealNext"><b>Next</b>${u.name}${gold?' · its gold order is on the board':''}</p>`;}}
  for(const id of ids){const b=blockedStage(state,id);if(b){const wait=Object.entries(b.requires).filter(([p,n])=>stageOf(state,p)<n).map(([p,n])=>TASKS[p].stages[n-1].name);return `<p class="revealNext"><b>Next</b>${b.name} · after ${wait.join(' and ')}</p>`;}}
@@ -1097,17 +1118,21 @@ function showEnd(){
  // Build 49a: the content ends with Chapter 4, the Answering Light: the relay's stored message (the
  // pack's fourth story card) is its end card, once, with this chapter's own count and the camp's
  // labelled apart. No Chapter 5 is offered or promised (no button): "the story so far" only.
- const harbour=last.id==='harbour',headland=last.id==='answering-light';
- if(headland){const here=builtCount(state,last),all4=last.tasks.length*STAGES;
-  $('#endContent').innerHTML=`<figure class="endArt portrait"><img src="assets/premium/coast/answering-light/story-message.webp" alt="On the headland the relay's brass frame holds a lit sea-green orb; below it a chart is unrolled, a route marked through the reef." draggable="false"></figure>
-  <small class="endTag">Chapter 4 complete · A route through the reef</small><h2 id="endTitle">The headland answers</h2>
-  ${revealLine('neri','A passage through the reef, marked for low water.')}${revealLine('bram','Someone left a way through. We still have to learn why.')}
-  <p class="endLine">You restored the light and decoded a route through the reef.</p>
-  <p class="endNext">This is the end of the story so far.</p>
-  <section class="endStats" aria-label="This chapter and your camp"><h3>The Answering Light</h3><dl>
-   <div><dt>This chapter's stages</dt><dd>${here} / ${all4}</dd></div><div><dt>All chapters so far</dt><dd>${stages} / ${all}</dd></div><div><dt>Crew orders delivered</dt><dd>${state.ordersDone}</dd></div><div><dt>Generator types found</dt><dd>${kinds}</dd></div></dl>
+ // Build 50a: the content ends with Chapter 5, the Lowwater Passage: "Behind the Vault" (the pack's
+ // fourth story card) is its end card, once, with this chapter's own count and the camp's labelled
+ // apart. Chapter 4's message is now its last story card (messageCard). The inner station is named as
+ // not open yet: no Chapter 6 button and no promise (the pack: "no fake next button").
+ const harbour=last.id==='harbour',passage=last.id==='lowwater';
+ if(passage){const here=builtCount(state,last),all5=last.tasks.length*STAGES;
+  $('#endContent').innerHTML=`<figure class="endArt"><img src="assets/premium/coast/lowwater-passage/story-station.webp" alt="Beyond the restored lock, a tall brass door with a sun-wheel stands open on lit steps; water runs in channels on either side." draggable="false"></figure>
+  <small class="endTag">Chapter 5 complete · Behind the Vault</small><h2 id="endTitle">The passage is open</h2>
+  ${revealLine('ivo','The passage leads back beneath the Vault. Someone kept this route marked.')}
+  <p class="endLine">You restored the reef route and the inner lock.</p>
+  <p class="endNext">This is the end of the story so far. The inner station is not open yet.</p>
+  <section class="endStats" aria-label="This chapter and your camp"><h3>The Lowwater Passage</h3><dl>
+   <div><dt>This chapter's stages</dt><dd>${here} / ${all5}</dd></div><div><dt>All chapters so far</dt><dd>${stages} / ${all}</dd></div><div><dt>Crew orders delivered</dt><dd>${state.ordersDone}</dd></div><div><dt>Generator types found</dt><dd>${kinds}</dd></div></dl>
    <p>Crew orders keep coming. Their coins carry over, and the shop takes them.</p></section>
-  <button class="primary" type="button" data-view>View the restored headland</button><button class="menuButton" type="button" data-keep>Return to board</button><button class="menuButton" type="button" data-feedback>Share feedback</button>`;
+  <button class="primary" type="button" data-view>View the restored passage</button><button class="menuButton" type="button" data-keep>Return to board</button><button class="menuButton" type="button" data-feedback>Share feedback</button>`;
   $('#endDialog').showModal();return;}
  $('#endContent').innerHTML=(harbour?`<figure class="endArt"><img src="assets/premium/coast/hidden-harbour/story-departure.webp" alt="The repaired boat with its ivory and coral sail leaves the harbour in daylight, the restored landing, warehouse and signal tower behind it." draggable="false"></figure>
   <small class="endTag">Chapter 3 complete</small><h2 id="endTitle">The boat is ready</h2>

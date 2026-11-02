@@ -5,9 +5,9 @@
 // open place; each stage bought through the real UI (its gold order delivered from the board, then built
 // on the coast screen) puts its own sprite on its place's card and tile, and says its line as a caption
 // (no dialog); after the steps, either branch can be chosen ("Work on this next"); the keeper's log and
-// the first light (one beam sweep, still with reduced motion) once each; the relay's stored message is the
-// end card, once (this chapter 21 / 21, the camp's total apart, no Chapter 5), "View the restored
-// headland" shows it, and a reload shows nothing again.
+// the first light (one beam sweep, still with reduced motion) once each; the relay's stored message is
+// Chapter 4's last story card (build 50a), naming Chapter 5 and followed by its arrival; no end card,
+// the coast screen moves on to the damaged reef passage, and a reload shows nothing again.
 // At 390 x 844 all 21 stages by hand; at 360 x 780, 430 x 932 and 907 x 510 the entry, a stage, the branch
 // choice and the end. Every picture loads; nothing scrolls sideways; buttons are 44 px.
 //   SHOTS=<dir> saves screenshots.
@@ -116,27 +116,22 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
     await write(`for(const t of arg)s.built[t]=3,s.materials[t]=3;s.built['ch4-relay']=2;s.materials['ch4-relay']=3;s.seen['ch4-log']=true;s.seen['ch4-light']=true;`,IDS);
     await reload();await beats();
    }
-   // the relay's stored message: the end card, once
-   await build('ch4-relay');
-   await page.waitForSelector('#endDialog[open]',{timeout:6000});
-   const end=await page.locator('#endContent').textContent();
-   assert.match(end,/Chapter 4 complete/);assert.match(end,/The headland answers/);assert.match(end,/A passage through the reef, marked for low water/);assert.match(end,/You restored the light and decoded a route through the reef/);
-   assert.match(end,/This chapter's stages\s*21 \/ 21/,tag('this chapter\'s count'));assert.match(end,/All chapters so far\s*105 \/ 105/,tag('the camp\'s total, labelled apart'));
-   assert.doesNotMatch(end,/Chapter 5|not available yet/,tag('no Chapter 5 offered'));assert.equal(await page.locator('#endContent button').count(),3);
-   const endImg=await page.locator('#endContent .endArt img').evaluate(async i=>{await i.decode().catch(()=>{});return i.naturalWidth;});assert.ok(endImg>0,tag('the stored message picture loads'));
-   for(const sel of ['[data-view]','[data-keep]'])assert.ok(await page.locator('#endContent '+sel).isVisible(),tag(sel+' shown'));
-   for(const f of await page.locator('#endContent .revealLine img.face').all()){const r=await f.boundingBox();assert.ok(r.width<=48,tag('speaker portraits are small'));}
-   for(const b of await page.locator('#endContent button').all()){const r=await b.boundingBox();if(r)assert.ok(r.height>=43.5,tag('end buttons 44 px'));}
-   await fits('end card');await shot('5-end');
-   s=await save();assert.equal(s.seenEnd,true);assert.equal(s.built['ch4-relay'],3);
-   await page.locator('#endContent [data-view]').click();await page.waitForSelector('#coastMap[open]');await page.waitForTimeout(400);
-   assert.match(await page.locator('#coastMap .sceneBase').getAttribute('src'),/headland-map-after\.webp$/,tag('the restored headland'));assert.ok(await page.locator('#coastMap .beachScene.headland.complete').count());
-   await fits('restored headland');await shot('6-restored');await page.locator('#coastMap .close').click();
-   await reload();await page.waitForTimeout(500);assert.equal(await page.locator('#endDialog[open]').count(),0,tag('the end card once'));assert.equal(await beats(),'',tag('no story card again'));
+   // the relay's stored message: Chapter 4's last story card (build 50a: no longer the end card), leading
+   // on to Chapter 5's arrival; no end card, and nothing again after a reload
+   const last=await build('ch4-relay');
+   assert.match(last.text,/Chapter 4 complete/);assert.match(last.text,/A route through the reef/);assert.match(last.text,/A passage through the reef, marked for low water/);
+   assert.match(last.text,/Chapter 5 · The Lowwater Passage/,tag('the next chapter named'));assert.match(last.text,/The water has pulled back/,tag('then the Chapter 5 arrival'));
+   assert.equal(await page.locator('#endDialog[open]').count(),0,tag('no end card: Chapter 5 follows'));
+   s=await save();assert.equal(s.area,6);assert.equal(s.built['ch4-relay'],3);assert.equal(s.seen['ch4-message'],true);assert.equal(s.seen['ch5-arrival'],true);assert.notEqual(s.seenEnd,true);
+   assert.equal(s.orders.find(o=>o?.story)?.story,'ch5-landing',tag('the reef landing\'s gold order up'));
+   await openMap();assert.match(await page.locator('#coastMap .sceneBase').getAttribute('src'),/passage-map-before\.webp$/,tag('the damaged passage next'));
+   assert.match(await page.locator('#coastMap .mapArea.done').last().textContent(),/The Answering Light\s*Complete/,tag('the headland listed as complete'));
+   await fits('next chapter');await shot('5-next');await page.locator('#coastMap .close').click();
+   await reload();await page.waitForTimeout(500);assert.equal(await page.locator('#endDialog[open]').count(),0,tag('no end card'));assert.equal(await beats(),'',tag('no story card again'));
    assert.equal((await save()).coins>=0,true);
    assert.deepEqual(missing,[],tag('every headland picture loads'));assert.deepEqual(errors,[],tag('no page errors'));
    await context.close();
   }
-  console.log(`${engine} Coast Camp Chapter 4: finished Chapter 3 save → arrival once (launch not repeated) → landing gold marked → damaged headland, pins, 7 places → 21 stages by hand at 390 (captions, own sprites, branch choice, log and first-light cards once, no lit tower early) → stored message end card once (21/21, 105/105 apart, no Chapter 5) → restored headland; 360/430/907×510 entry, stage, branch choice, end; pictures load, no overflow passed`);
+  console.log(`${engine} Coast Camp Chapter 4: finished Chapter 3 save → arrival once (launch not repeated) → landing gold marked → damaged headland, pins, 7 places → 21 stages by hand at 390 (captions, own sprites, branch choice, log and first-light cards once, no lit tower early) → stored message card then the Chapter 5 arrival (no end card) → the reef passage next; 360/430/907×510 entry, stage, branch choice, end; pictures load, no overflow passed`);
   }finally{await browser.close();}}
 })().catch(e=>{console.error(e);process.exit(1);});

@@ -1,0 +1,18 @@
+[
+  {
+    "asset": "before",
+    "prompt": "Vaultwake cozy premium mobile merge game painted illustration, saturated turquoise coral sunlit ivory and warm gold, soft top-left light, coherent coastal architecture, no text labels logos or UI. Portrait elevated three-quarter environment map for Chapter 5 The Lowwater Passage. Seven distinct separated locations: reef landing, stepping-stone causeway, tide gauge, rope bridge, courier shelter, mail sorting desk, inner lock. All visibly damaged, missing planks, unlit mechanisms, broken roof; hopeful daylight, never gloomy. Rocky tidal reef passage with blue pools and secluded courier outpost, open sky. No people."
+  },
+  {
+    "asset": "after",
+    "prompt": "Vaultwake cozy premium mobile merge game painted illustration, saturated turquoise coral sunlit ivory and warm gold, soft top-left light, coherent coastal architecture, no text labels logos or UI. Portrait elevated three-quarter environment map for Chapter 5 The Lowwater Passage. Seven distinct separated locations: reef landing, stepping-stone causeway, tide gauge, rope bridge, courier shelter, mail sorting desk, inner lock. All repaired, working, welcoming, vibrant flowers and warm lamps. Rocky tidal reef passage with blue pools and secluded courier outpost, open sky. No people."
+  },
+  {
+    "asset": "stages",
+    "prompt": "Vaultwake cozy premium mobile merge game painted illustration, saturated turquoise coral sunlit ivory and warm gold, soft top-left light, coherent coastal architecture, no text labels logos or UI. Wide 7-column 3-row asset concept sheet exactly21 isolated illustrations on flat light cream background. Columns: reef landing, stepping-stone causeway, tide gauge, rope bridge, courier shelter, mail sorting desk, inner lock. Rows stage1 initial repair, stage2 added working equipment, stage3 complete decorated functional structure. Same base, camera and footprint within each column; later rows add details. Generous gutters no overlaps no labels."
+  },
+  {
+    "asset": "story",
+    "prompt": "Vaultwake cozy premium mobile merge game painted illustration, saturated turquoise coral sunlit ivory and warm gold, soft top-left light, coherent coastal architecture, no text labels logos or UI. Four equal panels in 2x2 storyboard, no text. Story beats in reading order: low tide reveals a reef route; a courier shelter contains a wave-sealed dispatch ledger; ledger points back to the inner Vault service passage; inner lock opens. Focus on environment and story objects, characters small. Consistent locations."
+  }
+]
