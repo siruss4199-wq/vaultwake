@@ -152,3 +152,81 @@ Clarified scope: a short, one-time introduction to the basic controls, not a per
   - The order tools' "locate" button redrew the board without the guide's highlight. It now redraws it too.
   - A CI-only failure in the browser test, which counted the merge highlight before its frame was drawn
     (360×780, Chromium), now waits for the highlight.
+
+## Build 51d: varied gold orders, Clear, a pointing guide
+Request (2026-11-02): "ehnii 10min toglohod gold orderuud dandaa adilhan baina hovor itemch shaardsangui itemaa
+butsaaj burn hiideg songolt heregtei baina mun guide hesgiig sain tod bolgomoor baina yag end touch hii geed".
+
+### Gold orders in the first minutes
+- **Measured before (51c, scripted player `tests/v5-next-policy.mjs`, every seed):**
+  - the first seven gold orders, through minute 12, all asked "1 Pocket winch + 2 Split spanners" (70 coins);
+  - the next three asked "1 Crawler jack + 2 Pocket winches";
+  - then came a long run of "1 × X + 2 Pocket winches".
+- **Why:** in the opening only the Rivet Rover's chain is open, so the generated recipe
+  (`goldNeeds`, "the newest part + two of the tier below") has only one form.
+- **Now, in Chapter 1** (the beach, the worksite and the Vault Entrance; Chapters 2–6 and every stage with its own
+  recipe or rare part are unchanged): successive gold orders take turns between four shapes of about the same
+  worth.
+  - The shapes are:
+    - the usual recipe;
+    - the newest part with four of a lower tier;
+    - the second part one tier up, once;
+    - the newest part as two of the tier below.
+  - With one chain this gives, in order, for example: "1 Pocket winch + 2 Split spanners", "1 Pocket winch + 4 Grip
+    tools", "2 Pocket winches", "4 Pocket winches", "1 Crawler jack + 2 Pocket winches", "1 Crawler jack + 4 Split
+    spanners".
+  - The turn is the number of gold orders already delivered, read from the materials in the save, so two gold
+    orders in a row never match and no save field is added.
+  - The first gold order is unchanged (70 coins). The pay is still computed from what is asked (`goldPrice`).
+- **The order of the shapes was chosen by measurement.** Of the six possible orders, `0,3,1,2` was the only one that
+  kept every speed's restorations in the first 15 minutes at or above 51c (5/4/4/4/3/3/2/2 at 4–10 s per action;
+  51c: 5/4/4/3/3/3/2/2). The original order cost the 10 s player a restoration.
+- **Pacing (`node tests/v5-next-coins-metrics.mjs 4,5,8,10 1,…,10 both --runs board=1`; baseline is the 51c tree):**
+
+| Median at 4 / 5 / 8 / 10 s per action | 51c | 51d |
+|---|---|---|
+| Runs finished | 80 / 80 | 80 / 80 |
+| Chapter 1 minutes | 114.7 / 144.0 / 230.1 / 293.9 | 118.9 / 148.2 / 239.2 / 299.7 (+2–4 %) |
+| Whole game, minutes (no shop) | 362 / 451 / 714 / 904 | 353 / 446 / 714 / 881 |
+| Gold covers the stage's cost | 60 % | 56 % |
+| Board median, Chapter 1 | 12 | 12–13 |
+
+- **Rare parts in the first minutes, tried and not kept:** a Gear goal on the path's third stage, under the existing rare
+  rule, came at minute 7 as intended. But Bolts only start dropping once the Rover reaches level 2 (about minute 7), so
+  the scripted player needed 12 minutes and 113 taps to finish that gold order, against 4 minutes before. That is a
+  wall in the first session, so the first rare goal stays at the pier's crane. Rare parts held before then can be
+  cleared (below).
+
+### Clear (burn) any loose part
+- The selection panel now offers **Clear** for every loose part. Before, it showed only when 2 cells or fewer were
+  free (Build 41 M4).
+- **The rule is unchanged** (`recycle`): an everyday part gives back the 1 energy a tap costs ("Clear · +1 ϟ"),
+  so it is no energy trick, and a rare part gives nothing ("Clear").
+- **Mistakes are guarded:** a part an order wants, a merged part (level 2 and up) or a rare part asks for a second
+  tap within 3 s ("Tap again to clear"). A plain level-1 part clears at once.
+- The scripted player's use of Clear (only on a full board) is unchanged, so the measurements above do not include
+  it.
+
+### A pointing guide
+- Each highlighted guide step now also shows a **pointing hand** with a short label:
+  - "Tap here" on the generator;
+  - "Drag onto its twin" on the pair (the hand slides to the twin);
+  - "Tap to deliver" on the order card's Deliver line, so the parts stay visible;
+  - "Tap to open the coast" on the strip;
+  - "Tap to build" on the coast screen's Build button.
+- The hand never takes a tap and sits under any dialog. It is hidden on goal steps and after the guide.
+- With reduced motion it stays still. Its label stays on screen near the edges.
+
+### Tests
+- **`tests/v5-next-gold-variety.test.mjs`:**
+  - the four shapes are different, of about the same worth (±20 %) and within the chain;
+  - a new camp's first gold order is unchanged, and no two shaped gold orders in a row match through Chapter 1 on 5
+    seeds;
+  - the pay follows what is asked;
+  - a reload keeps the issued gold order.
+- **`tests/v5-next-guide-browser.cjs`:**
+  - the hand's fingertip lies on each highlighted target, with its label, at 390, 360 and 907×510;
+  - no hand on goal steps;
+  - the hand is still with reduced motion;
+  - Clear on a plain part (+1 energy, at once) and on a merged part (a second tap).
+- **`tests/v5-next-browser.cjs`:** its replay taps Clear twice when the part asks for it.

@@ -489,3 +489,17 @@ body.nextMode #board .tile.coachTarget,body.nextMode #board .tile.coachTo{box-sh
 @keyframes coachDrag{0%,15%{transform:translate(0,0);opacity:0}25%{opacity:1}75%{transform:translate(var(--dx,0),var(--dy,0));opacity:1}90%,100%{transform:translate(var(--dx,0),var(--dy,0));opacity:0}}
 #help .helpReplay{margin-top:12px;min-height:44px;width:100%}
 #coastMap .coachLine{margin:0 0 6px;padding:6px 10px;border-radius:10px;background:#fff1cf;color:#5a3c06;font-weight:800;font-size:13px;box-shadow:0 0 0 2px #f5c24e}
+/* Build 51d: the guide's pointing hand and its label ("Tap here"); the fingertip sits on the target's middle.
+   It never takes a tap and stays still with reduced motion. */
+#coachHand{position:fixed;left:0;top:0;width:0;height:0;z-index:40;pointer-events:none}
+#coachHand[hidden]{display:none}
+#coachHand svg,#coastMap .coachHand svg{position:absolute;left:-14px;top:-3px;width:34px;height:40px;fill:#fff;stroke:#3a2a10;stroke-width:2.6;stroke-linejoin:round;filter:drop-shadow(0 2px 3px #0007)}
+#coachHand .handLabel,#coastMap .coachHand .handLabel{position:absolute;top:40px;left:0;transform:translateX(calc(-50% + var(--lx,0px)));white-space:nowrap;padding:5px 9px;border-radius:999px;background:#3a2a10;color:#fff;font:800 12px/1.1 system-ui,sans-serif;box-shadow:0 2px 6px #0005}
+#coastMap .coachHand{position:absolute;left:50%;top:50%;width:0;height:0;pointer-events:none;z-index:3}
+#coastMap [data-restore].coachTarget{overflow:visible}
+@media (prefers-reduced-motion:no-preference){
+ #coachHand:not(.drag) svg,#coastMap .coachHand svg{animation:coachTap 1.1s ease-in-out infinite}
+ #coachHand.drag svg{animation:coachHandDrag 1.8s ease-in-out infinite}
+}
+@keyframes coachTap{0%,100%{transform:translateY(7px) scale(1)}45%{transform:translateY(0) scale(.94)}}
+@keyframes coachHandDrag{0%,15%{transform:translate(0,0)}75%,100%{transform:translate(var(--dx,0),var(--dy,0))}}

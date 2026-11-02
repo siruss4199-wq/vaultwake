@@ -39,7 +39,7 @@ function moment(title,detail='',x=null){sharedMoment(title,detail,null);const el
 let adPlaying=false;
 const sfx=(kind,tier=0)=>sounds.play(kind,tier,{muted:adPlaying||platform.muted()});
 // Shown in the footer so a playtester can tell which build is running.
-export const BUILD='Build 51c · the first-player guide';
+export const BUILD='Build 51d · varied gold orders, Clear, a pointing guide';
 // The level path (docs/V5_LEVEL_PATH_2026-10-27.md): a crew order that pays a tool on top shows it
 // beside its coins (a Tide token; a favour's Sea chest, Brass cog or, once no generator can go up, Tide token).
 const bonusThing=o=>o.bonus==='cog'?cog():o.bonus==='chest'?kit(newestGenerator(state),2):o.bonus==='token'?token():null;
@@ -361,12 +361,12 @@ function renderSelection(){
   // Build 48b: a rare part the gold order's materials take, as it is or merged up, says for which place
   {const gold=state.orders.find(o=>o?.story),r=gold&&CHAINS[x.family].secondary?gold.needs.find(q=>q.family===x.family&&q.tier>=x.tier):null;
    if(r){const place=LABELS[gold.story]??TASKS[gold.story].stages[Math.min(STAGES,stageOf(state,gold.story)+1)-1].name;desc=`Needed for ${place}${r.tier>x.tier?`: merge matching items to reach ${CHAINS[r.family].names[r.tier]}`:''}. `+desc;}}
-  // Clearing a part only appears when the board is nearly full (Build 41 M4): it is the way out of
-  // a full board, not an everyday energy trick.
-  // A secondary part (pilot) cost no energy, so clearing it gives none: it is not an energy trick, and
-  // a finished keepsake can be cleared at any time.
-  if(CHAINS[x.family].secondary)buttons='<button data-action="recycle">Clear</button>';
-  else if(state.board.filter(y=>y===null).length<=2)buttons='<button data-action="recycle">Clear space · +1 ϟ</button>';
+  // Build 51d (user, 2026-11-02: "itemaa butsaaj burn hiideg songolt heregtei baina"): every loose part can
+  // be cleared, not only on a nearly full board (Build 41 M4). The rule is unchanged (game.mjs recycle):
+  // an everyday part gives back the 1 energy a tap costs, so it is no energy trick; a rare part (pilot) cost
+  // no energy and gives none. A part an order wants, a merged part or a rare part asks for a second tap.
+  {const rare=!!CHAINS[x.family].secondary,careful=rare||x.tier>=1||who.length>0,nearlyFull=state.board.filter(y=>y===null).length<=2;
+   buttons=`<button data-action="recycle"${careful?' data-confirm="1"':''}>${rare?'Clear':nearlyFull?'Clear space · +1 ϟ':'Clear · +1 ϟ'}</button>`;}
  }else if(x.type==='source'){
   const chain=CHAINS[GENERATOR_CHAINS[x.id][0][0]];
   const next=nextKind(x.id),waiting=next&&!state.board.some(y=>y?.type==='source'&&y.id===next);
@@ -407,14 +407,37 @@ let guide=null;
 // one short sentence, one highlighted target (a pulse; a drag demonstration for a pair; still with
 // reduced motion). Nothing is blocked: every other control works as before.
 let coach=null,coachNote=null;
-function clearCoach(){for(const el of document.querySelectorAll('.coachTarget,.coachFrom,.coachTo'))el.classList.remove('coachTarget','coachFrom','coachTo');}
+function clearCoach(){for(const el of document.querySelectorAll('.coachTarget,.coachFrom,.coachTo'))el.classList.remove('coachTarget','coachFrom','coachTo');coachHand(null);}
+// Build 51d (user, 2026-11-02: "guide hesgiig sain tod bolgomoor baina yag end touch hii geed"): a pointing
+// hand and a short label on the guide's target ("Tap here", "Drag onto its twin"). It never takes a tap
+// (pointer-events: none), it sits under any dialog, and with reduced motion it stays still.
+const HAND_SVG='<svg viewBox="0 0 48 56" aria-hidden="true"><path d="M20 4c-2.8 0-5 2.2-5 5v21l-3.2-3.1c-2-2-5.2-2-7.1 0-1.9 1.9-1.9 5 0 7l11.3 11.6c2.6 2.6 6 4.5 9.7 4.5h6.3c6.9 0 12-5.6 12-12.5V24c0-2.5-2-4.5-4.5-4.5-1 0-1.9.3-2.6.8-.6-2-2.4-3.3-4.4-3.3-1.2 0-2.3.4-3.1 1.1-.7-1.7-2.4-2.9-4.4-2.9-.9 0-1.7.2-2.4.6V9c0-2.8-2.2-5-5-5z"/></svg>';
+let handFor=null,handLow=false;
+// low: the fingertip on the target's bottom row (an order card's Deliver line), so the parts stay visible
+function coachHand(el,label,drag,low=false){
+ let h=document.getElementById('coachHand');
+ if(!el){handFor=null;if(h)h.hidden=true;return;}
+ if(!h){h=document.createElement('div');h.id='coachHand';h.setAttribute('aria-hidden','true');h.innerHTML=HAND_SVG+'<span class="handLabel"></span>';document.body.append(h);}
+ handFor=el;handLow=low;h.querySelector('.handLabel').textContent=label;h.classList.toggle('drag',!!drag);
+ h.style.setProperty('--dx',`${drag?.dx??0}px`);h.style.setProperty('--dy',`${drag?.dy??0}px`);placeHand();
+}
+function placeHand(){
+ const h=document.getElementById('coachHand');if(!h)return;
+ const r=handFor?.isConnected&&!homeOpen&&!document.querySelector('#story:not([hidden])')?handFor.getBoundingClientRect():null;
+ if(!r?.width){h.hidden=true;return;}
+ h.hidden=false;h.style.left=`${r.left+r.width/2}px`;h.style.top=`${handLow?r.bottom-14:r.top+r.height/2}px`;
+ // the label stays on screen near the edges
+ const l=h.querySelector('.handLabel'),w=l.offsetWidth,cx=r.left+r.width/2;h.style.setProperty('--lx',`${Math.max(8-cx+w/2,Math.min(0,innerWidth-8-cx-w/2))}px`);
+}
+addEventListener('resize',placeHand);addEventListener('scroll',placeHand,true);
 function showCoachTarget(t){
  clearCoach();if(!t)return;
- if(t.kind==='cell')board.querySelector(`[data-index="${t.index}"]`)?.classList.add('coachTarget');
+ if(t.kind==='cell'){const el=board.querySelector(`[data-index="${t.index}"]`);el?.classList.add('coachTarget');coachHand(el,'Tap here');}
  else if(t.kind==='pair'){const a=board.querySelector(`[data-index="${t.cells[0]}"]`),b=board.querySelector(`[data-index="${t.cells[1]}"]`);if(!a||!b)return;
-  const ra=a.getBoundingClientRect(),rb=b.getBoundingClientRect();a.style.setProperty('--dx',`${rb.left-ra.left}px`);a.style.setProperty('--dy',`${rb.top-ra.top}px`);a.classList.add('coachFrom');b.classList.add('coachTo');}
- else if(t.kind==='order')$(`[data-order="${t.id}"]`)?.classList.add('coachTarget');
- else if(t.kind==='strip')$('#mapButton')?.classList.add('coachTarget');
+  const ra=a.getBoundingClientRect(),rb=b.getBoundingClientRect(),dx=rb.left-ra.left,dy=rb.top-ra.top;a.style.setProperty('--dx',`${dx}px`);a.style.setProperty('--dy',`${dy}px`);a.classList.add('coachFrom');b.classList.add('coachTo');
+  coachHand(a,'Drag onto its twin',{dx,dy});}
+ else if(t.kind==='order'){const el=$(`[data-order="${t.id}"]`);el?.classList.add('coachTarget');coachHand(el,'Tap to deliver',null,true);}
+ else if(t.kind==='strip'){const el=$('#mapButton');el?.classList.add('coachTarget');coachHand(el,'Tap to open the coast');}
  else if(t.kind==='coins')$('#coinPill')?.classList.add('coachTarget');
 }
 function renderCoach(){
@@ -643,7 +666,13 @@ board.addEventListener('touchmove',e=>{if(drag?.moved)e.preventDefault();},{pass
 $('#selection').addEventListener('click',e=>{
  // The panel keeps its text to two lines (Build 45); a tap on it shows the rest.
  if(e.target.closest('.copy')){$('#selection').classList.toggle('open');return;}
- const b=e.target.closest('[data-action]');if(!b)return;if(b.dataset.action==='store')shedOpen=true;const x=state.board[selected];run({type:b.dataset.action,index:selected,id:x?.id});});
+ const b=e.target.closest('[data-action]');if(!b)return;if(b.dataset.action==='store')shedOpen=true;const x=state.board[selected];
+ // Build 51d: clearing a part an order wants, a merged part or a rare part takes a second tap within 3 s
+ if(b.dataset.action==='recycle'&&b.dataset.confirm&&!(clearArm?.index===selected&&clearArm.until>performance.now())){
+  const at=selected;clearArm={index:at,until:performance.now()+3000};b.textContent='Tap again to clear';b.classList.add('confirm');
+  $('#message').textContent=`Clear the ${nameOf(x)}? Tap again to clear it for good.`;setTimeout(()=>{if(clearArm?.index===at&&clearArm.until<=performance.now()){clearArm=null;renderSelection();}},3100);return;}
+ clearArm=null;run({type:b.dataset.action,index:selected,id:x?.id});});
+let clearArm=null;
 $('#orderTools').addEventListener('click',e=>{const b=e.target.closest('[data-locate]');if(!b)return;locateGen=b.dataset.locate;locateUntil=performance.now()+2600;renderBoard();if(coach)showCoachTarget(coach.target);
  board.querySelector('.tile.located')?.scrollIntoView({block:'nearest',behavior:reduced()?'auto':'smooth'});
  const i=locateIndex();if(i>=0)$('#message').textContent=`${SOURCES[locateGen].name}${state.board[i]?.level>1?` (level ${state.board[i].level})`:''}: tap it for parts.`;
@@ -924,7 +953,7 @@ function showMap(){
  content.classList.toggle('entering',opening);if(opening){clearTimeout(content._enter);content._enter=setTimeout(()=>content.classList.remove('entering'),1400);}
  if(!opening&&shownCard!==mapFocus)$('#mapCard')?.classList.add('swapIn');shownCard=mapFocus;
  // Build 51c: the guide's build step points at the build button on the coast screen too
- let coachBuild=null;{const st=coachActive(state)?coachStep(state):null;if(st?.id==='build'){coachBuild=$(`#coastMap [data-restore="${FIRST_PLACE}"]`);coachBuild?.classList.add('coachTarget');$('#mapCard')?.insertAdjacentHTML('beforebegin','<p class="coachLine">Coins and materials are ready: build it here.</p>');}}
+ let coachBuild=null;{const st=coachActive(state)?coachStep(state):null;if(st?.id==='build'){coachBuild=$(`#coastMap [data-restore="${FIRST_PLACE}"]`);coachBuild?.classList.add('coachTarget');coachBuild?.insertAdjacentHTML('beforeend',`<span class="coachHand" aria-hidden="true">${HAND_SVG}<span class="handLabel">Tap to build</span></span>`);$('#mapCard')?.insertAdjacentHTML('beforebegin','<p class="coachLine">Coins and materials are ready: build it here.</p>');}}
  if(opening)$('#coastMap').showModal();
  // the guided build: the Build button comes into view by itself (a smooth scroll; at once with reduced motion)
  if(coachBuild)setTimeout(()=>coachBuild.isConnected&&coachBuild.scrollIntoView({block:'center',behavior:reduced()?'auto':'smooth'}),opening&&!reduced()?450:0);
@@ -1256,7 +1285,7 @@ $('#playlogButton').onclick=()=>{$('#menu').close();showPlaylog();};
 // At most two things call for attention outside the board at once (Build 41 M3), in this order:
 // an affordable upgrade, energy from an ad when low, the daily gift, parts waiting in the book.
 function calmBadges(){let n=0;for(const el of [$('#mapReady'),$('#adEnergyButton'),$('#dailyButton'),$('#bookCount')]){if(el.hidden)continue;if(n>=2){el.hidden=true;if(el.id==='bookCount')$('#bookButton').classList.remove('ready');}else n++;}}
-render();header();setInterval(()=>{header();if(state.energy<1)renderHint();offerGift();$('#dailyButton').hidden=!giftReady();calmBadges();syncPlaying();},1000);
+render();header();setInterval(()=>{header();placeHand();if(state.energy<1)renderHint();offerGift();$('#dailyButton').hidden=!giftReady();calmBadges();syncPlaying();},1000);
 // What happens on arriving at the board: once at the start without Home, and each time from Home.
 let storyJustPlayed=false;
 function arrive(fromHome=true){
@@ -1275,7 +1304,7 @@ if(document.getElementById('home')){
   chapter:()=>{const a=currentArea(state);return a?.tasks?.length?`${a.name} · ${stagesBuilt()} of ${a.tasks.length*STAGES} stages built`:a?.name??'';},
   onEnter:arrive,onSettings:()=>$('#menuButton').onclick(),onBook:showBook,
   onNewCamp:()=>{if(!confirm('Start a new camp? The save that could not be read stays in this browser as a backup.'))return false;return newCamp();},
-  onOpenChange:v=>{homeOpen=v;syncPlaying?.();},
+  onOpenChange:v=>{homeOpen=v;syncPlaying?.();placeHand();},
   // The first-play story (Build 46q): once, on the first new camp's Play, never on Continue.
   beforeEnter:reason=>reason==='play'&&!rawSave&&!storySeen(storage)?playIntro({storage,reduced,face:who=>`assets/premium/coast/ui/${FACES[who]}.webp`}).then(how=>{storyJustPlayed=how==='done';return how;}):null});
  home.ready.then(()=>{if(!rawSave&&!storySeen(storage))preloadIntro();});

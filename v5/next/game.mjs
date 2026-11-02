@@ -399,7 +399,33 @@ function goldNeeds(s,families,family,low,n){
  const tier=Math.max(2,Math.min(maxTier(family)-1,reach(s,family)+1+(totalBuilt(s)<GOLD_LIFT_STAGES?GOLD_LIFT:0)));
  const needs=[{family,tier,count:1}],other=secondChain(families,family,Math.max(1,low),n*29+3);
  needs.push(other?{family:other,tier:Math.max(1,Math.min(low+1,reach(s,other)+1,maxTier(other)-1)),count:2}:{family,tier:Math.max(1,tier-1),count:2});
- return needs;
+ return s.area<=GOLD_SHAPE_AREA?goldShape(needs,goldsDelivered(s)):needs;
+}
+// Build 51d (user, 2026-11-02: "ehnii 10min toglohod gold orderuud dandaa adilhan baina"): in Chapter 1
+// (where most gold recipes come from goldNeeds) and in its opening only one chain is open, so every gold
+// order asked "1 Pocket winch + 2 Split spanners" for the first 12 minutes. Successive gold orders now
+// take turns between four shapes of about the same worth (goldPrice pays for what is asked, so the pay
+// follows): the usual one; the second part one tier up, once; the top part as two of the tier below;
+// the second part as four of the tier below. The turn is the number of gold orders delivered so far
+// (the materials credited), so it needs no new save field and two gold orders in a row never match.
+// A shape that would leave the chain's tiers falls through to the next one.
+export const GOLD_SHAPE_AREA=2;
+const GOLD_SHAPES=[
+ (a,b)=>[a,b],
+ (a,b)=>[a,{...b,tier:b.tier+1,count:1}],
+ (a,b)=>[{...a,tier:a.tier-1,count:2},b],
+ (a,b)=>[a,{...b,tier:b.tier-1,count:4}]];
+// the order the shapes take turns in (mutable for the metrics only)
+export const GOLD_TURN=[0,3,1,2];
+export const goldsDelivered=s=>Object.values(s.materials??{}).reduce((n,v)=>n+(v|0),0);
+export function goldShape([a,b],turn){
+ for(let k=0;k<GOLD_SHAPES.length;k++){
+  const parts=GOLD_SHAPES[GOLD_TURN[(turn+k)%GOLD_TURN.length]](a,b);
+  if(!parts.every(r=>r.tier>=1&&r.tier<=maxTier(r.family)-1))continue;
+  // the same part twice is one line (two Pocket winches, four Split spanners)
+  const out=[];for(const r of parts){const same=out.find(q=>q.family===r.family&&q.tier===r.tier);if(same)same.count+=r.count;else out.push({...r});}
+  return out;}
+ return [a,b];
 }
 export function makeOrder(s){
  const n=s.orderSeq++;let needs;
