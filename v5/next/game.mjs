@@ -445,7 +445,7 @@ export const goldRate=s=>{const n=totalBuilt(s);return n<GOLD_PAY.opening?GOLD_P
 // Gold orders bring restoration materials. Crew orders must fund the remainder.
 // Do not let adding an ingredient increase the Gold order's cash payout.
 // The opening guide's 70 coins and legacy goldPrice(s, needs) calls remain intact.
-export const GOLD_STAGE_SHARE=.35;
+export const GOLD_STAGE_SHARE=.30;
 export const goldPrice=(s,needs,stage=null)=>{
  const v=needs.reduce((v,r)=>v+r.count*partValue(r),0);
  const built=totalBuilt(s);
