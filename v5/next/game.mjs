@@ -448,7 +448,10 @@ export const goldRate=s=>{const n=totalBuilt(s);return n<GOLD_PAY.opening?GOLD_P
 export const GOLD_STAGE_SHARE=.48;
 export const goldPrice=(s,needs,stage=null)=>{
  const v=needs.reduce((v,r)=>v+r.count*partValue(r),0);
- if(stage&&totalBuilt(s)>0)return Math.max(10,Math.round(stage.cost*GOLD_STAGE_SHARE/5)*5);
+ const built=totalBuilt(s);
+ // Preserve the guided first stage and the second stage's established payout.
+ // From stage three, the story's materials provide only a minority of build coins.
+ if(stage&&built>=2)return Math.max(10,Math.round(stage.cost*(built<6?.35:GOLD_STAGE_SHARE)/5)*5);
  return Math.round(v*goldRate(s)/5)*5;
 };
 // The second part of an order comes from another open chain, chosen evenly by the order's own
@@ -559,8 +562,8 @@ export function makeOrder(s){
     // ingredient, to ensure a genuine three-component recipe on the card.
     if(needs.length===1){
      const p=needs[0],top=built<6?Math.min(p.tier,3):p.tier;
-     needs=[{family:p.family,tier:top,count:1},{family:p.family,tier:Math.max(1,Math.min(top-1,built<6?2:top-1)),count:2}];
-    }else if(built<6&&needs[1])needs[1]={...needs[1],tier:Math.min(needs[1].tier,2),count:1};
+     needs=[{family:p.family,tier:top,count:1},{family:p.family,tier:Math.max(1,Math.min(top-1,2)),count:1}];
+    }else if(needs[1])needs[1]={...needs[1],tier:Math.min(needs[1].tier,2),count:1};
     needs=[...needs,{family:rare[0],tier:rare[1],count:1}];
    }else if(!story.gold&&built>=6&&families.length>=2&&goldsDelivered(s)%2===0){
     // Later Gold orders occasionally require another available generator.
