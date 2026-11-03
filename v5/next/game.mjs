@@ -90,7 +90,9 @@ export const SECONDARY_RULES={
 // winch, 25; a Gear assembly like a Crawler jack, 45); and `goal`, how many drops beyond the unused
 // parts held a near-term goal may ask. Mutable for the metrics script only.
 // Build 48b: goal 2 (was 1), so a request can be a merged part one or two drops away.
-export const SECONDARY_ORDERS={share:3,top:2,rarity:2,goal:2};
+// Build 52A: goalLate, the same allowance from Chapter 2 on (area 3+): 3 drops, so a Level 3 rare part (four
+// drops) is asked once two of them are held (measured: Level 3 crew asks 7-8 → about 20 a game, Level 2 fewer).
+export const SECONDARY_ORDERS={share:3,top:2,rarity:2,goal:2,goalLate:3};
 // A kind's chain is open (s.secOpen, saved) once one of its generators has reached level 2.
 export const secondaryOn=(s,gen)=>{const r=SECONDARY_RULES[gen];return !!r&&r.model!=='off'&&!!SECONDARY_OF[gen]&&sourceOpen(s,gen)&&!!s.secOpen?.[gen];};
 // Whether the generator on cell i is one that makes secondary parts (level 2 or more, chain open).
@@ -195,6 +197,22 @@ export const adSwapsLeft=(s,day)=>AD_SWAPS-(day>s.swaps.day?0:s.swaps.ads);
 export const DAILY=[{energy:10},{coins:25},{kit:1},{energy:15},{token:1},{coins:50},{cog:1}];
 // Coast Camp's own crates (the generator boxes of v5/kits.mjs, by size).
 export const CRATES=['Driftwood crate','Sea chest','Captain\'s trunk'];
+// Build 52A (docs/V5_BUILD52A_ECONOMY_2026-11-03.md): Coast Camp's own crate contents, by size, in drop order
+// (internal tiers; displayed Level = tier + 1). Classic V5 keeps v5/kits.mjs KIT_DROPS. Each size keeps its
+// number of parts (3, 5, 6), so a saved crate, opened or not, stays valid and simply continues here.
+// 51d: Driftwood Lv1-2, Sea chest Lv1-2, Captain's trunk Lv2-3 (worth 4, 8 and 18 Copper offcuts).
+// 52A: Driftwood Lv1-2 (worth 5 offcuts), Sea chest Lv2-3 (12), Captain's trunk Lv2-4 (22) and, as its last
+// part, a Level 1 rare part of that generator's rare chain once the chain is open and its drops are not resting
+// (else a Lv3 part). Merging still pays: two Driftwood crates (10) make a Sea chest (12); two Sea chests (24) a
+// trunk (22 and a rare drop, fewer and bigger parts). Measured (tests/v5-next-economy52-metrics.mjs, 4-10 s,
+// 10 seeds): a trunk part is worth 11.7 coins (51d: 7.5) and the board median 22-24 (51d: 18-20; a richer
+// trunk, Lv3-4 throughout, filled it to 26-31).
+export const CRATE_DROPS={1:[1,0,1],2:[1,1,2,1,1],3:[2,2,3,2,1,'rare']};
+export function crateDrop(s,box){
+ const chain=GENERATOR_CHAINS[box.family][0][0],cap=KIT_DROPS[box.size].length,d=CRATE_DROPS[box.size]?.[cap-box.left]??0;
+ if(d==='rare'){const f=SECONDARY_OF[box.family];return f&&secondaryOn(s,box.family)&&!secondaryPaused(s,box.family)?item(f,0):item(chain,Math.min(2,maxTier(chain)));}
+ return item(chain,Math.min(d,maxTier(chain)));
+}
 // Generators in the order they are found; each is opened with the one before's parts.
 export const GENERATOR_ORDER=['rig','chart','rope','shell','lamp'];
 // Generators grow by merging two of the same kind and level (user, 2026-10-22:
@@ -328,8 +346,10 @@ export const DELIVER_ENERGY=1;
 // primary parts, or a mixed one (a primary part and a rare extra), gives the crew energy; a quick job
 // asking only rare extras gives coins and no energy (a bonus drop never pays energy); a gold order
 // gives none (its reward is the stage's materials). Exported so the simulations can measure each.
-export const DELIVERY_ENERGY={primary:DELIVER_ENERGY,mixed:DELIVER_ENERGY,secondary:0,gold:0};
-export const orderEnergyKind=o=>o.story?'gold':o.needs.every(r=>isSecondary(r.family))?'secondary':o.needs.some(r=>isSecondary(r.family))?'mixed':'primary';
+// Build 52A: a rare-only order asking a merged rare part (Level 2+, two drops or more) gives the crew's energy too
+// (rareMerged): it took taps to make. A Level 1 rare-only order (the introduction) still gives none.
+export const DELIVERY_ENERGY={primary:DELIVER_ENERGY,mixed:DELIVER_ENERGY,secondary:0,rareMerged:DELIVER_ENERGY,gold:0};
+export const orderEnergyKind=o=>o.story?'gold':o.needs.every(r=>isSecondary(r.family))?(o.needs.some(r=>r.tier>=1)?'rareMerged':'secondary'):o.needs.some(r=>isSecondary(r.family))?'mixed':'primary';
 // The first-order bonus is for an ordinary crew order: not a gold order, and with at least one primary
 // part, so the introductory order for a gifted rare extra (a quick job for that part alone) never
 // claims it, nor does any other quick job asking only rare extras.
@@ -340,7 +360,9 @@ export const ordinaryOrder=o=>!!o&&!o.story&&o.needs.some(r=>!isSecondary(r.fami
 // Two of every three are two-part jobs: with quick and two-part jobs in plain turns, the board
 // ran dry while energy was out (measured: at 4.5 s an action, 45 % of low-energy moments had a
 // free move, against 86 % or more this way and with the big job).
-export const ROLES=['quick','pair'],ROLE_PAY={quick:1,pair:1.15},ROLE_TURN=['quick','pair','pair'];
+// Build 52A: crew orders pay 15 % more (quick 1 → 1.15, two-part 1.15 → 1.32): with gold orders paying less, crew
+// orders are the main source of coins (docs/V5_BUILD52A_ECONOMY_2026-11-03.md).
+export const ROLES=['quick','pair'],ROLE_PAY={quick:1.15,pair:1.32},ROLE_TURN=['quick','pair','pair'];
 // How many of the last everyday orders a new one may not repeat (Build 44, s.recent).
 export const RECENT=6;
 // An everyday order's coins: its parts' worth times its kind's pay, rounded to 5. Rounding up
@@ -353,8 +375,16 @@ function rand(n){let t=(n*2654435761+0x6D2B79F5)>>>0;t=Math.imul(t^t>>>15,t|1);t
 const CREW_OF={rig:'ivo',rope:'ivo',chart:'neri',shell:'neri',flux:'tamsin',lamp:'tamsin',optic:'tamsin',mech:'ivo',notes:'neri'};
 const crewFor=needs=>needs.length>1?'bram':CREW_OF[needs[0].family];
 // Coins an order pays: its parts' worth, half as much again for the story's (rounded to 5).
-// A secondary part is paid as a part SECONDARY_ORDERS.rarity tiers higher (the pilot's rarity price).
-export const partValue=r=>COIN_VALUE[Math.min(COIN_VALUE.length-1,r.tier+(isSecondary(r.family)?SECONDARY_ORDERS.rarity:0))];
+// A secondary part is paid by RARE_COINS (build 52A; it was the coins of a part SECONDARY_ORDERS.rarity tiers higher).
+// Build 52A (docs/V5_BUILD52A_ECONOMY_2026-11-03.md): a merged rare part pays for the drops it took. Displayed
+// levels are internal tier + 1 (displayLevel): a Level 1 rare part (tier 0, one drop) pays 10 as before; a Level 2
+// (two drops) 35 (was 25), a Level 3 (four drops) 70 (was 45). Gold orders that ask one are priced the same way.
+export const displayLevel=t=>t+1;
+// Build 52A: the energy a cleared part gives back (Clear): +1 for an everyday part of Level 4+, else none.
+export const CLEAR_REFUND_TIER=3;
+export const clearRefund=x=>x?.type==='item'&&!isSecondary(x.family)&&x.tier>=CLEAR_REFUND_TIER?1:0;
+export const RARE_COINS=[10,35,70,140];
+export const partValue=r=>isSecondary(r.family)?RARE_COINS[Math.min(RARE_COINS.length-1,r.tier)]:COIN_VALUE[Math.min(COIN_VALUE.length-1,r.tier)];
 // What a gold order pays: its parts' worth times GOLD_PAY.rate. Build 48b (docs/V5_RARE_MERGES_RESTORATION_2026-11-01.md):
 // 1.3, was 1.5. Measured (tests/v5-next-coins-metrics.mjs, 10 seeds, 4-10 s): at 1.5 gold orders paid
 // 71 % of Chapter 1's stage costs (65-67 % of Chapter 2's), so the median Chapter 1 stage needed no crew
@@ -362,10 +392,22 @@ export const partValue=r=>COIN_VALUE[Math.min(COIN_VALUE.length-1,r.tier+(isSeco
 // crew order, and the whole game takes 5-7 % longer with no energy waiting. 1.0 was tried: the 4 s
 // player took 90 % longer and ran out of energy. The first GOLD_PAY.early stages (the harder start's six,
 // GOLD_LIFT_STAGES) still pay 1.5, so the first session keeps its pace. Mutable for the coins metrics only.
-export const GOLD_PAY={rate:1.3,early:6,earlyRate:1.5};
+// Build 52A (docs/V5_BUILD52A_ECONOMY_2026-11-03.md): gold orders bring the stage's materials first and coins
+// second; crew orders are the main source of coins. 51d: gold paid 98.5 % of all coins over the first six
+// stages (one crew order was enough) and 44-45 % over the game. Tuned with tests/v5-next-economy52-metrics.mjs:
+// the first `opening` stages (the tutorial's path and the first places) pay openingRate, so the first 15
+// minutes keep their restorations; the rest of the first six pay earlyRate; after them, rate.
+// 52A: the first stage (the guide's path) pays 1.5 as before (its gold order still pays 70); stages 2-6 pay 0.9
+// and later ones 1.0 (51d: 1.5 and 1.3), with crew orders paying 15 % more (ROLE_PAY). Measured, 4/5/8/10 s,
+// 10 seeds: gold 77 % of the first six stages' coins with 4 crew orders (51d: 98.5 %, 1), 35-36 % of the game's
+// (51d: 44-45 %); whole game 336/431/677/838 min (51d: 369/460/739/935); first 15 minutes 4/3/3/2 restorations
+// (the economy test's floor: 3 below 9 s, 2 at 9-10 s). An earlyRate of 0.8 left the 10 s player one; a flat
+// 1.0 for the first six, two at 8 s.
+export const GOLD_PAY={rate:1.0,early:6,earlyRate:0.9,opening:1,openingRate:1.5};
 export const priceOf=(needs,story=false)=>{const v=needs.reduce((v,r)=>v+r.count*partValue(r),0);return story?Math.round(v*1.5/5)*5:v;};
 // what a gold order pays, by the stages built so far
-export const goldPrice=(s,needs)=>{const v=needs.reduce((v,r)=>v+r.count*partValue(r),0);return Math.round(v*(totalBuilt(s)<GOLD_PAY.early?GOLD_PAY.earlyRate:GOLD_PAY.rate)/5)*5;};
+export const goldRate=s=>{const n=totalBuilt(s);return n<GOLD_PAY.opening?GOLD_PAY.openingRate:n<GOLD_PAY.early?GOLD_PAY.earlyRate:GOLD_PAY.rate;};
+export const goldPrice=(s,needs)=>{const v=needs.reduce((v,r)=>v+r.count*partValue(r),0);return Math.round(v*goldRate(s)/5)*5;};
 // The second part of an order comes from another open chain, chosen evenly by the order's own
 // seed (build 41: it was always the first open chain, so Rivet Rover filled most second parts).
 export function secondChain(families,main,tier,seed){const ok=families.filter(f=>f!==main&&tier<=maxTier(f));return ok.length?ok[Math.floor(rand(seed)*ok.length)]:null;}
@@ -617,9 +659,12 @@ export function secondaryNeed(s,n,k){
  // 11 of 58 beach and worksite orders, against 6 before).
  const c=[];
  for(const f of order)for(let t=secondaryReach(s,f);t>=1;t--)if(secondaryDropsIn(free[f],t)===0)c.push({family:f,tier:t,count:1,use:true});
- for(const f of order)if(canGoal(f))for(let t=secondaryReach(s,f);t>=1;t--)if(secondaryDropsIn(free[f],t)<=SECONDARY_ORDERS.goal)c.push({family:f,tier:t,count:1});
- for(const f of order)if(free[f][0]>=1)c.push({family:f,tier:0,count:Math.min(2,free[f][0]),use:true});
- for(const f of order)if(canGoal(f))c.push({family:f,tier:0,count:1});
+ const goalMax=s.area>=3?SECONDARY_ORDERS.goalLate:SECONDARY_ORDERS.goal;
+ for(const f of order)if(canGoal(f))for(let t=secondaryReach(s,f);t>=1;t--)if(secondaryDropsIn(free[f],t)<=goalMax)c.push({family:f,tier:t,count:1});
+// Build 52A: no Level 1 (tier 0) ask after the chain's introduction (its one Level 1 order, s.secIntro):
+ // single Bolts and Ink scraps were asked again and again (51d, scripted player: 26-45 such asks a game).
+ // Level 1 parts held are asked as the Level 2 they merge into (a USE above when two are free, else a GOAL
+ // one drop away), so every later rare order is a merge goal.
  const last4=new Set((Array.isArray(s.recent)?s.recent:[]).slice(-4).map(k=>k.replace(/x\d+/g,'')));
  return c.find(r=>!last4.has(r.family+r.tier))??c[0]??null;
 }
@@ -757,7 +802,12 @@ export const nextTask=s=>upgrades(s).find(u=>u.materials)??null;
 // asked a rare part): while another place is open, the next gold order goes to it and the rare stage
 // waits its turn (its goal is not dropped or lowered). The player's own choice (aim) still wins.
 const CH1_AREAS=new Set(['beach','worksite','entrance']);
-const rareAsked=(s,u)=>{const t=TASKS[u.id],r=t?.stages[u.stage-1]?.rare;return !!r&&CH1_AREAS.has(t.area)&&secondaryCanDrop(s,r[0]);};
+// Build 52A: in every chapter, a DIFFICULT rare goal (a Level 3 rare part, tier 2+: four drops) never follows a
+// rare gold order either, whether the stage names it as `rare` or in its own recipe (`gold`, Chapters 4-6).
+// The recipes and their order of places are unchanged; only which open place comes next.
+const rareOf=st=>st?.rare?[st.rare]:(st?.gold??[]).filter(([f])=>isSecondary(f)).map(([f,t])=>[f,t]);
+const rareAsked=(s,u)=>{const t=TASKS[u.id],st=t?.stages[u.stage-1];
+ return rareOf(st).some(([f,tier])=>(CH1_AREAS.has(t.area)||tier>=2)&&(st.rare?secondaryCanDrop(s,f):true));};
 export const storyTarget=s=>{const up=upgrades(s).filter(u=>!u.materials),aimed=up.find(u=>u.id===s.aim);if(aimed)return aimed;
  if(s.rareLast&&up[0]&&rareAsked(s,up[0]))return up.find(u=>!rareAsked(s,u))??up[0];
  return up[0]??null;};
@@ -882,7 +932,7 @@ function step(s,a,now){
  }
  if(a.type==='openKit'){
   const box=valid(a.index)?s.board[a.index]:null;if(box?.type!=='kit')return fail('Choose a crate.');
-  const chain=GENERATOR_CHAINS[box.family][0][0],x=item(chain,Math.min(kitDrop(box).tier,maxTier(chain))),last=box.left===1,i=last?a.index:nearestFree(s.board,a.index,cellPos);
+  const x=crateDrop(s,box),last=box.left===1,i=last?a.index:nearestFree(s.board,a.index,cellPos);
   if(i<0)return fail('Make space next to the crate first.');
   box.left--;s.board[i]=x;
   return {ok:true,event:'kit',index:i,message:nameOf(x)+(last?' · the crate is empty':` · ${box.left} left`)};
@@ -1040,7 +1090,9 @@ function step(s,a,now){
  if(a.type==='recycle'){
   const x=valid(a.index)?s.board[a.index]:null;if(x?.type!=='item')return fail('Only loose parts can be recycled.');
   // A secondary part cost no energy (bonus model), so clearing it gives none back (pilot).
-  const gain=isSecondary(x.family)?0:1;s.board[a.index]=null;s.energy=Math.min(MAX_ENERGY,s.energy+gain);
+  // Build 52A: Levels 1-3 (tiers 0-2) give none either: a tap (1 energy) can make a Level 2 part, so +1 for it was
+  // a generate-and-clear loop. An everyday part of Level 4 or more (eight taps or more) gives +1, never more.
+  const gain=clearRefund(x);s.board[a.index]=null;s.energy=Math.min(MAX_ENERGY,s.energy+gain);
   return {ok:true,event:'recycle',energy:gain,message:'Recycled'+(gain?' · +1 energy':'')};
  }
  if(a.type==='ration'){

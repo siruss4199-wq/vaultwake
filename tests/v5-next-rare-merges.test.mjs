@@ -43,8 +43,8 @@ test('after the introduction, merged parts are asked: the highest the free parts
  // tier 2 only once a Gear has been made, and from the third stage
  s.built={'beach-path':3};s.materials={...s.built};assert.equal(secondaryNeed(s,50,10).tier,1,'no Gear made yet');
  s.found.push('mech1');put(s,'mech',1);assert.deepEqual(secondaryNeed(s,50,10),{family:'mech',tier:2,count:1,use:true},'a Gear and two Bolts make a Gear assembly');
- // with no stage built only basic parts (the ramp), two when two are free
- const b=camp({built:{}});put(b,'mech',0);put(b,'mech',0);assert.deepEqual(secondaryNeed(b,50,10),{family:'mech',tier:0,count:2,use:true});
+ // Build 52A: no Level 1 (tier 0) ask after the introduction, not even before the first stage (the ramp): nothing
+ const b=camp({built:{}});put(b,'mech',0);put(b,'mech',0);assert.equal(secondaryNeed(b,50,10),null);
 });
 
 test('a held part never splits, and parts other orders need are not counted twice', ()=>{
@@ -149,11 +149,12 @@ test('build 48c: the chase accounts for other orders, ends with the part, surviv
  const d=structuredClone(s);d.orders=[];assert.equal(goldChase(d,'mech'),false);
 });
 
-test('gold pays its parts\' worth ×1.5 for the first six stages, ×1.3 after', ()=>{
- assert.deepEqual(GOLD_PAY,{rate:1.3,early:6,earlyRate:1.5});
+test('gold pays its parts\' worth ×1.5 for the first stage, ×0.9 for stages 2-6, ×1.0 after (build 52A)', ()=>{
+ assert.deepEqual(GOLD_PAY,{rate:1.0,early:6,earlyRate:0.9,opening:1,openingRate:1.5});
  const needs=[{family:'rig',tier:3,count:1},{family:'rope',tier:2,count:2}],worth=partValue(needs[0])+2*partValue(needs[1]);
  const s=fresh(0);assert.equal(goldPrice(s,needs),Math.round(worth*1.5/5)*5);
- s.built={...done(AREAS[0])};assert.ok(totalBuilt(s)>=6);assert.equal(goldPrice(s,needs),Math.round(worth*1.3/5)*5);
+ s.built={'beach-path':1};assert.equal(goldPrice(s,needs),Math.round(worth*.9/5)*5);
+ s.built={...done(AREAS[0])};assert.ok(totalBuilt(s)>=6);assert.equal(goldPrice(s,needs),Math.round(worth*1.0/5)*5);
 });
 
 test('a delivered gold order secures the materials; building waits for the coins, then works once', ()=>{

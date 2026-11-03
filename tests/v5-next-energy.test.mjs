@@ -119,9 +119,10 @@ test('gold orders, introductory orders and other rare-only jobs never claim the 
  const c=ok(s,{type:'deliver',id:ready(s,[['rig',1]],{lane:2}).id});assert.equal(c.boost?.energy,15);assert.equal(s.boost.order,true);
 });
 
-test('delivery energy: primary-only and mixed orders give the crew energy, rare-only jobs and gold none',()=>{
- assert.deepEqual(DELIVERY_ENERGY,{primary:1,mixed:1,secondary:0,gold:0});
- for(const [needs,gain,kind] of [[[['rig',1]],1,'primary'],[[['rig',1],['mech',0]],1,'mixed'],[[['mech',1]],0,'rare-only'],[[['notes',0],['mech',0]],0,'rare-only, two parts']]){
+test('delivery energy: primary-only, mixed and merged rare orders give the crew energy; a Level 1 rare-only job and gold none',()=>{
+ // Build 52A: a rare-only order asking a merged (Level 2+) rare part gives the crew's energy too (rareMerged)
+ assert.deepEqual(DELIVERY_ENERGY,{primary:1,mixed:1,secondary:0,rareMerged:1,gold:0});
+ for(const [needs,gain,kind] of [[[['rig',1]],1,'primary'],[[['rig',1],['mech',0]],1,'mixed'],[[['mech',1]],1,'rare-only, merged (Level 2)'],[[['mech',0]],0,'rare-only, Level 1'],[[['notes',0],['mech',0]],0,'rare-only, two Level 1 parts']]){
   const s=fresh(0);s.energy=10;s.boost.order=true;const o=ready(s,needs,{role:needs.length>1?'pair':'quick'});const e=s.energy,r=ok(s,{type:'deliver',id:o.id});
   assert.equal(r.energy,gain,kind);assert.equal(s.energy,e+gain,kind);assert.equal(o.needs.some(q=>isSecondary(q.family)),kind!=='primary');}
 });

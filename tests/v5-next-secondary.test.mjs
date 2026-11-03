@@ -8,7 +8,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {fresh,act,load,item,source,cog,nameOf,priceOf,orderPrice,COIN_VALUE,BOOK_CHAINS,bookKeys,bookReady,pageReady,SECONDARY_RULES,SECONDARY_ORDERS,SECONDARY_OF,SECONDARY_PENDING_MAX,isSecondary,secondaryOn,secondarySource,secondaryPaused,secondaryUnits,secondaryWanted,secondaryHeld,secondaryNeed,secondaryLimit,secondaryDrops,secondaryUnlock,allDone,ROVER,MAX_ENERGY,makeOrder} from '../v5/next/game.mjs';
+import {fresh,act,load,item,source,cog,nameOf,priceOf,orderPrice,COIN_VALUE,RARE_COINS,BOOK_CHAINS,bookKeys,bookReady,pageReady,SECONDARY_RULES,SECONDARY_ORDERS,SECONDARY_OF,SECONDARY_PENDING_MAX,isSecondary,secondaryOn,secondarySource,secondaryPaused,secondaryUnits,secondaryWanted,secondaryHeld,secondaryNeed,secondaryLimit,secondaryDrops,secondaryUnlock,allDone,ROVER,MAX_ENERGY,makeOrder} from '../v5/next/game.mjs';
 import {CHAINS,maxTier} from '../v5/next/chains.mjs';
 import {TASKS} from '../v5/next/areas.mjs';
 import {artFit} from '../v5/next/art-fit.mjs';
@@ -179,7 +179,8 @@ test('copies share one count per kind, merging copies keeps it, and a reload kee
 test('recycling a secondary part gives no energy (a bonus drop never pays energy)',()=>{
  const s=fresh(0);s.energy=10;s.board[15]=item('mech',0);s.board[20]=item('rig',0);
  const a=ok(s,{type:'recycle',index:15});assert.equal(a.energy,0);assert.equal(s.energy,10);assert.doesNotMatch(a.message,/energy/);
- const b=ok(s,{type:'recycle',index:20});assert.equal(b.energy,1);assert.equal(s.energy,11);
+ // Build 52A: a Level 1-3 everyday part gives none either (tests/v5-next-build52a.test.mjs has the whole rule)
+ const b=ok(s,{type:'recycle',index:20});assert.equal(b.energy,0);assert.equal(s.energy,10);
 });
 
 
@@ -230,7 +231,9 @@ test('demand: about one new everyday order in three asks a secondary part once o
 
 test('turns: one in three, sooner with unused stock; at most the limit on the board; the chain with most unused first',()=>{
  const s=opened();noSecondaryOrders(s);s.slots=4;s.orders.push({...s.orders[0],id:'o90'});s.board[15]=item('mech',0);
- s.recent=['rig1x1','chart1x1'];assert.deepEqual(secondaryNeed(s,50,10),{family:'mech',tier:0,count:1,use:true},'neither of the last two asked one (a use order: asked alone)');
+ // Build 52A: a Bolt held is asked as the Gear it merges into (one drop away), never as a Bolt again
+ s.built={'beach-path':1};s.materials={...s.built};
+ s.recent=['rig1x1','chart1x1'];assert.deepEqual(secondaryNeed(s,50,10),{family:'mech',tier:1,count:1},'neither of the last two asked one: a Gear, one drop beyond the Bolt held');
  // one of the last two asked one and an extra order is on the board: not a turn, even with a Bolt unused
  s.board[16]=item('mech',0);s.orders[1]={...s.orders[1],needs:[{family:'rig',tier:1,count:1},{family:'mech',tier:0,count:1}]};
  s.recent=['rig1x1','mech0x1+rig1x1'];assert.equal(secondaryNeed(s,51,11),null,'one of the last two did');
@@ -246,11 +249,11 @@ test('turns: one in three, sooner with unused stock; at most the limit on the bo
 test('pricing: a secondary part pays as a rarer part, never like a common one of its tier',()=>{
  for(let t=0;t<=2;t++){
   const sec=priceOf([{family:'mech',tier:t,count:1}]),prim=priceOf([{family:'rig',tier:t,count:1}]);
-  assert.equal(sec,COIN_VALUE[t+SECONDARY_ORDERS.rarity]);assert.ok(sec>prim,`tier ${t}: ${sec} against ${prim}`);}
+  assert.equal(sec,RARE_COINS[t]);assert.ok(sec>prim,`tier ${t}: ${sec} against ${prim}`);}
  assert.ok(priceOf([{family:'notes',tier:1,count:1}])>priceOf([{family:'chart',tier:1,count:1}]));
  // a generator's level lifts its own parts' pay, not its secondary's
  const s=fresh(0);s.board[ROVER]={...source('rig'),level:3};
- assert.equal(orderPrice(s,[{family:'mech',tier:2,count:1}],'quick'),priceOf([{family:'mech',tier:2,count:1}]));
+ assert.equal(orderPrice(s,[{family:'mech',tier:2,count:1}],'quick'),orderPrice(fresh(0),[{family:'mech',tier:2,count:1}],'quick'));
 });
 
 
