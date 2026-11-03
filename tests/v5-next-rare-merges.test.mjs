@@ -149,12 +149,12 @@ test('build 48c: the chase accounts for other orders, ends with the part, surviv
  const d=structuredClone(s);d.orders=[];assert.equal(goldChase(d,'mech'),false);
 });
 
-test('gold pays its parts\' worth ×1.5 for the first stage, ×0.9 for stages 2-6, ×1.0 after (build 52A)', ()=>{
- assert.deepEqual(GOLD_PAY,{rate:1.0,early:6,earlyRate:0.9,opening:1,openingRate:1.5});
+test('gold pays its parts\' worth ×1.5 for the first stage, ×0.9 for stages 2-4, ×1.1 after (build 52A)', ()=>{
+ assert.deepEqual(GOLD_PAY,{rate:1.1,early:4,earlyRate:0.9,opening:1,openingRate:1.5});
  const needs=[{family:'rig',tier:3,count:1},{family:'rope',tier:2,count:2}],worth=partValue(needs[0])+2*partValue(needs[1]);
  const s=fresh(0);assert.equal(goldPrice(s,needs),Math.round(worth*1.5/5)*5);
  s.built={'beach-path':1};assert.equal(goldPrice(s,needs),Math.round(worth*.9/5)*5);
- s.built={...done(AREAS[0])};assert.ok(totalBuilt(s)>=6);assert.equal(goldPrice(s,needs),Math.round(worth*1.0/5)*5);
+ s.built={...done(AREAS[0])};assert.ok(totalBuilt(s)>=6);assert.equal(goldPrice(s,needs),Math.round(worth*1.1/5)*5);
 });
 
 test('a delivered gold order secures the materials; building waits for the coins, then works once', ()=>{

@@ -40,7 +40,8 @@ rare part, a Gear Level 2 and a Gear assembly Level 3.
    - Tapping and clearing never makes energy (tested).
 4. **Gold and crew coins.**
    - Gold orders pay their parts' worth × 1.5 for the first stage (the guide's path still pays 70), × 0.9 for
-     stages 2–6 and × 1.0 after (51d: 1.5 for six, then 1.3).
+     stages 2–4 and × 1.1 after (51d: 1.5 for six, then 1.3). The first commit used 0.9 to stage 6 and 1.0 after;
+     see "Final balance" below.
    - Crew orders pay 15 % more (quick × 1.15, two-part × 1.32).
    - Shop prices are unchanged.
 
@@ -120,3 +121,49 @@ Run each with `ROOT=<51d tree>` for 51d.
 - **Level 3 crew orders take longer:** up to a median 8 min at 10 s, against 0.1–10 before; their drops are still
   guaranteed (pity).
 - **No real players:** these are a scripted player's numbers, not proof of fun.
+
+## Final balance (52A QA pass)
+
+### Early-game coin waiting
+The first commit's coin waits were measured with `tests/v5-next-coins-metrics.mjs` (4/5/8/10 s, 10 seeds), and
+small changes to the existing gold rates were compared against it. Two tuning switches (`earlyrate=`, `crewpay=`,
+`early=`) were added to the tool for this.
+
+| Variant | Ch1 wait, materials → build (min) | Ch1 stages short of coins | Gold share of the first six stages (crew orders) | First 15 min restorations |
+|---|---|---|---|---|
+| 51d | 0.1 / 0.1 / 0.2 / 0.2 | 31–38 % | 98.5 % (1) | 5 / 4 / 3 / 2 |
+| 52A first commit (0.9 to stage 6, then 1.0) | 2.2 / 2.8 / 4.7 / 5.6 | 51–53 % | 77 % (4) | 4 / 3 / 3 / 2 |
+| later stages × 1.1 | 1.9 / 2.5 / 4.2 / 5.1 | 49–51 % | 77 % (4) | 4 / 3 / 3 / 2 |
+| crew × 1.1 more | 2.0 / 2.5 / 3.3 / 4.9 | 49–58 % | — | — |
+| stages 2–6 × 1.0, later × 1.1 | 0.9 / 1.1 / 1.4 / 1.8 | 44 % | **94 % (2)**: rejected | 5 / 4 / 3 / 2 |
+| **chosen: stages 2–4 × 0.9, from stage 5 × 1.1** | **1.7 / 2.5 / 4.1 / 4.2** | **49–51 %** | **77 % (4)** | **4 / 3 / 3 / 2** |
+
+- **The chosen setting keeps the opening's crew orders.**
+  - Gold's share of the game's coins is 38–39 %, against 51d's 44–45 %.
+  - Whole game (probe): 340 / 429 / 668 / 857 min, against 51d's 369 / 460 / 739 / 935.
+  - Coins left after a build: 47–64.
+- **No energy cost:** energy waiting is still 0 and there are no full-board deadlocks.
+- **The Survey Kite is still one minute later at 4 s** (16.0 min). Stage costs were not changed.
+
+### Rare gold orders
+Gold recipes are unchanged. When they are first met (medians over 10 seeds, 4 / 5 / 8 / 10 s):
+
+| | 51d | 52A |
+|---|---|---|
+| First Level 2 rare gold order: the cargo crane (beach pier 2, a Gear), Chapter 1 | 32 / 41 / 67 / 83 min | 31 / 39 / 62 / 78 min |
+| First Level 3 rare gold order: Chart the whole cliff (worksite scope 3, a Travel notebook), Chapter 1 | 66 / 86 / 144 / 170 min | 65 / 85 / 136 / 169 min |
+
+- **Always achievable:** in every run, every rare gold order appeared with its chain able to drop (a level-2+
+  generator on the board), and no rare stage fell back to its usual materials.
+- **Order rule holds:** never two difficult ones in a row (tested).
+- **Rare parts show up earlier in crew orders:** in Build 52A, rare parts appear first in crew orders (Level 2 from
+  the first stage, Level 3 from Chapter 2), well before the first rare gold order.
+- **Recipes kept as they are:** no measured problem called for rewriting a story recipe.
+
+### Help
+The Help dialog (`v5/play.html`, and the generated `v5/coast-crazygames.html`) now says:
+- gold orders bring the materials and some coins, and most of a stage's coins come from crew orders;
+- after the first one, crew orders ask merged extras (Lv2, later Lv3), and a merged extra alone gives the crew's
+  +1 ϟ;
+- Clear gives no energy for Lv1–3 or rare parts, and +1 ϟ from Lv4;
+- crates hold better parts as they grow: driftwood Lv1–2, sea chest Lv2–3, captain's trunk Lv2–4 and a rare extra.

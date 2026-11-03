@@ -403,7 +403,12 @@ export const partValue=r=>isSecondary(r.family)?RARE_COINS[Math.min(RARE_COINS.l
 // (51d: 44-45 %); whole game 336/431/677/838 min (51d: 369/460/739/935); first 15 minutes 4/3/3/2 restorations
 // (the economy test's floor: 3 below 9 s, 2 at 9-10 s). An earlyRate of 0.8 left the 10 s player one; a flat
 // 1.0 for the first six, two at 8 s.
-export const GOLD_PAY={rate:1.0,early:6,earlyRate:0.9,opening:1,openingRate:1.5};
+// 52A final balance: stages 2-4 pay 0.9 and from stage 5 on 1.1 (early 4, rate 1.1; was 0.9 to stage 6, then 1.0).
+// Measured (tests/v5-next-coins-metrics.mjs, 4/5/8/10 s, 10 seeds): the median wait from a stage's materials to
+// its build in Chapter 1 1.7/2.5/4.1/4.2 min (was 2.2/2.8/4.7/5.6), stages short of coins 49-51 % (51-53 %); the
+// first six stages still take 4 crew orders (77 % gold) and the first 15 minutes keep 4/3/3/2 restorations.
+// 1.0 for stages 2-6 cut the wait to 1-2 min but gave gold 94 % of the first six stages' coins again.
+export const GOLD_PAY={rate:1.1,early:4,earlyRate:0.9,opening:1,openingRate:1.5};
 export const priceOf=(needs,story=false)=>{const v=needs.reduce((v,r)=>v+r.count*partValue(r),0);return story?Math.round(v*1.5/5)*5:v;};
 // what a gold order pays, by the stages built so far
 export const goldRate=s=>{const n=totalBuilt(s);return n<GOLD_PAY.opening?GOLD_PAY.openingRate:n<GOLD_PAY.early?GOLD_PAY.earlyRate:GOLD_PAY.rate;};
