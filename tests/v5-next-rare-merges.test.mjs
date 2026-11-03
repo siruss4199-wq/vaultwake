@@ -90,7 +90,7 @@ const withGold=s=>{s.orders=[makeOrder(s)];for(let k=s.orders.length;k<s.slots;k
 
 test('a mapped stage\'s Gold order adds a rare part without removing its ordinary materials, only when the chain can drop', ()=>{
  const s=crane();
- let o=makeOrder(s);assert.equal(o.story,'hb-crane');assert.deepEqual(o.needs,[{family:'rope',tier:4,count:1},{family:'rig',tier:3,count:1},{family:'mech',tier:2,count:1}],'Recover the cargo: regular parts and an additional Gear assembly');
+ let o=makeOrder(s);assert.equal(o.story,'hb-crane');assert.deepEqual(o.needs,[{family:'rope',tier:4,count:1},{family:'rig',tier:2,count:1},{family:'mech',tier:2,count:1}],'Recover the cargo: two craftable regular parts and an additional Gear assembly');
  assert.equal(o.coins,goldPrice(s,o.needs,storyTarget(s)),'Gold payout follows stage cost instead of ingredient value');
  // no level-2 Rover on the board: the chain cannot drop, so the stage's usual materials (no circular unlock)
  const t=structuredClone(s);t.board[ROVER].level=1;o=makeOrder(t);assert.deepEqual(o.needs,[{family:'rope',tier:4,count:1},{family:'rig',tier:3,count:1}]);
