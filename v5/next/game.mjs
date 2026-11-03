@@ -368,7 +368,7 @@ export const DELIVERY_ENERGY={primary:DELIVER_ENERGY,mixed:DELIVER_ENERGY,second
 // Build 52A3: a crew order worth `units` Level 1 parts or more (a part of Level 4 and one of Level 5, say) gives
 // `extra` more energy on delivery, so deeper orders do not leave a fast player waiting for energy (measured: without
 // it, deeper orders starved the 4-5 s player for 10-80 min; with it, at most 0.3 min, as before). Mutable for metrics.
-export const DEEP_ENERGY={units:24,extra:2};
+export const DEEP_ENERGY={units:24,extra:1};
 export const orderUnits=o=>o.needs.reduce((n,r)=>n+(isSecondary(r.family)?0:r.count*2**r.tier),0);
 export const orderEnergyKind=o=>o.story?'gold':o.needs.every(r=>isSecondary(r.family))?(o.needs.some(r=>r.tier>=1)?'rareMerged':'secondary'):o.needs.some(r=>isSecondary(r.family))?'mixed':'primary';
 // The first-order bonus is for an ordinary crew order: not a gold order, and with at least one primary
@@ -1033,7 +1033,8 @@ function step(s,a,now){
   // asking one, their energy kept the 10 s player from ever running out (economy guard).
   // Energy pass (build 47v): a mixed order (a primary part and a rare extra) gives the crew energy
   // again; only a quick job asking rare extras alone gives none (DELIVERY_ENERGY).
-  const gain=DELIVERY_ENERGY[orderEnergyKind(o)]+(!o.story&&orderUnits(o)>=DEEP_ENERGY.units?DEEP_ENERGY.extra:0);
+  // Completing a genuinely rare Gold repair replenishes one energy without giving extra coins.
+  const gain=DELIVERY_ENERGY[orderEnergyKind(o)]+(!o.story&&orderUnits(o)>=DEEP_ENERGY.units?DEEP_ENERGY.extra:0)+(o.story&&o.needs.some(r=>isSecondary(r.family))?1:0);
   s.coins+=o.coins;s.ordersDone++;s.orders[lane]=null;s.energy=Math.min(MAX_ENERGY,s.energy+gain);
   if(o.story){if(o.needs.some(r=>isSecondary(r.family)))s.rareLast=true;else delete s.rareLast;}
   // The first ordinary crew order delivered: +15 energy, once (s.boost.order).
