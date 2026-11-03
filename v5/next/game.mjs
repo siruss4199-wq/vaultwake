@@ -368,7 +368,7 @@ export const DELIVERY_ENERGY={primary:DELIVER_ENERGY,mixed:DELIVER_ENERGY,second
 // Build 52A3: a crew order worth `units` Level 1 parts or more (a part of Level 4 and one of Level 5, say) gives
 // `extra` more energy on delivery, so deeper orders do not leave a fast player waiting for energy (measured: without
 // it, deeper orders starved the 4-5 s player for 10-80 min; with it, at most 0.3 min, as before). Mutable for metrics.
-export const DEEP_ENERGY={units:24,extra:1};
+export const DEEP_ENERGY={units:24,extra:2};
 export const orderUnits=o=>o.needs.reduce((n,r)=>n+(isSecondary(r.family)?0:r.count*2**r.tier),0);
 export const orderEnergyKind=o=>o.story?'gold':o.needs.every(r=>isSecondary(r.family))?(o.needs.some(r=>r.tier>=1)?'rareMerged':'secondary'):o.needs.some(r=>isSecondary(r.family))?'mixed':'primary';
 // The first-order bonus is for an ordinary crew order: not a gold order, and with at least one primary
@@ -445,7 +445,7 @@ export const goldRate=s=>{const n=totalBuilt(s);return n<GOLD_PAY.opening?GOLD_P
 // Gold orders bring restoration materials. Crew orders must fund the remainder.
 // Do not let adding an ingredient increase the Gold order's cash payout.
 // The opening guide's 70 coins and legacy goldPrice(s, needs) calls remain intact.
-export const GOLD_STAGE_SHARE=.32;
+export const GOLD_STAGE_SHARE=.35;
 export const goldPrice=(s,needs,stage=null)=>{
  const v=needs.reduce((v,r)=>v+r.count*partValue(r),0);
  const built=totalBuilt(s);
