@@ -103,7 +103,7 @@ export const rareRule=(s,gen)=>totalBuilt(s)<RARE_EARLY.until?{...SECONDARY_RULE
 // Build 48b: goal 2 (was 1), so a request can be a merged part one or two drops away.
 // Build 52A: goalLate, the same allowance from Chapter 2 on (area 3+): 3 drops, so a Level 3 rare part (four
 // drops) is asked once two of them are held (measured: Level 3 crew asks 7-8 → about 20 a game, Level 2 fewer).
-export const SECONDARY_ORDERS={share:3,top:2,rarity:2,goal:2,goalLate:3};
+export const SECONDARY_ORDERS={share:3,top:2,rarity:2,goal:2,goalLate:2};
 // A kind's chain is open (s.secOpen, saved) once one of its generators has reached level 2.
 export const secondaryOn=(s,gen)=>{const r=SECONDARY_RULES[gen];return !!r&&r.model!=='off'&&!!SECONDARY_OF[gen]&&sourceOpen(s,gen)&&!!s.secOpen?.[gen];};
 // Whether the generator on cell i is one that makes secondary parts (level 2 or more, chain open).
