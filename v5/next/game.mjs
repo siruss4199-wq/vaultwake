@@ -554,7 +554,13 @@ export function makeOrder(s){
    if(rare&&secondaryCanDrop(s,rare[0])){
     // A merged rare part is a THIRD requirement, not a replacement.
     // Make the first rare goal manageable before Survey Kite unlocks.
-    if(built<6&&needs[1])needs[1]={...needs[1],tier:Math.min(needs[1].tier,2),count:1};
+    // A Gold shape may collapse two identical materials into one line.
+    // Split that line into two distinct crafted levels before adding the rare
+    // ingredient, to ensure a genuine three-component recipe on the card.
+    if(needs.length===1){
+     const p=needs[0],top=built<6?Math.min(p.tier,3):p.tier;
+     needs=[{family:p.family,tier:top,count:1},{family:p.family,tier:Math.max(1,Math.min(top-1,built<6?2:top-1)),count:2}];
+    }else if(built<6&&needs[1])needs[1]={...needs[1],tier:Math.min(needs[1].tier,2),count:1};
     needs=[...needs,{family:rare[0],tier:rare[1],count:1}];
    }else if(!story.gold&&built>=6&&families.length>=2&&goldsDelivered(s)%2===0){
     // Later Gold orders occasionally require another available generator.
@@ -1198,7 +1204,7 @@ function validCell(x){
  return false;
 }
 const validNeed=r=>r&&CHAINS[r.family]&&integer(r.tier,0,maxTier(r.family))&&integer(r.count,1,4);
-const validOrder=o=>o&&typeof o.id==='string'&&Array.isArray(o.needs)&&o.needs.length>=1&&o.needs.length<=2&&o.needs.every(validNeed)&&integer(o.coins,1,999)&&(o.story===undefined||!!TASKS[o.story])&&['ivo','neri','tamsin','bram'].includes(o.who)&&(o.bonus===undefined||BONUSES.includes(o.bonus));
+const validOrder=o=>o&&typeof o.id==='string'&&Array.isArray(o.needs)&&o.needs.length>=1&&o.needs.length<=3&&o.needs.every(validNeed)&&integer(o.coins,1,999)&&(o.story===undefined||!!TASKS[o.story])&&['ivo','neri','tamsin','bram'].includes(o.who)&&(o.bonus===undefined||BONUSES.includes(o.bonus));
 
 // Build 3 (version 1) had sand and numbered cells; build 4 (version 2) had the tide.
 // Both become sealed cargo: each covered cell gets the key this layout gives it and
