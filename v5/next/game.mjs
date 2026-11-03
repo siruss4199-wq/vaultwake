@@ -561,8 +561,13 @@ export function makeOrder(s){
     // Split that line into two distinct crafted levels before adding the rare
     // ingredient, to ensure a genuine three-component recipe on the card.
     if(needs.length===1){
-     const p=needs[0],top=built<6?Math.min(p.tier,3):p.tier;
+     const p=needs[0],top=built<6?Math.min(p.tier,2):p.tier;
      needs=[{family:p.family,tier:top,count:1},{family:p.family,tier:Math.max(1,Math.min(top-1,2)),count:1}];
+    }else if(built<6){
+     // The first Gear Gold order teaches an additional rare crafting goal
+     // without demanding a high-tier primary part at the same time.
+     needs[0]={...needs[0],tier:Math.min(needs[0].tier,2),count:1};
+     if(needs[1])needs[1]={...needs[1],tier:1,count:1};
     }else if(needs[1])needs[1]={...needs[1],tier:Math.min(needs[1].tier,2),count:1};
     needs=[...needs,{family:rare[0],tier:rare[1],count:1}];
    }else if(!story.gold&&built>=6&&families.length>=2&&goldsDelivered(s)%2===0){
@@ -1033,8 +1038,7 @@ function step(s,a,now){
   // asking one, their energy kept the 10 s player from ever running out (economy guard).
   // Energy pass (build 47v): a mixed order (a primary part and a rare extra) gives the crew energy
   // again; only a quick job asking rare extras alone gives none (DELIVERY_ENERGY).
-  // Completing a genuinely rare Gold repair replenishes one energy without giving extra coins.
-  const gain=DELIVERY_ENERGY[orderEnergyKind(o)]+(!o.story&&orderUnits(o)>=DEEP_ENERGY.units?DEEP_ENERGY.extra:0)+(o.story&&o.needs.some(r=>isSecondary(r.family))?1:0);
+  const gain=DELIVERY_ENERGY[orderEnergyKind(o)]+(!o.story&&orderUnits(o)>=DEEP_ENERGY.units?DEEP_ENERGY.extra:0);
   s.coins+=o.coins;s.ordersDone++;s.orders[lane]=null;s.energy=Math.min(MAX_ENERGY,s.energy+gain);
   if(o.story){if(o.needs.some(r=>isSecondary(r.family)))s.rareLast=true;else delete s.rareLast;}
   // The first ordinary crew order delivered: +15 energy, once (s.boost.order).
