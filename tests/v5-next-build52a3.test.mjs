@@ -37,7 +37,7 @@ test('rare rates: the opening keeps 5 %, 20 and 8; from six stages 4 %, 24 and 1
 });
 
 test('deeper crew orders (52A4: from 3 stages built): never before, then up to reach + 2 within the chain, paid by their parts', ()=>{
- assert.equal(ORDER_RAMP.reachFrom,3);assert.deepEqual(DEEP_ENERGY,{units:24,extra:2});
+ assert.equal(ORDER_RAMP.reachFrom,3);assert.deepEqual(DEEP_ENERGY,{units:24,extra:1});
  const camp=built=>{const s=fresh(0);s.built=built;s.board[ROVER].level=2;s.board[15]={...source('chart'),level:2};s.orderSeq=10;s.orders=[];return s;};
  const asks=s=>{const out=[];for(let k=0;k<80;k++){const o=makeOrder(s);if(!o.story)out.push(o);}return out;};
  // the guide's first two stages: never past reach + 1
