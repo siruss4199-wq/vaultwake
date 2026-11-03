@@ -109,7 +109,10 @@ test('without a level-2 Rover on the board the crane asks its usual materials (c
 });
 
 test('a rare goal never follows another while another place is open; the player\'s own choice still wins; old saves load', ()=>{
- const s=atPier(),o=s.orders.find(o=>o?.story);for(const need of o.needs)for(let k=0;k<need.count;k++)s.board[s.board.findIndex(x=>x===null)]=item(need.family,need.tier);
+ const s=atPier(),o=s.orders.find(o=>o?.story);
+ // Keep the generators and sealed cells, but make space for every part of a three-ingredient order.
+ for(let i=0;i<s.board.length;i++)if(['item','kit','jar','token','cog'].includes(s.board[i]?.type))s.board[i]=null;
+ for(const need of o.needs)for(let k=0;k<need.count;k++){const i=s.board.findIndex(x=>x===null);assert.ok(i>=0,'space for the complete Gold order');s.board[i]=item(need.family,need.tier);}
  ok(s,{type:'deliver',id:o.id});assert.equal(s.rareLast,true);
  // the worksite where the cliff chart (a Travel notebook) heads the list: a level-2 Kite out, other places open
  const t=structuredClone(s);for(const a of AREAS.slice(0,1))for(const x of a.tasks)t.built[x.id]=3,t.materials[x.id]=3;
