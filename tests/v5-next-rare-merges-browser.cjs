@@ -97,10 +97,10 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
    await page.reload();await page.waitForSelector('#board .tile');await beats();s=await save();assert.equal(s.built['beach-mast'],1);assert.equal(s.coins,coins+mastGold.coins-100,tag('a reload pays nothing twice'));
 
    // 2. Gear the hoist. Build 48c: with no Bolt held, the gold panel states the guarantee in taps (while
-   // this order waits, a Bolt within every 8 taps), not as a time
+   // this order waits, a Bolt within every 10 taps: Build 52A3's rate after the first six stages), not as a time
    await load(hoist,hoistGold,[['chart',3]]);
    await page.locator(`[data-order="${hoistGold.id}"]`).click();await page.waitForSelector('#orderTools .goldNeeds');
-   assert.match(await page.locator('#orderTools').innerText(),/Tap a level 2\+ Rivet Rover: while this order waits, a Bolt comes within every 8 taps · merge matching items to reach Gear/,tag('the guarantee, in taps'));
+   assert.match(await page.locator('#orderTools').innerText(),/Tap a level 2\+ Rivet Rover: while this order waits, a Bolt comes within every 10 taps · merge matching items to reach Gear/,tag('the guarantee, in taps'));
    assert.doesNotMatch(await page.locator('#orderTools').innerText(),/minute|guaranteed time/i);await fits('guarantee');await shot('6a-gold-guarantee');
    // two Bolts and a Survey scope, 40 coins of 200
    await load(hoist,hoistGold,[['chart',3],['mech',0],['mech',0]]);
