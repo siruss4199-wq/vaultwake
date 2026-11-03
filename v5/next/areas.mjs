@@ -46,10 +46,10 @@ export const AREAS=[
    place('beach-mast','source-chart',[50,34],[
     {name:'Raise the signal mast',cost:100,effect:{slots:4},lines:[['neri','The mast is up. Camps along the reach can see our signal.'],['bram','More crews will send orders now: a fourth order card.']]},
     {name:'Hang the signal flags',cost:120,effect:{copy:'rig'},lines:[['neri','Flags for every crew along the reach. They know who we are.'],['bram','A neighbouring camp answered with a gift: another Rivet Rover.']]},
-    {name:'Fit a lookout nest',cost:150,effect:{token:1},lines:[['tamsin','From the lookout I can see the cliff path, and something glinting beyond it.']]}],'mast'),
+    {name:'Fit a lookout nest',cost:150,rare:['mech',1],effect:{token:1},lines:[['tamsin','A geared lookout scope sweeps the cliff path. Something glints beyond it.']]}],'mast'),
    place('beach-workshop','workshop',[21,47],[
     {name:'Restore the Coastal Workshop',cost:100,effect:{copy:'newest'},lines:[['ivo','Tools on the wall, fire in the forge.'],['ivo','In the back of the Workshop: a copy of our newest generator. Merge it in for a stronger one.']]},
-    {name:'Fire up the forge',cost:120,effect:{kit:['newest',2]},lines:[['ivo','The forge is hot again. Every tool in camp gets a fresh edge.']]},
+    {name:'Fire up the forge',cost:120,rare:['mech',1],effect:{kit:['newest',2]},lines:[['ivo','The new geared bellows bring the forge back to life. Every tool gets a fresh edge.']]},
     {name:'Open the parts store',cost:150,effect:{kit:['newest',2]},lines:[['ivo','Shelves for every part we make. The Workshop runs like a clock.']]}],'workshop'),
    place('beach-pier','crate-survey',[66,80],[
     {name:'Build the supply pier',cost:120,effect:{kit:['newest',2]},lines:[['bram','A pier means supply boats. The first one brought a sea chest for our newest generator.']]},
