@@ -32,6 +32,8 @@ const SPEEDS=(pos[0]??'4,5,8,10').split(',').map(Number),SEEDS=(pos[1]??'1,2,3,4
 const SHOPS={shop:[true],noshop:[false],both:[false,true]}[pos[2]??'both'],RUNS=args.includes('--runs');
 const OVER=Object.fromEntries(args.filter(a=>a.includes('=')).map(a=>a.split('=')).map(([k,v])=>[k,+v]));
 if('goldpay' in OVER)g.GOLD_PAY.rate=OVER.goldpay;
+// build 52A tuning: earlyrate= sets the gold pay of stages 2-6, crewpay= multiplies the crew orders' pay (this tree only)
+if('earlyrate' in OVER)g.GOLD_PAY.earlyRate=OVER.earlyrate;if('early' in OVER)g.GOLD_PAY.early=OVER.early;if('crewpay' in OVER)for(const k of Object.keys(g.ROLE_PAY))g.ROLE_PAY[k]*=OVER.crewpay;
 if('goal' in OVER)g.SECONDARY_ORDERS.goal=OVER.goal;
 // capold=1 puts back the build 47v capacity table (90 at 12, 100 at 17, 110 at 23, 120 at 30), to tell the
 // capacity change apart from the recipes

@@ -8,7 +8,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {fresh,act,load,item,source,cog,nameOf,priceOf,orderPrice,COIN_VALUE,BOOK_CHAINS,bookKeys,bookReady,pageReady,SECONDARY_RULES,SECONDARY_ORDERS,SECONDARY_OF,SECONDARY_PENDING_MAX,isSecondary,secondaryOn,secondarySource,secondaryPaused,secondaryUnits,secondaryWanted,secondaryHeld,secondaryNeed,secondaryLimit,secondaryDrops,secondaryUnlock,allDone,ROVER,MAX_ENERGY,makeOrder} from '../v5/next/game.mjs';
+import {fresh,act,load,item,source,cog,nameOf,priceOf,orderPrice,COIN_VALUE,RARE_COINS,BOOK_CHAINS,bookKeys,bookReady,pageReady,SECONDARY_RULES,SECONDARY_ORDERS,SECONDARY_OF,SECONDARY_PENDING_MAX,isSecondary,secondaryOn,secondarySource,secondaryPaused,secondaryUnits,secondaryWanted,secondaryHeld,secondaryNeed,secondaryLimit,secondaryDrops,secondaryUnlock,allDone,ROVER,MAX_ENERGY,makeOrder} from '../v5/next/game.mjs';
 import {CHAINS,maxTier} from '../v5/next/chains.mjs';
 import {TASKS} from '../v5/next/areas.mjs';
 import {artFit} from '../v5/next/art-fit.mjs';
@@ -18,6 +18,11 @@ import {nextAction} from './v5-next-policy.mjs';
 const ok=(s,a,now=1000)=>{const r=act(s,a,now);assert.equal(r.ok,true,JSON.stringify(a)+' '+r.message);return r;};
 const fixture=n=>readFileSync(new URL(`./fixtures/coast/${n}.json`,import.meta.url),'utf8');
 // A camp whose Rover is level 2 with its chain open and met (no gift is pending).
+// Build 52A3: the first six stages keep the 52A2 rates (game.mjs RARE_EARLY, tested in
+// v5-next-build52a-feedback.test.mjs); the rule tests below check the rates after them, so the opening's are switched off
+// here, except in the whole-game demand run, which plays the real game.
+import {RARE_EARLY} from '../v5/next/game.mjs';
+const EARLY=RARE_EARLY.until;RARE_EARLY.until=0;
 const opened=()=>{const s=fresh(0);s.board[ROVER].level=2;s.secOpen={rig:true};s.found.push('mech0');return s;};
 const cells=s=>s.board.flatMap((x,i)=>x===null?[i]:[]);
 const tapRover=(s,now,index=ROVER)=>ok(s,{type:'produce',id:'rig',index},now);
@@ -51,10 +56,10 @@ test('both chains merge up to their top part, which merges no further',()=>{
 });
 
 
-test('trial rates: 5 % a tap, certain by the 20th eligible tap, level 2 and up, 12.8 eligible taps a drop on average',()=>{
- for(const g of ['rig','chart'])assert.deepEqual({chance:SECONDARY_RULES[g].chance,pity:SECONDARY_RULES[g].pity,level:SECONDARY_RULES[g].level,model:SECONDARY_RULES[g].model},{chance:.05,pity:20,level:2,model:'bonus'});
- // the expected gap with the guarantee: sum of 0.95^k for k < 20 = (1 - 0.95^20) / 0.05
- const gap=(1-.95**20)/.05;assert.ok(Math.abs(gap-12.83)<.01);
+test('rates (Build 52A3; round 3 was 5 % and 20): 4 % a tap, certain by the 24th eligible tap, level 2 and up, 15.6 eligible taps a drop on average',()=>{
+ for(const g of ['rig','chart'])assert.deepEqual({chance:SECONDARY_RULES[g].chance,pity:SECONDARY_RULES[g].pity,level:SECONDARY_RULES[g].level,model:SECONDARY_RULES[g].model},{chance:.04,pity:24,level:2,model:'bonus'});
+ // the expected gap with the guarantee: sum of 0.96^k for k < 24 = (1 - 0.96^24) / 0.04
+ const gap=(1-.96**24)/.04;assert.ok(Math.abs(gap-15.62)<.01);
  // and the drops in a long run of eligible taps (no pauses: everything is cleared) match it
  const s=opened();let drops=0;const N=4000;for(let n=0;n<N;n++){if(clearTap(s,1000+n).secondary)drops++;}
  assert.ok(Math.abs(drops/N-1/gap)<.012,`measured ${(100*drops/N).toFixed(1)} % against ${(100/gap).toFixed(1)} %`);
@@ -66,9 +71,9 @@ test('only a generator of level 2+ makes secondary parts; a level-1 copy never r
  let now=1000;
  for(let n=0;n<200;n++){const e=s.energy,r=clearTap(s,now+=1000,16);assert.equal(r.secondary,undefined,'a level-1 copy makes its own part only');}
  assert.deepEqual([s.secTaps.rig,s.secSince.rig],[0,0],'and moves no counter');
- // the level-2 Rover: one energy a tap, its own part always, a secondary at the latest on the 20th
- let got=0;for(let n=0;n<20&&!got;n++){s.energy=10;const e=s.energy,r=tapRover(s,now+=1000);assert.equal(s.energy,e-1);assert.equal(s.board[r.index].family,'rig');if(r.secondary){got=n+1;assert.deepEqual(s.board[r.secondary.index],item('mech',0));}s.board[r.index]=null;}
- assert.ok(got>=1&&got<=20,`a drop within 20 eligible taps (${got})`);
+ // the level-2 Rover: one energy a tap, its own part always, a secondary at the latest on the 24th
+ let got=0;for(let n=0;n<24&&!got;n++){s.energy=10;const e=s.energy,r=tapRover(s,now+=1000);assert.equal(s.energy,e-1);assert.equal(s.board[r.index].family,'rig');if(r.secondary){got=n+1;assert.deepEqual(s.board[r.secondary.index],item('mech',0));}s.board[r.index]=null;}
+ assert.ok(got>=1&&got<=24,`a drop within 24 eligible taps (${got})`);
  // a closed chain: even a level-3 Rover makes none until it opens (an old save opens on load instead)
  const c=fresh(0);c.board[ROVER].level=3;c.found.push('mech0');assert.equal(secondaryOn(c,'rig'),false);
 });
@@ -179,7 +184,8 @@ test('copies share one count per kind, merging copies keeps it, and a reload kee
 test('recycling a secondary part gives no energy (a bonus drop never pays energy)',()=>{
  const s=fresh(0);s.energy=10;s.board[15]=item('mech',0);s.board[20]=item('rig',0);
  const a=ok(s,{type:'recycle',index:15});assert.equal(a.energy,0);assert.equal(s.energy,10);assert.doesNotMatch(a.message,/energy/);
- const b=ok(s,{type:'recycle',index:20});assert.equal(b.energy,1);assert.equal(s.energy,11);
+ // Build 52A: a Level 1-3 everyday part gives none either (tests/v5-next-build52a.test.mjs has the whole rule)
+ const b=ok(s,{type:'recycle',index:20});assert.equal(b.energy,0);assert.equal(s.energy,10);
 });
 
 
@@ -193,6 +199,7 @@ test('model A (replace) for the measurements: a secondary instead of the tap\'s 
 });
 
 test('demand: about one new everyday order in three asks a secondary part once open; gold only at its mapped stages; a primary-only order always',()=>{
+ RARE_EARLY.until=EARLY;
  const s=fresh(0);let now=0;const seen=new Set();let after=0,asked=0,uses=0,goals=0,intros=0,offered=0,delivered=0,lv2=null,goldRare=0,merged=0;const secIds=new Set();
  while(!allDone(s)&&now<14*3600e3){
   if(lv2===null&&s.board.some(x=>x?.type==='source'&&(x.level??1)>=2))lv2=s.ordersDone;
@@ -219,8 +226,13 @@ test('demand: about one new everyday order in three asks a secondary part once o
  assert.ok(allDone(s),'Chapters 1-2 finish');assert.ok(lv2>=0,'a level-2 generator is reached');
  // Energy pass (build 47v): a full start and more energy change what the scripted player makes first;
  // the same rules measure 42-45 % across seeds (40-42 % before) and 46 % in this run, so the ceiling is .5.
- const share=asked/after;assert.ok(share>=.22&&share<=.5,`share of new everyday orders asking one: ${(100*share).toFixed(0)} % (${asked} of ${after})`);
- assert.ok(uses>=5&&goals>=2,`use ${uses}, goal ${goals}`);assert.ok(delivered>=offered*.6,`most are delivered (${delivered} of ${offered})`);
+ // Build 52A3: rarer drops (4 %, 24) change this one deterministic path: 17 % here, while over 10 seeds per speed
+ // (tests/v5-next-economy52-metrics.mjs) crew orders ask more rare parts a game than before (Level 2 51-56, was
+ // 38-48), so the floor is .15.
+ const share=asked/after;assert.ok(share>=.15&&share<=.5,`share of new everyday orders asking one: ${(100*share).toFixed(0)} % (${asked} of ${after})`);
+ assert.ok(uses>=5&&goals>=2,`use ${uses}, goal ${goals}`);// Build 52A3 (rarer drops after the opening, deeper orders from 12 stages): over 10 seeds per speed 54-62 % of rare
+ // crew orders are delivered (52A2: 61-80 %), more are swapped out as stuck; this one path 49 %, so the floor is .45
+ assert.ok(delivered>=offered*.45,`most are delivered (${delivered} of ${offered})`);RARE_EARLY.until=0;
  // build 48b: merged parts are most of what is asked, and some gold orders ask one
  assert.ok(merged>=asked*.5,`merged parts: ${merged} of ${asked}`);assert.ok(goldRare>=3,`gold orders with a rare part: ${goldRare}`);
  for(const k of ['mech0','mech1','notes0'])assert.ok(s.found.includes(k),`${k} found`);
@@ -230,7 +242,9 @@ test('demand: about one new everyday order in three asks a secondary part once o
 
 test('turns: one in three, sooner with unused stock; at most the limit on the board; the chain with most unused first',()=>{
  const s=opened();noSecondaryOrders(s);s.slots=4;s.orders.push({...s.orders[0],id:'o90'});s.board[15]=item('mech',0);
- s.recent=['rig1x1','chart1x1'];assert.deepEqual(secondaryNeed(s,50,10),{family:'mech',tier:0,count:1,use:true},'neither of the last two asked one (a use order: asked alone)');
+ // Build 52A: a Bolt held is asked as the Gear it merges into (one drop away), never as a Bolt again
+ s.built={'beach-path':1};s.materials={...s.built};
+ s.recent=['rig1x1','chart1x1'];assert.deepEqual(secondaryNeed(s,50,10),{family:'mech',tier:1,count:1},'neither of the last two asked one: a Gear, one drop beyond the Bolt held');
  // one of the last two asked one and an extra order is on the board: not a turn, even with a Bolt unused
  s.board[16]=item('mech',0);s.orders[1]={...s.orders[1],needs:[{family:'rig',tier:1,count:1},{family:'mech',tier:0,count:1}]};
  s.recent=['rig1x1','mech0x1+rig1x1'];assert.equal(secondaryNeed(s,51,11),null,'one of the last two did');
@@ -246,11 +260,11 @@ test('turns: one in three, sooner with unused stock; at most the limit on the bo
 test('pricing: a secondary part pays as a rarer part, never like a common one of its tier',()=>{
  for(let t=0;t<=2;t++){
   const sec=priceOf([{family:'mech',tier:t,count:1}]),prim=priceOf([{family:'rig',tier:t,count:1}]);
-  assert.equal(sec,COIN_VALUE[t+SECONDARY_ORDERS.rarity]);assert.ok(sec>prim,`tier ${t}: ${sec} against ${prim}`);}
+  assert.equal(sec,RARE_COINS[t]);assert.ok(sec>prim,`tier ${t}: ${sec} against ${prim}`);}
  assert.ok(priceOf([{family:'notes',tier:1,count:1}])>priceOf([{family:'chart',tier:1,count:1}]));
  // a generator's level lifts its own parts' pay, not its secondary's
  const s=fresh(0);s.board[ROVER]={...source('rig'),level:3};
- assert.equal(orderPrice(s,[{family:'mech',tier:2,count:1}],'quick'),priceOf([{family:'mech',tier:2,count:1}]));
+ assert.equal(orderPrice(s,[{family:'mech',tier:2,count:1}],'quick'),orderPrice(fresh(0),[{family:'mech',tier:2,count:1}],'quick'));
 });
 
 

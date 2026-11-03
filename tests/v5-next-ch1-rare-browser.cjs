@@ -50,7 +50,7 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
    assert.deepEqual(gold.needs[1],{family:'mech',tier:1,count:1},tag('a Gear, its second material'));assert.equal(gold.needs.length,2);
    await page.locator(`[data-order="${gold.id}"]`).click();await page.waitForSelector('#orderTools .goldNeeds');
    const panel=await page.locator('#orderTools').innerText();assert.match(panel,/Add a cargo crane/);assert.match(panel,/Gear\s*0\/1/);
-   assert.match(panel,/Tap a level 2\+ Rivet Rover: while this order waits, a Bolt comes within every 8 taps/,tag('the guarantee, in taps'));
+   assert.match(panel,/Tap a level 2\+ Rivet Rover: while this order waits, a Bolt comes within every 10 taps/,tag('the guarantee, in taps (Build 52A3: 10 after the first six stages)'));
    await fits('gold order');await shot('2-gold-gear');
    // 3. tap the Rover until two Bolts are on the board (the gift Bolt counts), merge them into a Gear
    let taps=0;const bolts=()=>s.board.map((x,i)=>x?.type==='item'&&x.family==='mech'&&x.tier===0?i:-1).filter(i=>i>=0);

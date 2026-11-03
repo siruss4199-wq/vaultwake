@@ -15,6 +15,10 @@
 // route (a Travel notebook). Only if the chain cannot drop at all (never opened, or no level-2+
 // generator on the board) does the stage ask its usual materials instead: no circular unlock. While
 // the gold order lacks its rare part, that chain's drops are certain sooner (game.mjs goldChase).
+// Build 52A player feedback (docs/V5_BUILD52A_ECONOMY_2026-11-03.md): the path's lanterns (beach path stage 3)
+// take a Gear too, the first rare gold goal: after the Rivet Rover reaches Level 2 (the boardwalk's copy) and
+// before the Survey Kite (Rover Level 3, which that stage's own copy brings). Before, the first one was the
+// pier's crane, 30-80 min in and always after the Kite.
 // Build 51b (docs/V5_CH1_RARE_GOALS_2026-11-02.md): Chapter 1 gets six: the pier's cargo crane (a Gear),
 // the cliff gate up to the survey (an Expedition note), the hoist (a Gear, as before), the cliff chart (a
 // Travel notebook), the dial's map (an Expedition note) and the Vault door's middle ring (a Gear
@@ -34,7 +38,7 @@ export const AREAS=[
    place('beach-path','rock',[27,86],[
     {name:'Clear the landing path',cost:40,effect:{kit:['rig',1]},lines:[['ivo','A path from the boats to dry ground. Now the crew can carry real loads.'],['ivo','Somebody left a driftwood crate on it: it is ours now.']]},
     {name:'Lay a boardwalk',cost:70,effect:{copy:'rig'},lines:[['ivo','Planks over the sand. The carts stop sinking.'],['ivo','A Rivet Rover was buried under the old planks! Merge it with yours.']]},
-    {name:'Line the path with lanterns',cost:100,effect:{copy:'rig'},lines:[['neri','Lanterns all the way to the boats. Night shifts are safe now.'],['ivo','The first night shift dug up a Rivet Rover the storm had buried. Merge it with ours.']]}],'path'),
+    {name:'Line the path with lanterns',cost:100,rare:['mech',1],effect:{copy:'rig'},lines:[['neri','Geared lanterns all the way to the boats. They wind themselves at dusk, and night shifts are safe now.'],['ivo','The first night shift dug up a Rivet Rover the storm had buried. Merge it with ours.']]}],'path'),
    place('beach-tent','crate-salvage',[52,62],[
     {name:'Pitch the camp tent',cost:80,effect:{energy:8},lines:[['neri','Dry blankets and hot tea. Everyone works faster after a rest.'],['ivo','+8 energy for the crew.']]},
     {name:'Add bunks and a stove',cost:100,effect:{copy:'rig'},lines:[['neri','Bunks and a stove. Nobody sleeps on wet sand any more.'],['ivo','Under the old bunks: a rusted Rivet Rover. A little oil and it runs. Merge it with ours.']]},

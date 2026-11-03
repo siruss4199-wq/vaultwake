@@ -55,7 +55,10 @@ test('orders and restorations keep coming',()=>{
 // Build 41g: Rover copies from the early stages bring the Survey Kite out; Build 41h's slower
 // stages put it at about 2.7 min per s/action of real time (13 min at 5 s).
 test('generators arrive on time and the Lantern Kiln before the worksite ends',()=>{
- for(const r of rows){assert.ok(r.kiteMax<=r.speed*4,`${r.speed} s: Survey Kite at ${r.kiteMax.toFixed(1)} min`);assert.ok(r.kilnBeforeEnd,`${r.speed} s: Lantern Kiln before the end`);}
+ // Build 52A: the Survey Kite (a level-3 Rivet Rover, from the early stages' copies) may come at 4.25 min per
+ // s/action (was 4): stages 2-6 now take crew orders' coins (gold paid 98.5 % of them in 51d), which puts the
+ // fifth stage, and the Kite with it, about 1.5 min later at 4 s (16.0 against 14.4 min; docs/V5_BUILD52A_ECONOMY_2026-11-03.md).
+ for(const r of rows){assert.ok(r.kiteMax<=r.speed*4.25,`${r.speed} s: Survey Kite at ${r.kiteMax.toFixed(1)} min`);assert.ok(r.kilnBeforeEnd,`${r.speed} s: Lantern Kiln before the end`);}
  for(const r of rows)assert.ok(r.tapsMean<=900,`${r.speed} s: ${r.tapsMean} taps`);
 });
 

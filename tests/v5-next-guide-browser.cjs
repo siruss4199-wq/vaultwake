@@ -87,8 +87,9 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
     await page.reload();await page.waitForSelector('#homePlay:not([hidden])');await page.locator('#homePlay').click();await page.waitForSelector('#home',{state:'hidden'});await page.waitForTimeout(200);
     {const b=(await save()).board,plain=b.findIndex(x=>x?.type==='item'&&x.family==='rig'&&x.tier===0),merged=b.findIndex(x=>x?.type==='item'&&x.family==='rig'&&x.tier===2);
      await page.locator(`#board [data-index="${plain}"]`).click();const c=page.locator('#selection [data-action="recycle"]');
-     assert.match(await c.innerText(),/^Clear( space)? · \+1 ϟ$/,tag('a plain part can be cleared on a board with room'));assert.equal(await c.getAttribute('data-confirm'),null);
-     await c.click();await page.waitForTimeout(150);s=await save();assert.equal(s.board[plain],null,tag('cleared at once'));assert.equal(s.energy,11,tag('+1 energy back'));
+     // build 52A: a Level 1-3 part gives no energy back, and the button says nothing about energy
+     assert.match(await c.innerText(),/^Clear( space)?$/,tag('a plain part can be cleared on a board with room'));assert.equal(await c.getAttribute('data-confirm'),null);
+     await c.click();await page.waitForTimeout(150);s=await save();assert.equal(s.board[plain],null,tag('cleared at once'));assert.equal(s.energy,10,tag('no energy back for a Level 1 part'));
      await page.locator(`#board [data-index="${merged}"]`).click();await page.locator('#selection [data-action="recycle"]').click();await page.waitForTimeout(150);
      assert.equal(await page.locator('#selection [data-action="recycle"]').innerText(),'Tap again to clear');assert.ok((await save()).board[merged],tag('a merged part waits for the second tap'));await fits('clear confirm');
      await page.locator('#selection [data-action="recycle"]').click();await page.waitForTimeout(150);assert.equal((await save()).board[merged],null,tag('the second tap clears it'));}

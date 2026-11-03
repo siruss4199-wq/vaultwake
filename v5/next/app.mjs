@@ -1,6 +1,6 @@
 // Coast Camp: the new-loop page (v5/play.html). Same look as Classic V5, one loop:
 // generators → merge → crew orders → coins → upgrade the coast's places on the beach screen.
-import {blockedStage,isStuck,allDone,swapsLeft,adSwapsLeft,SHOP,shopLeft,BOOK_COINS,BOOK_CHAINS,bookKeys,bookReady,pageReady,SHED_SLOTS,DAILY,newestGenerator,cog,token,SAVE_KEY,fresh,load,act,tick,nameOf,item,matches,count,orderItems,nextTask,currentArea,areaDone,upgrades,stageOf,builtCount,sourceOpen,SOURCES,chainsOf,CRATES,cargoKeys,reachable,generatorsMerge,MAX_GENERATOR_LEVEL,GLASS_HITS,nextKind,UNLOCK_LEVEL,GENERATOR_ORDER,storyTarget,roleOf,SECONDARY_RULES,SECONDARY_OF,secondarySource} from './game.mjs';
+import {blockedStage,isStuck,allDone,swapsLeft,adSwapsLeft,SHOP,shopLeft,BOOK_COINS,BOOK_CHAINS,bookKeys,bookReady,pageReady,SHED_SLOTS,DAILY,newestGenerator,cog,token,SAVE_KEY,fresh,load,act,tick,nameOf,item,matches,count,orderItems,nextTask,currentArea,areaDone,upgrades,stageOf,builtCount,sourceOpen,SOURCES,chainsOf,CRATES,CRATE_DROPS,clearRefund,cargoKeys,reachable,generatorsMerge,MAX_GENERATOR_LEVEL,GLASS_HITS,nextKind,UNLOCK_LEVEL,GENERATOR_ORDER,storyTarget,roleOf,SECONDARY_RULES,SECONDARY_OF,secondarySource,rareRule} from './game.mjs';
 import {AREAS,STAGES,TASKS,LABELS} from './areas.mjs';
 import {primaryAction} from './guide.mjs';
 import {coachStep,coachActive,laterTip,nextRareUse,COACH_ON,COACH_DONE,FIRST_PLACE} from './coach.mjs';
@@ -39,7 +39,7 @@ function moment(title,detail='',x=null){sharedMoment(title,detail,null);const el
 let adPlaying=false;
 const sfx=(kind,tier=0)=>sounds.play(kind,tier,{muted:adPlaying||platform.muted()});
 // Shown in the footer so a playtester can tell which build is running.
-export const BUILD='Build 51d · varied gold orders, Clear, a pointing guide';
+export const BUILD='Build 52A4 · harder orders from stage 3, crates give wanted parts, Tide token always usable';
 // The level path (docs/V5_LEVEL_PATH_2026-10-27.md): a crew order that pays a tool on top shows it
 // beside its coins (a Tide token; a favour's Sea chest, Brass cog or, once no generator can go up, Tide token).
 const bonusThing=o=>o.bonus==='cog'?cog():o.bonus==='chest'?kit(newestGenerator(state),2):o.bonus==='token'?token():null;
@@ -228,7 +228,7 @@ function routeWhy(r,gold=false){
  if(sec&&!state.secOpen?.[gen])return {ok:false,text:`Opens when a ${name} reaches level ${SECONDARY_RULES[gen].level}`};
  const reach=r.tier?` · merge matching items to reach ${CHAINS[r.family].names[r.tier]}`:'';
  // Build 48c: on the gold order the guarantee is said as it is: counted in taps, not time
- if(sec&&gold&&goldChase(state,r.family))return {ok:true,text:`Tap a level ${SECONDARY_RULES[gen].level}+ ${name}: while this order waits, a ${CHAINS[r.family].names[0]} comes within every ${SECONDARY_RULES[gen].goldPity} taps${reach}`};
+ if(sec&&gold&&goldChase(state,r.family))return {ok:true,text:`Tap a level ${SECONDARY_RULES[gen].level}+ ${name}: while this order waits, a ${CHAINS[r.family].names[0]} comes within every ${rareRule(state,gen).goldPity} taps${reach}`};
  return {ok:true,text:sec?`A rare extra from level ${SECONDARY_RULES[gen].level}+ ${name} taps${reach}`:`Tap ${name}${reach}`};
 }
 // brief (the gold panel, whose rows already say where each part comes from): an everyday chain is its
@@ -375,11 +375,11 @@ function renderSelection(){
   {const gold=state.orders.find(o=>o?.story),r=gold&&CHAINS[x.family].secondary?gold.needs.find(q=>q.family===x.family&&q.tier>=x.tier):null;
    if(r){const place=LABELS[gold.story]??TASKS[gold.story].stages[Math.min(STAGES,stageOf(state,gold.story)+1)-1].name;desc=`Needed for ${place}${r.tier>x.tier?`: merge matching items to reach ${CHAINS[r.family].names[r.tier]}`:''}. `+desc;}}
   // Build 51d (user, 2026-11-02: "itemaa butsaaj burn hiideg songolt heregtei baina"): every loose part can
-  // be cleared, not only on a nearly full board (Build 41 M4). The rule is unchanged (game.mjs recycle):
-  // an everyday part gives back the 1 energy a tap costs, so it is no energy trick; a rare part (pilot) cost
-  // no energy and gives none. A part an order wants, a merged part or a rare part asks for a second tap.
-  {const rare=!!CHAINS[x.family].secondary,careful=rare||x.tier>=1||who.length>0,nearlyFull=state.board.filter(y=>y===null).length<=2;
-   buttons=`<button data-action="recycle"${careful?' data-confirm="1"':''}>${rare?'Clear':nearlyFull?'Clear space · +1 ϟ':'Clear · +1 ϟ'}</button>`;}
+  // be cleared, not only on a nearly full board (Build 41 M4). Build 52A: what it gives back is game.mjs
+  // clearRefund (+1 energy for an everyday part of Level 4+, else none); the button says so only when it does.
+  // A part an order wants, a merged part or a rare part asks for a second tap.
+  {const rare=!!CHAINS[x.family].secondary,careful=rare||x.tier>=1||who.length>0,nearlyFull=state.board.filter(y=>y===null).length<=2,back=clearRefund(x);
+   buttons=`<button data-action="recycle"${careful?' data-confirm="1"':''}>${nearlyFull&&!rare?'Clear space':'Clear'}${back?` · +${back} ϟ`:''}</button>`;}
  }else if(x.type==='source'){
   const chain=CHAINS[GENERATOR_CHAINS[x.id][0][0]];
   const next=nextKind(x.id),waiting=next&&!state.board.some(y=>y?.type==='source'&&y.id===next);
@@ -394,7 +394,9 @@ function renderSelection(){
    buttons=block?`<button class="accent" data-action="produce" disabled aria-disabled="true">Make · 1 ϟ</button><span class="blockWhy">${block}</span>`:`<button class="accent" data-action="produce">Make · 1 ϟ</button>`;
   }
  }else if(x.type==='kit'){
-  desc=`Tap again for a free part (${chainsOf(state,x.family).map(c=>CHAINS[c].names[0]).join(' or ')} chain) · ${x.left} of ${kitCapacity(x)} left.`+(kitFull(x)&&x.size<MAX_KIT_SIZE?` Or merge with a twin into a ${CRATES[x.size]} (${KIT_DROPS[x.size+1].length} better parts).`:'');
+  // Build 52A: what the crate holds, in displayed levels (CRATE_DROPS: internal tier + 1)
+  const lv=size=>{const t=CRATE_DROPS[size].filter(d=>d!=='rare');return `Lv${Math.min(...t)+1}-${Math.max(...t)+1}`;},rareEnd=x.size===3&&SECONDARY_OF[x.family]&&state.secOpen?.[x.family];
+  desc=`Tap for a free ${lv(x.size)} part (${chainsOf(state,x.family).map(c=>CHAINS[c].names[0]).join(' or ')} chain)${rareEnd?', the last a rare part':''} · ${x.left} of ${kitCapacity(x)} left.`+(kitFull(x)&&x.size<MAX_KIT_SIZE?` Or merge with a twin into a ${CRATES[x.size]} (${KIT_DROPS[x.size+1].length} ${lv(x.size+1)} parts).`:'');
   buttons='<button class="accent" data-action="openKit">Take a part</button>';
 } else if(x.type==='glass'){const n=CHAINS[x.family].names,left=GLASS_HITS-(x.cracks??0);title=(x.cracks?'Cracked tideglass':'Tideglass')+` <span class="hits" aria-label="${left} of ${GLASS_HITS} hits left">${Array.from({length:GLASS_HITS},(_,k)=>`<i class="${k<left?'on':''}"></i>`).join('')}</span>`;desc=`${left} hit${left>1?'s':''} left. A ${n[x.tier]} locked in tideglass. It takes no part: a merge in a space beside it that makes a ${n[x.tier]} or better (any chain) cracks it; ${GLASS_HITS} cracks break it and the ${n[x.tier]} is yours.`+(x.cracks?` ${GLASS_HITS-x.cracks} more merge${GLASS_HITS-x.cracks>1?'s':''} beside it.`:'');
  } else if(x.type==='cargo'&&!reachable(state,selected)){title='Sealed cargo';desc='Buried deeper in the cargo. Open the crates around it first, and this one will show the part that opens it.'+(x.find?.type==='source'?' Something glows inside.':['cog','token'].includes(x.find?.type)?' Something gleams inside.':'');
