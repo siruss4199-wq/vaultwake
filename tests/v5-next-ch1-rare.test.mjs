@@ -14,8 +14,16 @@ const CH1=AREAS.slice(0,3),RARE=[['beach-path',3,'mech',1],['beach-mast',3,'mech
 // Build 52A player feedback: whether a gold order's rare chain could drop is read when the order is made (as
 // makeOrder does); a player may merge a generator copy after that (the boardwalk's Rover arrives with the build
 // that makes the next gold order), and the order stays as issued.
-const born=new WeakMap();
-const note=s=>{for(const o of s.orders)if(o?.story&&!born.has(o)){const t=TASKS[o.story],rare=t.stages[stageOf(s,o.story)]?.rare;born.set(o,rare?secondaryCanDrop(s,rare[0]):null);}};
+const born=new WeakMap(),bornPlain=new WeakMap();
+const note=s=>{for(const o of s.orders)if(o?.story&&!born.has(o)){
+ const t=TASKS[o.story],rare=t.stages[stageOf(s,o.story)]?.rare;
+ born.set(o,rare?secondaryCanDrop(s,rare[0]):null);
+ // Check plain alternatives when the order is ISSUED, not after another
+ // restoration opens a previously unavailable stage.
+ bornPlain.set(o,upgrades(s).filter(u=>!u.materials).filter(u=>{
+  const st=TASKS[u.id].stages[u.stage-1],r=st.rare;
+  return !r||!secondaryCanDrop(s,r[0]);}).length);
+}};
 const ok=(s,a,now=1000)=>{const r=act(s,a,now);assert.ok(r.ok,JSON.stringify(a)+' '+r.message);note(s);return r;};
 const free=s=>s.board.reduce((a,x,i)=>x===null||x.type==='cargo'?[...a,i]:a,[]);
 const rareOf=(id,n)=>TASKS[id].stages[n-1].rare;
@@ -41,8 +49,8 @@ function playChapter1(seed,{merge}){
    // a rare part is asked only while its chain can drop, and then exactly the authored part
    if(asks){assert.ok(rare,`${u.id} ${u.stage} asks a rare part it does not name`);assert.deepEqual([asks.family,asks.tier,asks.count],[...rare,1]);assert.ok(secondaryCanDrop(s,asks.family),`${u.id} ${u.stage}: its chain can drop`);}
    else if(rare&&TASKS[u.id].area!=='harbour')assert.ok(!(born.get(o)??secondaryCanDrop(s,rare[0])),`${u.id} ${u.stage}: its rare part is skipped only when its chain cannot drop`);
-   const plainAvailable=open.filter(v=>{const candidate=TASKS[v.id].stages[v.stage-1].rare;return !candidate||!secondaryCanDrop(s,candidate[0]);}).length;
-   log.push({id:u.id,n:u.stage,rare:!!asks,others:open.length,plainAvailable,aimed,rareLast:s.rareLast??false,aim:s.aim??null,hasGold:s.orders.some(o=>o?.story),lastDelivered:s.ordersDone});
+   const plainAvailableAtIssue=bornPlain.get(o)??0;
+   log.push({id:u.id,n:u.stage,rare:!!asks,others:open.length,plainAvailableAtIssue,aimed});
    for(const x of s.board.map((x,i)=>x&&x.type!=='source'&&x.type!=='glass'&&x.type!=='cargo'?i:-1).filter(i=>i>=0&&free(s).length<6))s.board[x]=null;
    for(const x of s.board.map((x,i)=>x?.type==='source'?i:-1).filter(i=>i>=0&&free(s).length<6&&s.board.filter(y=>y?.type==='source'&&y.id===s.board[i].id).length>1))s.board[x]=null;
    const f=free(s);let k=0;for(const n of o.needs)for(let c=0;c<n.count;c++)s.board[f[k++]]=item(n.family,n.tier);
@@ -69,7 +77,7 @@ test('every route through Chapter 1, merging generator copies: no block, each ra
  const asked={};let routes=0;
  for(let seed=1;seed<=120;seed++){const {s,log}=playChapter1(seed,{merge:true});routes++;
   assert.equal(s.area,3,'Chapter 1 done');for(const a of CH1)assert.ok(areaDone(s,a));assert.equal(totalBuilt(s),45);
-  for(let i=1;i<log.length;i++)if(log[i].rare&&log[i-1].rare&&!log[i].aimed)assert.equal(log[i].plainAvailable,0,`seed ${seed}: two rare goals despite a normal alternative ${JSON.stringify(log.slice(Math.max(0,i-2),i+1))}`);
+  for(let i=1;i<log.length;i++)if(log[i].rare&&log[i-1].rare&&!log[i].aimed)assert.equal(log[i].plainAvailableAtIssue,0,`seed ${seed}: two rare goals despite a normal alternative ${JSON.stringify(log.slice(Math.max(0,i-2),i+1))}`);
   for(const l of log)if(l.rare)asked[l.id+l.n]=(asked[l.id+l.n]??0)+1;}
  // a player who merges the copies the beach gives meets every one of them on most routes
  for(const [id,n] of RARE)assert.ok((asked[id+n]??0)>=routes*.75,`${id} ${n} asked on ${asked[id+n]??0} of ${routes} routes`);
