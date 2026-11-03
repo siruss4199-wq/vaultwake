@@ -8,7 +8,7 @@ test('gold coins follow restoration cost, not number or level of ingredients',()
  const s=g.fresh(0);s.built={'beach-path':2};s.materials={...s.built};
  const target={cost:100},a=[{family:'rig',tier:1,count:1}],b=[{family:'rig',tier:5,count:2},{family:'mech',tier:2,count:1}];
  assert.equal(g.goldPrice(s,a,target),g.goldPrice(s,b,target));
- assert.equal(g.goldPrice(s,a,target),50);
+ assert.equal(g.goldPrice(s,a,target),35,'stage three pays 35% of its cost');
  assert.equal(g.goldPrice(g.fresh(0),[{family:'rig',tier:3,count:1},{family:'rig',tier:2,count:2}],{cost:40}),70,'tutorial coins unchanged');
 });
 
@@ -20,8 +20,13 @@ test('lanterns need ordinary parts PLUS one merged Gear before Survey Kite',()=>
  assert.equal(o.needs.length,3,JSON.stringify(o.needs));
  assert.equal(o.needs.filter(n=>!g.isSecondary(n.family)).length,2);
  assert.deepEqual(o.needs.at(-1),{family:'mech',tier:1,count:1});
- assert.equal(o.coins,50,'stage 3 only pays part of its 100-coin cost');
+ assert.equal(o.coins,35,'stage 3 only pays part of its 100-coin cost');
  assert.ok(!s.board.some(x=>x?.type==='source'&&x.id==='chart'),'Kite not unlocked yet');
+ const saved=g.fresh(0);saved.built={'beach-path':2};saved.materials={...saved.built};
+ saved.board[g.ROVER].level=2;saved.secOpen={rig:true};saved.orders[0]=o;
+ const resumed=g.load(JSON.stringify(saved),1000);
+ assert.deepEqual(resumed.orders[0].needs,o.needs,'three-ingredient Gold order survives saving and loading');
+ assert.equal(resumed.orders[0].coins,o.coins,'priced coins also survive');
  const fallback=structuredClone(s);fallback.board[g.ROVER].level=1;
  const old=g.makeOrder(fallback);
  assert.equal(old.story,'beach-path');
