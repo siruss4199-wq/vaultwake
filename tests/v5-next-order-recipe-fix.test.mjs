@@ -33,9 +33,9 @@ test('lanterns need ordinary parts PLUS one merged Gear before Survey Kite',()=>
  assert.ok(!old.needs.some(n=>g.isSecondary(n.family)),'no rare part without an eligible generator');
 });
 
-test('Chapter 1 includes nine story repairs that request merged rare ingredients when unlocked',()=>{
+test('Chapter 1 includes thirteen story repairs that request merged rare ingredients when unlocked',()=>{
  const ch=AREAS.slice(0,3).flatMap(a=>a.tasks.flatMap(t=>t.stages.flatMap((st,i)=>st.rare?[[t.id,i+1,...st.rare]]:[])));
- assert.equal(ch.length,9,JSON.stringify(ch));
+ assert.equal(ch.length,13,JSON.stringify(ch));
  for(const [id,stage,f,tier] of ch)assert.ok(tier>=1&&g.isSecondary(f)&&TASKS[id].stages[stage-1].rare);
 });
 
