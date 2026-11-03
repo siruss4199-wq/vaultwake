@@ -10,7 +10,7 @@ import {fresh,load,act,item,upgrades,stageOf,areaDone,totalBuilt,storyTarget,sec
 import {AREAS,TASKS} from '../v5/next/areas.mjs';
 import {CHAINS} from '../v5/next/chains.mjs';
 
-const CH1=AREAS.slice(0,3),RARE=[['beach-path',3,'mech',1],['beach-pier',2,'mech',1],['beach-cliff',3,'notes',1],['ws-scope',3,'notes',2],['ws-hoist',2,'mech',1],['ws-door',3,'notes',1],['vault-door',2,'mech',2]];
+const CH1=AREAS.slice(0,3),RARE=[['beach-path',3,'mech',1],['beach-mast',3,'mech',1],['beach-workshop',2,'mech',1],['beach-pier',2,'mech',1],['beach-cliff',3,'notes',1],['ws-scope',3,'notes',2],['ws-hoist',2,'mech',1],['ws-door',3,'notes',1],['vault-door',2,'mech',2]];
 // Build 52A player feedback: whether a gold order's rare chain could drop is read when the order is made (as
 // makeOrder does); a player may merge a generator copy after that (the boardwalk's Rover arrives with the build
 // that makes the next gold order), and the order stays as issued.
@@ -51,11 +51,11 @@ function playChapter1(seed,{merge}){
  return {s,log};
 }
 
-test('seven Chapter 1 stages name a fixed merged rare part, matched to the repair: Gears for machinery, notes for surveying', ()=>{
+test('nine Chapter 1 stages name a fixed merged rare part, matched to the repair: Gears for machinery, notes for surveying', ()=>{
  const ch1=CH1.flatMap(a=>a.tasks.flatMap(t=>t.stages.map((st,k)=>st.rare?[t.id,k+1,...st.rare]:null))).filter(Boolean);
  assert.deepEqual(ch1,RARE);assert.equal(CH1.reduce((n,a)=>n+a.tasks.length*3,0),45);
  for(const [id,n,f,tier] of ch1){assert.ok(CHAINS[f].secondary&&tier>=1,'never a single Bolt or a note fragment');
-  const st=TASKS[id].stages[n-1];assert.ok(!st.gold||st.gold.length===2,'replaces one material, no third');
+  const st=TASKS[id].stages[n-1];assert.ok(!st.gold||st.gold.length===2,'the authored two-part Gold recipe precedes the additional rare ingredient');
   // (the path's lanterns give a Rover copy, but their Gear needs the Level 2 Rover the boardwalk's copy made;
   // the lanterns' copy is the one toward Level 3 and the Survey Kite)
   if(!(id==='beach-path'&&n===3))assert.notEqual(st.effect.copy,CHAINS[f].gen,'never the copy of the generator its chain needs');}
@@ -89,7 +89,7 @@ function atPier(){
 }
 test('the first rare goal on the beach: the cargo crane asks a Gear once a level-2 Rover is out; the order stays as issued', ()=>{
  const s=atPier(),o=s.orders.find(o=>o?.story);
- assert.equal(o.story,'beach-pier');assert.deepEqual(o.needs[1],{family:'mech',tier:1,count:1});assert.equal(o.needs.length,2,'no third requirement');
+ assert.equal(o.story,'beach-pier');assert.deepEqual(o.needs.at(-1),{family:'mech',tier:1,count:1});assert.equal(o.needs.length,3,'Gear is an additional crafting requirement');
  assert.ok(goldChase(s,'mech'),'the gold-objective guarantee covers it');
  // the Rover moved to the shed (no drops now): the issued order is not changed, now or after a reload
  const r=s.board.findIndex(x=>x?.type==='source'&&x.id==='rig'),to=s.board.findIndex(x=>x===null);s.board[to]=s.board[r];s.board[r]=null;
@@ -97,7 +97,7 @@ test('the first rare goal on the beach: the cargo crane asks a Gear once a level
  // choosing another place and back makes the same goal again (fixed part, never lowered)
  const u=structuredClone(t);
  for(const held of [[],[['mech',0]],[['mech',2]]]){const v=structuredClone(u);for(const [f,k] of held)v.board[v.board.findIndex(x=>x===null)]=item(f,k);
-  ok(v,{type:'aim',id:'beach-workshop'});ok(v,{type:'aim',id:'beach-pier'});assert.deepEqual(v.orders.find(o=>o?.story).needs[1],{family:'mech',tier:1,count:1},JSON.stringify(held));}
+  ok(v,{type:'aim',id:'beach-workshop'});ok(v,{type:'aim',id:'beach-pier'});assert.deepEqual(v.orders.find(o=>o?.story).needs.at(-1),{family:'mech',tier:1,count:1},JSON.stringify(held));}
 });
 
 test('without a level-2 Rover on the board the crane asks its usual materials (copies awarded are not an upgrade)', ()=>{
@@ -119,7 +119,7 @@ test('a rare goal never follows another while another place is open; the player\
  assert.notEqual(storyTarget(t).id,'ws-scope','right after a rare goal: the next open plain stage first');
  const w=structuredClone(t);goldUp(w);assert.ok(!w.orders.find(o=>o?.story).needs.some(n=>isSecondary(n.family)));
  const u=structuredClone(t);delete u.rareLast;assert.equal(storyTarget(u).id,'ws-scope','after a plain goal the rare stage is next as usual');
- const u2=structuredClone(u);goldUp(u2);assert.deepEqual(u2.orders.find(o=>o?.story).needs[1],{family:'notes',tier:2,count:1});
+ const u2=structuredClone(u);goldUp(u2);assert.deepEqual(u2.orders.find(o=>o?.story).needs.at(-1),{family:'notes',tier:2,count:1});
  const v=structuredClone(t);v.aim='ws-scope';assert.equal(storyTarget(v).id,'ws-scope','the player\'s choice wins');
  // rareLast: an old save has none; a damaged one is dropped; a kept one survives a reload
  assert.equal(load(JSON.stringify({...t,rareLast:'yes'}),9000).rareLast,undefined);assert.equal(load(JSON.stringify(t),9000).rareLast,true);
