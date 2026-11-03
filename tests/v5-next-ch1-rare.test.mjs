@@ -10,7 +10,7 @@ import {fresh,load,act,item,upgrades,stageOf,areaDone,totalBuilt,storyTarget,sec
 import {AREAS,TASKS} from '../v5/next/areas.mjs';
 import {CHAINS} from '../v5/next/chains.mjs';
 
-const CH1=AREAS.slice(0,3),RARE=[['beach-path',3,'mech',1],['beach-mast',3,'mech',1],['beach-workshop',2,'mech',1],['beach-pier',2,'mech',1],['beach-cliff',3,'notes',1],['ws-scope',3,'notes',2],['ws-hoist',2,'mech',1],['ws-door',3,'notes',1],['vault-door',2,'mech',2]];
+const CH1=AREAS.slice(0,3),RARE=[['beach-path',3,'mech',1],['beach-mast',3,'mech',1],['beach-workshop',2,'mech',1],['beach-pier',2,'mech',1],['beach-beacon',2,'mech',1],['beach-cliff',3,'notes',1],['ws-camp',3,'notes',1],['ws-scope',3,'notes',2],['ws-ropes',2,'mech',1],['ws-pool',2,'notes',1],['ws-hoist',2,'mech',1],['ws-door',3,'notes',1],['vault-door',2,'mech',2]];
 // Build 52A player feedback: whether a gold order's rare chain could drop is read when the order is made (as
 // makeOrder does); a player may merge a generator copy after that (the boardwalk's Rover arrives with the build
 // that makes the next gold order), and the order stays as issued.
@@ -51,7 +51,7 @@ function playChapter1(seed,{merge}){
  return {s,log};
 }
 
-test('nine Chapter 1 stages name a fixed merged rare part, matched to the repair: Gears for machinery, notes for surveying', ()=>{
+test('thirteen Chapter 1 stages name a fixed merged rare part, matched to the repair: Gears for machinery, notes for surveying', ()=>{
  const ch1=CH1.flatMap(a=>a.tasks.flatMap(t=>t.stages.map((st,k)=>st.rare?[t.id,k+1,...st.rare]:null))).filter(Boolean);
  assert.deepEqual(ch1,RARE);assert.equal(CH1.reduce((n,a)=>n+a.tasks.length*3,0),45);
  for(const [id,n,f,tier] of ch1){assert.ok(CHAINS[f].secondary&&tier>=1,'never a single Bolt or a note fragment');
