@@ -22,3 +22,6 @@ jobs:
         run: node --test tests/v5-next-order-recipe-fix.test.mjs tests/v5-next-ch1-rare.test.mjs tests/v5-next-rare-merges.test.mjs
       - name: All V5 rule tests
         run: node --test tests/v5-*.test.mjs
+      - name: Capture actual Gold and crew recipes
+        if: always()
+        run: node tests/v5-next-order-evidence.mjs
