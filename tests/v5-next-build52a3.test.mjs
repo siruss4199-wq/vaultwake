@@ -37,7 +37,7 @@ test('rare rates: the opening keeps 5 %, 20 and 8; from six stages 4 %, 24 and 1
 });
 
 test('deeper crew orders (52A4: from 3 stages built): never before, then up to reach + 2 within the chain, paid by their parts', ()=>{
- assert.equal(ORDER_RAMP.reachFrom,3);assert.deepEqual(DEEP_ENERGY,{units:24,extra:1});
+ assert.equal(ORDER_RAMP.reachFrom,3);assert.deepEqual(DEEP_ENERGY,{units:24,extra:2});
  const camp=built=>{const s=fresh(0);s.built=built;s.board[ROVER].level=2;s.board[15]={...source('chart'),level:2};s.orderSeq=10;s.orders=[];return s;};
  const asks=s=>{const out=[];for(let k=0;k<80;k++){const o=makeOrder(s);if(!o.story)out.push(o);}return out;};
  // the guide's first two stages: never past reach + 1
@@ -58,7 +58,7 @@ test('a crew order worth 24 Level 1 parts or more gives one more energy; a small
  const big={id:'b',who:'ivo',needs:[{family:'rig',tier:4,count:1},{family:'rig',tier:3,count:1}],coins:60,role:'pair'};
  const small={id:'c',who:'ivo',needs:[{family:'rig',tier:3,count:1},{family:'rig',tier:2,count:1}],coins:30,role:'pair'};
  assert.equal(orderUnits(big),24);assert.equal(orderUnits(small),12);
- assert.equal(deliver(big),DELIVERY_ENERGY[orderEnergyKind(big)]+1);
+ assert.equal(deliver(big),DELIVERY_ENERGY[orderEnergyKind(big)]+DEEP_ENERGY.extra);
  assert.equal(deliver(small),DELIVERY_ENERGY[orderEnergyKind(small)]);
  assert.equal(deliver({...big,id:'g',story:'beach-path'}),0,'a gold order gives none');
 });
