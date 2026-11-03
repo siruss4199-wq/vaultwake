@@ -137,5 +137,5 @@ test('saves: an existing gold order and delivered material credits are kept; the
  // board, shed and pending rewards untouched by the load
  assert.deepEqual(t.board,s.board);assert.deepEqual(t.shed,s.shed);assert.deepEqual(t.pending,s.pending);
  // the rules are unchanged: same drop rates and guarantee
- assert.deepEqual([SECONDARY_RULES.rig.chance,SECONDARY_RULES.rig.pity,SECONDARY_RULES.rig.goldPity],[.05,20,8]);
+ assert.deepEqual([SECONDARY_RULES.rig.chance,SECONDARY_RULES.rig.pity,SECONDARY_RULES.rig.goldPity],[.04,24,10]);
 });

@@ -113,25 +113,25 @@ const tapsToDrop=(s,limit=40)=>{for(let n=1;n<=limit;n++){const mech=t=>t.board.
  s.energy=50;const r=act(s,{type:'produce',id:'rig'},1000);assert.ok(r.ok,r.message);if(r.index>=0&&s.board[r.index]?.family==='rig')s.board[r.index]=null;
  if(mech(s)>before)return n;}return null;};
 
-test('build 48c: while the gold order lacks its rare part, a drop is certain by the 8th eligible tap; otherwise by the 20th', ()=>{
- assert.deepEqual([SECONDARY_RULES.rig.goldPity,SECONDARY_RULES.chart.goldPity,SECONDARY_RULES.rig.pity,SECONDARY_RULES.rig.chance],[8,8,20,.05]);
+test('build 48c (52A3 values): while the gold order lacks its rare part, a drop is certain by the 10th eligible tap; otherwise by the 24th', ()=>{
+ assert.deepEqual([SECONDARY_RULES.rig.goldPity,SECONDARY_RULES.chart.goldPity,SECONDARY_RULES.rig.pity,SECONDARY_RULES.rig.chance],[10,10,24,.04]);
  // a gold order for a Gear assembly, nothing held: the chase is on, for that chain only
  const s=crane();s.orders=[makeOrder(s)];assert.ok(goldChase(s,'mech'));assert.equal(goldChase(s,'notes'),false,'only the gold part\'s chain');
- // seven eligible taps without a drop already counted: the next one makes it
- s.secSince={rig:7,chart:0};assert.equal(tapsToDrop(s),1,'the 8th in a row');
- // each drop takes at most 8 eligible taps while the chase lasts, whatever the rolls: 32 at most for the assembly
+ // nine eligible taps without a drop already counted: the next one makes it
+ s.secSince={rig:9,chart:0};assert.equal(tapsToDrop(s),1,'the 10th in a row');
+ // each drop takes at most 10 eligible taps while the chase lasts, whatever the rolls: 40 at most for the assembly
  for(const salt of [101,7,999,31337]){const t=crane();t.orders=[makeOrder(t)];SECONDARY_RULES.rig.salt=salt;
-  let taps=0;for(let k=0;k<4&&goldChase(t,'mech');k++){const n=tapsToDrop(t);assert.ok(n!==null&&n<=8,`salt ${salt}: drop ${k+1} took ${n}`);taps+=n;
+  let taps=0;for(let k=0;k<4&&goldChase(t,'mech');k++){const n=tapsToDrop(t);assert.ok(n!==null&&n<=10,`salt ${salt}: drop ${k+1} took ${n}`);taps+=n;
    // the player's merges: Bolts into Gears, Gears into the Gear assembly
    for(const tier of [0,1]){const at=t.board.map((x,i)=>x?.family==='mech'&&x.tier===tier?i:-1).filter(i=>i>=0);if(at.length>=2)assert.ok(act(t,{type:'merge',from:at[0],to:at[1]},1000).ok);}}
-  assert.ok(taps<=32,`salt ${salt}: ${taps} eligible taps for a Gear assembly`);assert.equal(goldChase(t,'mech'),false,'the part is made: the chase ends');}
+  assert.ok(taps<=40,`salt ${salt}: ${taps} eligible taps for a Gear assembly`);assert.equal(goldChase(t,'mech'),false,'the part is made: the chase ends');}
  SECONDARY_RULES.rig.salt=101;
- // the same counters without the gold order: the ordinary pity of 20, so the 8th tap in a row is left to
- // the 5 % roll (a roll that misses is found; with the gold order the same tap is certain)
- const u=crane();u.orders=[];u.secSince={rig:7,chart:0};assert.equal(goldChase(u,'mech'),false);
+ // the same counters without the gold order: the ordinary pity of 24, so the 10th tap in a row is left to
+ // the 4 % roll (a roll that misses is found; with the gold order the same tap is certain)
+ const u=crane();u.orders=[];u.secSince={rig:9,chart:0};assert.equal(goldChase(u,'mech'),false);
  let salt=1;while(secondaryRoll(u,'rig')!==null)SECONDARY_RULES.rig.salt=++salt;
  const v=structuredClone(u);v.orders=[makeOrder(v)];assert.equal(secondaryRoll(v,'rig'),'mech');
- v.secSince.rig=19;u.secSince.rig=19;assert.equal(secondaryRoll(u,'rig'),'mech','the 20th is certain either way');SECONDARY_RULES.rig.salt=101;
+ v.secSince.rig=23;u.secSince.rig=23;assert.equal(secondaryRoll(u,'rig'),'mech','the 24th is certain either way');SECONDARY_RULES.rig.salt=101;
 });
 
 test('build 48c: the chase accounts for other orders, ends with the part, survives a reload and respects a full board', ()=>{

@@ -27,8 +27,8 @@ export function makeGoldFirst(g,primaryAction,nextAction,{opportunist=false}={})
    const c=s.orders.find(o=>o&&!o.story&&g.orderItems(spare,o));if(c)return {type:'deliver',id:c.id};}
   const free=s.board.filter(x=>x===null).length,short=ups.some(u=>u.materials&&s.coins<u.cost);
   // necessary: no gold order up yet (crew deliveries bring it), coins short for a stage whose materials are in,
-  // or the board nearly full
-  if(!gold||short||free<=2)return nextAction(s);
+  // the board nearly full, or no energy left (a crew order's +1 ϟ is then the only way on)
+  if(!gold||short||free<=2||s.energy<1)return nextAction(s);
   if(gold){const a=act(primaryAction({...s,orders:[gold]},gold.id));if(a&&!(a.type==='deliver'&&a.id!==gold.id))return a;}
   const a=nextAction(s);
   if(a?.type==='deliver'){const o=s.orders.find(o=>o?.id===a.id);if(o&&!o.story)return null;}

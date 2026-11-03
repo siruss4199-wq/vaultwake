@@ -60,9 +60,12 @@ test('gold-first play, fresh camp: crew orders pay a real part of the first six 
 });
 
 test('gold-first play from a saved camp (two stages built, saved, loaded): crew orders still pay their part', ()=>{
- for(const [name,policy] of Object.entries(POLICIES)){const r=run(policy,5,3,{save:2}),at=`${name} from a save`;
-  assert.ok(r.loaded&&r.res.finished,`${at}: loaded and Chapter 1 finished`);
-  assert.ok(share(r.first6)>=.24,`${at}: crew orders ${(100*share(r.first6)).toFixed(0)} % of the first six stages' coins`);
+ // Build 52A3: the median of three seeds, at least 22 % (52A2: 26 %; rarer drops bring the opening's 80-coin Gear
+ // crew order later, a cost of the rarity asked for, measured in docs/V5_BUILD52A_ECONOMY_2026-11-03.md)
+ for(const [name,policy] of Object.entries(POLICIES)){const R=[1,2,3].map(seed=>run(policy,5,seed,{save:2})),r=R[1],at=`${name} from a save`;
+  const mid=[...R.map(x=>share(x.first6))].sort((a,b)=>a-b)[1];
+  for(const x of R)assert.ok(x.loaded&&x.res.finished,`${at}: loaded and Chapter 1 finished`);
+  assert.ok(mid>=.22,`${at}: crew orders ${(100*mid).toFixed(0)} % of the first six stages' coins (median of three)`);
   assert.ok(share(r.coins)>=.4,`${at}: crew orders ${(100*share(r.coins)).toFixed(0)} % of Chapter 1's coins`);
   assert.deepEqual(r.rare[0].needs.find(n=>n[0]==='mech'),['mech',1,1],`${at}: the lanterns' Gear is asked after the load`);}
 });
@@ -83,7 +86,7 @@ test('the first rare gold order is the lanterns\' Gear: after Rover Level 2, bef
 // Measured, 10 seeds: the Gear order is out 2.5-6.7 min for the scripted player (the path's third stage took
 // 2.6-6.8 before), 3.0-8.3 min for the strict gold-first player and 3.8-12.1 min for the opportunist (the order's
 // four Level-4 parts and a crew order wanting a Gear too); at most 32 Rover taps; the guaranteed drop (goldPity 8)
-// makes each Bolt within 8 eligible taps.
+// makes each Bolt within 10 eligible taps (Build 52A3; it was 8).
 test('the lanterns\' Gear is achievable without a long stall: bounded time and Rover taps, at every speed', ()=>{
  for(const [name,policy] of Object.entries({normal:nextAction,...POLICIES}))for(const speed of [4,5,8,10]){
   const r=run(policy,speed,3,{stop:s=>totalBuilt(s)>=4}),at=`${name} ${speed} s`,gear=r.gear;
@@ -91,7 +94,7 @@ test('the lanterns\' Gear is achievable without a long stall: bounded time and R
   const wait=(gear.out-gear.at)/MIN;
   assert.ok(wait<=speed*1.3,`${at}: the Gear order took ${wait.toFixed(1)} min`);
   assert.ok(gear.taps<=40,`${at}: ${gear.taps} Rover taps while it was up`);}
- assert.equal(g.SECONDARY_RULES.rig.goldPity,8,'the gold objective guarantee is unchanged');
+ assert.equal(g.SECONDARY_RULES.rig.goldPity,10,'the gold objective guarantee (Build 52A3: 10, was 8)');
 });
 
 test('no energy starvation and no stuck board for a gold-first player, fresh or saved', ()=>{

@@ -5,7 +5,7 @@ import {readFileSync} from 'node:fs';
 import {cellPos} from '../v5/core.mjs';
 import {xpToNext} from '../v5/levels.mjs';
 import {rolePrice,orderPrice,bestTier,PAY_PER_LEVEL,RECENT,ROLE_PAY,roleOf,allDone,secondChain,FREE_SWAPS,AD_SWAPS,swapsLeft,adSwapsLeft,SHOP,shopLeft,BOOK_COINS,BOOK_CHAINS,bookKeys,bookReady,pageReady,SHED_SLOTS,DAILY,priceOf,totalBuilt,ORDER_TOP,SAVE_KEY,fresh,act,load,tick,item,jar,nextTask,storyTarget,makeOrder,upgrades,stageOf,areaDone,builtCount,orderItems,sourceOpen,COIN_VALUE,COIN_RATE,CAMP,ROVER,CARGO,GLASS,glass,CHEST_ENERGY,cog,MAX_GENERATOR_LEVEL,UNLOCK_LEVEL,nextKind,token,cargo,cargoKeys,source,CRATES,nameOf,GENERATOR_ORDER} from '../v5/next/game.mjs';
-import {capacityOf,VERSION,MAX_ENERGY as MAX_ENERGY_HELD} from '../v5/next/game.mjs';
+import {capacityOf,VERSION,MAX_ENERGY as MAX_ENERGY_HELD,ORDER_RAMP,totalBuilt as stagesBuilt} from '../v5/next/game.mjs';
 import {AREAS,TASKS} from '../v5/next/areas.mjs';
 import {primaryAction} from '../v5/next/guide.mjs';
 import {kit} from '../v5/kits.mjs';
@@ -829,15 +829,19 @@ test('never two identical crew orders on the board under random play',()=>{
 // generator's level was used as a tier before, so a level-3 Rover's orders asked tier 4 while it
 // makes tier 2 at best); a part at that limit pays 40 % more per level that makes no better part.
 test('orders follow the best part a generator makes; levels with no better part pay instead',()=>{
- assert.deepEqual([1,2,3,4,5].map(bestTier),[1,2,2,2,3]);
+ assert.deepEqual([1,2,3,4,5].map(bestTier),[1,2,2,2,3]);let seenDeep=false;
  for(const L of [1,2,3,4,5]){
   const s=fresh(0);s.built=beachDone();s.board[ROVER].level=L;s.board[15]=source('chart');s.board[15].level=L;s.orderSeq=10;
   for(let k=0;k<60;k++){const o=makeOrder(s);if(o.story){s.orders.push(o);continue;}
-   for(const r of o.needs)assert.ok(r.tier<=bestTier(L)+1,`Lv${L}: ${JSON.stringify(r)} past the generator's best part`);
-   const atLimit=o.needs.filter(r=>r.tier===bestTier(L)+1).length,price=Math.round(rolePrice(o.needs,o.role)*(1+PAY_PER_LEVEL*atLimit*(L-bestTier(L)))/5)*5;
+   // Build 52A3: from ORDER_RAMP.reachFrom stages built (this camp has the whole beach) one tier further, reach + 2
+   const deep=stagesBuilt(s)>=ORDER_RAMP.reachFrom?1:0;
+   for(const r of o.needs)assert.ok(r.tier<=bestTier(L)+1+deep,`Lv${L}: ${JSON.stringify(r)} past the generator's best part`);
+   const atLimit=o.needs.filter(r=>r.tier>=bestTier(L)+1).length,price=Math.round(rolePrice(o.needs,o.role)*(1+PAY_PER_LEVEL*atLimit*(L-bestTier(L)))/5)*5;
    assert.equal(o.coins,price,`Lv${L}: ${JSON.stringify(o.needs)}`);
-   if(L<=2)assert.equal(o.coins,rolePrice(o.needs,o.role),'levels 1 and 2 pay as before');}
+   if(L<=2)assert.equal(o.coins,rolePrice(o.needs,o.role),'levels 1 and 2 pay as before');
+   if(L>=2&&deep)seenDeep||=o.needs.some(r=>r.tier===bestTier(L)+2);}
  }
+ assert.ok(seenDeep,'Build 52A3: a deeper part is asked once the beach is built');
 });
 test('a gold order gives no energy; a crew order gives its delivery energy',()=>{
  // the first-order bonus is claimed here; it is tested on its own (v5-next-energy.test.mjs)

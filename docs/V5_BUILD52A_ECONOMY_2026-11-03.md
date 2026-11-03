@@ -281,3 +281,94 @@ Shop on, 10 seeds; `tests/v5-next-economy52-metrics.mjs` and `tests/v5-next-econ
 - **New tools:**
   - `tests/v5-next-goldfirst-policy.mjs` (the gold-first player);
   - `tests/v5-next-goldfirst-metrics.mjs` (coins by source, waits, the first rare gold order against the Kite; `OPP=1`, `fresh|save`, `GOLD=` overrides).
+
+## Order difficulty and rare drops (Build 52A3)
+Two reports from play: crew and gold orders were still too easy, and rare extras dropped so often that they felt
+ordinary. No new system, generator, chapter, art or save field.
+
+### What changed (`v5/next/game.mjs`)
+| Rule | 52A2 | 52A3 |
+|---|---|---|
+| Everyday parts asked, from 12 stages built (`ORDER_RAMP.reachFrom`) | at most 1 tier past the generator's best part | at most **2** tiers past it (never the chain's keepsake tier); the guide's orders and the opening unchanged |
+| Crew order worth 24+ Level 1 parts (`DEEP_ENERGY`) | +1 ϟ | **+2 ϟ** |
+| Rare drop after the first 6 stages (`SECONDARY_RULES`) | 5 % a tap, certain by the 20th eligible tap, the 8th for a gold order | **4 %**, the **24th**, the **10th**: one drop every 15.6 eligible taps on average (was 12.8) |
+| Rare drop in the first 6 stages (`RARE_EARLY`) | the same | unchanged (5 %, 20, 8): the rare introduction, the lanterns' Gear and the opening's Gear crew orders as in 52A2 |
+
+The Build 46f rule ("one tier past the best part") gets this one exception after the opening; its test states it.
+The Help text says both. Build label 52A3.
+
+### Before / after
+`tests/v5-next-difficulty-metrics.mjs` (new), 4/5/8/10 s, 10 seeds each (medians, or the range over speeds).
+- Ordinary scripted player: shop on, whole game.
+- Gold-first players: no shop, Chapter 1; the strict one and the opportunist.
+
+| | 52A2 | 52A3 |
+|---|---|---|
+| Merge steps per crew order: ordinary player | 14.4-15.5 | **17.8-19.6** |
+| Merge steps per crew order: gold-first (strict / opportunist) | 9.6-10.3 / 9.2-10.0 | **14.1-15.1 / 13.4-14.7** |
+| Taps per delivered order: ordinary player | 6.4-6.5 | 8.0-8.2 |
+| Gold orders (parts, merge steps) | 2.7 parts, 21 steps | unchanged |
+| Chains per crew order | 1.7-1.8 | 1.6-1.8 |
+| Repeated crew orders (same parts as one of the last four) | 1.6-3.9 % (gold-first 2.5-12 %) | 2.1-4.1 % (gold-first 3-9.7 %) |
+| Rare drops, Chapter 1: ordinary / gold-first | 40-47 / 42-56 | 42-47 / 45-48 |
+| Rare orders delivered, Chapter 1: ordinary | 23-28 | 22-25 |
+| Rare gold order wait, median / max (min): ordinary | 1.1-3.2 / 5.0-11.6 | 1.3-5.6 / 5.8-13.9 |
+| First rare gold order (the lanterns' Gear, min) | 6.7 / 8.4 / 13.5 / 16.9 | unchanged |
+| Survey Kite, latest seed (min) | 16.6 / 20.7 / 33.2 / 41.5 | unchanged |
+| Restorations in the first 15 minutes, lowest seed | 4 / 3 / 3 / 2 | unchanged |
+| Gold's share of coins (whole game) | 37.5-37.9 % | 38.0-38.4 % |
+| Energy starvation, longest of 10 runs (min) | 0-0.9 | 0-3.9 (one run at 4 s) |
+| Full-board deadlocks, longest idle | 0 | 0 |
+| Whole game, ordinary player (min) | 361 / 427 / 677 / 847 | 372 / 466 / 789 / 986 |
+| Chapter 1, gold-first opportunist (min) | 116 / 142 / 246 / 302 | 115 / 134 / 234 / 296 |
+
+- **Rare drops still follow demand.** They pause while four units wait unused, so Chapter 1's count barely
+  moves. What changes is the gap between drops after the opening: each eligible tap is about 22 % less likely to
+  drop.
+- **Crates are not the problem:** they give 2-6 rare parts in Chapter 1 against 40-56 from taps, and were left as
+  they are.
+
+### Costs
+- **Longer games.** The ordinary player's whole game is 3-17 % longer. This is active play (more merging per order),
+  not waiting: idle time and starvation are unchanged.
+- **More rare crew orders go unfilled.** Over 10 seeds per speed, 54-62 % of rare crew orders are delivered (52A2:
+  61-80 %); more are swapped out as stuck.
+- **Level 3 rare crew orders wait longer:** a median 5-17 min (was 1-10). Gold rare orders keep their
+  guarantee.
+- **The ordinary player's opening leans more on gold** (68 % → 75 % of the first six stages' coins), because the
+  opening's 80-coin Gear crew order comes later.
+- **The saved-camp gold-first player's opening crew share:** the median of three seeds is 23 % (52A2: 26 %).
+- **Fresh gold-first openings are unchanged:** 26-27 %.
+
+### Tried and rejected
+All measured with 10-20 seeds per speed.
+
+- **Rare 3 % (with 24/10, 22/9 or 20/8) or 4 % with 22/9, once orders were deeper:** the fast gold-first player ran
+  out of energy for 10-40 min in 9-20 runs of 20.
+- **Rare 26/12:** one rare gold order waited 96 min.
+- **Rarer drops from the start:** the gold-first opening's crew share fell from 27 % to 19 % (undoing 52A2).
+- **Deeper crew orders from 6 stages:** a player starting from a saved camp starved at 4 s (median 21 min).
+- **Without the extra energy:** 10-80 min starvation at 4-5 s.
+- **Deeper gold orders (the opening's lift again from 12 stages):** gold-first starvation of 40-210 min.
+- **Dropping the gold shape with four low parts:** the Survey Kite came at 28 min at 4 s (guard 17).
+- **One part a tier up instead of two of a tier (quick jobs):** no measurable change.
+- **The floor and top-tier ramps (`low2`, `low3`, `topEvery`):** no measurable change. Orders are capped by what
+  the generator makes, not by these.
+- **Smaller rare goals, or fewer rare asks (`goal` 1, `share` 4):** did not bring rare crew deliveries back up.
+
+### Tests
+- **`tests/v5-next-build52a3.test.mjs` (new, 4):**
+  - rare rates, the opening and after, with the worst-luck gap;
+  - deeper orders: never before 12 stages, never past reach + 2 or the keepsake tier, priced by their parts; the
+    guide's orders;
+  - the extra energy;
+  - whole Chapter 1 runs for three players against the same runs under the 52A2 rules: at least 15 % more merging,
+    starvation at most 3.5 min, no long idle, the 15-minute and Kite guards.
+- **Updated for the new values, with the reasons in the tests:**
+  - rare rates and pity: `v5-next-rare-merges`, `v5-next-secondary`, `v5-next-ch1-rare`, the 52A2 feedback test;
+  - the reach rule's exception: `v5-next`;
+  - two single-path guards in `v5-next-secondary`: the share of everyday orders asking a rare part, 22 % → 15 %,
+    and rare orders delivered, 60 % → 45 %, as measured over seeds above;
+  - the saved-camp opening share, now the median of three seeds, 22 %.
+- **Gold-first policy (`tests/v5-next-goldfirst-policy.mjs`):** a player out of energy now delivers a ready crew
+  order (it gave 75 min of artificial starvation).

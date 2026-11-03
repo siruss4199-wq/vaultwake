@@ -80,9 +80,20 @@ export const BONUSES=['token','chest','cog'],BONUS_NAMES={token:'Tide token',che
 // 12.8 eligible taps on average (7.8 %). goldPity: build 48c's gold-objective guarantee (goldChase). `salt` makes each kind's rolls its own. The rules are mutable
 // only so the metrics script can compare (and vary the rolls); the game never changes them.
 export const SECONDARY_RULES={
- rig:{model:'bonus',chance:.05,pity:20,goldPity:8,level:2,hold:4,salt:101},
- chart:{model:'bonus',chance:.05,pity:20,goldPity:8,level:2,hold:4,salt:211}
+ rig:{model:'bonus',chance:.04,pity:24,goldPity:10,level:2,hold:4,salt:101},
+ chart:{model:'bonus',chance:.04,pity:24,goldPity:10,level:2,hold:4,salt:211}
 };
+// Build 52A3 (player feedback: rare parts felt ordinary): 4 % a tap (was 5 %), certain by the 24th eligible tap
+// (was 20), and by the 10th while a gold order waits for one (was 8): one drop every 15.6 eligible taps on average
+// (was 12.8). Drops still pause while four units wait unused, so they follow demand. Measured with
+// tests/v5-next-difficulty-metrics.mjs (4/5/8/10 s, 10-20 seeds), with the deeper crew orders (ORDER_RAMP): see
+// docs/V5_BUILD52A_ECONOMY_2026-11-03.md. 3 % (24/10, 22/9 or 20/8) and 4 % with 22/9 left a fast gold-first player
+// with no energy for 10-40 min in 9-20 runs of 20 once orders were deeper; 26/12 let a rare gold order wait 96 min.
+// Build 52A3: the first `until` stages (the opening, the rare chain's introduction, the lanterns' Gear and the
+// opening's Gear crew orders) keep the 52A2 rates: rarer drops there cut a gold-first player's crew coins over the
+// first six stages from 27 % to 19 %. Mutable for the metrics only.
+export const RARE_EARLY={until:6,chance:.05,pity:20,goldPity:8};
+export const rareRule=(s,gen)=>totalBuilt(s)<RARE_EARLY.until?{...SECONDARY_RULES[gen],chance:RARE_EARLY.chance,pity:RARE_EARLY.pity,goldPity:RARE_EARLY.goldPity}:SECONDARY_RULES[gen];
 // Secondary orders (round 3): about one in `share` new everyday orders asks a secondary part (a turn
 // comes when neither of the last share-1 everyday orders asked one); the highest tier ever asked (tier
 // 3, the chain's top, is a collectible for the book); `rarity`, what a secondary part is worth: the
@@ -116,7 +127,7 @@ export const secondaryPaused=(s,gen)=>{const f=SECONDARY_OF[gen];
 // the caller moves the counters.
 export function secondaryRoll(s,gen){
  if(!secondaryOn(s,gen)||secondaryPaused(s,gen))return null;
- const r=SECONDARY_RULES[gen],n=(s.secTaps?.[gen]??0)+1,since=s.secSince?.[gen]??0;
+ const r=rareRule(s,gen),n=(s.secTaps?.[gen]??0)+1,since=s.secSince?.[gen]??0;
  return since+1>=(goldChase(s,SECONDARY_OF[gen])?r.goldPity:r.pity)||rand(n*7919+r.salt)<r.chance?SECONDARY_OF[gen]:null;
 }
 // Build 48c: the gold objective's guarantee. While the gold order on the board needs a rare part of a
@@ -349,6 +360,11 @@ export const DELIVER_ENERGY=1;
 // Build 52A: a rare-only order asking a merged rare part (Level 2+, two drops or more) gives the crew's energy too
 // (rareMerged): it took taps to make. A Level 1 rare-only order (the introduction) still gives none.
 export const DELIVERY_ENERGY={primary:DELIVER_ENERGY,mixed:DELIVER_ENERGY,secondary:0,rareMerged:DELIVER_ENERGY,gold:0};
+// Build 52A3: a crew order worth `units` Level 1 parts or more (a part of Level 4 and one of Level 5, say) gives
+// `extra` more energy on delivery, so deeper orders do not leave a fast player waiting for energy (measured: without
+// it, deeper orders starved the 4-5 s player for 10-80 min; with it, at most 0.3 min, as before). Mutable for metrics.
+export const DEEP_ENERGY={units:24,extra:1};
+export const orderUnits=o=>o.needs.reduce((n,r)=>n+(isSecondary(r.family)?0:r.count*2**r.tier),0);
 export const orderEnergyKind=o=>o.story?'gold':o.needs.every(r=>isSecondary(r.family))?(o.needs.some(r=>r.tier>=1)?'rareMerged':'secondary'):o.needs.some(r=>isSecondary(r.family))?'mixed':'primary';
 // The first-order bonus is for an ordinary crew order: not a gold order, and with at least one primary
 // part, so the introductory order for a gifted rare extra (a quick job for that part alone) never
@@ -483,6 +499,14 @@ export function goldShape([a,b],turn){
   return out;}
  return [a,b];
 }
+// How everyday orders' tiers climb with stages built (Build 29's ramp): the floor tier is 2 from `low2` stages and 3
+// from `low3`, the top tier one higher every `topEvery`. Build 52A3 (player feedback: orders too easy;
+// docs/V5_BUILD52A_ECONOMY_2026-11-03.md): from `reachFrom` stages built (the beach's last stages on; the guide and
+// the opening are unchanged), an everyday part may be one tier further past what its generator makes easily
+// (reach + 2), so crew orders take more merging: about 30 % more merge steps for the scripted player, 50 % for a
+// gold-first one. Their pay follows their parts (orderPrice) and the bigger ones give more energy (DEEP_ENERGY).
+// From 6 stages it starved a fast player who started from a save. Mutable for the metrics only.
+export const ORDER_RAMP={low2:3,low3:12,topEvery:6,reachFrom:12};
 export function makeOrder(s){
  const n=s.orderSeq++;let needs;
  if(n<FIRST.length)needs=FIRST[n].map(([family,tier,count])=>({family,tier,count}));
@@ -494,7 +518,7 @@ export function makeOrder(s){
   // more common as the beach is built.
   // Built counts every area's stages, so the Survey Worksite starts where the beach ended.
   const families=openChains(s),built=totalBuilt(s),best=Math.max(1,...s.board.filter(x=>x?.type==='source').map(producerLevel));
-  const low=built>=12?3:built>=3?2:1,top=Math.min(ORDER_TOP,2+Math.floor(built/6)+(best>=3?1:0));
+  const low=built>=ORDER_RAMP.low3?3:built>=ORDER_RAMP.low2?2:1,top=Math.min(ORDER_TOP,2+Math.floor(built/ORDER_RAMP.topEvery)+(best>=3?1:0));
   // One order at a time is the story's: the newest generator's best part, for the next beach
   // stage, paying half as much again.
   const story=!s.orders.some(o=>o?.story)&&storyTarget(s);
@@ -528,7 +552,7 @@ export function makeOrder(s){
   const recent=Array.isArray(s.recent)?s.recent:(s.recent=[]),key=ns=>ns.map(r=>r.family+r.tier+'x'+r.count).sort().join('+');
   const avoid=new Set([...recent,...others.map(o=>key(o.needs))]),last=recent.at(-1)?.match(/^[a-z]+/)?.[0];
   const freshChains=pool.filter(f=>!firsts.has(f)&&f!==last),from=freshChains.length?freshChains:pool.filter(f=>!firsts.has(f)).length?pool.filter(f=>!firsts.has(f)):pool;
-  const hi=f=>Math.max(1,Math.min(top,reach(s,f)+1,maxTier(f)-1)),floor=Math.max(1,low-1);
+  const deep=built>=ORDER_RAMP.reachFrom?1:0,hi=f=>Math.max(1,Math.min(top,reach(s,f)+1+deep,maxTier(f)-1)),floor=Math.max(1,low-1);
   const build=f1=>{
    // A quick job: one chain at the area's floor tier (one part, or two while they are small).
    if(role==='quick'){const t=Math.max(1,Math.min(hi(f1),low));return [{family:f1,tier:t,count:t<=2&&rand(n*13)<.7?2:1}];}
@@ -967,7 +991,7 @@ function step(s,a,now){
   // asking one, their energy kept the 10 s player from ever running out (economy guard).
   // Energy pass (build 47v): a mixed order (a primary part and a rare extra) gives the crew energy
   // again; only a quick job asking rare extras alone gives none (DELIVERY_ENERGY).
-  const gain=DELIVERY_ENERGY[orderEnergyKind(o)];
+  const gain=DELIVERY_ENERGY[orderEnergyKind(o)]+(!o.story&&orderUnits(o)>=DEEP_ENERGY.units?DEEP_ENERGY.extra:0);
   s.coins+=o.coins;s.ordersDone++;s.orders[lane]=null;s.energy=Math.min(MAX_ENERGY,s.energy+gain);
   if(o.story){if(o.needs.some(r=>isSecondary(r.family)))s.rareLast=true;else delete s.rareLast;}
   // The first ordinary crew order delivered: +15 energy, once (s.boost.order).
