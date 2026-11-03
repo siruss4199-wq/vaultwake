@@ -726,7 +726,10 @@ export const secondaryLimit=s=>Math.max(1,s.slots-1-1);// everyday slots (one is
 //   merged can be: two of them when two are free, else one.
 // - The chain with the most free drops is asked first.
 export function secondaryNeed(s,n,k){
- const fams=Object.values(SECONDARY_OF).filter(f=>(secondaryHeld(s,f)>0||secondaryOn(s,CHAINS[f].gen))&&!(s.secIntro??[]).includes(f));if(!fams.length)return null;
+ // Do not assign a new crew rare goal from the same chain while the
+ // story Gold order is already consuming it; avoid competing rare demand.
+ const goldRare=new Set(s.orders.filter(o=>o?.story).flatMap(o=>o.needs).filter(r=>isSecondary(r.family)).map(r=>r.family));
+ const fams=Object.values(SECONDARY_OF).filter(f=>!goldRare.has(f)&&(secondaryHeld(s,f)>0||secondaryOn(s,CHAINS[f].gen))&&!(s.secIntro??[]).includes(f));if(!fams.length)return null;
  if(s.orders.filter(asksSecondary).length>=secondaryLimit(s))return null;
  const unused=f=>secondaryUnused(s,f);
  const recent=(Array.isArray(s.recent)?s.recent:[]).slice(-(SECONDARY_ORDERS.share-1)),asked=recent.some(key=>key.split('+').some(p=>isSecondary(p.replace(/\d+x\d+$/,''))));
