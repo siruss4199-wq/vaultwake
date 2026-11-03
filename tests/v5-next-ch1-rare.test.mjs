@@ -42,7 +42,7 @@ function playChapter1(seed,{merge}){
    if(asks){assert.ok(rare,`${u.id} ${u.stage} asks a rare part it does not name`);assert.deepEqual([asks.family,asks.tier,asks.count],[...rare,1]);assert.ok(secondaryCanDrop(s,asks.family),`${u.id} ${u.stage}: its chain can drop`);}
    else if(rare&&TASKS[u.id].area!=='harbour')assert.ok(!(born.get(o)??secondaryCanDrop(s,rare[0])),`${u.id} ${u.stage}: its rare part is skipped only when its chain cannot drop`);
    const plainAvailable=open.filter(v=>{const candidate=TASKS[v.id].stages[v.stage-1].rare;return !candidate||!secondaryCanDrop(s,candidate[0]);}).length;
-   log.push({id:u.id,n:u.stage,rare:!!asks,others:open.length,plainAvailable,aimed});
+   log.push({id:u.id,n:u.stage,rare:!!asks,others:open.length,plainAvailable,aimed,rareLast:s.rareLast??false,aim:s.aim??null,hasGold:s.orders.some(o=>o?.story),lastDelivered:s.ordersDone});
    for(const x of s.board.map((x,i)=>x&&x.type!=='source'&&x.type!=='glass'&&x.type!=='cargo'?i:-1).filter(i=>i>=0&&free(s).length<6))s.board[x]=null;
    for(const x of s.board.map((x,i)=>x?.type==='source'?i:-1).filter(i=>i>=0&&free(s).length<6&&s.board.filter(y=>y?.type==='source'&&y.id===s.board[i].id).length>1))s.board[x]=null;
    const f=free(s);let k=0;for(const n of o.needs)for(let c=0;c<n.count;c++)s.board[f[k++]]=item(n.family,n.tier);
