@@ -31,7 +31,7 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
  // mast's usual materials and the hoist's Gear, so the turn is pinned to the usual shape while the orders are made
  const turn=[...g.GOLD_TURN];g.GOLD_TURN.splice(0,turn.length,...turn.map(()=>0));
  const mastGold=goldOf(mast),hoistGold=goldOf(hoist);g.GOLD_TURN.splice(0,turn.length,...turn);
- assert.equal(mastGold.story,'beach-mast');assert.deepEqual(mastGold.needs,[{family:'chart',tier:3,count:1},{family:'rig',tier:3,count:2}],'the mast\'s materials');assert.deepEqual(hoistGold.needs,[{family:'chart',tier:3,count:1},{family:'mech',tier:1,count:1}],'Gear the hoist asks a Gear instead of its second material');
+ assert.equal(mastGold.story,'beach-mast');assert.deepEqual(mastGold.needs,[{family:'chart',tier:3,count:1},{family:'rig',tier:3,count:2}],'the mast\'s materials');assert.equal(hoistGold.needs.length,3,'Gear the hoist has two ordinary ingredients plus a rare Gear');assert.deepEqual(hoistGold.needs.at(-1),{family:'mech',tier:1,count:1});assert.equal(hoistGold.needs.filter(n=>!g.isSecondary(n.family)).length,2);
  const engines=(process.env.ENGINES||'chromium,webkit').split(',').map(e=>[e,{chromium,webkit}[e]]);
  for(const [engine,type] of engines){
   let browser;try{browser=await type.launch();}catch(e){if(engine!=='chromium'&&/Executable doesn't exist/.test(e.message)){console.log(`${engine}: not installed here, skipped`);continue;}throw e;}
@@ -102,8 +102,8 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
    await page.locator(`[data-order="${hoistGold.id}"]`).click();await page.waitForSelector('#orderTools .goldNeeds');
    assert.match(await page.locator('#orderTools').innerText(),/Tap a level 2\+ Rivet Rover: while this order waits, a Bolt comes within every 10 taps · merge matching items to reach Gear/,tag('the guarantee, in taps'));
    assert.doesNotMatch(await page.locator('#orderTools').innerText(),/minute|guaranteed time/i);await fits('guarantee');await shot('6a-gold-guarantee');
-   // two Bolts and a Survey scope, 40 coins of 200
-   await load(hoist,hoistGold,[['chart',3],['mech',0],['mech',0]]);
+   // two Bolts and ordinary components, 40 coins of 200
+   await load(hoist,hoistGold,[...hoistGold.needs.filter(n=>!g.isSecondary(n.family)).flatMap(n=>Array.from({length:n.count},()=>[n.family,n.tier])),['mech',0],['mech',0]]);
    s=await save();const b=s.board.findIndex(x=>x?.type==='item'&&x.family==='mech');await page.locator(`#board [data-index="${b}"]`).click();
    const sel=await page.locator('#selection').innerText();assert.match(sel,/Needed for .+: merge matching items to reach Gear/,tag('Needed for, with the merge'));
    await fits('needed for');await shot('6-needed-for');
