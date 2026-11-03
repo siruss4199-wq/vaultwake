@@ -351,8 +351,10 @@ test('a Tide token from hard cargo turns a part into one a crew order is waiting
  s.board[22]=item('rig',2);const t=ok(s,{type:'merge',from:7,to:22});
  assert.equal(t.event,'swap');assert.deepEqual(s.board[22],item('chart',2));assert.ok(!s.board.some(x=>x?.type==='token'),'the token is used up');
  assert.ok(orderItems(s,s.orders[0]),'the order can be delivered');
- // No order waits for another part of that tier: refused, nothing changes.
- s.board[15]=token();s.board[26]=item('rig',5);assert.match(refused(s,{type:'merge',from:15,to:26}).message,/No crew order/);
+ // Build 52A4: no order waits for another part of that tier: the token raises the part one level (a free merge)...
+ s.board[15]=token();s.board[26]=item('rig',5);const up=ok(s,{type:'merge',from:15,to:26});assert.equal(up.event,'swap');assert.deepEqual(s.board[26],item('rig',6));
+ // ...but never to the chain's keepsake: refused at its last tier below it, nothing changes
+ s.board[15]=token();assert.match(refused(s,{type:'merge',from:15,to:26}).message,/raises a part one level/);
  // Saves keep a token; a malformed one starts a new camp.
  assert.deepEqual(load(JSON.stringify(s),5).board[15],token());
  const bad=structuredClone(s);bad.board[15]={type:'token',n:2};assert.equal(load(JSON.stringify(bad),5).moves,0);

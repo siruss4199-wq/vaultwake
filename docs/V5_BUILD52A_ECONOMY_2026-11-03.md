@@ -372,3 +372,35 @@ All measured with 10-20 seeds per speed.
   - the saved-camp opening share, now the median of three seeds, 22 %.
 - **Gold-first policy (`tests/v5-next-goldfirst-policy.mjs`):** a player out of energy now delivers a ready crew
   order (it gave 75 min of artificial starvation).
+
+## Player feedback round 3 (Build 52A4)
+Feedback:
+1. Orders do not get harder from the start.
+2. Small crew orders still ask too little.
+3. The Tide token cannot be used.
+4. Opening a crate does not feel like a useful gift.
+
+| Change (`v5/next/game.mjs`) | Before | 52A4 |
+|---|---|---|
+| Deeper crew orders: one tier further past the generator's best part (`ORDER_RAMP.reachFrom`) | from 12 stages built | from 3 (after the guide's two); the guide's orders unchanged |
+| Tide token on a part | turns it into a part of the same level and another kind that an order misses; otherwise refused, which the opening's Rover-only orders always caused | the same; otherwise it raises the part one level (a free merge), up to the chain's last part below its keepsake |
+| Crate part | the crate's fixed level | a part an order still misses from the crate's chain, the highest up to Lv3 / Lv4 / Lv5 (driftwood, sea chest, trunk); else as before; the rare slot unchanged |
+| Bonus orders with a rare part | could duplicate a card on the board | never (the "no two identical cards" rule now also covers this step) |
+
+Measured with `tests/v5-next-difficulty-metrics.mjs` (4/5/8/10 s, 10 seeds) against 52A3.
+
+| | 52A3 | 52A4 |
+|---|---|---|
+| Merge steps per crew order: scripted player | 17.8-19.6 | 18.3-18.9 |
+| Merge steps per crew order: gold-first opportunist | 13.4-14.7 | 14.8-16.1 |
+| Merge steps per crew order: strict gold-first | 14.1-15.1 | 14.3-15.3 |
+| Whole game, scripted player (min) | 372 / 466 / 789 / 986 | 377 / 447 / 719 / 898 |
+| First 15-minute restorations, Survey Kite | — | unchanged |
+| Energy starvation | 0-3.9 min | 0 for the scripted and opportunist players and for saved camps (20 seeds at 4-5 s) |
+
+- **Deeper orders now start in the opening** (stage 3 on), where before the first 12 stages asked what 52A2 asked.
+- **One strict gold-first run at 5 s went 23.6 min without energy.** That player never delivers a crew order unless
+  it must.
+- **The floor tiers (`low2`, `low3`) were tried earlier as well (2 and 9):** repeated orders rose to 17 % (the limit
+  is 15 %) and the 5 s game passed 8 h, so they are unchanged.
+- **Tests:** the token test now covers the level-up and its limit; the 52A3 test checks deeper orders from stage 3.

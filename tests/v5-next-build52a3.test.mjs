@@ -36,12 +36,12 @@ test('rare rates: the opening keeps 5 %, 20 and 8; from six stages 4 %, 24 and 1
   SECONDARY_RULES.rig.salt=keep;assert.ok(worst<=24&&worst>=1,`salt ${salt}: longest gap ${worst}`);}
 });
 
-test('deeper crew orders: never before 12 stages, then up to reach + 2 within the chain, paid by their parts', ()=>{
- assert.equal(ORDER_RAMP.reachFrom,12);assert.deepEqual(DEEP_ENERGY,{units:24,extra:1});
+test('deeper crew orders (52A4: from 3 stages built): never before, then up to reach + 2 within the chain, paid by their parts', ()=>{
+ assert.equal(ORDER_RAMP.reachFrom,3);assert.deepEqual(DEEP_ENERGY,{units:24,extra:1});
  const camp=built=>{const s=fresh(0);s.built=built;s.board[ROVER].level=2;s.board[15]={...source('chart'),level:2};s.orderSeq=10;s.orders=[];return s;};
  const asks=s=>{const out=[];for(let k=0;k<80;k++){const o=makeOrder(s);if(!o.story)out.push(o);}return out;};
- // the opening (5 stages) and up to 11: never past reach + 1
- for(const built of [{'beach-path':3,'beach-tent':2},{'beach-path':3,'beach-tent':3,'beach-mast':3,'beach-workshop':2}]){const s=camp(built);
+ // the guide's first two stages: never past reach + 1
+ for(const built of [{'beach-path':1},{'beach-path':2}]){const s=camp(built);
   for(const o of asks(s))for(const r of o.needs)if(!isSecondary(r.family))assert.ok(r.tier<=bestTier(2)+1,`${totalBuilt(s)} built: ${JSON.stringify(r)}`);}
  // the whole beach (15): reach + 2 is asked, never more, never the keepsake tier
  const s=camp(done(AREAS[0]));let deep=0;

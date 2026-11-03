@@ -222,6 +222,11 @@ export const CRATE_DROPS={1:[1,0,1],2:[1,1,2,1,1],3:[2,2,3,2,1,'rare']};
 export function crateDrop(s,box){
  const chain=GENERATOR_CHAINS[box.family][0][0],cap=KIT_DROPS[box.size].length,d=CRATE_DROPS[box.size]?.[cap-box.left]??0;
  if(d==='rare'){const f=SECONDARY_OF[box.family];return f&&secondaryOn(s,box.family)&&!secondaryPaused(s,box.family)?item(f,0):item(chain,Math.min(2,maxTier(chain)));}
+ // Build 52A4 (player feedback: crates did not feel like a useful gift): a part an order on the board still misses
+ // from this chain, the highest such one up to the crate's best level (driftwood Lv3, sea chest Lv4, trunk Lv5),
+ // else the crate's usual part.
+ const top=Math.max(...CRATE_DROPS[box.size].filter(v=>typeof v==='number')),miss=s.orders.flatMap(o=>o?.needs??[]).filter(r=>r.family===chain&&r.tier<=top&&r.tier>=d&&count(s,r)<r.count).sort((a,b)=>b.tier-a.tier)[0];
+ if(miss)return item(chain,miss.tier);
  return item(chain,Math.min(d,maxTier(chain)));
 }
 // Generators in the order they are found; each is opened with the one before's parts.
@@ -501,12 +506,12 @@ export function goldShape([a,b],turn){
 }
 // How everyday orders' tiers climb with stages built (Build 29's ramp): the floor tier is 2 from `low2` stages and 3
 // from `low3`, the top tier one higher every `topEvery`. Build 52A3 (player feedback: orders too easy;
-// docs/V5_BUILD52A_ECONOMY_2026-11-03.md): from `reachFrom` stages built (the beach's last stages on; the guide and
-// the opening are unchanged), an everyday part may be one tier further past what its generator makes easily
+// docs/V5_BUILD52A_ECONOMY_2026-11-03.md): from `reachFrom` stages built (52A4: from the third stage, after the
+// guide's; was 12), an everyday part may be one tier further past what its generator makes easily
 // (reach + 2), so crew orders take more merging: about 30 % more merge steps for the scripted player, 50 % for a
 // gold-first one. Their pay follows their parts (orderPrice) and the bigger ones give more energy (DEEP_ENERGY).
 // From 6 stages it starved a fast player who started from a save. Mutable for the metrics only.
-export const ORDER_RAMP={low2:3,low3:12,topEvery:6,reachFrom:12};
+export const ORDER_RAMP={low2:3,low3:12,topEvery:6,reachFrom:3};
 export function makeOrder(s){
  const n=s.orderSeq++;let needs;
  if(n<FIRST.length)needs=FIRST[n].map(([family,tier,count])=>({family,tier,count}));
@@ -611,7 +616,9 @@ export function makeOrder(s){
   // keeps its first part and its bonus, with the secondary as its second. Never a gold order (above).
   {const intro=(s.secIntro??[]).find(f=>!s.orders.some(o=>o?.needs?.some(r=>r.family===f)));
    if(intro&&bonus!=='chest'&&bonus!=='cog'&&s.orders.filter(asksSecondary).length<secondaryLimit(s)){needs=[{family:intro,tier:0,count:1}];role='quick';}
-   else{const sec=bonus&&role==='quick'?null:secondaryNeed(s,n,k);if(sec){const {use,...need}=sec;if(!bonus)role='quick';needs=role==='quick'?[need]:[{...needs[0],count:1},need];}}}
+   else{const sec=bonus&&role==='quick'?null:secondaryNeed(s,n,k);if(sec){const {use,...need}=sec,cand=bonus?[{...needs[0],count:1},need]:[need];
+    // (Build 52A4: never a card identical to one on the board, here too: the check above runs before this step)
+    if(!others.some(o=>key(o.needs)===key(cand))){if(!bonus)role='quick';needs=cand;}}}}
   recent.push(key(needs));if(recent.length>RECENT)recent.splice(0,recent.length-RECENT);
   return {id:'o'+n,who:crewFor(needs),needs,coins:orderPrice(s,needs,role),role,born:s.moves,...(bonus?{bonus}:{})};
  }
@@ -938,9 +945,12 @@ function step(s,a,now){
   if(x.type==='token'){
    if(!y){s.board[to]=x;s.board[from]=null;return {ok:true,event:'move',index:to,message:'Moved.'};}
    if(y.type!=='item')return fail('Lay the Tide token on a part: it becomes a part a crew order wants.');
+   // Build 52A4 (player feedback: "Tide token can't be used"): before, it worked only when an order missed a part
+   // of the same level and another kind, which the opening's Rover-only orders never do. Now, failing that, it
+   // raises the part one level (a free merge), up to the chain's last part below its keepsake.
    const want=s.orders.flatMap(o=>o.needs).find(r=>r.tier===y.tier&&r.family!==y.family&&count(s,r)<r.count);
-   if(!want)return fail(`No crew order is missing a Lv${y.tier+1} part of another kind, so the token cannot turn this one. Try a part of a level an order still needs.`);
-   s.board[to]=item(want.family,y.tier);s.board[from]=null;
+   if(!want&&(isSecondary(y.family)||y.tier>=maxTier(y.family)-1))return fail(`The token raises a part one level: this ${nameOf(y)} is already at the top a token reaches.`);
+   s.board[to]=want?item(want.family,y.tier):item(y.family,y.tier+1);s.board[from]=null;
    return {ok:true,event:'swap',index:to,xp:XP.unseal,message:'Tide token · '+nameOf(s.board[to])};
   }
   // A part laid on the cargo it opens is used up, and the cargo opens.
