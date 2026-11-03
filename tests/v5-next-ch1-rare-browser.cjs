@@ -3,9 +3,9 @@
 // a beach camp with the pier's first stage paid for in materials and two level-1 Rivet Rovers not yet merged.
 // 1. Drag one Rover onto the other: a level-2 Rover; the Gear chain opens (its first Bolt is a gift).
 // 2. Build the pier's first stage on the coast screen: the next gold order is "Add a cargo crane" and asks a
-//    Gear (its second material), with the guarantee in taps.
+//    Gear as an additional third ingredient, with the guarantee in taps.
 // 3. Tap the Rover until two Bolts have dropped (bounded by the guarantee), drag one onto the other: a Gear.
-// 4. With the crane's other part on the board, deliver the gold order: materials secured; build the stage
+// 4. With both ordinary ingredients on the board, deliver the gold order: materials secured; build the stage
 //    on the coast screen: the pier at stage 2, charged once; a reload changes nothing.
 // Nothing scrolls sideways; no page errors.   SHOTS=<dir> saves screenshots.
 const assert=require('node:assert/strict');const path=require('node:path');const {chromium,webkit}=require('playwright');const {throughHome}=require('./v5-next-home-helper.cjs');
@@ -47,7 +47,7 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
    // 2. build the pier's first stage: the crane's gold order asks a Gear
    await build('beach-pier');s=await save();assert.equal(s.built['beach-pier'],1);
    const gold=s.orders.find(o=>o?.story);assert.equal(gold?.story,'beach-pier',tag('the crane\'s gold order'));
-   assert.deepEqual(gold.needs[1],{family:'mech',tier:1,count:1},tag('a Gear, its second material'));assert.equal(gold.needs.length,2);
+   assert.deepEqual(gold.needs.at(-1),{family:'mech',tier:1,count:1},tag('a Gear as an additional ingredient'));assert.equal(gold.needs.length,3,tag('two ordinary parts plus a Gear'));
    await page.locator(`[data-order="${gold.id}"]`).click();await page.waitForSelector('#orderTools .goldNeeds');
    const panel=await page.locator('#orderTools').innerText();assert.match(panel,/Add a cargo crane/);assert.match(panel,/Gear\s*0\/1/);
    assert.match(panel,/Tap a level 2\+ Rivet Rover: while this order waits, a Bolt comes within every 10 taps/,tag('the guarantee, in taps (Build 52A3: 10 after the first six stages)'));
@@ -60,8 +60,8 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
    assert.ok(bolts().length>=2,tag(`two Bolts within ${taps} taps`));assert.ok(taps<=17,tag(`the guarantee: ${taps} taps`));
    await drag(bolts()[1],bolts()[0]);s=await save();
    assert.equal(s.board.filter(x=>x?.type==='item'&&x.family==='mech'&&x.tier===1).length,1,tag('a Gear merged by hand'));await shot('3-gear');
-   // 4. the crane's other part, then deliver and build
-   await write(`const o=s.orders.find(x=>x?.story);const i=s.board.findIndex(x=>x===null);s.board[i]={type:'item',family:o.needs[0].family,tier:o.needs[0].tier};`);await reload();await beats();
+   // 4. the crane's two ordinary parts, then deliver and build
+   await write(`const o=s.orders.find(x=>x?.story);for(const need of o.needs.filter(n=>n.family!=='mech'))for(let c=0;c<need.count;c++){const i=s.board.findIndex(x=>x===null);if(i<0)throw Error('no room for ordinary Gold ingredient');s.board[i]={type:'item',family:need.family,tier:need.tier};}`);await reload();await beats();
    s=await save();const coins=s.coins;
    await page.locator(`[data-order="${gold.id}"]`).click();await page.waitForSelector('.moment:has-text("Materials secured")',{timeout:4000});
    s=await save();assert.equal(s.materials['beach-pier'],2,tag('materials secured'));assert.equal(s.rareLast,true);assert.ok(!s.board.some(x=>x?.type==='item'&&x.family==='mech'&&x.tier===1),tag('the Gear delivered'));
