@@ -68,13 +68,16 @@ test('a keepsake never pauses drops; an order\'s demand, gold ones included, kee
 
 test('builds 48c and 51b: stages name a fixed merged rare part: Gears, Expedition notes, Gear assemblies and Travel notebooks', ()=>{
  const rare=Object.values(TASKS).flatMap(t=>t.stages.map((st,k)=>st.rare?[t.id,k+1,st.name,...st.rare]:null).filter(Boolean));
- // build 51b: Chapter 1's five new ones (the pier's crane, the cliff gate, the cliff chart, the dial's map, the middle ring)
- assert.deepEqual(rare,[['beach-pier',2,'Add a cargo crane','mech',1],['beach-cliff',3,'Open the cliff gate','notes',1],['ws-scope',3,'Chart the whole cliff','notes',2],['ws-hoist',2,'Gear the hoist','mech',1],['ws-door',3,'Map the dial','notes',1],['vault-door',2,'Turn the middle ring','mech',2],
+ // build 51b: Chapter 1's five new ones (the pier's crane, the cliff gate, the cliff chart, the dial's map, the middle ring);
+ // 52A player feedback: the path's lanterns, the first one, before the Survey Kite
+ assert.deepEqual(rare,[['beach-path',3,'Line the path with lanterns','mech',1],['beach-pier',2,'Add a cargo crane','mech',1],['beach-cliff',3,'Open the cliff gate','notes',1],['ws-scope',3,'Chart the whole cliff','notes',2],['ws-hoist',2,'Gear the hoist','mech',1],['ws-door',3,'Map the dial','notes',1],['vault-door',2,'Turn the middle ring','mech',2],
   ['obs-desk',2,'Unroll the old charts','notes',1],['obs-desk',3,'Read the last logbook','notes',2],
   ['obs-bench',2,'Fit the grinding wheel','mech',1],['hb-crane',3,'Recover the cargo','mech',2],['hb-registry',3,'Trace the route','notes',2]]);
  for(const [id,,,f,tier] of rare)assert.ok(CHAINS[f].secondary&&tier>=1&&tier<=2&&tier<maxTier(f),`${id}: a merged part below the keepsake, never a single Bolt or note fragment`);
  // no stage gives the copy of the generator whose chain it asks (that copy would be needed first)
- for(const [id,n,,f] of rare)assert.notEqual(TASKS[id].stages[n-1].effect.copy,CHAINS[f].gen);
+ // (except the path's lanterns: their Gear needs the Level 2 Rover the boardwalk's copy made; their own copy is the
+ // one toward Level 3 and the Survey Kite)
+ for(const [id,n,,f] of rare)if(!(id==='beach-path'&&n===3))assert.notEqual(TASKS[id].stages[n-1].effect.copy,CHAINS[f].gen);
  // only the two pilot chains (the Winch, Shell and Kiln chains stay inactive)
  assert.deepEqual([...new Set(rare.map(r=>r[3]))].sort(),['mech','notes']);
 });
@@ -149,11 +152,12 @@ test('build 48c: the chase accounts for other orders, ends with the part, surviv
  const d=structuredClone(s);d.orders=[];assert.equal(goldChase(d,'mech'),false);
 });
 
-test('gold pays its parts\' worth ×1.5 for the first stage, ×0.9 for stages 2-4, ×1.1 after (build 52A)', ()=>{
- assert.deepEqual(GOLD_PAY,{rate:1.1,early:4,earlyRate:0.9,opening:1,openingRate:1.5});
+test('gold pays its parts\' worth ×1.5 for the first stage, ×0.9 for the next, ×0.6 for orders made with 2-5 stages built, ×1.1 after (build 52A)', ()=>{
+ assert.deepEqual(GOLD_PAY,{rate:1.1,early:2,earlyRate:0.9,opening:1,openingRate:1.5,mid:6,midRate:0.6});
  const needs=[{family:'rig',tier:3,count:1},{family:'rope',tier:2,count:2}],worth=partValue(needs[0])+2*partValue(needs[1]);
  const s=fresh(0);assert.equal(goldPrice(s,needs),Math.round(worth*1.5/5)*5);
  s.built={'beach-path':1};assert.equal(goldPrice(s,needs),Math.round(worth*.9/5)*5);
+ s.built={'beach-path':2};assert.equal(goldPrice(s,needs),Math.round(worth*.6/5)*5);
  s.built={...done(AREAS[0])};assert.ok(totalBuilt(s)>=6);assert.equal(goldPrice(s,needs),Math.round(worth*1.1/5)*5);
 });
 

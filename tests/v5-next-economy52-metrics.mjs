@@ -20,7 +20,7 @@ const argv=process.argv.slice(2),args=argv.filter(a=>!a.includes('='));
 const SPEEDS=(args[0]??'4,5,8,10').split(',').map(Number),SEEDS=(args[1]??'1,2,3,4,5,6,7,8,9,10').split(',').map(Number),SHOP=(args[2]??'shop')==='shop';
 // tuning (this tree only): earlyrate= / rate= / early= set GOLD_PAY, crew= multiplies the crew orders' pay (ROLE_PAY)
 const OVER=Object.fromEntries(argv.filter(a=>a.includes('=')).map(a=>a.split('=')).map(([k,v])=>[k,+v]));
-if('earlyrate' in OVER)g.GOLD_PAY.earlyRate=OVER.earlyrate;if('rate' in OVER)g.GOLD_PAY.rate=OVER.rate;if('early' in OVER)g.GOLD_PAY.early=OVER.early;if('opening' in OVER)g.GOLD_PAY.opening=OVER.opening;if('openingrate' in OVER)g.GOLD_PAY.openingRate=OVER.openingrate;
+if('earlyrate' in OVER)g.GOLD_PAY.earlyRate=OVER.earlyrate;if('mid' in OVER)g.GOLD_PAY.mid=OVER.mid;if('midrate' in OVER)g.GOLD_PAY.midRate=OVER.midrate;if('rate' in OVER)g.GOLD_PAY.rate=OVER.rate;if('early' in OVER)g.GOLD_PAY.early=OVER.early;if('opening' in OVER)g.GOLD_PAY.opening=OVER.opening;if('openingrate' in OVER)g.GOLD_PAY.openingRate=OVER.openingrate;
 if('goal' in OVER)g.SECONDARY_ORDERS.goal=OVER.goal;
 if('crew' in OVER)for(const k of Object.keys(g.ROLE_PAY))g.ROLE_PAY[k]*=OVER.crew;
 // crateold=1: the 51d crate contents (v5/kits.mjs KIT_DROPS) in this tree, to tell the crates apart from the rest

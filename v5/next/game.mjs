@@ -408,10 +408,19 @@ export const partValue=r=>isSecondary(r.family)?RARE_COINS[Math.min(RARE_COINS.l
 // its build in Chapter 1 1.7/2.5/4.1/4.2 min (was 2.2/2.8/4.7/5.6), stages short of coins 49-51 % (51-53 %); the
 // first six stages still take 4 crew orders (77 % gold) and the first 15 minutes keep 4/3/3/2 restorations.
 // 1.0 for stages 2-6 cut the wait to 1-2 min but gave gold 94 % of the first six stages' coins again.
-export const GOLD_PAY={rate:1.1,early:4,earlyRate:0.9,opening:1,openingRate:1.5};
+// 52A player feedback: a gold-first player (tests/v5-next-goldfirst-policy.mjs) still built the first six stages
+// on gold coins (crew orders 21-23 % of their coins: the guide's three and one more). A gold order is priced when
+// it is made, a stage ahead, and its coins paid for the stage waiting for them. Gold orders made while 2-5 stages
+// are built (`mid`, midRate) now pay 0.6 of their parts' worth; the first two keep theirs, so the first 15 minutes
+// keep their restorations. Measured (tests/v5-next-goldfirst-metrics.mjs, 4/5/8/10 s, 10 seeds): crew orders 27-30 %
+// of a gold-first player's coins over the first six stages, 47-50 % over Chapter 1. Tried and dropped: lower rates
+// for stages 2-3 (the 7-8 s player had two restorations in 15 minutes; the floor is 3); 0.5 (the rare-demand and
+// low-energy guards); holding the next gold order back while a stage waits for coins (the Survey Kite 2-6 minutes
+// later and, held all Chapter 1, energy starvation; held for the opening only, no gain).
+export const GOLD_PAY={rate:1.1,early:2,earlyRate:0.9,opening:1,openingRate:1.5,mid:6,midRate:0.6};
 export const priceOf=(needs,story=false)=>{const v=needs.reduce((v,r)=>v+r.count*partValue(r),0);return story?Math.round(v*1.5/5)*5:v;};
 // what a gold order pays, by the stages built so far
-export const goldRate=s=>{const n=totalBuilt(s);return n<GOLD_PAY.opening?GOLD_PAY.openingRate:n<GOLD_PAY.early?GOLD_PAY.earlyRate:GOLD_PAY.rate;};
+export const goldRate=s=>{const n=totalBuilt(s);return n<GOLD_PAY.opening?GOLD_PAY.openingRate:n<GOLD_PAY.early?GOLD_PAY.earlyRate:n<GOLD_PAY.mid?GOLD_PAY.midRate:GOLD_PAY.rate;};
 export const goldPrice=(s,needs)=>{const v=needs.reduce((v,r)=>v+r.count*partValue(r),0);return Math.round(v*goldRate(s)/5)*5;};
 // The second part of an order comes from another open chain, chosen evenly by the order's own
 // seed (build 41: it was always the first open chain, so Rivet Rover filled most second parts).

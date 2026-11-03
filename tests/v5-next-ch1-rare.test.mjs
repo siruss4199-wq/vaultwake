@@ -10,14 +10,19 @@ import {fresh,load,act,item,upgrades,stageOf,areaDone,totalBuilt,storyTarget,sec
 import {AREAS,TASKS} from '../v5/next/areas.mjs';
 import {CHAINS} from '../v5/next/chains.mjs';
 
-const CH1=AREAS.slice(0,3),RARE=[['beach-pier',2,'mech',1],['beach-cliff',3,'notes',1],['ws-scope',3,'notes',2],['ws-hoist',2,'mech',1],['ws-door',3,'notes',1],['vault-door',2,'mech',2]];
-const ok=(s,a,now=1000)=>{const r=act(s,a,now);assert.ok(r.ok,JSON.stringify(a)+' '+r.message);return r;};
+const CH1=AREAS.slice(0,3),RARE=[['beach-path',3,'mech',1],['beach-pier',2,'mech',1],['beach-cliff',3,'notes',1],['ws-scope',3,'notes',2],['ws-hoist',2,'mech',1],['ws-door',3,'notes',1],['vault-door',2,'mech',2]];
+// Build 52A player feedback: whether a gold order's rare chain could drop is read when the order is made (as
+// makeOrder does); a player may merge a generator copy after that (the boardwalk's Rover arrives with the build
+// that makes the next gold order), and the order stays as issued.
+const born=new WeakMap();
+const note=s=>{for(const o of s.orders)if(o?.story&&!born.has(o)){const t=TASKS[o.story],rare=t.stages[stageOf(s,o.story)]?.rare;born.set(o,rare?secondaryCanDrop(s,rare[0]):null);}};
+const ok=(s,a,now=1000)=>{const r=act(s,a,now);assert.ok(r.ok,JSON.stringify(a)+' '+r.message);note(s);return r;};
 const free=s=>s.board.reduce((a,x,i)=>x===null||x.type==='cargo'?[...a,i]:a,[]);
 const rareOf=(id,n)=>TASKS[id].stages[n-1].rare;
 // The gold order comes as the game makes it: into a crew order's lane when that order is done (makeOrder).
 // A save's gold order replaced by an ordinary crew order (a lane is never empty in a save).
 const noGold=s=>{let k=900;s.orders=s.orders.map(o=>o?.story?{...s.orders.find(x=>x&&!x.story),id:'o'+(k++)}:o);};
-const goldUp=s=>{let o=s.orders.find(x=>x?.story);if(!o){const k=s.orders.findIndex(x=>!x?.story);s.orders[k]=null;s.orders[k]=makeOrder(s);o=s.orders.find(x=>x?.story);}return o;};
+const goldUp=s=>{let o=s.orders.find(x=>x?.story);if(!o){const k=s.orders.findIndex(x=>!x?.story);s.orders[k]=null;s.orders[k]=makeOrder(s);note(s);o=s.orders.find(x=>x?.story);}return o;};
 // Merges every pair of same-level generators on the board (what the game's hints ask for), until none is left.
 function mergeCopies(s){for(let go=true;go;){go=false;for(let i=0;i<s.board.length&&!go;i++)for(let j=0;j<s.board.length&&!go;j++)if(i!==j&&generatorsMerge(s.board[i],s.board[j])){ok(s,{type:'merge',from:j,to:i});go=true;}}}
 // One random route through Chapter 1: after every build, aim at a random open stage (sometimes), deliver its gold
@@ -35,7 +40,7 @@ function playChapter1(seed,{merge}){
    const rare=rareOf(u.id,u.stage),asks=o.needs.find(n=>isSecondary(n.family));
    // a rare part is asked only while its chain can drop, and then exactly the authored part
    if(asks){assert.ok(rare,`${u.id} ${u.stage} asks a rare part it does not name`);assert.deepEqual([asks.family,asks.tier,asks.count],[...rare,1]);assert.ok(secondaryCanDrop(s,asks.family),`${u.id} ${u.stage}: its chain can drop`);}
-   else if(rare&&TASKS[u.id].area!=='harbour')assert.ok(!secondaryCanDrop(s,rare[0]),`${u.id} ${u.stage}: its rare part is skipped only when its chain cannot drop`);
+   else if(rare&&TASKS[u.id].area!=='harbour')assert.ok(!(born.get(o)??secondaryCanDrop(s,rare[0])),`${u.id} ${u.stage}: its rare part is skipped only when its chain cannot drop`);
    log.push({id:u.id,n:u.stage,rare:!!asks,others:open.length,aimed});
    for(const x of s.board.map((x,i)=>x&&x.type!=='source'&&x.type!=='glass'&&x.type!=='cargo'?i:-1).filter(i=>i>=0&&free(s).length<6))s.board[x]=null;
    for(const x of s.board.map((x,i)=>x?.type==='source'?i:-1).filter(i=>i>=0&&free(s).length<6&&s.board.filter(y=>y?.type==='source'&&y.id===s.board[i].id).length>1))s.board[x]=null;
@@ -46,13 +51,16 @@ function playChapter1(seed,{merge}){
  return {s,log};
 }
 
-test('six Chapter 1 stages name a fixed merged rare part, matched to the repair: Gears for machinery, notes for surveying', ()=>{
+test('seven Chapter 1 stages name a fixed merged rare part, matched to the repair: Gears for machinery, notes for surveying', ()=>{
  const ch1=CH1.flatMap(a=>a.tasks.flatMap(t=>t.stages.map((st,k)=>st.rare?[t.id,k+1,...st.rare]:null))).filter(Boolean);
  assert.deepEqual(ch1,RARE);assert.equal(CH1.reduce((n,a)=>n+a.tasks.length*3,0),45);
  for(const [id,n,f,tier] of ch1){assert.ok(CHAINS[f].secondary&&tier>=1,'never a single Bolt or a note fragment');
   const st=TASKS[id].stages[n-1];assert.ok(!st.gold||st.gold.length===2,'replaces one material, no third');
-  assert.notEqual(st.effect.copy,CHAINS[f].gen,'never the copy of the generator its chain needs');}
- // the first Gear is on the beach, the first note after it; Gear assembly and Travel notebook come later
+  // (the path's lanterns give a Rover copy, but their Gear needs the Level 2 Rover the boardwalk's copy made;
+  // the lanterns' copy is the one toward Level 3 and the Survey Kite)
+  if(!(id==='beach-path'&&n===3))assert.notEqual(st.effect.copy,CHAINS[f].gen,'never the copy of the generator its chain needs');}
+ assert.equal(TASKS['beach-path'].stages[1].effect.copy,'rig','the boardwalk before it gives the Rover copy that opens Gears');
+ // the first Gears are on the beach (the path's lanterns, the pier's crane), the first note after them; Gear assembly and Travel notebook come later
  assert.equal(TASKS['beach-pier'].area,'beach');assert.equal(TASKS['beach-cliff'].area,'beach');
 });
 

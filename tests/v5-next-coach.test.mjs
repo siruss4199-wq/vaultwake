@@ -103,6 +103,6 @@ test('later mechanics: a generator merge tip only with a matching copy on the bo
  s.seen['tip-genmerge']=true;assert.equal(laterTip(s),null);
  // during the first loop's guide, no later tip
  const g=fresh(0);g.board[22]=source('rig');assert.equal(laterTip(g),null);
- assert.equal(nextRareUse(fresh(0),'mech').name,'Add a cargo crane');
+ assert.equal(nextRareUse(fresh(0),'mech').name,'Line the path with lanterns');
  const late=fresh(0);late.area=7;for(const id of Object.keys(TASKS))late.built[id]=3;assert.equal(nextRareUse(late,'mech'),null,'nothing promised when nothing asks');
 });

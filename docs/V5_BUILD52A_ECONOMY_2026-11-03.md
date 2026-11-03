@@ -167,3 +167,117 @@ The Help dialog (`v5/play.html`, and the generated `v5/coast-crazygames.html`) n
   +1 ϟ;
 - Clear gives no energy for Lv1–3 or rare parts, and +1 ϟ from Lv4;
 - crates hold better parts as they grow: driftwood Lv1–2, sea chest Lv2–3, captain's trunk Lv2–4 and a rare extra.
+
+## Player feedback (Build 52A2)
+Two reports from play:
+- **Coins too easy:** a gold-first player progressed without needing crew orders.
+- **The first rare gold order came too late:** it appeared only after the Survey Kite.
+
+No new system, currency, generator or save field.
+
+### What changed
+| File | Change |
+|---|---|
+| `v5/next/game.mjs` | Gold orders made while 2-5 stages are built pay 0.6 of their parts' worth (`GOLD_PAY.mid` 6, `midRate` 0.6). The first stage (1.5, the guide's 70) and the second (0.9) are unchanged, and so is the rate from 6 stages on (1.1). |
+| `v5/next/areas.mjs` | The path's lanterns (beach path stage 3) name a Gear (`rare: ['mech', 1]`), using the existing 48c rule: it is asked only when a Level 2+ Rover is out, otherwise the usual materials. Its first line now mentions geared lanterns. |
+| `v5/play.html` (+ the generated CrazyGames page) | Help says some stages ask a merged extra (the first, a Gear for the lanterns) and that it comes within 8 taps while missing (the existing goldPity). |
+| `v5/next/app.mjs` | Build label 52A2. |
+
+### Root causes
+1. **The next gold order pays for the stage waiting for coins.**
+   - A gold order is priced when it is made, one stage ahead.
+   - In the opening it pays about the stage's whole cost: for example, the lanterns' gold order paid 90-120 against a cost of 100.
+   - Its coins came in while the previous stage waited for coins. A gold-first player was therefore always one gold order ahead and never short.
+2. **The crew orders a gold-first player delivered early were the guide's three, plus leftovers.**
+   - Over the first six stages, those orders were 21-23 % of their coins (scripted gold-first player: `tests/v5-next-goldfirst-policy.mjs`).
+3. **The first Level 2 rare gold order was the pier's crane.**
+   - That is stage 11-13, 30-80 minutes in, always after the Kite (stage 5).
+   - No stage between Rover Level 2 (the boardwalk's copy) and Level 3 asked a rare part.
+
+### Gold-first player, before (52A) and after (52A2)
+Fresh camps, no shop, Chapter 1. Medians over 10 seeds at 4 / 5 / 8 / 10 s per action, from `tests/v5-next-goldfirst-metrics.mjs` (`ROOT=` for 52A).
+
+Two gold-first players were measured:
+- **strict:** delivers crew orders only when coins are short or the board is nearly full;
+- **opportunist:** also delivers a crew order whose parts happen to be on the board, keeping the gold order's parts.
+
+| | 52A | 52A2 |
+|---|---|---|
+| Crew orders' share of coins, first six stages: strict | 21.5 % (4 orders) | 26.6 % |
+| The same, opportunist | 22.9 % (7) | 26.7 / 26.7 / 30.4 / 30.4 % (7-8) |
+| Crew orders' share of coins, Chapter 1 | 46-51 % | 47-52 % |
+| Stages short of coins when their materials come in, Chapter 1 | 40-60 % | 47-69 % |
+| Median wait, materials to build, Chapter 1 (min) | 0-6.0 | 1.7-7.4 |
+| Chapter 1 (min): strict | 110 / 140 / 226 / 283 | 117 / 146 / 224 / 296 |
+| Chapter 1 (min): opportunist | 183* / 146 / 234 / 296 | 116 / 142 / 246 / 302 |
+| Energy starvation (min) | *68 at 4 s (the opportunist; one seed 40 min) | 0-0.1 |
+| First rare gold order (min) | 31-84 (the pier's crane), after the Kite | 5.5-14.9 (the lanterns' Gear), before the Kite in every run |
+| Survey Kite (min) | 12.8-37.6 | 13.3-38.1 |
+
+From a saved camp (played normally to 10 stages, then gold-first): Chapter 1 crew share 48-51 % (52A: 47-49 %), no starvation.
+
+### Ordinary scripted player
+Shop on, 10 seeds; `tests/v5-next-economy52-metrics.mjs` and `tests/v5-next-economy-sim.mjs`.
+
+| | 52A | 52A2 |
+|---|---|---|
+| Gold's share, first six stages | 77 % (4 crew orders) | 68 % (4) |
+| Gold's share, whole game | 38 % | 38 % |
+| First Level 2 rare gold order (min) | 31 / 39 / 62 / 78 (crane) | **6.7 / 8.4 / 13.5 / 16.9 (lanterns)** |
+| First Level 3 rare gold order (min) | 65 / 85 / 136 / 169 | 69 / 87 / 142 / 177 |
+| Survey Kite, latest of the seeds (min; guard 4.25 × s/action) | 16.0 / 20.0 / 32.0 / 40.0 | 16.6 / 20.7 / 33.2 / 41.5 |
+| Restorations in the first 15 minutes (lowest seed) | 4 / 3 / 3 / 2 | 4 / 3 / 3 / 2 |
+| Whole game (min) | 340 / 429 / 668 / 857 | 361 / 427 / 677 / 847 |
+| Rare stage falling back, rare chain not droppable, full-board deadlocks, Level 1 re-asks | 0 | 0 |
+
+### The lanterns' Gear
+- **When it is asked:** after the boardwalk's Rover copy has been merged (Level 2), as the stage's gold order.
+- **Before the Kite:** the stage's own copy is the one that later brings the Rover to Level 3, which brings out the Kite.
+- **Stage list test:** the 48c rule that a rare stage never gives the copy of its chain's generator does not apply here. The Gear needs the Level 2 the boardwalk made, not this stage's copy. The stage-list tests name this exception.
+- **Order is out (min, 10 seeds):**
+
+  | Player | With the Gear | The stage's old order |
+  |---|---|---|
+  | Scripted player | 2.5-6.7 | 2.6-6.8 |
+  | Strict gold-first | 3.0-8.3 | 2.2-9.2 |
+  | Opportunist | 3.8-12.1 | 3.2-8.4 |
+
+- **Why the opportunist is slower:** the order keeps the stage's four Level 4 parts, and a crew order wanting a Gear takes the first one.
+- **Rover taps:** at most 32 while the order is up.
+- **Drop guarantee:** each Bolt drops within 8 eligible taps (goldPity, unchanged).
+- **No rare gold order right after it:** the next rare one, the pier's crane, comes stages later. The 52A rule against consecutive difficult rare gold orders still holds.
+- **Not on luck:** a player without a Level 2 Rover gets the usual materials.
+- **Saves:** a lanterns order saved before this build keeps its recipe and coins. The Gear comes with the next one made.
+- **Why not the earlier stall:** the 51d attempt walled the session. Here the guarantee (goldPity 8) and 52A's crew Gear orders keep it short. The stage's wait is unchanged for the ordinary player.
+
+### Tried and dropped
+- **Lower rates for stages 2-3 (0.6-0.75):** gave the 7-8 s player two restorations in 15 minutes (the floor is 3).
+- **Rates 0.5-0.55 and a 2-4 stage band:** failed the existing rare-demand test (a single seeded run, which swings 18-23 % with any gold change; the floor is 22 %) or the low-energy free-move test.
+- **Holding the next gold order back while a stage waits for coins:**
+  - held through Chapter 1: the Kite came 2-6 minutes later, and the gold-first player starved of energy late in the chapter;
+  - held for the first six stages only: no gain.
+- **A higher crew-order floor while only the Rover is out:** no measurable change.
+- **The Gear on the camp tent (stage 3):** the Rover was not yet Level 2 when its gold order was made, so it fell back to its usual materials.
+- **The Gear on the bunks (tent stage 2):** put the Kite 9-24 minutes later.
+
+### Limits
+- The opening's crew share rises from about 22 % to 27-30 %, not to half.
+- More would need gold orders to pay much less than a stage's cost in the first stages. That costs the first 15 minutes' restorations or the Kite's time.
+- That trade-off is a design call: price gold orders as a share of the stage cost, or accept slower early restorations.
+
+### Tests
+- **`tests/v5-next-build52a-feedback.test.mjs` (new, 6 tests):**
+  - fresh and saved gold-first play: crew orders at least 24 % of the first six stages' coins and 40 % of Chapter 1's;
+  - the first rare gold order is the lanterns' Gear, after Rover Level 2 and before the Kite, not followed by another;
+  - the Gear order: at most 1.3 min per s/action and 40 Rover taps;
+  - no starvation or long idle;
+  - saves and the guide's 70.
+  
+  On 52A it fails 5 of 6 (22 % and 21 % crew share, no early Gear, 40 min without energy).
+- **Updated tests:**
+  - `v5-next-build52a` and `v5-next-rare-merges` (the gold rates);
+  - `v5-next-ch1-rare` (seven Chapter 1 rare stages; whether a stage's rare part could drop is now read when its gold order is made);
+  - `v5-next-coach` (the next Gear use is the lanterns).
+- **New tools:**
+  - `tests/v5-next-goldfirst-policy.mjs` (the gold-first player);
+  - `tests/v5-next-goldfirst-metrics.mjs` (coins by source, waits, the first rare gold order against the Kite; `OPP=1`, `fresh|save`, `GOLD=` overrides).

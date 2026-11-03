@@ -97,10 +97,13 @@ test('Clear: no energy back for Levels 1-3 or any rare part, +1 at most from Lev
 });
 
 test('coins: gold orders bring the materials and less of the coins; crew orders are the main source; the tutorial\'s first gold order still pays 70', ()=>{
- assert.deepEqual(GOLD_PAY,{rate:1.1,early:4,earlyRate:0.9,opening:1,openingRate:1.5});assert.deepEqual(ROLE_PAY,{quick:1.15,pair:1.32});
+ assert.deepEqual(GOLD_PAY,{rate:1.1,early:2,earlyRate:0.9,opening:1,openingRate:1.5,mid:6,midRate:0.6});assert.deepEqual(ROLE_PAY,{quick:1.15,pair:1.32});
  // the guide's first gold order (1 Pocket winch + 2 Split spanners) is priced at the opening rate: 70, as in 51d
  assert.equal(g.goldPrice(fresh(0),[{family:'rig',tier:3,count:1},{family:'rig',tier:2,count:2}]),70);
  const second=fresh(0);second.built={'beach-path':1};assert.equal(g.goldPrice(second,[{family:'rig',tier:3,count:1},{family:'rig',tier:2,count:2}]),40,'stage 2: ×0.9');
+ // player feedback: gold orders made with 2-5 stages built pay 0.6 of their parts' worth, then 1.1
+ const mid=fresh(0);mid.built={'beach-path':2};assert.equal(g.goldPrice(mid,[{family:'rig',tier:3,count:1},{family:'rig',tier:2,count:2}]),25,'2 stages built: ×0.6');
+ mid.built={'beach-path':3,'beach-tent':3};assert.equal(g.goldPrice(mid,[{family:'rig',tier:3,count:1},{family:'rig',tier:2,count:2}]),50,'6 stages built: ×1.1');
  for(const r of runs){
   const f6=r.first6.gold/(r.first6.gold+r.first6.crew),all=r.coins.gold/(r.coins.gold+r.coins.crew);
   assert.ok(r.first6.crewOrders>=3,`crew orders in the first six stages: ${r.first6.crewOrders}`);
