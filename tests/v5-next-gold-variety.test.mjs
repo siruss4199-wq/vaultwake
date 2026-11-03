@@ -33,7 +33,7 @@ test('a new camp: the first gold order is unchanged, and no two gold orders in a
    for(const o of s.orders)if(o?.story&&!seen.has(o.id)){seen.add(o.id);golds++;
     const st=TASKS[o.story].stages[(s.built[o.story]??0)];
     if(golds===1){assert.equal(key(o.needs),'1xrig3+2xrig2');assert.equal(o.coins,70);}
-    assert.equal(o.coins,goldPrice(s,o.needs),'the pay follows what is asked');
+    assert.equal(o.coins,goldPrice(s,o.needs,st),'Gold cash follows the restoration cost, not the ingredients');
     // stages with their own recipe or a rare part are not shaped
     if(!st.gold&&!st.rare&&last&&key(o.needs)===last)same++;
     last=st.gold||st.rare?null:key(o.needs);}
