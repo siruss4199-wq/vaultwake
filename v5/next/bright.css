@@ -204,14 +204,15 @@ body.nextMode #coinPill.bump{animation:bcCoinBump .45s cubic-bezier(.2,1.6,.4,1)
 #coastMap.beachScreen{background:linear-gradient(#bfeafc 0,#e6f7fd 240px,#fbf1dd 240px)}
 #coastMap .beachTop .mapTitle{color:var(--bc-ink);text-shadow:none}
 #coastMap .close{background:#ffffffd9;color:var(--bc-ink);border:0;box-shadow:0 2px 6px #1f5b6a33}
-.journey{list-style:none;display:flex;gap:4px;margin:0 10px 8px;padding:0;overflow:hidden}
-.journey li{flex:1;min-width:0;display:flex;align-items:center;gap:4px;padding:3px 6px 3px 3px;border-radius:999px;background:#ffffffc7;font-size:10px;font-weight:800;color:var(--bc-ink2);position:relative}
+.journey{list-style:none;display:flex;gap:7px;margin:0 10px 8px;padding:3px 2px 6px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;overscroll-behavior-x:contain;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+.journey::-webkit-scrollbar{display:none}
+.journey li{flex:0 0 auto;min-width:100px;max-width:none;display:flex;align-items:center;gap:6px;padding:3px 12px 3px 3px;border-radius:999px;background:#ffffffc7;font-size:11px;font-weight:800;color:var(--bc-ink2);position:relative;scroll-snap-align:center}
 .journey li img{flex:none;width:22px;height:22px;border-radius:50%;object-fit:cover}
-.journey li span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.journey li span{white-space:nowrap;overflow:visible;text-overflow:clip;letter-spacing:.2px}
 .journey li.done{background:#dcf6ec;color:#1f6e57}
-.journey li.here{background:#fff;color:var(--bc-ink);box-shadow:0 0 0 2px var(--bc-sea2)}
+.journey li.here{background:#fff;color:var(--bc-ink);box-shadow:inset 0 0 0 2px var(--bc-sea2)}
 .journey li.later img{filter:grayscale(.7) brightness(.95)}
-.journey li.vault{background:linear-gradient(#fff7dc,#ffe9a8);color:#7a4a06;box-shadow:0 0 0 1.5px #f5c24e}
+.journey li.vault{background:linear-gradient(#fff7dc,#ffe9a8);color:#7a4a06;box-shadow:inset 0 0 0 1.5px #f5c24e}
 .journey li.vault img{filter:none}
 @media(prefers-reduced-motion:no-preference){
  #coastMap .beachScene.focusIn>*{transform-origin:var(--fx,50%) var(--fy,50%);animation:bcFocus 1.1s cubic-bezier(.3,.6,.2,1) both}
