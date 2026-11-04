@@ -22,6 +22,8 @@ jobs:
         run: |
           python3 -m http.server 8080 > /tmp/coast-http.log 2>&1 &
           sleep 1
+      - name: Chapter journey labels and mobile scrolling
+        run: node tests/v5-next-journey-browser.cjs
       - name: Opening guide, mobile layouts, first merges
         run: node tests/v5-next-guide-browser.cjs
       - name: Chapter 1 rare Gold and restoration
