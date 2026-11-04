@@ -37,7 +37,7 @@ const KEY='vaultwake-v5-coast',URL='http://127.0.0.1:8080/v5/play.html';
    {const {context,page,errors,read,fixture}=await open({full:true});
     await page.locator('#energyPill').click();assert.equal(await page.locator('[data-ad]').count(),0,'no ads in the opening tutorial');await page.locator('#shop .close').click();
     await fixture();const earlier=await page.evaluate(k=>localStorage.getItem(k),KEY);await page.locator('#energyPill').click();
-    const watch=async()=>{await page.locator('[data-ad="adEnergy"]').click();await page.waitForFunction(()=>window.__ads.length>0);};
+    const watch=async()=>{const before=await page.evaluate(()=>__ads.length);await page.locator('[data-ad="adEnergy"]').click();await page.waitForFunction(n=>window.__ads.length===n+1,before);};
     await watch();await page.locator('[data-ad="adEnergy"]').evaluate(b=>b.click());assert.equal(await page.evaluate(()=>__ads.length),1);
     await page.evaluate(()=>{__ads.at(-1).adFinished();__ads.at(-1).adFinished();});
     await page.waitForFunction(k=>JSON.parse(localStorage.getItem(k)).energy===35,KEY);assert.equal((await read()).shop.bought.adEnergy,1);
