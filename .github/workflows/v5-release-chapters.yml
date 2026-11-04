@@ -1,7 +1,13 @@
 name: Vaultwake release chapter QA
 on:
   push:
+    branches: [codex/v5-order-economy-recipe-fix, codex/v5-release-qa]
+  pull_request:
     branches: [codex/v5-order-economy-recipe-fix]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -18,6 +24,8 @@ jobs:
         chapter: [2, 3, 4, 5, 6]
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -37,6 +45,8 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -54,3 +64,36 @@ jobs:
           node tests/v5-next-story-browser.cjs
           node tests/v5-next-rewards-browser.cjs
           node tests/v5-next-playtest-browser.cjs
+
+  classic-compatibility:
+    name: Classic legacy browser QA (Chromium and WebKit)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium and WebKit
+        run: npm install --no-save playwright@1.62.1 && npx playwright install --with-deps chromium webkit
+      - name: Start Classic test server
+        run: |
+          python3 -m http.server 8080 > /tmp/classic-http.log 2>&1 &
+          sleep 1
+      - name: Wide-font high-energy phone header regression
+        run: node tools/run-browser-qa.mjs tests/v5-legacy-layout-browser.cjs
+      - name: Run unchanged Classic camp assertions
+        if: ${{ !cancelled() }}
+        run: node tools/run-browser-qa.mjs tests/v5-camp-browser.cjs
+      - name: Run unchanged Classic coastal Chromium assertions
+        if: ${{ !cancelled() }}
+        env:
+          COASTAL_ENGINE: chromium
+        run: node tools/run-browser-qa.mjs tests/v5-coastal-browser.cjs
+      - name: Run unchanged Classic coastal WebKit assertions
+        if: ${{ !cancelled() }}
+        env:
+          COASTAL_ENGINE: webkit
+        run: node tools/run-browser-qa.mjs tests/v5-coastal-browser.cjs

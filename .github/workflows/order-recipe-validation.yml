@@ -1,7 +1,13 @@
 name: Coast order recipe validation
 on:
   push:
+    branches: [codex/v5-order-economy-recipe-fix, codex/v5-release-qa]
+  pull_request:
     branches: [codex/v5-order-economy-recipe-fix]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -13,6 +19,8 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-node@v4
         with:
           node-version: '22'

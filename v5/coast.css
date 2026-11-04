@@ -43,6 +43,10 @@
 .levelPill b{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#0f6f6a;color:#fff;font-size:13px}
 header .merit{display:none}
 @media(max-width:400px){header .brand b{font-size:15px;letter-spacing:.6px}header{gap:6px}}
+/* Wide system fonts and three-digit earned energy must leave both 44px
+   navigation buttons on screen on narrow phones. Compact the resource chrome,
+   keeping the title and controls fully visible instead of clipping overflow. */
+@media(max-width:375px){body:not(.nextMode) header{gap:4px}body:not(.nextMode) header .resource{gap:4px;padding:6px 5px;font-size:14px}}
 @media(prefers-reduced-motion:no-preference){.levelPill.levelUp{animation:levelPop 1.2s ease-out}@keyframes levelPop{20%{transform:scale(1.2);box-shadow:0 0 0 6px #f5aa4366}100%{transform:none}}}
 /* Energy refill clock under the energy number. */
 .resource{position:relative;cursor:pointer}

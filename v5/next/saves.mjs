@@ -40,7 +40,12 @@ export const isKeptKey=k=>KEPT.test(k);
 // The first free key of a kind ('damaged' or 'kept'): -kind, then -kind-2 … -kind-9, then one named by the time.
 export function freeKey(kind,get,now){
  const keys=[`${SAVE_KEY}-${kind}`,...Array.from({length:8},(_,i)=>`${SAVE_KEY}-${kind}-${i+2}`)];
- return keys.find(k=>get(k)===null)??`${SAVE_KEY}-${kind}-${now}`;
+ const free=keys.find(k=>get(k)===null);if(free)return free;
+ // Two backups can share a clock value, and the system clock can move backwards.
+ // Check timestamp keys too so keeping a camp never replaces an older backup.
+ let suffix=now,key;
+ do{key=`${SAVE_KEY}-${kind}-${suffix++}`;}while(get(key)!==null);
+ return key;
 }
 // Every kept camp this build can read, newest first, one per distinct save, leaving out a copy of the
 // current save (raw). Each: {key, state, when (the camp's last action), label}.

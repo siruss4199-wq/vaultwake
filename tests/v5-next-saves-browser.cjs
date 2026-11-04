@@ -27,6 +27,9 @@ async function skipStory(page){await page.waitForFunction(()=>document.querySele
   try{
    const open=async(seed,url='play.html')=>{const context=await browser.newContext({viewport:{width:390,height:844},hasTouch:true});
     const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());
+    // Returning-save fixtures can offer today's gift once play resumes. Dismiss it
+    // with its real close control before continuing the save-recovery journey.
+    await page.addLocatorHandler(page.locator('#daily[open]'),()=>page.locator('#daily .close').click());
     await page.goto(BASE+'play.html');await page.evaluate(seed=>{localStorage.clear();for(const [k,v] of Object.entries(seed))localStorage.setItem(k,v);},seed);
     if(url!=='play.html')await page.goto(BASE+url);else await page.reload();await homeUsable(page);return {context,page,errors};};
 
@@ -69,7 +72,21 @@ async function skipStory(page){await page.waitForFunction(()=>document.querySele
     await page.evaluate(()=>document.querySelectorAll('dialog[open]').forEach(d=>d.close()));
     await page.locator('#menuButton').click();assert.equal(await page.locator('#keptButton').textContent(),'Kept camps (1)');
     assert.deepEqual(errors,[]);await context.close();}
-   console.log(`${engine} Coast Camp saves: newer save said and kept, damaged kept, kept camp restored (round trip), ?new=1 and start-again keep the camp passed`);
+   // 6. More than nine kept camps, with a backup already named by this clock value:
+   // starting again must retain every older copy and put the replaced camp under a free key.
+   {const now=1793770000000,seed={[KEY]:PILOT,[KEY+'-kept']:'older camp 1'};
+    for(let i=2;i<=9;i++)seed[`${KEY}-kept-${i}`]='older camp '+i;
+    seed[`${KEY}-kept-${now}`]='older camp at this clock value';
+    const {context,page,errors}=await open(seed),replaced=(await all(page))[KEY];
+    await context.addInitScript(now=>{Date.now=()=>now;},now);
+    await page.goto(BASE+'play.html?new=1');await homeUsable(page);
+    await page.locator('#homePlay').click();await skipStory(page);await page.waitForSelector('#home',{state:'hidden'});
+    const after=await all(page);
+    for(const [key,raw] of Object.entries(seed))if(key!==KEY)assert.equal(after[key],raw,'every older kept copy survives');
+    assert.equal(after[`${KEY}-kept-${now+1}`],replaced,'the replaced camp uses an unoccupied key');
+    assert.notEqual(after[KEY],replaced,'a new camp starts after preserving the old one');
+    assert.deepEqual(errors,[]);await context.close();}
+   console.log(`${engine} Coast Camp saves: newer/damaged save kept, restore round trip, new camp keeps progress, timestamp backup collision preserves every copy passed`);
   }finally{await browser.close();}
  }
 })().catch(e=>{console.error(e);process.exit(1);});

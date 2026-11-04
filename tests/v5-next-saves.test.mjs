@@ -51,7 +51,24 @@ test('kept camps: kept keys only, readable ones, one per save, not the current o
 test('freeKey never names a key already in use',()=>{
  const st=store();assert.equal(freeKey('kept',st.get,7),SAVE_KEY+'-kept');
  st.set(SAVE_KEY+'-kept','x');assert.equal(freeKey('kept',st.get,7),SAVE_KEY+'-kept-2');
- for(let i=2;i<=9;i++)st.set(`${SAVE_KEY}-kept-${i}`,'x');assert.equal(freeKey('kept',st.get,7),SAVE_KEY+'-kept-7','then one named by the time');
+ for(let i=2;i<=9;i++)st.set(`${SAVE_KEY}-kept-${i}`,'x');assert.equal(freeKey('kept',st.get,7),SAVE_KEY+'-kept-10','the clock suffix also skips occupied keys');
  assert.equal(freeKey('damaged',st.get,7),SAVE_KEY+'-damaged');
  assert.match(campLabel(fresh(0)),/Landing Beach · 0 of \d+ stages built/);
+});
+
+test('keeping more than nine camps never overwrites an occupied timestamp backup',()=>{
+ const now=1793770000000;
+ for(const kind of ['kept','damaged']){
+  const st=store({[`${SAVE_KEY}-${kind}`]:'first camp'});
+  for(let i=2;i<=9;i++)st.set(`${SAVE_KEY}-${kind}-${i}`,'camp '+i);
+  st.set(`${SAVE_KEY}-${kind}-${now}`,'earlier camp at this clock value');
+  st.set(`${SAVE_KEY}-${kind}-${now+1}`,'another earlier camp');
+  const before={...st.o},key=freeKey(kind,st.get,now);
+  assert.equal(st.get(key),null,'the chosen backup key is unused');
+  assert.ok(isKeptKey(key),'the backup remains discoverable in Kept camps');
+  st.set(key,'new camp');
+  for(const [oldKey,raw] of Object.entries(before))assert.equal(st.get(oldKey),raw,'kept copies stay intact');
+  const next=freeKey(kind,st.get,now);
+  assert.equal(st.get(next),null,'a repeated clock value still gets another unused key');
+ }
 });
