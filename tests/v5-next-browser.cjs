@@ -72,7 +72,7 @@ async function perform(page,a){
    await page.locator('#mapButton').tap();assert.equal(await page.locator('#coastMap .place').count(),7);
    // Build 41n: the beach's own painted map, places as layers on it, small markers with 44 px
    // targets, the places in one row and coming areas folded away.
-   assert.match(await page.locator('#coastMap .beachScene.mapped .sceneBase').getAttribute('src'),/landing-map\.webp$/);
+   assert.match(await page.locator('#coastMap .beachScene.mapped .sceneBase').getAttribute('src'),/landing-map-vault\.webp$/);
    for(const m of await page.locator('#coastMap .siteMarker').all()){const r=await m.boundingBox();assert.ok(r.width>=44&&r.height>=44,'marker touch target');}
    {const tops=new Set(await page.locator('#coastMap .places .place').evaluateAll(l=>l.map(e=>Math.round(e.getBoundingClientRect().top))));assert.equal(tops.size,1,'the places sit in one row');}
    // Build 47e: four after the beach (the worksite, the Vault Entrance, the Observatory, the Hidden Harbour);

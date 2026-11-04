@@ -1,0 +1,53 @@
+name: V5 Vault art QA
+# The Chapter 1 Vault entrance painted into the Landing Beach map (claude/v5-vault-art-integration):
+# landmark checks and the map-related browser tests in Chromium and WebKit, and before/after captures for review.
+on:
+  push:
+    branches: [claude/v5-vault-art-integration]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  vault-art:
+    name: Vault entrance (Chromium & WebKit)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium and WebKit
+        run: npm install --no-save playwright@1.62.1 && npx playwright install --with-deps chromium webkit
+      - name: Serve this branch (8080) and the base before the change (8081)
+        run: |
+          python3 -m http.server 8080 > /tmp/after-http.log 2>&1 &
+          mkdir -p /tmp/before && git archive b8c5246 v4 v5 | tar -x -C /tmp/before
+          (cd /tmp/before && python3 -m http.server 8081 > /tmp/before-http.log 2>&1 &)
+          sleep 1
+      - name: Chapter 1 Vault landmark (0/10/20 stages, 360/390/430)
+        run: node tests/v5-next-landmark-browser.cjs
+      - name: Coast map, opening guide and Chapter 1 restoration
+        if: ${{ !cancelled() }}
+        run: |
+          node tests/v5-next-guide-browser.cjs
+          node tests/v5-next-ch1-rare-browser.cjs
+      - name: Before and after captures
+        if: ${{ !cancelled() }}
+        run: |
+          PORT=8081 TAG=before OUT=vault-art-shots node tests/v5-next-vault-art-shots.cjs
+          PORT=8080 TAG=after OUT=vault-art-shots node tests/v5-next-vault-art-shots.cjs
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: vault-art-shots
+          path: vault-art-shots/
+          retention-days: 14
