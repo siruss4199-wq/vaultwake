@@ -1,6 +1,8 @@
 name: Vaultwake release chapter QA
 on:
   push:
+    branches: [codex/v5-order-economy-recipe-fix, codex/v5-release-qa]
+  pull_request:
     branches: [codex/v5-order-economy-recipe-fix]
 
 permissions:
@@ -54,3 +56,23 @@ jobs:
           node tests/v5-next-story-browser.cjs
           node tests/v5-next-rewards-browser.cjs
           node tests/v5-next-playtest-browser.cjs
+
+  classic-compatibility:
+    name: Classic legacy browser QA (Chromium and WebKit)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium and WebKit
+        run: npm install --no-save playwright@1.62.1 && npx playwright install --with-deps chromium webkit
+      - name: Run unchanged Classic camp assertions
+        run: |
+          python3 -m http.server 8080 > /tmp/classic-http.log 2>&1 &
+          sleep 1
+          node tests/v5-camp-browser.cjs
+      - name: Run unchanged Classic coastal assertions
+        if: ${{ !cancelled() }}
+        run: node tests/v5-coastal-browser.cjs

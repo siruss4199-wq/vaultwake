@@ -1,6 +1,8 @@
 name: Coast order recipe validation
 on:
   push:
+    branches: [codex/v5-order-economy-recipe-fix, codex/v5-release-qa]
+  pull_request:
     branches: [codex/v5-order-economy-recipe-fix]
 
 permissions:

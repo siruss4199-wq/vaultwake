@@ -23,7 +23,7 @@ import {CREW} from '../crew.mjs';
 import {reduced,burst,rewardFlight,moment as sharedMoment} from '../feedback.mjs';
 import {sfx as sounds} from './sfx.mjs';
 import {createHome} from './home.mjs';
-import {readSave,keptCamps,freeKey,isKeptKey} from './saves.mjs';
+import {readSave,keptCamps,freeKey,isKeptKey} from './saves.mjs?build=releaseqa54';
 import {playIntro,preloadIntro,storySeen,playScenes} from './story-intro.mjs';
 import {haptics} from './haptics.mjs';
 // The shared moment draws its icon with the Classic art; new chains need draw().
@@ -964,9 +964,6 @@ function showMap(){
   ${mapCard(area,focus,open.get(focus.id))}
   <ol class="places">${places}</ol>${before}${laterAreas.length?`<details class="mapFuture"><summary>Coming next · ${laterAreas.length} area${laterAreas.length>1?'s':''}</summary>${later}</details>`:''}
   <button class="backToBoard" type="button" data-back>Back to the board</button>`;
- // Centre the active chapter on first render without scrolling the page itself.
- {const strip=$('#coastMap .journey'),active=strip?.querySelector('[aria-current="step"]');
-  if(strip&&active)strip.scrollLeft=Math.max(0,active.offsetLeft-strip.offsetLeft-(strip.clientWidth-active.offsetWidth)/2);}
  // The place row scrolls sideways to keep the chosen place in view (Build 41n).
  {const row=$('#coastMap .places'),sel=row?.querySelector('.place.selected');if(sel)row.scrollLeft=Math.max(0,sel.offsetLeft-(row.clientWidth-sel.offsetWidth)/2);}
  // Opening plays the screen in (picture, pins, card, tiles); choosing another place swaps the card.
@@ -976,6 +973,10 @@ function showMap(){
  // Build 51c: the guide's build step points at the build button on the coast screen too
  let coachBuild=null;{const st=coachActive(state)?coachStep(state):null;if(st?.id==='build'){coachBuild=$(`#coastMap [data-restore="${FIRST_PLACE}"]`);coachBuild?.classList.add('coachTarget');coachBuild?.insertAdjacentHTML('beforeend',`<span class="coachHand" aria-hidden="true">${HAND_SVG}<span class="handLabel">Tap to build</span></span>`);$('#mapCard')?.insertAdjacentHTML('beforebegin','<p class="coachLine">Coins and materials are ready: build it here.</p>');}}
  if(opening)$('#coastMap').showModal();
+ // A closed dialog has no layout: center only after showModal gives the strip
+ // its real width and chapter positions. Scroll the strip, never the page.
+ {const strip=$('#coastMap .journey'),active=strip?.querySelector('[aria-current="step"]');
+  if(strip&&active)strip.scrollLeft=Math.max(0,active.offsetLeft-strip.offsetLeft-(strip.clientWidth-active.offsetWidth)/2);}
  // the guided build: the Build button comes into view by itself (a smooth scroll; at once with reduced motion)
  if(coachBuild)setTimeout(()=>coachBuild.isConnected&&coachBuild.scrollIntoView({block:'center',behavior:reduced()?'auto':'smooth'}),opening&&!reduced()?450:0);
  // Opening on a chosen place (the next-place chip, an upgrade hint): the picture starts close on

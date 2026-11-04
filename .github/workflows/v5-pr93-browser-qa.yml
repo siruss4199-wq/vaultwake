@@ -1,6 +1,8 @@
 name: V5 PR93 browser QA
 on:
   push:
+    branches: [codex/v5-order-economy-recipe-fix, codex/v5-release-qa]
+  pull_request:
     branches: [codex/v5-order-economy-recipe-fix]
 
 permissions:
@@ -24,6 +26,9 @@ jobs:
           sleep 1
       - name: Chapter journey labels and mobile scrolling
         run: node tests/v5-next-journey-browser.cjs
+      - name: Chapter 1 Vault landmark and late chapter centering
+        if: ${{ !cancelled() }}
+        run: node tests/v5-next-landmark-browser.cjs
       - name: Opening guide, mobile layouts, first merges
         run: node tests/v5-next-guide-browser.cjs
       - name: Chapter 1 rare Gold and restoration
