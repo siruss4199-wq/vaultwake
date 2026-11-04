@@ -23,13 +23,16 @@ const KEY='vaultwake-v5-coast',URL='http://127.0.0.1:8080/v5/play.html';
     await vault.locator('img').evaluate(img=>img.decode());
     const geometry=await vault.evaluate(e=>{
      const r=e.getBoundingClientRect(),s=e.closest('.beachScene').getBoundingClientRect();
-     return {w:r.width,h:r.height,inside:r.left>=s.left&&r.right<=s.right+1&&r.top>=s.top&&r.bottom<=s.bottom,
+     return {w:r.width,h:r.height,ratio:r.width/s.width,inside:r.left>=s.left&&r.right<=s.right+1&&r.top>=s.top&&r.bottom<=s.bottom,
       pointer:getComputedStyle(e).pointerEvents,animation:getComputedStyle(e.querySelector('i')).animationName,
+      shadow:getComputedStyle(e).filter,mask:getComputedStyle(e.querySelector('img')).maskImage,
       hidden:e.getAttribute('aria-hidden'),loaded:e.querySelector('img').naturalWidth>0,
       overflow:document.documentElement.scrollWidth>innerWidth+1};
     });
     assert.ok(geometry.w>=35&&geometry.h>=35,JSON.stringify({name,width,stages,geometry}));
     assert.equal(geometry.inside,true);assert.equal(geometry.loaded,true);
+    assert.ok(geometry.ratio<=.13,'Vault remains a small background landmark: '+JSON.stringify(geometry));
+    assert.ok(geometry.mask!=='none','Vault art edges blend into cliff');
     assert.equal(geometry.pointer,'none','decorative Vault cannot block building controls');
     assert.equal(geometry.hidden,'true');assert.equal(geometry.animation,'none');assert.equal(geometry.overflow,false);
     assert.equal(await page.locator('#coastMap .beachScene').getAttribute('data-built'),String(stages));
