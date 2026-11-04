@@ -80,12 +80,12 @@ test('coins upgrade each place in three stages; every stage gives a reward',()=>
   // Build 41g: stage and level energy top up to the refill cap and no further; energy pass (47v): the
   // cap is the player level's capacity, the first stage also gives +20 once, and a capacity milestone
   // its increase, both above the cap if need be.
-  if(t.id==='beach-path')assert.deepEqual(r.effects.boost,{kind:'stage',energy:20});else assert.equal(r.effects.boost,undefined,'the first-stage bonus comes once');
-  if(t.id==='beach-tent'){assert.equal(r.effects.energy,Math.max(0,Math.min(8,capBefore-e)));assert.equal(s.energy,e+r.effects.energy+chest);}
+  if(t.id==='beach-path')assert.deepEqual(r.effects.boost,{kind:'stage',energy:20});else if(totalBuilt(s)<=3)assert.deepEqual(r.effects.boost,{kind:'stage',milestone:totalBuilt(s),energy:10});else assert.equal(r.effects.boost,undefined,'no milestone after the third completed stage');
+  if(t.id==='beach-tent'){assert.equal(r.effects.energy,Math.min(8,200-e));assert.equal(s.energy,e+r.effects.energy+chest+boost);}
   if(t.id==='beach-mast'){assert.equal(s.slots,4);assert.equal(s.orders.length,4);}
   if(t.id==='beach-workshop'){assert.deepEqual(s.board[r.effects.copy],source('rig'),'a second Rivet Rover');const m=ok(s,{type:'merge',from:r.effects.copy,to:ROVER});assert.equal(s.board[ROVER].level,2);assert.equal(m.released,undefined,'level 2 is not yet enough for the Kite');}
   if(t.id==='beach-pier')assert.deepEqual(s.board[r.effects.kit],kit('rig',2),'a sea chest for the newest generator (still Rover here)');
-  if(t.id==='beach-beacon'){assert.equal(r.effects.energy,Math.max(0,Math.min(10,capBefore-e)));assert.equal(s.energy,e+r.effects.energy+chest+boost);}
+  if(t.id==='beach-beacon'){assert.equal(r.effects.energy,Math.min(10,200-e));assert.equal(s.energy,e+r.effects.energy+chest+boost);}
   assert.equal(s.board.filter(x=>x?.type==='cargo').length,27,'upgrades never open cargo');
  }
  // Later stages follow, in any order; the cheapest open one is the next.
@@ -158,9 +158,9 @@ test('levels give energy, no crate',()=>{
  const s=camp();s.level.xp=19;const e=s.energy,r=ok(s,{type:'merge',from:14,to:16});
  assert.equal(r.levelUp[0].level,2);assert.equal(r.levelUp[0].family,null);assert.ok(!s.board.some(x=>x?.type==='kit'),'no crate');assert.equal(s.board.filter(x=>x?.type==='cargo').length,27);
  // Build 46k (a harder start): levels 2-5 give +5, later levels +15 (CHEST_ENERGY)
- assert.equal(CHEST_ENERGY,15);assert.equal(s.energy,Math.min(50,e+5),'up to the refill cap');
+ assert.equal(CHEST_ENERGY,15);assert.equal(s.energy,Math.min(200,e+5),'earned level energy is retained above the natural refill capacity');
  // Build 41g: level energy tops up to 50 and no further; bought energy above it is kept.
- for(const [start,end] of [[30,35],[47,50],[60,60]]){const t=camp();t.level.xp=19;t.energy=start;ok(t,{type:'merge',from:14,to:16});assert.equal(t.energy,end,`${start} → ${end}`);}
+ for(const [start,end] of [[30,35],[47,52],[60,65]]){const t=camp();t.level.xp=19;t.energy=start;ok(t,{type:'merge',from:14,to:16});assert.equal(t.energy,end,`${start} → ${end}`);}
 });
 
 test('energy refills over time and a low-energy ration helps once an hour',()=>{
@@ -419,7 +419,7 @@ test('the Survey Worksite: seven places in three stages, every stage a reward, t
  assert.equal(AREAS[7].id,'keeper');assert.equal(AREAS[7].tasks.length,7);assert.equal(AREAS.length,8);
  // Its stages are bought like the beach's and keep the beach's stages.
  const s=stock(fresh(0));s.area=1;s.built=beachDone();s.coins=5000;
- assert.equal(nextTask(s).id,'ws-camp');const r=ok(s,{type:'restore'});assert.equal(r.task,'ws-camp');assert.equal(r.effects.energy,0,'a new camp is full (50 of 50): the stage\'s +8 tops up to the capacity only');
+ assert.equal(nextTask(s).id,'ws-camp');const r=ok(s,{type:'restore'});assert.equal(r.task,'ws-camp');assert.equal(r.effects.energy,8,'the stage pays its earned energy above the natural refill capacity');
  assert.equal(stageOf(s,'beach-cliff'),3);assert.equal(builtCount(s),1);assert.equal(totalBuilt(s),22);
 });
 
@@ -461,7 +461,7 @@ test('a save that finished the beach before the worksite existed goes up the cli
 test('the economy: both areas finish in bounded play and real time, energy bounded',()=>{
  // A quick player (an action every 4 s) buys packs when coins allow if energy runs out.
  const s=fresh(0);let now=0,waited=0,lowest=99,beach=null,shell=null,lamp=null;const STEP=4000;
- assert.equal(s.energy,50,'a new camp starts full: 50 of 50 (energy pass; Build 46k had 30)');let highest=0;
+ assert.equal(s.energy,100,'new camps start with bonus energy above their unchanged refill capacity');let highest=0;
  let beachWait=0;
  while(!(s.area>=2||s.area===1&&areaDone(s))&&now<48*3600e3){// worksite done (Build 47b: then the Vault door)
   // Build 41g: out of energy, a player buys the shop's Energy pack when coins allow.
@@ -578,8 +578,8 @@ test('the shop sells energy, crates, a token and a cog for coins, a few a day',(
 });
 
 test('rewarded-ad offers give energy or a crate, free, a few a day; they cannot be bought',()=>{
- const s=fresh(0);s.energy=0;const r=ok(s,{type:'adReward',id:'adEnergy',day:9});assert.equal(r.ad,true);assert.equal(s.energy,15);assert.equal(s.coins,0);
- ok(s,{type:'adReward',id:'adEnergy',day:9});ok(s,{type:'adReward',id:'adEnergy',day:9});refused(s,{type:'adReward',id:'adEnergy',day:9});
+ const s=fresh(0);s.energy=0;const r=ok(s,{type:'adReward',id:'adEnergy',day:9});assert.equal(r.ad,true);assert.equal(s.energy,25);assert.equal(s.coins,0);
+ ok(s,{type:'adReward',id:'adEnergy',day:9});refused(s,{type:'adReward',id:'adEnergy',day:9});
  const k=ok(s,{type:'adReward',id:'adCrate',day:9});assert.deepEqual(s.board[k.index],kit('rig',1));ok(s,{type:'adReward',id:'adCrate',day:9});refused(s,{type:'adReward',id:'adCrate',day:9});
  refused(s,{type:'adReward',id:'energy',day:9});refused(s,{type:'adReward',id:'cog',day:9});
  assert.deepEqual(Object.entries(SHOP).filter(([,o])=>o.ad).map(([id])=>id),['adEnergy','adCrate']);
@@ -595,7 +595,7 @@ test('CrazyGames adapter: lifecycle once per change, rewarded ads that always re
  // No SDK: everything is a no-op and the stand-in decides.
  resetPlatform();delete globalThis.CrazyGames;
  assert.equal(await initPlatform(),false);await platform.setPlaying(true);assert.equal(platform.playing,false);
- assert.equal(await rewardedAd({standIn:async()=>'finished'}),'finished');assert.equal(platform.muted(),false);
+ assert.equal(await rewardedAd({standIn:async()=>'finished'}),'unavailable');assert.equal(platform.muted(),false);
  const calls=[];let mode='finish';
  const fake={environment:'crazygames',init:async()=>calls.push('init'),game:{settings:{muteAudio:false},loadingStart:()=>calls.push('loadingStart'),loadingStop:()=>calls.push('loadingStop'),gameplayStart:()=>calls.push('start'),gameplayStop:()=>calls.push('stop'),happytime:()=>calls.push('happy')},
   ad:{requestAd(kind,cb){calls.push('ad:'+kind);if(mode==='silent')return;cb.adStarted();mode==='finish'?cb.adFinished():cb.adError('no fill');}}};
@@ -615,7 +615,7 @@ test('CrazyGames adapter: lifecycle once per change, rewarded ads that always re
   fake.game.settings.muteAudio=true;assert.equal(platform.muted(),true,'CrazyGames can mute the game');
   // Outside CrazyGames the SDK reports disabled: no calls, the stand-in plays.
   resetPlatform();fake.environment='disabled';calls.length=0;
-  assert.equal(await initPlatform(),false);assert.equal(await rewardedAd({standIn:async()=>'stand-in'}),'stand-in');assert.deepEqual(calls,['init']);
+  assert.equal(await initPlatform(),false);assert.equal(await rewardedAd({standIn:async()=>'stand-in'}),'unavailable');assert.deepEqual(calls,['init']);
   // An SDK that never finishes init does not hold the game.
   resetPlatform();globalThis.CrazyGames={SDK:{...fake,environment:'crazygames',init:()=>new Promise(()=>{})}};assert.equal(await initPlatform({timeout:20}),false);
  }finally{delete globalThis.CrazyGames;resetPlatform();}
@@ -1007,9 +1007,9 @@ test('tideglass hint: "too small" agrees with crack()',async()=>{
 // orders; from the seventh stage the gold order is as before.
 // Energy pass (build 47v): a new camp starts at 50 of 50 instead of 30 (approved); the rest of the harder
 // start (+5 for levels up to 5, bigger first gold orders) stays.
-test('a harder start: +5 for levels up to 5, the first six stages\' gold orders a level bigger (energy pass: 50 to start)',async()=>{
+test('a harder start: +5 for levels up to 5, the first six stages\' gold orders a level bigger (100 for new camps)',async()=>{
  const G=await import('../v5/next/game.mjs');
- assert.equal(fresh(0).energy,50);assert.deepEqual([2,5,6,9].map(G.levelEnergy),[5,5,15,15]);
+ assert.equal(fresh(0).energy,100);assert.deepEqual([2,5,6,9].map(G.levelEnergy),[5,5,15,15]);
  const gold=built=>{const s=fresh(0);s.orderSeq=10;s.orders=[];let k=0;for(const t of Object.keys(TASKS))if(k<built&&AREAS[0].tasks.some(a=>a.id===t)){const add=Math.min(3,built-k);s.built[t]=add;k+=add;}
   const o=makeOrder(s);return o.story?o.needs[0]:null;};
  const early=gold(0),later=gold(6);assert.ok(early&&later,'gold orders at 0 and 6 stages');

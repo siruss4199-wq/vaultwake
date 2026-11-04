@@ -10,7 +10,7 @@ import {kit} from '../kits.mjs';
 import {iceNeed,weakIceBeside} from './ice.mjs';
 import {purposeOf} from './purposes.mjs';
 import {createLog} from './playtest.mjs';
-import {rewardedAd,initPlatform,platform} from './platform-cg.mjs';
+import {rewardedAd,adsAvailable,initPlatform,platform} from './platform-cg.mjs';
 import {cellPos} from '../core.mjs';
 import {CHAINS,draw,maxTier,chainsAt,GENERATOR_CHAINS} from './chains.mjs';
 import {art,portrait} from '../art.mjs';
@@ -26,12 +26,13 @@ import {createHome} from './home.mjs';
 import {readSave,keptCamps,freeKey,isKeptKey} from './saves.mjs?build=releaseqa54';
 import {playIntro,preloadIntro,storySeen,playScenes} from './story-intro.mjs';
 import {haptics} from './haptics.mjs';
+import {createEnergyReceipts} from './energy-receipts.mjs';
 // The shared moment draws its icon with the Classic art; new chains need draw().
 // Moments show above an open screen (the beach) too: a modal dialog covers the page.
 // Energy pass (build 47v): a short note under the energy pill (+15 energy, a capacity milestone),
 // beside the usual feedback and never blocking a tap; reduced motion shows it without movement.
 function energyNote(text){document.querySelector('.energyNote')?.remove();const el=document.createElement('div');el.className='energyNote';el.setAttribute('role','status');el.textContent=text;
- const r=$('#energyPill').getBoundingClientRect();el.style.left=Math.max(8,Math.min(r.left,innerWidth-230))+'px';el.style.top=(r.bottom+14)+'px';document.body.append(el);setTimeout(()=>el.remove(),2600);}
+ const r=$('#energyPill').getBoundingClientRect();el.style.left=Math.max(8,Math.min(r.left,innerWidth-230))+'px';el.style.top=(r.bottom+14)+'px';([...document.querySelectorAll('dialog[open]')].at(-1)??document.body).append(el);setTimeout(()=>el.remove(),2600);}
 function moment(title,detail='',x=null){sharedMoment(title,detail,null);const el=document.querySelector('.moment');const top=[...document.querySelectorAll('dialog[open]')].pop();if(el&&top)top.append(el);if(!x||!el)return;const icon=document.createElement('span');icon.style.cssText='float:left;width:42px;height:42px;margin-right:10px';icon.innerHTML=draw(x);icon.firstElementChild.style.cssText='width:100%;height:100%';el.prepend(icon);}
 
 // Game sounds go through sfx: silent while an ad plays or when CrazyGames mutes the game
@@ -67,7 +68,9 @@ let damaged=read.status==='damaged'||read.status==='newer',newer=read.status==='
 // Round 2: ?new=1 (the playtest page's "start from the beginning" link) no longer writes over the
 // camp it replaces: that camp is kept (SAVE_KEY-kept…) before the new one is first saved.
 let replaced=startNew?stored:null;
-const persist=()=>{if(holdSave)return;if(replaced){if(!keepCopy(replaced,'kept'))return;replaced=null;}storage.set(SAVE_KEY,JSON.stringify(state));};
+const receipts=createEnergyReceipts(storage,SAVE_KEY+'-energy-receipts');
+receipts.apply(state);
+const persist=()=>{if(holdSave)return;receipts.apply(state);if(replaced){if(!keepCopy(replaced,'kept'))return;replaced=null;}storage.set(SAVE_KEY,JSON.stringify(state));receipts.remember(state);};
 const storageKeys=()=>{try{return Array.from({length:localStorage.length},(_,i)=>localStorage.key(i)).filter(Boolean);}catch{return [];}};
 // Keeps a copy of a camp before anything replaces it. Build 47c (reconciling PR #80's
 // vaultwake-v5-coast-backup with Build 46p's -damaged key): a kept copy is never overwritten. The
@@ -172,7 +175,7 @@ function render(){
  // shows when an upgrade is affordable, and the coin count.
  renderOrders();renderBoard();renderShed();renderSelection();renderHint();renderNextPlace();
  $('#dailyButton').hidden=!giftReady();
- $('#adEnergyButton').hidden=!ADS||!(state.energy<5&&shopLeft(state,'adEnergy',today())>0);
+ $('#adEnergyButton').hidden=!ADS||!adReady||coachActive(state)||!(state.energy<5&&shopLeft(state,'adEnergy',today())>0);
  if(!$('#adEnergyButton').hidden&&!adOffered)playlog.event('adOffer',{id:'adEnergy'});adOffered=!$('#adEnergyButton').hidden;
  {const n=bookReady(state).length+BOOK_CHAINS.filter(f=>pageReady(state,f)).length;$('#bookCount').hidden=!n;$('#bookCount').textContent=n;$('#bookButton').classList.toggle('ready',n>0);}
  calmBadges();
@@ -503,11 +506,14 @@ function energyHud(){
  $('#energyTimer').textContent=t?'+1 '+clock(t.next):over?'BONUS':'FULL';
  $('#energyPill').classList.toggle('overCap',over);
  $('#energyPill').style.setProperty('--g',t?(1-t.next/REFILL_EVERY).toFixed(3):1);
+ $('#energyPill').setAttribute('aria-label',`${state.energy} energy. Natural refill capacity ${cap}. Open energy recovery options.`);
  $('#energyPill').title=`Energy ${state.energy} of ${cap}: +1 every 2 minutes up to ${cap} (level ${state.level.level})`+(over?`. Bonus energy above ${cap} is kept; the refill waits until you are below it.`:'')+(state.energyOwed?` ${state.energyOwed} more waits for room (you can hold ${STORE_ENERGY}).`:'');
 }
 
 // ---------- actions ----------
-function run(a){
+function run(a,{adCompletion=false}={}){
+ if(adBusy&&!adCompletion)return;
+ receipts.apply(state);
  const coachBefore=coachActive(state)?coachStep(state):null;
  const before={coins:state.coins,energy:state.energy},fromRect=a.type==='produce'?board.querySelector(`[data-index="${a.index??state.board.findIndex(x=>x?.type==='source'&&x.id===a.id)}"]`)?.getBoundingClientRect():a.type==='openKit'?board.querySelector(`[data-index="${a.index}"]`)?.getBoundingClientRect():null;
  const orderRect=a.type==='deliver'?$(`[data-order="${a.id}"]`)?.getBoundingClientRect():null;
@@ -576,7 +582,7 @@ function run(a){
  if(r.event==='producerUp'){const src=state.board[r.index],next=nextKind(src.id),waiting=next&&src.level<UNLOCK_LEVEL&&!state.board.some(y=>y?.type==='source'&&y.id===next);
   if(r.unlocks?.length)extrasNews();else moment(SOURCES[src.id].name+' · level '+src.level,LEVEL_GAIN[src.level]+(waiting?` Level ${UNLOCK_LEVEL} brings out the ${SOURCES[next].name}.`:''),src);tile?.classList.add('merge-pop');burst(tile?.getBoundingClientRect(),'gold',true);sfx('milestone');}
  // On the coast screen the build plays first (Build 41f), then its story.
- if(r.event==='restore'&&r.effects?.boost)energyNote(`First stage · +${r.effects.boost.energy} energy`);
+ if(r.event==='restore'&&r.effects?.boost){const b=r.effects.boost;energyNote(`${b.milestone?'Restoration '+b.milestone:'First stage'} · +${b.energy} energy`);rewardFlight($('#mapButton').getBoundingClientRect(),$('#energyPill').getBoundingClientRect(),`+${b.energy} energy`);}
  if(r.event==='restore'){haptics.pulse('restore');if($('#coastMap').open&&!reduced())setTimeout(()=>showBeat(r.task,r.effects),1300);else showBeat(r.task,r.effects);}
  if(r.event==='store'){$(`#shed [data-slot="${r.slot}"]`)?.classList.add('merge-pop');sfx('tap');}
  if(r.event==='unstore'){tile?.classList.add('merge-pop');sfx('tap');if(!state.shed.some(Boolean)){shedOpen=false;renderShed();}}
@@ -780,18 +786,31 @@ const offerThing=o=>o.kit?{type:'kit',family:newestGenerator(state),size:o.kit,l
 function showShop(){
  const day=today(),row=id=>{const o=SHOP[id],left=shopLeft(state,id,day),x=offerThing(o);
   const what=o.energy?`+${o.energy} energy`:o.kit?`${CRATES[o.kit-1]} for the ${SOURCES[newestGenerator(state)].name}`:o.token?'Turns a part into one an order wants':'+1 level for a generator';
-  const btn=left<1?'<button disabled>Sold out</button>':o.ad?`<button class="adOffer" data-ad="${id}">▶ Free</button>`:`<button class="buy" data-buy="${id}" ${state.coins<o.cost?'disabled':''}>${COIN} ${o.cost}</button>`;
-  return `<li class="shopItem"><span class="shopIcon">${x?draw(x):'<b class="bolt">ϟ</b>'}</span><span class="shopText"><b>${o.name}</b><small>${what}</small><small class="left">${left} of ${o.limit} left today</small></span>${btn}</li>`;};
+  const capped=o.energy&&state.energy+o.energy>STORE_ENERGY;
+  const btn=left<1?`<button disabled>${o.ad?'Daily rewards used':'Sold out'}</button>`:o.ad?`<button class="adOffer" data-ad="${id}" ${!adReady||adBusy||capped?'disabled':''}>${capped?'Energy storage full':!adReady?'Ad unavailable':o.energy?'▶ Watch · +'+o.energy+' energy':'▶ Watch for crate'}</button>`:`<button class="buy" data-buy="${id}" ${state.coins<o.cost||capped||purchaseBusy?'disabled':''}>${COIN} ${o.cost}</button>`;
+  return `<li class="shopItem"><span class="shopIcon">${x?draw(x):'<b class="bolt">ϟ</b>'}</span><span class="shopText"><b>${o.name}</b><small>${what}</small><small class="left">${left} of ${o.limit} left today</small>${capped?'<small>Spend energy first (storage limit 200).</small>':''}</span>${btn}</li>`;};
  const ids=Object.keys(SHOP);
  $('#shopContent').innerHTML=`<div class="shopTop"><h2 id="shopTitle">Shop</h2><b class="beachCoins">${COIN} ${state.coins}</b></div><p>A little help for coins, a few of each a day; it restocks tomorrow. Coins spent here are not spent on the coast.</p>
-  ${ADS?`<h3>Free with a short ad</h3><ol class="shopList">${ids.filter(id=>SHOP[id].ad).map(row).join('')}</ol>`:''}
+  ${ADS&&!coachActive(state)?`<h3>Free with a short ad</h3><ol class="shopList">${ids.filter(id=>SHOP[id].ad).map(row).join('')}</ol>`:''}
+  <p class="energyHelp">${state.energy} energy stored. Natural refill: +1 every 2 minutes up to ${capacityOf(state)}. Bonus energy above that is kept; refill waits until you are below it. Storage limit: ${STORE_ENERGY}.</p>${adFeedback?`<p id="shopAdStatus" role="status">${adFeedback}</p>`:''}
   <h3>For coins</h3><ol class="shopList">${ids.filter(id=>!SHOP[id].ad).map(row).join('')}</ol>`;
  if(!$('#shop').open)$('#shop').showModal();
 }
-$('#shopContent').addEventListener('click',e=>{const b=e.target.closest('[data-buy]'),ad=e.target.closest('[data-ad]');if(b){run({type:'buy',id:b.dataset.buy,day:today()});showShop();}else if(ad)watchAd({type:'adReward',id:ad.dataset.ad});});
+let purchaseBusy=false;
+$('#shopContent').addEventListener('click',async e=>{const b=e.target.closest('[data-buy]'),ad=e.target.closest('[data-ad]');
+ if(b){if(purchaseBusy||adBusy)return;purchaseBusy=true;b.disabled=true;
+  try{const buy=()=>{const latest=readSave(storage.get(SAVE_KEY),Date.now());if(latest.status==='ok'){if(latest.state.energyRewards?.id!==state.energyRewards?.id){holdSave=true;$('#message').textContent='The camp changed in another tab. Reload to continue.';return;}state=latest.state;}run({type:'buy',id:b.dataset.buy,day:today()});};
+   if(navigator.locks)await navigator.locks.request(SAVE_KEY+'-energy-transaction',buy);else buy();
+  }finally{showShop();setTimeout(()=>{purchaseBusy=false;if($('#shop').open)showShop();},400);}
+ }else if(ad)watchAd({type:'adReward',id:ad.dataset.ad});});
 $('#shopButton').onclick=()=>{playlog.event('shopOpen');showShop();};
+// Reuse the existing energy pill as the recovery entry point; no new board button.
+$('#energyPill').setAttribute('role','button');$('#energyPill').tabIndex=0;
+$('#energyPill').setAttribute('aria-label','Energy and recovery options');
+$('#energyPill').onclick=showShop;
+$('#energyPill').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();showShop();}};
 $('#adEnergyButton').onclick=()=>watchAd({type:'adReward',id:'adEnergy'});
-// Where no ad network is on the page (the playtest page), a stand-in counts down instead;
+// Only explicit loopback development without an SDK may run this test stand-in;
 // closing it early gives no reward, like a real rewarded ad.
 function adStandIn(){
  return new Promise(resolve=>{
@@ -802,15 +821,38 @@ function adStandIn(){
   show();dlg.showModal();timer=setInterval(()=>{n--;show();if(n<=0)clearInterval(timer);},1000);
  });
 }
-let adBusy=false;
+let adBusy=false,adReady=false,adFeedback='';
+const localStandIn=DEV&&['localhost','127.0.0.1','[::1]'].includes(location.hostname);
+async function refreshAds(){adReady=ADS&&!!(navigator.locks||localStandIn)&&await adsAvailable({allowStandIn:localStandIn});render();if($('#shop').open)showShop();}
+queueMicrotask(refreshAds);
 // The action is run only when the ad finished; today's day is filled in then.
 async function watchAd(action){
- if(adBusy||!ADS)return;adBusy=true;const offer=action.type==='swapOrder'?'swap':action.id;playlog.event('ad',{id:offer,phase:'start'});
- const r=await rewardedAd({onStart(){adPlaying=true;},onEnd(){adPlaying=false;},standIn:adStandIn});
- adBusy=false;playlog.event('ad',{id:offer,phase:r});
- if(r==='finished')run({...action,day:today()});
- else $('#message').textContent=r==='skipped'?'The ad was closed early: no reward.':'No ad is available right now. Try again later.';
- if($('#shop').open)showShop();render();
+ if(adBusy||!ADS||coachActive(state))return;
+ const attempt=async()=>{
+  const latest=readSave(storage.get(SAVE_KEY),Date.now());
+  if(latest.status==='ok'){if(latest.state.energyRewards?.id!==state.energyRewards?.id){holdSave=true;$('#message').textContent='The camp changed in another tab. Reload to continue.';return;}state=latest.state;}
+  receipts.apply(state);const o=SHOP[action.id];
+  if(o&&shopLeft(state,action.id,today())<1){$('#message').textContent='Daily ad rewards used. More tomorrow.';return;}
+  if(o?.energy&&state.energy+o.energy>STORE_ENERGY){$('#message').textContent='Spend some stored energy before claiming more.';return;}
+  adBusy=true;adFeedback='';if($('#shop').open)showShop();const camp=state,controller=new AbortController();playlog.event('ad',{id:action.id??'swap',phase:'start'});
+  const interrupt=()=>{if(document.hidden)controller.abort();};
+  document.addEventListener('visibilitychange',interrupt);addEventListener('pagehide',()=>controller.abort(),{once:true,signal:controller.signal});
+  try{
+   const r=await rewardedAd({onStart(){adPlaying=true;},onEnd(){adPlaying=false;},standIn:adStandIn,allowStandIn:localStandIn,signal:controller.signal});
+   playlog.event('ad',{id:action.id??'swap',phase:r});
+   if(r==='finished'&&state.energyRewards.id===camp.energyRewards.id&&!controller.signal.aborted){
+    const saved=readSave(storage.get(SAVE_KEY),Date.now());
+    if(saved.status==='ok'&&saved.state.energyRewards?.id===camp.energyRewards.id){state=saved.state;const paid=run({...action,day:today()},{adCompletion:true});adFeedback=paid?.ok?(o?.energy?`+${o.energy} energy received.`:'Ad reward received.'):(paid?.message??'Reward could not be applied.');}
+    else{holdSave=true;adFeedback='The camp changed in another tab: no reward was applied.';}
+   }
+   else adFeedback=r==='skipped'?'The ad was interrupted: no reward.':'Ad unavailable: no reward. Try again later.';
+   $('#message').textContent=adFeedback;
+  }finally{controller.abort();document.removeEventListener('visibilitychange',interrupt);adPlaying=false;adBusy=false;if($('#shop').open)showShop();render();}
+ };
+ // Web Locks serializes rewarded requests across tabs as well as this page.
+ if(navigator.locks)await navigator.locks.request(SAVE_KEY+'-energy-transaction',{ifAvailable:true},lock=>lock?attempt():undefined);
+ else if(localStandIn)await attempt();
+ else $('#message').textContent='Rewarded ads are unavailable in this browser.';
 }
 // The gift opens by itself once a session is under way, never over another screen or a drag.
 // Build 51c: not offered by itself while a new camp's first-loop guide runs (its button still shows the gift).
@@ -1018,7 +1060,7 @@ $('#mapContent').addEventListener('click',e=>{
 function rewardText(e={}){
  const out=[],wait=' (waits for a free space)';
  if(e.energy)out.push(`+${e.energy} energy`);
- if(e.boost)out.push(`first stage: +${e.boost.energy} energy`);
+ if(e.boost)out.push(`${e.boost.milestone?'restoration '+e.boost.milestone:'first stage'}: +${e.boost.energy} energy`);
  if(e.copyId)out.push(`a ${SOURCES[e.copyId].name} to merge`+(e.copy>=0?'':wait));
  if(e.kit>=0&&state.board[e.kit]?.type==='kit')out.push(nameOf(state.board[e.kit]).replace(' · ',' for '));
  else if(e.kitFamily)out.push(`a crate for the ${SOURCES[e.kitFamily].name}`+wait);

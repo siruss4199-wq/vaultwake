@@ -37,11 +37,11 @@ export const CHEST_ENERGY=15;
 // first six stages' gold orders ask one part a level bigger, so the first energy squeeze comes at
 // about 12 min (5 s an action) and the first stages are goals that take planning.
 // Energy pass (build 47v, user: energy ran out before the player had enjoyed enough merging, orders and
-// restoration): a new camp starts full, at 50 of 50; the first ordinary crew order delivered gives +15
+// restoration): new camps start with 100 bonus energy over their 50-point refill cap; the first ordinary crew order delivered gives +15
 // energy and the first stage bought +20, once each (ONBOARDING); a capacity milestone gives the
 // capacity's increase, once (gainXp). These go above the refill capacity, up to STORE_ENERGY.
-export const ONBOARDING={order:15,stage:20};
-export const START_ENERGY=50,EARLY_LEVELS=5,EARLY_LEVEL_ENERGY=5,GOLD_LIFT=1,GOLD_LIFT_STAGES=6;
+export const ONBOARDING={order:15,stage:20,secondStage:10,thirdStage:10};
+export const START_ENERGY=100,EARLY_LEVELS=5,EARLY_LEVEL_ENERGY=5,GOLD_LIFT=1,GOLD_LIFT_STAGES=6;
 export const levelEnergy=level=>level<=EARLY_LEVELS?EARLY_LEVEL_ENERGY:CHEST_ENERGY;
 // The level path (docs/V5_LEVEL_PATH_2026-10-27.md; user: "togloomond ashiglaad gameplayd sonirholtoi
 // zuilsee nemmeer baina"): the player level opens a merge rule and two kinds of crew order. The
@@ -196,10 +196,10 @@ export const SHOP={
  chest:{name:'Sea chest',cost:40,kit:2,limit:2},
  token:{name:'Tide token',cost:50,token:1,limit:1},
  cog:{name:'Brass cog',cost:200,cog:1,limit:1},
- adEnergy:{name:'Energy',ad:true,energy:15,limit:3},
+ adEnergy:{name:'Energy',ad:true,energy:25,limit:2},
  adCrate:{name:'Driftwood crate',ad:true,kit:1,limit:2}
 };
-export const shopLeft=(s,id,day)=>SHOP[id].limit-(day>s.shop.day?0:s.shop.bought[id]??0);
+export const shopLeft=(s,id,day)=>Math.max(0,SHOP[id].limit-(day>s.shop.day?0:s.shop.bought[id]??0));
 // Changing an order (build 36, user: "gatssan taskaas ehel"): a crew order the player is stuck
 // on can be swapped for a new one, three times a day for free and then after a rewarded ad (five
 // a day). The gold story order cannot be changed: it is the coast's next stage.
@@ -342,7 +342,7 @@ export function fresh(now=Date.now()){
   orders:[],slots:3,orderSeq:0,ordersDone:0,area:0,built:{},found:[],moves:0,merges:0,lastAt:now,
   shed:Array(SHED_SLOTS).fill(null),pending:[],seen:{},daily:{day:-1,count:0},book:{claimed:[],pages:[]},shop:{day:-1,bought:{}},swaps:{day:-1,n:0,ads:0},materials:{},
   secSince:Object.fromEntries(Object.keys(SECONDARY_OF).map(g=>[g,0])),secTaps:Object.fromEntries(Object.keys(SECONDARY_OF).map(g=>[g,0])),secOpen:{},secIntro:[],
-  capPaid:START_CAPACITY_PAID,boost:{order:false,stage:false}};
+  capPaid:START_CAPACITY_PAID,boost:{order:false,stage:false},energyRewards:{id:null,stages:0}};
  for(const g of Object.keys(GENERATOR_CHAINS))s.taps[g]=0;
  for(let i=0;i<s.slots;i++)s.orders.push(makeOrder(s));
  note(s);return s;
@@ -830,10 +830,10 @@ function release(s){
 }
 const withCracks=(r,c)=>{if(c.cracked.length)r.cracked=c.cracked;if(c.freed.length){r.broken=c.freed;r.xp+=c.bonus;r.message+=' · the tideglass breaks';}else if(c.cracked.length)r.message+=' · the tideglass cracks';return r;};
 
-// Energy from levels, stages and cargo jars tops energy up to the refill cap and no further
-// (Build 41g, user: "energy er ni duusah shinj alga"); bought, daily and ad energy can go over.
-// Energy pass (build 47v): "the refill cap" is the player level's capacity (capacityOf).
-function bonus(s,n){const before=s.energy;s.energy=Math.max(s.energy,Math.min(capacityOf(s),s.energy+n));return s.energy-before;}
+// Earned level/stage/jar rewards are real stored energy, not natural regeneration.
+// Starting above the refill capacity must not swallow them. Amounts stay unchanged;
+// regular rewards stop at the 200 storage limit; existing milestone overflow remains deferred.
+function bonus(s,n){return storeEnergy(s,n);}
 // ---- levels ----
 function gainXp(s,amount){
  s.level=validLevel(s.level);s.level.xp+=amount;const ups=[];
@@ -1074,6 +1074,11 @@ function step(s,a,now){
   if(e.energy){effects.energy=bonus(s,e.energy);}
   // The first stage bought: +20 energy, once (s.boost.stage), on top of the stage's own effects.
   if(!s.boost.stage){s.boost.stage=true;const paid=storeEnergy(s,ONBOARDING.stage,{keep:true});effects.boost={kind:'stage',energy:ONBOARDING.stage,...(paid<ONBOARDING.stage?{owed:ONBOARDING.stage-paid}:{})};}
+  // Count successful completed stages globally, not map clicks or chapter-local stages.
+  const completed=totalBuilt(s),claimed=s.energyRewards?.stages??Math.min(3,completed-1);
+  const extra=completed===2?ONBOARDING.secondStage:completed===3?ONBOARDING.thirdStage:0;
+  if(extra&&claimed<completed){const paid=storeEnergy(s,extra,{keep:true});effects.boost={kind:'stage',milestone:completed,energy:extra,...(paid<extra?{owed:extra-paid}:{})};}
+  s.energyRewards??={id:'legacy',stages:0};s.energyRewards.stages=Math.max(claimed,Math.min(3,completed));
   if(e.copy){const id=e.copy==='newest'?newestGenerator(s):e.copy;effects.copy=give(s,source(id));effects.copyId=id;}
   if(e.kit){const family=e.kit[0]==='newest'?newestGenerator(s):e.kit[0];effects.kit=give(s,kit(family,e.kit[1]));effects.kitFamily=family;}
   if(e.token){effects.token=give(s,token());}
@@ -1157,7 +1162,7 @@ function step(s,a,now){
   return {ok:true,event:'swapOrder',id:next.id,old:o.id,ad:!free,message:'A new crew order'};
  }
  if(a.type==='buy'||a.type==='adReward'){
-  const o=SHOP[a.id];if(!o||!!o.ad!==(a.type==='adReward'))return fail('Unknown offer.');
+  const o=Object.hasOwn(SHOP,a.id)?SHOP[a.id]:null;if(!o||!!o.ad!==(a.type==='adReward'))return fail('Unknown offer.');
   if(!Number.isInteger(a.day)||a.day<Math.max(0,s.shop.day))return fail('Unknown day.');
   if(shopLeft(s,a.id,a.day)<1)return fail(`No more ${o.name.toLowerCase()} today. The shop restocks tomorrow.`);
   if(!o.ad&&s.coins<o.cost)return fail(`${o.name} costs ${o.cost} coins.`);
@@ -1305,7 +1310,7 @@ export function load(raw,now=Date.now()){
   s.secOpen=Object.fromEntries(Object.keys(SECONDARY_OF).filter(g=>s.secOpen[g]===true).map(g=>[g,true]));
   s.secIntro=Array.isArray(s.secIntro)?[...new Set(s.secIntro.filter(f=>Object.values(SECONDARY_OF).includes(f)))]:[];
   if(!s.swaps||!integer(s.swaps.day,-1,1e7)||!integer(s.swaps.n,0,FREE_SWAPS)||!integer(s.swaps.ads,0,AD_SWAPS))return fresh(now);
-  if(!s.shop||!integer(s.shop.day,-1,1e7)||!s.shop.bought||typeof s.shop.bought!=='object'||Array.isArray(s.shop.bought)||!Object.entries(s.shop.bought).every(([id,n])=>SHOP[id]&&integer(n,0,SHOP[id].limit)))return fresh(now);
+  if(!s.shop||!integer(s.shop.day,-1,1e7)||!s.shop.bought||typeof s.shop.bought!=='object'||Array.isArray(s.shop.bought)||!Object.entries(s.shop.bought).every(([id,n])=>SHOP[id]&&integer(n,0,id==='adEnergy'?3:SHOP[id].limit)))return fresh(now);
   const bookKey=k=>typeof k==='string'&&/^[a-z]+\d$/.test(k)&&BOOK_CHAINS.includes(k.slice(0,-1))&&+k.slice(-1)<=maxTier(k.slice(0,-1));
   if(!s.book||!Array.isArray(s.book.claimed)||!Array.isArray(s.book.pages)||!s.book.claimed.every(k=>bookKey(k)&&s.found.includes(k))||new Set(s.book.claimed).size!==s.book.claimed.length||!s.book.pages.every(f=>BOOK_CHAINS.includes(f)&&bookKeys(f).every(k=>s.book.claimed.includes(k))))return fresh(now);
   if(!s.seen||typeof s.seen!=='object'||Array.isArray(s.seen)||!Object.entries(s.seen).every(([k,v])=>SEEN_ID.test(k)&&v===true))return fresh(now);
@@ -1355,6 +1360,12 @@ export function load(raw,now=Date.now()){
    const gold=Object.values(s.materials).reduce((n,k)=>n+k,0);
    s.boost={order:s.ordersDone>gold,stage:totalBuilt(s)>0};
   }else s.boost={order:s.boost.order,stage:s.boost.stage};
+  // Existing camps retain their energy. Already completed milestones are consumed,
+  // never back-paid; malformed or rolled-back flags cannot replay a completed stage.
+  const completed=Math.min(3,totalBuilt(s));
+  const er=s.energyRewards;
+  s.energyRewards={id:er?.id===null?null:typeof er?.id==='string'&&er.id.length<=100?er.id:'legacy',stages:Math.max(completed,integer(er?.stages,0,3)?er.stages:completed)};
+  s.boost.stage ||= completed>0;
   if(s.energyOwed!==undefined&&!integer(s.energyOwed,1,1000))delete s.energyOwed;
   if(before47v){settleEnergy(s,now,REFILL_CAP);if(s.energy>=REFILL_CAP)s.energyAt=now;}
   // Round 3: a generator already at level 2+ (an older save) opens its kind's secondary chain now, once.

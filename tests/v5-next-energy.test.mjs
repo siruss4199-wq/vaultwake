@@ -33,8 +33,8 @@ test('capacity: every boundary of the table, the next milestone and the maximum'
  assert.equal(capacityOf(fresh(0)),50);assert.equal(STORE_ENERGY,200);assert.equal(MAX_ENERGY,200);
 });
 
-test('a new camp starts at 50 of 50, with both onboarding bonuses to come',()=>{
- const s=fresh(0);assert.equal(s.energy,50);assert.equal(capacityOf(s),50);assert.deepEqual(s.boost,{order:false,stage:false});
+test('a new camp starts with 100 stored energy and a 50-point refill capacity, with both onboarding bonuses to come',()=>{
+ const s=fresh(0);assert.equal(s.energy,100);assert.equal(capacityOf(s),50);assert.deepEqual(s.boost,{order:false,stage:false});
  assert.equal(s.capPaid,50);assert.equal(s.version,VERSION);assert.equal(refillTimes(s,0),null,'full: the clock rests');
 });
 
@@ -103,9 +103,9 @@ test('onboarding: the first ordinary crew order +15 once, the first stage +20 on
  assert.deepEqual(r3.effects.boost,{kind:'stage',energy:ONBOARDING.stage});assert.equal(t.boost.stage,true);
  const lv=(r3.levelUp??[]).reduce((n,u)=>n+u.energy+(u.capacity?.energy??0),0);
  assert.equal(t.energy,e+(r3.effects.energy??0)+20+lv,'+20 on top of the stage\'s own rewards');
- const u=load(JSON.stringify(t),0);u.materials['beach-tent']=1;const r4=ok(u,{type:'restore',id:'beach-tent'});assert.equal(r4.effects.boost,undefined,'once');
+ const u=load(JSON.stringify(t),0);u.materials['beach-tent']=1;const r4=ok(u,{type:'restore',id:'beach-tent'});assert.deepEqual(r4.effects.boost,{kind:'stage',milestone:2,energy:10},'second completed stage pays its own milestone, not the first bonus again');
  // no extra +15 for the Rover reaching level 2
- const v=fresh(0);v.board[15]=source('rig');const m=ok(v,{type:'merge',from:15,to:ROVER});assert.equal(m.event,'producerUp');assert.equal(v.energy,50);assert.equal(m.boost,undefined);
+ const v=fresh(0);v.board[15]=source('rig');const m=ok(v,{type:'merge',from:15,to:ROVER});assert.equal(m.event,'producerUp');assert.equal(v.energy,100);assert.equal(m.boost,undefined);
 });
 
 test('gold orders, introductory orders and other rare-only jobs never claim the first-order bonus',()=>{
@@ -147,11 +147,11 @@ test('stored energy stops at 200; a milestone reward past it is owed and paid as
  // to the capacity, so it adds nothing here): 200 now and 6 owed
  const s=atLevel(fresh(0),2,xpToNext(2)-1);s.energy=195;s.boost.order=true;
  const r=ok(s,{type:'deliver',id:ready(s,[['rig',0]],{coins:5}).id});
- assert.equal(s.energy,200);assert.equal(r.levelUp[0].energy,0);assert.deepEqual(r.levelUp[0].capacity,{from:50,to:60,energy:10,owed:6});assert.equal(s.energyOwed,6);
+ assert.equal(s.energy,200);assert.equal(r.levelUp[0].energy,4);assert.deepEqual(r.levelUp[0].capacity,{from:50,to:60,energy:10,owed:10});assert.equal(s.energyOwed,10);
  // a reload keeps what is owed; spending makes room and it is paid
- const t=load(JSON.stringify(s),0);assert.equal(t.energyOwed,6);
- const p=tap(t);assert.equal(p.owedPaid,1);assert.equal(t.energy,200);assert.equal(t.energyOwed,5);
- for(let k=0;k<5;k++)tap(t);assert.equal(t.energy,200);assert.equal(t.energyOwed,undefined);
+ const t=load(JSON.stringify(s),0);assert.equal(t.energyOwed,10);
+ const p=tap(t);assert.equal(p.owedPaid,1);assert.equal(t.energy,200);assert.equal(t.energyOwed,9);
+ for(let k=0;k<9;k++)tap(t);assert.equal(t.energy,200);assert.equal(t.energyOwed,undefined);
  tap(t);assert.equal(t.energy,199,'paid in full, then energy is spent as usual');
  // the onboarding bonuses too: +15 at 190 is 200 and 5 owed
  const u=fresh(0);u.energy=190;const d=ok(u,{type:'deliver',id:ready(u,[['rig',0]]).id});assert.equal(u.energy,200);assert.deepEqual(d.boost,{kind:'order',energy:15,owed:6});assert.equal(u.energyOwed,6);

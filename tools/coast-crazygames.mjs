@@ -8,14 +8,14 @@
 //                                            ready to upload (index.html opens the game)
 import {readFileSync,writeFileSync,mkdirSync,rmSync,cpSync,readdirSync,statSync} from 'node:fs';
 import {execFileSync} from 'node:child_process';
-import {join,dirname} from 'node:path';
+import {join,dirname,basename} from 'node:path';
 import {fileURLToPath} from 'node:url';
 const root=join(dirname(fileURLToPath(import.meta.url)),'..');
 export const SDK='https://sdk.crazygames.com/crazygames-sdk-v3.js';
-export function crazyPage(play){
- const html=play.replace('<html lang="en">','<html lang="en" data-ads="off" data-platform="crazygames">')
+export function crazyPage(play,{fullLaunch=false}={}){
+ const html=play.replace('<html lang="en">',`<html lang="en" data-ads="${fullLaunch?'on':'off'}" data-platform="crazygames" data-launch="${fullLaunch?'full':'basic'}">`)
   .replace('<script type="module" src="next/app.mjs',`<script src="${SDK}"></script><script type="module" src="next/app.mjs`);
- if(html===play||!html.includes('data-ads="off"')||!html.includes(SDK))throw new Error('v5/play.html changed shape: update tools/coast-crazygames.mjs');
+ if(html===play||!html.includes(`data-ads="${fullLaunch?'on':'off'}"`)||!html.includes(SDK))throw new Error('v5/play.html changed shape: update tools/coast-crazygames.mjs');
  return html;
 }
 const out=join(root,'v5/coast-crazygames.html'),page=crazyPage(readFileSync(join(root,'v5/play.html'),'utf8'));
@@ -28,15 +28,17 @@ if(process.argv.includes('--zip')){
  // Only what Coast Camp loads: its page, the V5 modules and styles it imports, its assets and
  // v4/platform.mjs (imported by v5/core.mjs). Classic V5 pages, review pages, the rejected lab
  // and review art stay out.
- const stage=join(root,'dist/coast-crazygames'),zip=join(root,'dist/vaultwake-coast-crazygames.zip');
+ const fullLaunch=process.argv.includes('--full-launch');
+ const stage=join(root,fullLaunch?'dist/coast-crazygames-full':'dist/coast-crazygames'),zip=join(root,fullLaunch?'dist/vaultwake-coast-crazygames-full.zip':'dist/vaultwake-coast-crazygames.zip');
  rmSync(stage,{recursive:true,force:true});rmSync(zip,{force:true});mkdirSync(join(stage,'v5'),{recursive:true});mkdirSync(join(stage,'v4'),{recursive:true});
  cpSync(join(root,'v4/platform.mjs'),join(stage,'v4/platform.mjs'));
  for(const f of readdirSync(join(root,'v5')))if(/\.(mjs|css)$/.test(f))cpSync(join(root,'v5',f),join(stage,'v5',f));
  cpSync(out,join(stage,'v5/coast-crazygames.html'));
+ if(fullLaunch)writeFileSync(join(stage,'v5/coast-crazygames.html'),crazyPage(readFileSync(join(root,'v5/play.html'),'utf8'),{fullLaunch:true}));
  cpSync(join(root,'v5/next'),join(stage,'v5/next'),{recursive:true});
  cpSync(join(root,'v5/assets'),join(stage,'v5/assets'),{recursive:true,filter:s=>!s.includes('/assets/review')&&!s.endsWith('.md')});
  writeFileSync(join(stage,'index.html'),'<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Vaultwake — Coast Camp</title><script>location.replace("v5/coast-crazygames.html"+location.search)</script></head><body><a href="v5/coast-crazygames.html">Play Vaultwake — Coast Camp</a></body></html>\n');
  execFileSync('zip',['-qr',zip,'.'],{cwd:stage});
  const size=f=>statSync(f).size,walk=d=>readdirSync(d).reduce((n,f)=>{const p=join(d,f);return n+(statSync(p).isDirectory()?walk(p):size(p));},0);
- console.log(`wrote dist/vaultwake-coast-crazygames.zip: ${(size(zip)/1048576).toFixed(1)} MB (${(walk(stage)/1048576).toFixed(1)} MB unpacked)`);
+ console.log(`wrote dist/${basename(zip)}: ${(size(zip)/1048576).toFixed(1)} MB (${(walk(stage)/1048576).toFixed(1)} MB unpacked)`);
 }

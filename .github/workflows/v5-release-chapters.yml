@@ -1,9 +1,9 @@
 name: Vaultwake release chapter QA
 on:
   push:
-    branches: [codex/v5-order-economy-recipe-fix, codex/v5-release-qa]
+    branches: [codex/v5-order-economy-recipe-fix, codex/v5-release-qa, codex/v5-first-session-energy-balance]
   pull_request:
-    branches: [codex/v5-order-economy-recipe-fix]
+    branches: [codex/v5-order-economy-recipe-fix, claude/v5-vault-art-integration]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
@@ -56,14 +56,14 @@ jobs:
         run: |
           python3 -m http.server 8080 > /tmp/vaultwake-http.log 2>&1 &
           sleep 1
-          node tests/v5-next-browser.cjs
-          node tests/v5-next-bright-browser.cjs
-          node tests/v5-next-energy-browser.cjs
-          node tests/v5-next-extras-browser.cjs
-          node tests/v5-next-home-browser.cjs
-          node tests/v5-next-story-browser.cjs
-          node tests/v5-next-rewards-browser.cjs
-          node tests/v5-next-playtest-browser.cjs
+          node tools/run-browser-qa.mjs tests/v5-next-browser.cjs
+          node tools/run-browser-qa.mjs tests/v5-next-bright-browser.cjs
+          node tools/run-browser-qa.mjs tests/v5-next-energy-browser.cjs
+          node tools/run-browser-qa.mjs tests/v5-next-extras-browser.cjs
+          node tools/run-browser-qa.mjs tests/v5-next-home-browser.cjs
+          node tools/run-browser-qa.mjs tests/v5-next-story-browser.cjs
+          node tools/run-browser-qa.mjs tests/v5-next-rewards-browser.cjs
+          node tools/run-browser-qa.mjs tests/v5-next-playtest-browser.cjs
 
   classic-compatibility:
     name: Classic legacy browser QA (Chromium and WebKit)

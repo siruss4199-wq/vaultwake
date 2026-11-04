@@ -106,7 +106,7 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
     else if(id==='deliver'||id==='gold'){
      try{await page.waitForSelector('#requests .coachTarget',{timeout:4000});}catch(e){throw new Error(tag(`no marked order for ${id}: "${await line()}"`));}
      await handOn('#requests .coachTarget','Tap to deliver');await page.locator('#requests .coachTarget').click();await page.waitForTimeout(1000);taught++;// the coins fly first, then the line moves on
-     if(id==='gold'){await page.waitForSelector('.moment:has-text("Materials secured")',{timeout:4000});const m=await page.locator('.moment').innerText();
+     if(id==='gold'){const reward=await page.waitForFunction(()=>{const t=document.querySelector('.moment')?.innerText;return t?.includes('Materials secured')?t:false;},null,{timeout:4000});const m=await reward.jsonValue();
       assert.match(m,/Materials secured · \+70 coins/,tag('both rewards in the title'));assert.match(m,/The gold order paid 70 coins and brought the materials for Clear the landing path/);await shot('materials');}}
     else if(id==='build'){await handOn('#mapButton.coachTarget','Tap to open the coast');await page.locator('#mapButton.coachTarget').click();await page.waitForSelector('#coastMap[open]');
      assert.equal(await page.locator('#coastMap [data-restore="beach-path"] .coachHand .handLabel').innerText(),'Tap to build',tag('a pointing hand on the Build button'));
