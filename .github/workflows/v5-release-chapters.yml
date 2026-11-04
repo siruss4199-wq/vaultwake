@@ -5,6 +5,10 @@ on:
   pull_request:
     branches: [codex/v5-order-economy-recipe-fix]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -72,7 +76,14 @@ jobs:
         run: |
           python3 -m http.server 8080 > /tmp/classic-http.log 2>&1 &
           sleep 1
-          node tests/v5-camp-browser.cjs
-      - name: Run unchanged Classic coastal assertions
+          node tools/run-browser-qa.mjs tests/v5-camp-browser.cjs
+      - name: Run unchanged Classic coastal Chromium assertions
         if: ${{ !cancelled() }}
-        run: node tests/v5-coastal-browser.cjs
+        env:
+          COASTAL_ENGINE: chromium
+        run: node tools/run-browser-qa.mjs tests/v5-coastal-browser.cjs
+      - name: Run unchanged Classic coastal WebKit assertions
+        if: ${{ !cancelled() }}
+        env:
+          COASTAL_ENGINE: webkit
+        run: node tools/run-browser-qa.mjs tests/v5-coastal-browser.cjs

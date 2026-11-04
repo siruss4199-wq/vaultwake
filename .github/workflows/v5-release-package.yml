@@ -5,6 +5,10 @@ on:
   pull_request:
     branches: [codex/v5-order-economy-recipe-fix]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -33,10 +37,11 @@ jobs:
           test -s /tmp/vaultwake-package/index.html
           test -s /tmp/vaultwake-package/v5/coast-crazygames.html
       - name: Install real browser engines
-        run: npm install --no-save playwright@1.62.1 && npx playwright install --with-deps chromium webkit
+        run: npm install --no-save playwright@1.62.1 && npx playwright install --with-deps chromium webkit firefox
       - name: Play from extracted ZIP, not repository checkout
         env:
           CG_URL: http://127.0.0.1:8081/index.html
+          ENGINES: chromium,webkit,firefox
         run: |
           python3 -m http.server 8081 --directory /tmp/vaultwake-package > /tmp/vaultwake-package-http.log 2>&1 &
           sleep 1
