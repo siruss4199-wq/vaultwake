@@ -188,7 +188,7 @@ async function perform(page,a){
    await page.locator('#shop [data-ad="adEnergy"]').tap();await page.locator('#adStandIn [data-skip]').tap();await page.waitForTimeout(150);
    assert.equal((await read(page)).energy,10,'an ad closed early pays nothing');
    await page.locator('#shop [data-ad="adEnergy"]').tap();await page.waitForSelector('#adStandIn [data-collect]',{timeout:8000});await page.locator('#adStandIn [data-collect]').tap();
-   await page.waitForFunction(()=>JSON.parse(localStorage.getItem('vaultwake-v5-coast')).energy===25,null,{timeout:4000});
+   await page.waitForFunction(()=>JSON.parse(localStorage.getItem('vaultwake-v5-coast')).energy===35,null,{timeout:4000});
    assert.equal(await page.evaluate(()=>document.querySelector('#shop').scrollWidth<=document.querySelector('#shop').clientWidth),true,'no sideways scroll in the shop');
    await page.locator('#shop .close').tap();
    for(const sel of ['#shopButton','#bookButton']){const b=await page.locator(sel).boundingBox();assert.ok(b.height>=40&&b.x+b.width<=width,sel+' fits');}

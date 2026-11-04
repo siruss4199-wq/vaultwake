@@ -1,9 +1,9 @@
 name: Coast order recipe validation
 on:
   push:
-    branches: [codex/v5-order-economy-recipe-fix, codex/v5-release-qa]
+    branches: [codex/v5-order-economy-recipe-fix, codex/v5-release-qa, codex/v5-first-session-energy-balance]
   pull_request:
-    branches: [codex/v5-order-economy-recipe-fix]
+    branches: [codex/v5-order-economy-recipe-fix, claude/v5-vault-art-integration]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
