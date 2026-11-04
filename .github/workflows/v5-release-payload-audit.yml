@@ -27,6 +27,7 @@ jobs:
         env:
           CG_URL: http://127.0.0.1:8081/index.html
         run: |
+          set -euo pipefail
           python3 -m http.server 8081 --directory /tmp/vaultwake-qa > /tmp/vaultwake-qa.log 2>&1 &
           sleep 1
           node tests/v5-next-crazygames-payload-browser.cjs | tee /tmp/release-payload-results.jsonl
