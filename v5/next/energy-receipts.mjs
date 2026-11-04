@@ -3,7 +3,7 @@ import {SHOP} from './game.mjs';
 // awarded here: completed milestones and daily purchases only move forwards.
 export function createEnergyReceipts(storage,key,id=()=>globalThis.crypto?.randomUUID?.()??Date.now().toString(36)+'-'+Math.random().toString(36).slice(2)){
  const read=()=>{try{const r=JSON.parse(storage.get(key)||'null');if(!r?.camps||typeof r.camps!=='object'||Array.isArray(r.camps)||!Number.isInteger(r.daily?.day)||r.daily.day< -1||r.daily.day>1e7||!r.daily.bought||typeof r.daily.bought!=='object')return {camps:{},daily:{day:-1,bought:{}}};
- for(const [k,n] of Object.entries(r.daily.bought))if(!SHOP[k]||!Number.isInteger(n)||n<0||n>(k==='adEnergy'?3:SHOP[k].limit))delete r.daily.bought[k];return r;}catch{return {camps:{},daily:{day:-1,bought:{}}};}};
+ for(const [k,n] of Object.entries(r.daily.bought))if(!Object.hasOwn(SHOP,k)||!Number.isInteger(n)||n<0||n>(k==='adEnergy'?3:SHOP[k].limit))delete r.daily.bought[k];return r;}catch{return {camps:{},daily:{day:-1,bought:{}}};}};
  function apply(s){
   const r=read();s.energyRewards??={id:'legacy',stages:Math.min(3,Object.values(s.built).reduce((a,b)=>a+b,0))};
   s.energyRewards.id??=id();const paid=Object.hasOwn(r.camps,s.energyRewards.id)?r.camps[s.energyRewards.id]:null;

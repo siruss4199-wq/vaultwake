@@ -1162,7 +1162,7 @@ function step(s,a,now){
   return {ok:true,event:'swapOrder',id:next.id,old:o.id,ad:!free,message:'A new crew order'};
  }
  if(a.type==='buy'||a.type==='adReward'){
-  const o=SHOP[a.id];if(!o||!!o.ad!==(a.type==='adReward'))return fail('Unknown offer.');
+  const o=Object.hasOwn(SHOP,a.id)?SHOP[a.id]:null;if(!o||!!o.ad!==(a.type==='adReward'))return fail('Unknown offer.');
   if(!Number.isInteger(a.day)||a.day<Math.max(0,s.shop.day))return fail('Unknown day.');
   if(shopLeft(s,a.id,a.day)<1)return fail(`No more ${o.name.toLowerCase()} today. The shop restocks tomorrow.`);
   if(!o.ad&&s.coins<o.cost)return fail(`${o.name} costs ${o.cost} coins.`);

@@ -15,7 +15,7 @@ const usable=page=>page.waitForSelector('#homePlay:not([hidden])',{timeout:20000
 async function skipBeats(page){for(let n=0;n<10&&await page.locator('#beat[open]').count();n++){await page.locator('#beatNext').click();await page.waitForTimeout(60);}}
 async function line(page){return page.evaluate(()=>[document.querySelector('#storyWho').hidden?null:document.querySelector('#storyWho').textContent,document.querySelector('#storyText').textContent,document.querySelector('#storyNext').textContent,document.querySelector('#story').dataset.scene]);}
 // the camp right after the story is exactly a new camp: no coins, energy, parts or places from it
-function isNew(s,tag){assert.equal(s.moves,0,tag);assert.equal(s.coins,0,tag);assert.equal(s.energy,50,tag);assert.deepEqual(s.built,{},tag);assert.equal(s.ordersDone,0,tag);}
+function isNew(s,tag){assert.equal(s.moves,0,tag);assert.equal(s.coins,0,tag);assert.equal(s.energy,100,tag);assert.deepEqual(s.built,{},tag);assert.equal(s.ordersDone,0,tag);}
 async function drag(page,a,z){const A=await page.locator(`#board [data-index="${a}"]`).boundingBox(),Z=await page.locator(`#board [data-index="${z}"]`).boundingBox();
  await page.mouse.move(A.x+A.width/2,A.y+A.height/2);await page.mouse.down();await page.mouse.move(Z.x+Z.width/2,Z.y+Z.height/2,{steps:8});await page.mouse.up();await page.waitForTimeout(250);}
 
@@ -43,7 +43,7 @@ async function drag(page,a,z){const A=await page.locator(`#board [data-index="${
     assert.equal(await page.locator('#beat[open]').count(),0,tag('no second introduction'));
     assert.match(await page.textContent('#hint'),/Tap the Rivet Rover for a part/,tag('guidance for an available action'));
     const rover=await page.evaluate(()=>document.querySelector('#board .tile.source').dataset.index);
-    await page.locator(`#board [data-index="${rover}"]`).click();await page.waitForTimeout(250);assert.equal(JSON.parse(await get(page,KEY)).energy,49,tag('generator tap'));
+    await page.locator(`#board [data-index="${rover}"]`).click();await page.waitForTimeout(250);assert.equal(JSON.parse(await get(page,KEY)).energy,99,tag('generator tap'));
     await page.evaluate(k=>{const s=JSON.parse(localStorage.getItem(k));s.board[30]={type:'item',family:'rig',tier:0};s.board[31]={type:'item',family:'rig',tier:0};s.daily={day:9e6,count:1};localStorage.setItem(k,JSON.stringify(s));},KEY);
     await page.reload();await usable(page);assert.equal((await page.textContent('#homePlay')).trim(),'Continue');await page.locator('#homePlay').click();
     await page.waitForSelector('#home',{state:'hidden'});assert.equal(await page.locator('#story').isVisible(),false,tag('no story on Continue'));
@@ -64,7 +64,7 @@ async function drag(page,a,z){const A=await page.locator(`#board [data-index="${
     const st=JSON.parse(await get(page,STORY));assert.deepEqual([st.intro,st.scene],['skipped',k+1],tag(`skip from scene ${k+1}`));
     isNew(JSON.parse(await get(page,KEY)),tag(`skip from scene ${k+1} gives nothing`));
     await skipBeats(page);const rover=await page.evaluate(()=>document.querySelector('#board .tile.source').dataset.index);
-    await page.locator(`#board [data-index="${rover}"]`).click();await page.waitForTimeout(250);assert.equal(JSON.parse(await get(page,KEY)).energy,49,tag('board plays after Skip'));
+    await page.locator(`#board [data-index="${rover}"]`).click();await page.waitForTimeout(250);assert.equal(JSON.parse(await get(page,KEY)).energy,99,tag('board plays after Skip'));
     assert.deepEqual(errors,[]);await context.close();}
 
    // 3. Reload mid-story: no save, no mark; Home offers Play again and the story starts from the

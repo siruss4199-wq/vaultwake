@@ -46,6 +46,7 @@ test('coin 80→20 ×3 and verified-ad 25 ×2 budgets reject cap overflow and ov
   assert.equal(act(s,{type,id,day:1},0).ok,false);assert.equal(JSON.stringify(s),before);
   s.energy=200-energy;ok(s,{type,id,day:1});assert.equal(s.energy,200);
  }
+ for(const id of ['constructor','__proto__','toString'])for(const type of ['buy','adReward']){const invalid=fresh(0),before=JSON.stringify(invalid);assert.equal(act(invalid,{type,id,day:1},0).ok,false);assert.equal(JSON.stringify(invalid),before,'unknown offers cannot poison the save');}
  const poor=fresh(0);poor.coins=79;const before=JSON.stringify(poor);assert.equal(act(poor,{type:'buy',id:'energy',day:1},0).ok,false);assert.equal(JSON.stringify(poor),before);
 });
 
@@ -78,7 +79,7 @@ test('only a started and completed SDK ad succeeds, once; failures/skips/abort/t
 
 test('malformed receipt data cannot corrupt a valid camp or manufacture energy',()=>{
  const st=store(),key=SAVE_KEY+'-energy-receipts';
- st.set(key,JSON.stringify({camps:{'camp-a':{stages:999}},daily:{day:0,bought:{cog:3,adEnergy:999}}}));
+ st.set(key,JSON.stringify({camps:{'camp-a':{stages:999}},daily:{day:0,bought:{cog:3,adEnergy:999,constructor:1}}}));
  const s=fresh(0);s.energy=75;s.energyRewards.id='camp-a';createEnergyReceipts(st,key).apply(s);
  assert.equal(s.energy,75);assert.equal(s.energyRewards.stages,0);assert.deepEqual(s.shop.bought,{});
  assert.equal(load(JSON.stringify(s),0).energy,75,'the receipt does not turn a valid save into a new camp');
