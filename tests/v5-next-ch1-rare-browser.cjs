@@ -16,7 +16,8 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
  for(const [engine,type] of engines){
   let browser;try{browser=await type.launch();}catch(e){if(engine!=='chromium'&&/Executable doesn't exist/.test(e.message)){console.log(`${engine}: not installed here, skipped`);continue;}throw e;}
   try{for(const [W,H] of [[390,844],[360,780]]){
-   const context=await browser.newContext({viewport:{width:W,height:H},isMobile:engine==='chromium',hasTouch:true,reducedMotion:'reduce'});
+   const record=process.env.VAULTWAKE_RECORD_DIR&&engine==='chromium'&&W===390?{recordVideo:{dir:process.env.VAULTWAKE_RECORD_DIR,size:{width:390,height:844}}}:{};
+   const context=await browser.newContext({viewport:{width:W,height:H},isMobile:engine==='chromium',hasTouch:true,reducedMotion:'reduce',...record});
    const page=await context.newPage(),errors=[];throughHome(page);
    page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
    const tag=s=>`${engine} ${W}×${H}: ${s}`,save=()=>page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
@@ -72,7 +73,7 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
    assert.ok(!s.orders.some(o=>o?.story==='beach-pier'&&o.needs.some(n=>n.family==='mech')&&s.built['beach-pier']>=2),tag('the goal is not asked again'));
    await fits('built');await shot('5-built');
    assert.deepEqual(errors,[],tag('no page errors'));console.log(tag(`Rover merged → crane asks a Gear → ${taps} taps to two Bolts → Gear merged → delivered → crane built, reload clean: ok`));
-   await context.close();
+   await context.close(); // closes Playwright video so Actions can export the real playthrough
   }}finally{await browser.close();}
  }
 })().catch(e=>{console.error(e);process.exit(1);});
