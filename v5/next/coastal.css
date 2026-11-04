@@ -510,11 +510,21 @@ body.nextMode #board .tile.coachTarget,body.nextMode #board .tile.coachTo{box-sh
 @keyframes coachTap{0%,100%{transform:translateY(7px) scale(1)}45%{transform:translateY(0) scale(.94)}}
 @keyframes coachHandDrag{0%,15%{transform:translate(0,0)}75%,100%{transform:translate(var(--dx,0),var(--dy,0))}}
 
-/* The Vault door, far off in the upper-right cliff of the Landing Beach map: the chapter's goal, always in view,
-   closed and quiet (decorative only; no interaction, no change with the stages). Art: coast/landing-vault.webp,
-   cut from the game's own vault-door-thumb. */
-#coastMap .beachScene.mapped .mapVault{position:absolute;left:82.5%;top:15%;width:16.8%;aspect-ratio:1;z-index:1;pointer-events:none;filter:drop-shadow(0 2px 3px #2a1a0c99)}
-#coastMap .beachScene.mapped .mapVault img{width:100%;height:100%;display:block}
-#coastMap .beachScene.mapped .mapVault i{position:absolute;left:50%;top:50%;width:34%;height:34%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,#7ff3ea66,#3fd3d000 70%);animation:mapVaultGlow 4.5s ease-in-out infinite}
-@keyframes mapVaultGlow{0%,100%{opacity:.35}50%{opacity:.85}}
-@media(prefers-reduced-motion:reduce){#coastMap .beachScene.mapped .mapVault i{animation:none;opacity:.55}}
+/* Landing Beach: keep the Vault as a distant, quiet landmark embedded in the
+   upper-right cliff. The cropped art must not read as a pasted-on foreground badge.
+   Decorative only: unchanged across stages and never intercepts build controls. */
+#coastMap .beachScene.mapped[data-area="beach"] .mapVault{
+ position:absolute;left:85%;top:17.5%;width:11.8%;aspect-ratio:1;z-index:1;pointer-events:none;
+ opacity:.79;filter:sepia(.15) saturate(.72) contrast(.9) brightness(.97);
+}
+#coastMap .beachScene.mapped[data-area="beach"] .mapVault img{
+ display:block;width:100%;height:100%;
+ /* Feather the hard circular crop into the painted cliff; do not add a sticker shadow. */
+ -webkit-mask-image:radial-gradient(circle at 50% 50%,#000 44%,#000c 57%,transparent 77%);
+ mask-image:radial-gradient(circle at 50% 50%,#000 44%,#000c 57%,transparent 77%);
+}
+#coastMap .beachScene.mapped[data-area="beach"] .mapVault i{
+ position:absolute;left:50%;top:50%;width:25%;height:25%;transform:translate(-50%,-50%);
+ border-radius:50%;background:radial-gradient(circle,#80d8cf66,transparent 75%);
+ opacity:.22;animation:none;
+}
