@@ -19,6 +19,8 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -29,7 +31,7 @@ jobs:
           node tools/coast-crazygames.mjs --zip
           unzip -t dist/vaultwake-coast-crazygames.zip | tail -3
           sha256sum dist/vaultwake-coast-crazygames.zip | tee dist/vaultwake-coast-crazygames.sha256
-          printf 'Git SHA: %s\nGenerated on: %s\nPurpose: QA CANDIDATE, NOT APPROVED FOR PUBLIC RELEASE\n' "$GITHUB_SHA" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist/RELEASE-CANDIDATE.txt
+          printf 'Git SHA: %s\nGenerated on: %s\nPurpose: QA CANDIDATE, NOT APPROVED FOR PUBLIC RELEASE\n' "$(git rev-parse HEAD)" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist/RELEASE-CANDIDATE.txt
       - name: Unpack package and check root entry
         run: |
           mkdir -p /tmp/vaultwake-package
@@ -50,7 +52,7 @@ jobs:
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
-          name: vaultwake-crazygames-QA-${{ github.sha }}
+          name: vaultwake-crazygames-QA-${{ github.event.pull_request.head.sha || github.sha }}
           path: |
             dist/vaultwake-coast-crazygames.zip
             dist/vaultwake-coast-crazygames.sha256
