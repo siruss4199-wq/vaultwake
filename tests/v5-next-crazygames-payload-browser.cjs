@@ -34,7 +34,7 @@ const MB=1024*1024;
     // Count the full uncompressed HTTP bytes (a conservative upper bound).
     const responseBytes=initial.map(response=>{
       const raw=response.headers()['content-length'];
-      assert.ok(raw&&/^\\d+$/.test(raw),name+' '+width+': missing Content-Length for '+response.url());
+      assert.ok(raw&&/^\d+$/.test(raw),name+' '+width+': missing Content-Length for '+response.url());
       return {path:new URL(response.url()).pathname,bytes:Number(raw)};
     });
     const total=responseBytes.reduce((n,x)=>n+x.bytes,0);
