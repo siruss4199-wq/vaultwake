@@ -31,7 +31,7 @@ const place=(id,icon,at,stages,art)=>({id,icon,at,name:stages[0].name,stages,...
 export const AREAS=[
  // map (Build 41n): the coast screen's own picture, painted from above, with each place's stage
  // drawn on it as a separate layer standing on its point (at = where its ground sits, in %).
- {id:'beach',name:'Landing Beach',short:'BEACH',picture:'landing',map:'landing-map',
+ {id:'beach',name:'Landing Beach',short:'BEACH',picture:'landing',map:'landing-map-vault',
   // build 51c: one line, the story's own (shown only when a new camp's story was not just played)
   intro:[['ivo','The letter brought us to that Vault. First, let\'s clear a landing.']],
   tasks:[

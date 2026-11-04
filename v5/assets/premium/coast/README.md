@@ -72,5 +72,6 @@ cog renders above for items on the board; place stages still use the renders.
 were cut from the user's painted sheet by each object's own connected pixels (no equal cells), with every
 edge, shadow and glow kept, and placed on one shared 338 px square canvas (saved at 360 px) with the ground
 of every stage at the same point (50 %, 90 %), so an upgrade swaps the picture without moving it. They
-replace the ray-marched beach renders; the worksite places still use theirs. `../landing-map.webp` is the
+replace the ray-marched beach renders; the worksite places still use theirs. `../landing-map-vault.webp` (the painted sheet with the Vault entrance worked into its upper-right cliff by
+`tools/paint-landing-vault.py`; it replaces `landing-map.webp` and the earlier pasted door overlay) is the
 user's painted Landing Beach map (1024 px) that the places stand on.
