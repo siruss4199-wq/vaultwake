@@ -1,0 +1,39 @@
+name: Vaultwake release ZIP initial download audit
+on:
+  push:
+    branches: [release/v5-crazygames-payload-audit]
+permissions:
+  contents: read
+jobs:
+  initial-download:
+    name: Measure CrazyGames ZIP initial download
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build the exact release ZIP
+        run: |
+          node tools/coast-crazygames.mjs --check
+          node tools/coast-crazygames.mjs --zip
+          unzip -t dist/vaultwake-coast-crazygames.zip
+          mkdir -p /tmp/vaultwake-qa
+          unzip -q dist/vaultwake-coast-crazygames.zip -d /tmp/vaultwake-qa
+      - name: Install browser QA engines
+        run: npm install --no-save playwright@1.62.1 && npx playwright install --with-deps chromium webkit firefox
+      - name: Measure initial network payloads from extracted ZIP
+        env:
+          CG_URL: http://127.0.0.1:8081/index.html
+        run: |
+          python3 -m http.server 8081 --directory /tmp/vaultwake-qa > /tmp/vaultwake-qa.log 2>&1 &
+          sleep 1
+          node tests/v5-next-crazygames-payload-browser.cjs | tee /tmp/release-payload-results.jsonl
+      - name: Save download measurements
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: vaultwake-initial-download-${{ github.sha }}
+          path: /tmp/release-payload-results.jsonl
+          retention-days: 30
