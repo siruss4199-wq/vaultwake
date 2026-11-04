@@ -1,7 +1,7 @@
 name: V5 PR93 browser QA
 on:
   push:
-    branches: [codex/v5-order-economy-recipe-fix, codex/v5-release-qa]
+    branches: [codex/v5-order-economy-recipe-fix, codex/v5-release-qa, fix/v5-vault-door-cliff-blend]
   pull_request:
     branches: [codex/v5-order-economy-recipe-fix]
 
