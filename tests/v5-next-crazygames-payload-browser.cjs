@@ -29,10 +29,14 @@ const MB=1024*1024;
     await page.waitForFunction(()=>window.__cg?.includes('gameplayStart'),null,{timeout:10000});
     // Freeze the list at gameplayStart; later lazily loaded screens don't belong to initial download.
     const initial=local.slice();
-    const responseBytes=await Promise.all(initial.map(async response=>({
-      path:new URL(response.url()).pathname,
-      bytes:(await response.body()).byteLength
-    })));
+    // The bootstrap index can navigate away before response.body() is available.
+    // Python's static release server provides Content-Length for every asset.
+    // Count the full uncompressed HTTP bytes (a conservative upper bound).
+    const responseBytes=initial.map(response=>{
+      const raw=response.headers()['content-length'];
+      assert.ok(raw&&/^\\d+$/.test(raw),name+' '+width+': missing Content-Length for '+response.url());
+      return {path:new URL(response.url()).pathname,bytes:Number(raw)};
+    });
     const total=responseBytes.reduce((n,x)=>n+x.bytes,0);
     const limit=(width<500?20:50)*MB;
     assert.deepEqual(bad,[],name+' '+width+': no missing release assets');
