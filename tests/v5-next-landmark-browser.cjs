@@ -20,16 +20,21 @@ const KEY='vaultwake-v5-coast',URL='http://127.0.0.1:8080/v5/play.html';
     await page.evaluate(([key,built])=>{const s=JSON.parse(localStorage.getItem(key));s.built=built;s.materials={...built};localStorage.setItem(key,JSON.stringify(s));},[KEY,built]);
     await page.reload();await beats();await page.locator('#mapButton').click();
     const vault=page.locator('#coastMap .mapVault');await vault.waitFor({state:'visible'});
-    await vault.locator('img').evaluate(img=>img.decode());
     const geometry=await vault.evaluate(e=>{
      const r=e.getBoundingClientRect(),s=e.closest('.beachScene').getBoundingClientRect();
-     return {w:r.width,h:r.height,inside:r.left>=s.left&&r.right<=s.right+1&&r.top>=s.top&&r.bottom<=s.bottom,
+     const cut=getComputedStyle(e,'::before'),rock=getComputedStyle(e,'::after');
+     return {w:r.width,h:r.height,ratio:r.width/s.width,inside:r.left>=s.left&&r.right<=s.right+1&&r.top>=s.top&&r.bottom<=s.bottom,
       pointer:getComputedStyle(e).pointerEvents,animation:getComputedStyle(e.querySelector('i')).animationName,
-      hidden:e.getAttribute('aria-hidden'),loaded:e.querySelector('img').naturalWidth>0,
-      overflow:document.documentElement.scrollWidth>innerWidth+1};
+      pastedImages:e.querySelectorAll('img').length,cut:cut.content,cutShape:cut.clipPath,rock:rock.content,
+      hidden:e.getAttribute('aria-hidden'),overflow:document.documentElement.scrollWidth>innerWidth+1};
     });
-    assert.ok(geometry.w>=35&&geometry.h>=35,JSON.stringify({name,width,stages,geometry}));
-    assert.equal(geometry.inside,true);assert.equal(geometry.loaded,true);
+    assert.ok(geometry.w>=22&&geometry.h>=22,JSON.stringify({name,width,stages,geometry}));
+    assert.equal(geometry.inside,true);
+    assert.equal(geometry.pastedImages,0,'beach Vault must not paste a circular illustration onto the map');
+    assert.ok(geometry.ratio<=.09,'Vault recess remains a small background detail: '+JSON.stringify(geometry));
+    assert.notEqual(geometry.cut,'none','Vault recess must render a cliff cut');
+    assert.notEqual(geometry.cutShape,'none','Vault opening must have an irregular silhouette');
+    assert.notEqual(geometry.rock,'none','foreground rock must overlap the recess');
     assert.equal(geometry.pointer,'none','decorative Vault cannot block building controls');
     assert.equal(geometry.hidden,'true');assert.equal(geometry.animation,'none');assert.equal(geometry.overflow,false);
     assert.equal(await page.locator('#coastMap .beachScene').getAttribute('data-built'),String(stages));

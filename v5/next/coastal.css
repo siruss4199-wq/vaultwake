@@ -510,11 +510,36 @@ body.nextMode #board .tile.coachTarget,body.nextMode #board .tile.coachTo{box-sh
 @keyframes coachTap{0%,100%{transform:translateY(7px) scale(1)}45%{transform:translateY(0) scale(.94)}}
 @keyframes coachHandDrag{0%,15%{transform:translate(0,0)}75%,100%{transform:translate(var(--dx,0),var(--dy,0))}}
 
-/* The Vault door, far off in the upper-right cliff of the Landing Beach map: the chapter's goal, always in view,
-   closed and quiet (decorative only; no interaction, no change with the stages). Art: coast/landing-vault.webp,
-   cut from the game's own vault-door-thumb. */
-#coastMap .beachScene.mapped .mapVault{position:absolute;left:82.5%;top:15%;width:16.8%;aspect-ratio:1;z-index:1;pointer-events:none;filter:drop-shadow(0 2px 3px #2a1a0c99)}
-#coastMap .beachScene.mapped .mapVault img{width:100%;height:100%;display:block}
-#coastMap .beachScene.mapped .mapVault i{position:absolute;left:50%;top:50%;width:34%;height:34%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,#7ff3ea66,#3fd3d000 70%);animation:mapVaultGlow 4.5s ease-in-out infinite}
-@keyframes mapVaultGlow{0%,100%{opacity:.35}50%{opacity:.85}}
-@media(prefers-reduced-motion:reduce){#coastMap .beachScene.mapped .mapVault i{animation:none;opacity:.55}}
+/* Landing Beach: a weathered recess in the upper-right rock face, not a
+   separate circular door sticker. This is a quiet narrative hint, not a UI icon.
+   No interaction, animation, stage gating or save-state change. */
+#coastMap .beachScene.mapped[data-area="beach"] .mapVault{
+ position:absolute;left:88.2%;top:20%;width:8%;height:11.5%;z-index:1;
+ pointer-events:none;opacity:.82;filter:none;isolation:isolate;
+}
+/* A shallow, irregular opening: the cliff is visible around and over the cut. */
+#coastMap .beachScene.mapped[data-area="beach"] .mapVault::before{
+ content:"";position:absolute;inset:4% 5% 2% 7%;
+ clip-path:polygon(11% 95%,7% 45%,14% 20%,29% 8%,59% 4%,78% 14%,90% 34%,93% 93%,74% 99%,26% 98%);
+ border-radius:46% 43% 16% 17%/30% 28% 12% 10%;
+ background:
+  radial-gradient(ellipse 58% 70% at 49% 60%,#233732cf 0%,#40453cc4 45%,#5d5948a1 67%,transparent 100%),
+  linear-gradient(115deg,transparent 10%,#b8a68047 37%,#e4c88a22 66%,transparent 90%);
+ box-shadow:inset 3px 3px 6px #211b1470,inset -3px 0 5px #7c6d5360;
+ mix-blend-mode:multiply;
+}
+/* Uneven foreground stone partly hides the foot of the entrance. */
+#coastMap .beachScene.mapped[data-area="beach"] .mapVault::after{
+ content:"";position:absolute;left:0;right:-2%;bottom:-5%;height:26%;
+ background:
+  radial-gradient(ellipse at 24% 90%,#b8a37d9c 0%,#d6bc8c8a 37%,transparent 72%),
+  radial-gradient(ellipse at 86% 94%,#b19d76ac 0%,#e1c5986b 39%,transparent 73%);
+ opacity:.67;pointer-events:none;
+}
+/* A faint light seam is the sole clue this is a Vault, not a cave. */
+#coastMap .beachScene.mapped[data-area="beach"] .mapVault i{
+ position:absolute;left:49%;top:30%;width:2%;height:48%;
+ border-radius:50%;transform:none;
+ background:linear-gradient(180deg,transparent,#a8ded2a8 35%,#9dcac099 64%,transparent);
+ box-shadow:0 0 3px #9ac9bb55;opacity:.58;animation:none;
+}
