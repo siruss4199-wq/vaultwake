@@ -46,10 +46,10 @@ export const AREAS=[
    place('beach-mast','source-chart',[50,34],[
     {name:'Raise the signal mast',cost:100,effect:{slots:4},lines:[['neri','The mast is up. Camps along the reach can see our signal.'],['bram','More crews will send orders now: a fourth order card.']]},
     {name:'Hang the signal flags',cost:120,effect:{copy:'rig'},lines:[['neri','Flags for every crew along the reach. They know who we are.'],['bram','A neighbouring camp answered with a gift: another Rivet Rover.']]},
-    {name:'Fit a lookout nest',cost:150,effect:{token:1},lines:[['tamsin','From the lookout I can see the cliff path, and something glinting beyond it.']]}],'mast'),
+    {name:'Fit a lookout nest',cost:150,rare:['mech',1],effect:{token:1},lines:[['tamsin','A geared lookout scope sweeps the cliff path. Something glints beyond it.']]}],'mast'),
    place('beach-workshop','workshop',[21,47],[
     {name:'Restore the Coastal Workshop',cost:100,effect:{copy:'newest'},lines:[['ivo','Tools on the wall, fire in the forge.'],['ivo','In the back of the Workshop: a copy of our newest generator. Merge it in for a stronger one.']]},
-    {name:'Fire up the forge',cost:120,effect:{kit:['newest',2]},lines:[['ivo','The forge is hot again. Every tool in camp gets a fresh edge.']]},
+    {name:'Fire up the forge',cost:120,rare:['mech',1],effect:{kit:['newest',2]},lines:[['ivo','The new geared bellows bring the forge back to life. Every tool gets a fresh edge.']]},
     {name:'Open the parts store',cost:150,effect:{kit:['newest',2]},lines:[['ivo','Shelves for every part we make. The Workshop runs like a clock.']]}],'workshop'),
    place('beach-pier','crate-survey',[66,80],[
     {name:'Build the supply pier',cost:120,effect:{kit:['newest',2]},lines:[['bram','A pier means supply boats. The first one brought a sea chest for our newest generator.']]},
@@ -57,7 +57,7 @@ export const AREAS=[
     {name:'Moor the supply boat',cost:180,effect:{kit:['newest',3]},lines:[['bram','Our own boat, tied up and ready. The beach is joined to the world again.']]}],'pier'),
    place('beach-beacon','flux-3',[76,40],[
     {name:'Light the beacon',cost:140,effect:{energy:10},lines:[['tamsin','The beacon burns all night. Nobody gets lost on this beach again.'],['ivo','The crew is rested and proud: +10 energy.']]},
-    {name:'Mirror the beacon',cost:170,effect:{copy:'newest'},lines:[['tamsin','Brass mirrors double the light. Ships see us from the open sea.'],['tamsin','A trader followed the light in and left us a copy of our newest generator.']]},
+    {name:'Mirror the beacon',cost:170,rare:['mech',1],effect:{copy:'newest'},lines:[['tamsin','Brass mirrors double the light. Ships see us from the open sea.'],['tamsin','A trader followed the light in and left us a copy of our newest generator.']]},
     {name:'Crown the beacon',cost:200,effect:{token:1},lines:[['tamsin','The beacon wears a crown of tideglass. It hums when the tide turns.']]}],'beacon'),
    place('beach-cliff','chart-1',[88,56],[
     {name:'Clear the cliff path',cost:160,effect:{energy:3},lines:[['neri','Rockfall cleared. The path climbs halfway up the cliff.']]},
@@ -76,14 +76,14 @@ export const AREAS=[
    place('ws-camp','crate-survey',[10,50],[
     {name:'Pitch the survey camp',cost:80,effect:{energy:8},lines:[['bram','Tents up on the cliff top. The crew can sleep where it works.'],['ivo','+8 energy for the crew.']]},
     {name:'Stack the instrument crates',cost:100,effect:{kit:['newest',2]},lines:[['neri','Every crate labelled and stacked. One of them was still full: a sea chest for our newest generator.']]},
-    {name:'Raise a drafting table',cost:130,effect:{token:1},lines:[['neri','A table for the maps. Now we can plan the whole cliff on paper first.']]}],'ws-camp'),
+    {name:'Raise a drafting table',cost:130,rare:['notes',1],effect:{token:1},lines:[['neri','A table for the maps. Now we can plan the whole cliff on paper first.']]}],'ws-camp'),
    place('ws-scope','chart-3',[28,64],[
     {name:'Set up the theodolite',cost:100,effect:{copy:'newest'},lines:[['neri','The old theodolite still turns. It points straight at the door in the rock.'],['ivo','Packed beside it: a copy of our newest generator. Merge it in.']]},
     {name:'Mark the survey lines',cost:130,effect:{energy:5},lines:[['neri','White lines across the whole worksite. Nobody digs in the wrong place again.']]},
     {name:'Chart the whole cliff',cost:140,rare:['notes',2],effect:{kit:['newest',2]},lines:[['neri','The cliff is charted, every ledge and crack. The door sits in the middle of an old quarry.']]}],'ws-scope'),
    place('ws-ropes','rope-1',[14,86],[
     {name:'Coil the hauling ropes',cost:110,effect:{copy:'newest'},lines:[['ivo','Rope everywhere, tangled by the storm. Coiled, it is worth more than gold up here.'],['ivo','Under the last coil: a copy of our newest generator.']]},
-    {name:'Splice the long lines',cost:140,effect:{token:1},lines:[['ivo','Spliced lines long enough to reach the beach. Loads can come straight up.']]},
+    {name:'Splice the long lines',cost:140,rare:['mech',1],effect:{token:1},lines:[['ivo','Spliced lines long enough to reach the beach. Loads can come straight up.']]},
     {name:'Rig the rope store',cost:160,effect:{kit:['rope',3]},lines:[['ivo','A proper rope store, dry and ordered. The Rope Winch never runs short.'],['bram','The store keeper left us a captain\'s trunk for the winch.']]}],'ws-ropes'),
    place('ws-steps','rock',[48,60],[
     {name:'Cut steps through the rocks',cost:130,effect:{energy:10},lines:[['ivo','Steps cut through the boulders. The carts reach the door now.'],['bram','The crew is proud of the work: +10 energy.']]},
@@ -91,7 +91,7 @@ export const AREAS=[
     {name:'Pave the quarry floor',cost:170,effect:{kit:['newest',2]},lines:[['bram','A level floor in front of the door. Room for the whole crew and all the tools.']]}],'ws-steps'),
    place('ws-pool','shell-2',[62,84],[
     {name:'Drain the tide pool',cost:140,effect:{kit:['newest',2]},lines:[['tamsin','The pool below the door drains with the tide. Shells everywhere, and something glinting.']]},
-    {name:'Sieve the pool bed',cost:170,effect:{token:1},lines:[['tamsin','Sieved sand, sorted shells. One of them hums like the beacon did.']]},
+    {name:'Sieve the pool bed',cost:170,rare:['notes',1],effect:{token:1},lines:[['tamsin','Sieved sand, sorted shells. One of them hums like the beacon did.']]},
     {name:'Wall in the pool',cost:200,effect:{copy:'newest'},lines:[['tamsin','A stone wall keeps the sea out. The pool is a workshop now.'],['tamsin','At the bottom: a copy of our newest generator.']]}],'ws-pool'),
    place('ws-hoist','source-rope',[89,70],[
     {name:'Raise the rope hoist',cost:160,effect:{energy:10},lines:[['ivo','A hoist on the cliff edge. One pull and the beach sends up anything we need.'],['bram','Supplies came up with the first load: +10 energy.']]},

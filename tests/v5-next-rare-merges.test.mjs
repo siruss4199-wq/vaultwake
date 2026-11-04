@@ -7,7 +7,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {fresh,act,load,item,source,makeOrder,upgrades,secondaryNeed,secondaryFree,secondaryDrops,secondaryPaused,secondaryUnits,secondaryWanted,secondaryUnlock,
- goldPrice,GOLD_PAY,partValue,SECONDARY_ORDERS,isSecondary,ROVER,allDone,totalBuilt,stageOf,goldChase,secondaryRoll,SECONDARY_RULES} from '../v5/next/game.mjs';
+ goldPrice,storyTarget,GOLD_PAY,partValue,SECONDARY_ORDERS,isSecondary,ROVER,allDone,totalBuilt,stageOf,goldChase,secondaryRoll,SECONDARY_RULES} from '../v5/next/game.mjs';
 import {AREAS,TASKS,STAGES} from '../v5/next/areas.mjs';
 import {CHAINS,maxTier} from '../v5/next/chains.mjs';
 
@@ -70,7 +70,7 @@ test('builds 48c and 51b: stages name a fixed merged rare part: Gears, Expeditio
  const rare=Object.values(TASKS).flatMap(t=>t.stages.map((st,k)=>st.rare?[t.id,k+1,st.name,...st.rare]:null).filter(Boolean));
  // build 51b: Chapter 1's five new ones (the pier's crane, the cliff gate, the cliff chart, the dial's map, the middle ring);
  // 52A player feedback: the path's lanterns, the first one, before the Survey Kite
- assert.deepEqual(rare,[['beach-path',3,'Line the path with lanterns','mech',1],['beach-pier',2,'Add a cargo crane','mech',1],['beach-cliff',3,'Open the cliff gate','notes',1],['ws-scope',3,'Chart the whole cliff','notes',2],['ws-hoist',2,'Gear the hoist','mech',1],['ws-door',3,'Map the dial','notes',1],['vault-door',2,'Turn the middle ring','mech',2],
+ assert.deepEqual(rare,[['beach-path',3,'Line the path with lanterns','mech',1],['beach-mast',3,'Fit a lookout nest','mech',1],['beach-workshop',2,'Fire up the forge','mech',1],['beach-pier',2,'Add a cargo crane','mech',1],['beach-beacon',2,'Mirror the beacon','mech',1],['beach-cliff',3,'Open the cliff gate','notes',1],['ws-camp',3,'Raise a drafting table','notes',1],['ws-scope',3,'Chart the whole cliff','notes',2],['ws-ropes',2,'Splice the long lines','mech',1],['ws-pool',2,'Sieve the pool bed','notes',1],['ws-hoist',2,'Gear the hoist','mech',1],['ws-door',3,'Map the dial','notes',1],['vault-door',2,'Turn the middle ring','mech',2],
   ['obs-desk',2,'Unroll the old charts','notes',1],['obs-desk',3,'Read the last logbook','notes',2],
   ['obs-bench',2,'Fit the grinding wheel','mech',1],['hb-crane',3,'Recover the cargo','mech',2],['hb-registry',3,'Trace the route','notes',2]]);
  for(const [id,,,f,tier] of rare)assert.ok(CHAINS[f].secondary&&tier>=1&&tier<=2&&tier<maxTier(f),`${id}: a merged part below the keepsake, never a single Bolt or note fragment`);
@@ -88,10 +88,10 @@ const crane=()=>{const s=fresh(0);s.area=4;s.built={...done(AREAS[0]),...done(AR
 // the gold order first, then primary-only crew orders up to the camp's slots (a valid save)
 const withGold=s=>{s.orders=[makeOrder(s)];for(let k=s.orders.length;k<s.slots;k++)s.orders.push({id:'p'+k,who:'ivo',needs:[{family:'rig',tier:1,count:1}],coins:5});return s;};
 
-test('a mapped stage\'s gold order asks its rare part instead of its second material, only when the chain can drop', ()=>{
+test('a mapped stage\'s Gold order adds a rare part without removing its ordinary materials, only when the chain can drop', ()=>{
  const s=crane();
- let o=makeOrder(s);assert.equal(o.story,'hb-crane');assert.deepEqual(o.needs,[{family:'rope',tier:4,count:1},{family:'mech',tier:2,count:1}],'Recover the cargo: a Gear assembly instead of the Pocket winch');
- assert.equal(o.coins,goldPrice(s,o.needs));
+ let o=makeOrder(s);assert.equal(o.story,'hb-crane');assert.deepEqual(o.needs,[{family:'rope',tier:4,count:1},{family:'rig',tier:2,count:1},{family:'mech',tier:2,count:1}],'Recover the cargo: two craftable regular parts and an additional Gear assembly');
+ assert.equal(o.coins,goldPrice(s,o.needs,storyTarget(s)),'Gold payout follows stage cost instead of ingredient value');
  // no level-2 Rover on the board: the chain cannot drop, so the stage's usual materials (no circular unlock)
  const t=structuredClone(s);t.board[ROVER].level=1;o=makeOrder(t);assert.deepEqual(o.needs,[{family:'rope',tier:4,count:1},{family:'rig',tier:3,count:1}]);
  // an unmapped stage keeps its materials (Fit the pulley, build 48b's Gear, is no longer mapped)

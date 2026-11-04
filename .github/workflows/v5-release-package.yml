@@ -1,0 +1,51 @@
+name: Vaultwake CrazyGames release candidate package
+on:
+  push:
+    branches: [codex/v5-order-economy-recipe-fix]
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    name: Build, unpack and play release ZIP
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check CrazyGames landing page matches game
+        run: node tools/coast-crazygames.mjs --check
+      - name: Create release-candidate ZIP
+        run: |
+          node tools/coast-crazygames.mjs --zip
+          unzip -t dist/vaultwake-coast-crazygames.zip | tail -3
+          sha256sum dist/vaultwake-coast-crazygames.zip | tee dist/vaultwake-coast-crazygames.sha256
+          printf 'Git SHA: %s\nGenerated on: %s\nPurpose: QA CANDIDATE, NOT APPROVED FOR PUBLIC RELEASE\n' "$GITHUB_SHA" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist/RELEASE-CANDIDATE.txt
+      - name: Unpack package and check root entry
+        run: |
+          mkdir -p /tmp/vaultwake-package
+          unzip -q dist/vaultwake-coast-crazygames.zip -d /tmp/vaultwake-package
+          test -s /tmp/vaultwake-package/index.html
+          test -s /tmp/vaultwake-package/v5/coast-crazygames.html
+      - name: Install real browser engines
+        run: npm install --no-save playwright@1.62.1 && npx playwright install --with-deps chromium webkit
+      - name: Play from extracted ZIP, not repository checkout
+        env:
+          CG_URL: http://127.0.0.1:8081/index.html
+        run: |
+          python3 -m http.server 8081 --directory /tmp/vaultwake-package > /tmp/vaultwake-package-http.log 2>&1 &
+          sleep 1
+          node tests/v5-next-crazygames-browser.cjs
+      - name: Store tested ZIP and checksum
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: vaultwake-crazygames-QA-${{ github.sha }}
+          path: |
+            dist/vaultwake-coast-crazygames.zip
+            dist/vaultwake-coast-crazygames.sha256
+            dist/RELEASE-CANDIDATE.txt
+          retention-days: 30

@@ -869,7 +869,7 @@ function sceneHtml(area){
  const done=areaDone(state,area),vars=area.tasks.map((t,k)=>{const n=stageOf(state,t.id),grow=lastStage?.id===t.id;return `--r${k}:${REVEAL[grow?lastStage.stage-1:n]}`;}).join(';');
  const masks=area.tasks.map((t,k)=>`radial-gradient(ellipse calc(var(--r${k})*1%) calc(var(--r${k})*2%) at ${t.at[0]}% ${t.at[1]}%,#000 40%,transparent 100%)`).join(',');
  const pic=area.map?`assets/premium/${area.map}.webp`:`assets/premium/${area.picture}-vibrant.webp`;
- return `<div class="beachScene ${done?'complete':''} ${area.map?'mapped':''}" data-area="${area.id}" data-built="${builtCount(state,area)}" style="--p:${(builtCount(state,area)/(area.tasks.length*STAGES)).toFixed(3)}"><img class="sceneBase" src="${pic}" alt="${area.name}, ${done?'fully restored':builtCount(state,area)+' of '+area.tasks.length*STAGES+' upgrades'}"><div class="sceneStorm" aria-hidden="true"></div>${area.id==='entrance'?`<div class="doorRings" data-stage="${stageOf(state,'vault-door')}" aria-hidden="true"><i></i><i></i><i></i></div>`:''}<img class="sceneColor" src="${pic}" alt="" aria-hidden="true" style="${vars};-webkit-mask-image:${masks};mask-image:${masks}"><div class="restored">${area.id==='vault'?'':placeIcons(area.tasks.filter(t=>stageOf(state,t.id)>0))}</div></div>`;
+ return `<div class="beachScene ${done?'complete':''} ${area.map?'mapped':''}" data-area="${area.id}" data-built="${builtCount(state,area)}" style="--p:${(builtCount(state,area)/(area.tasks.length*STAGES)).toFixed(3)}"><img class="sceneBase" src="${pic}" alt="${area.name}, ${done?'fully restored':builtCount(state,area)+' of '+area.tasks.length*STAGES+' upgrades'}"><div class="sceneStorm" aria-hidden="true"></div>${area.id==='entrance'?`<div class="doorRings" data-stage="${stageOf(state,'vault-door')}" aria-hidden="true"><i></i><i></i><i></i></div>`:''}<img class="sceneColor" src="${pic}" alt="" aria-hidden="true" style="${vars};-webkit-mask-image:${masks};mask-image:${masks}">${area.id==='beach'&&area.map?'<span class="mapVault" aria-hidden="true"><img src="assets/premium/coast/landing-vault.webp" alt="" draggable="false"><i></i></span>':''}<div class="restored">${area.id==='vault'?'':placeIcons(area.tasks.filter(t=>stageOf(state,t.id)>0))}</div></div>`;
 }
 function harbourScene(area){
  const done=areaDone(state,area),built=builtCount(state,area),all=area.tasks.length*STAGES,m=harbourMasks(area);
@@ -954,13 +954,19 @@ function showMap(){
  const later=laterAreas.map(a=>`<section class="mapArea coming"><div class="mapHead"><img src="assets/premium/${a.picture}-vibrant.webp" alt=""><div><h2>${a.name}</h2><b>${a.coming?'Not available yet':'Next'}</b></div></div></section>`).join('');
  // Build 44: the whole way to the Vault, small, at the top: areas done, this one, the ones still
  // to come, and the Vault itself at the end (all real areas; the later ones open in updates).
- const journey=`<ol class="journey" aria-label="The way to the Vault">${AREAS.map((a,k)=>`<li class="${k<state.area?'done':k===state.area?'here':'later'} ${a.id==='vault'?'vault':''}"><img src="assets/premium/${a.picture}-vibrant.webp" alt=""><span>${a.name}</span></li>`).join('')}</ol>`;
+ // The progress strip is a scrollable, read-only journey; each label is unique.
+ // The first three areas form Chapter 1, then one area per Chapter 2–6.
+ const journeyNames={beach:'BEACH',worksite:'SURVEY',entrance:'VAULT',vault:'OBSERVATORY',harbour:'HARBOUR','answering-light':'LIGHT',lowwater:'REEF',keeper:'STATION'};
+ const journey=`<ol class="journey" aria-label="Chapter and area progress">${AREAS.map((a,k)=>`<li class="${k<state.area?'done':k===state.area?'here':'later'} ${a.id==='vault'?'vault':''}"${k===state.area?' aria-current="step"':''} aria-label="Chapter ${k<3?1:k-1}: ${a.name}${k<state.area?', complete':k===state.area?', current':', upcoming'}"><img src="assets/premium/${a.picture}-vibrant.webp" alt=""><span>${journeyNames[a.id]??a.short}</span></li>`).join('')}</ol>`;
  $('#mapContent').innerHTML=`<div class="beachTop"><h2 id="mapTitle" class="mapTitle">${area.name}</h2><b class="beachCoins">${COIN} ${state.coins}</b></div>${journey}
   <div class="sceneWrap">${sceneHtml(area)}<div class="sceneLight" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div><div class="siteMarkers">${markers}</div>
   <div class="mapProgress" role="img" aria-label="${built} of ${total} stages in ${area.name}"><i style="width:${(100*built/total).toFixed(1)}%"></i><b>${built} / ${total} stages${areaDone(state)?' · complete!':''}</b></div></div>
   ${mapCard(area,focus,open.get(focus.id))}
   <ol class="places">${places}</ol>${before}${laterAreas.length?`<details class="mapFuture"><summary>Coming next · ${laterAreas.length} area${laterAreas.length>1?'s':''}</summary>${later}</details>`:''}
   <button class="backToBoard" type="button" data-back>Back to the board</button>`;
+ // Centre the active chapter on first render without scrolling the page itself.
+ {const strip=$('#coastMap .journey'),active=strip?.querySelector('[aria-current="step"]');
+  if(strip&&active)strip.scrollLeft=Math.max(0,active.offsetLeft-strip.offsetLeft-(strip.clientWidth-active.offsetWidth)/2);}
  // The place row scrolls sideways to keep the chosen place in view (Build 41n).
  {const row=$('#coastMap .places'),sel=row?.querySelector('.place.selected');if(sel)row.scrollLeft=Math.max(0,sel.offsetLeft-(row.clientWidth-sel.offsetWidth)/2);}
  // Opening plays the screen in (picture, pins, card, tiles); choosing another place swaps the card.

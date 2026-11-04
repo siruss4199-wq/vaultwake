@@ -1,0 +1,56 @@
+name: Vaultwake release chapter QA
+on:
+  push:
+    branches: [codex/v5-order-economy-recipe-fix]
+
+permissions:
+  contents: read
+
+jobs:
+  chapters:
+    name: Chapter ${{ matrix.chapter }} browser QA
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        chapter: [2, 3, 4, 5, 6]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium
+        run: npm install --no-save playwright@1.62.1 && npx playwright install --with-deps chromium
+      - name: Run Chapter browser journey at phone/tablet viewports
+        env:
+          ENGINES: chromium
+        run: |
+          python3 -m http.server 8080 > /tmp/vaultwake-http.log 2>&1 &
+          sleep 1
+          node tests/v5-next-chapter${{ matrix.chapter }}-browser.cjs
+
+  other-mobile:
+    name: Wider Coast mobile browser QA
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium and WebKit
+        run: npm install --no-save playwright@1.62.1 && npx playwright install --with-deps chromium webkit
+      - name: Run core mobile journeys
+        run: |
+          python3 -m http.server 8080 > /tmp/vaultwake-http.log 2>&1 &
+          sleep 1
+          node tests/v5-next-browser.cjs
+          node tests/v5-next-bright-browser.cjs
+          node tests/v5-next-energy-browser.cjs
+          node tests/v5-next-extras-browser.cjs
+          node tests/v5-next-home-browser.cjs
+          node tests/v5-next-story-browser.cjs
+          node tests/v5-next-rewards-browser.cjs
+          node tests/v5-next-playtest-browser.cjs

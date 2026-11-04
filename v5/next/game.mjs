@@ -103,7 +103,8 @@ export const rareRule=(s,gen)=>totalBuilt(s)<RARE_EARLY.until?{...SECONDARY_RULE
 // Build 48b: goal 2 (was 1), so a request can be a merged part one or two drops away.
 // Build 52A: goalLate, the same allowance from Chapter 2 on (area 3+): 3 drops, so a Level 3 rare part (four
 // drops) is asked once two of them are held (measured: Level 3 crew asks 7-8 → about 20 a game, Level 2 fewer).
-export const SECONDARY_ORDERS={share:3,top:2,rarity:2,goal:2,goalLate:3};
+// Offer rare crew work more often after unlocking both rare chains; retain slot, supply and Gold conflict caps.
+export const SECONDARY_ORDERS={share:2,top:2,rarity:2,goal:2,goalLate:3};
 // A kind's chain is open (s.secOpen, saved) once one of its generators has reached level 2.
 export const secondaryOn=(s,gen)=>{const r=SECONDARY_RULES[gen];return !!r&&r.model!=='off'&&!!SECONDARY_OF[gen]&&sourceOpen(s,gen)&&!!s.secOpen?.[gen];};
 // Whether the generator on cell i is one that makes secondary parts (level 2 or more, chain open).
@@ -442,7 +443,18 @@ export const GOLD_PAY={rate:1.1,early:2,earlyRate:0.9,opening:1,openingRate:1.5,
 export const priceOf=(needs,story=false)=>{const v=needs.reduce((v,r)=>v+r.count*partValue(r),0);return story?Math.round(v*1.5/5)*5:v;};
 // what a gold order pays, by the stages built so far
 export const goldRate=s=>{const n=totalBuilt(s);return n<GOLD_PAY.opening?GOLD_PAY.openingRate:n<GOLD_PAY.early?GOLD_PAY.earlyRate:n<GOLD_PAY.mid?GOLD_PAY.midRate:GOLD_PAY.rate;};
-export const goldPrice=(s,needs)=>{const v=needs.reduce((v,r)=>v+r.count*partValue(r),0);return Math.round(v*goldRate(s)/5)*5;};
+// Gold orders bring restoration materials. Crew orders must fund the remainder.
+// Do not let adding an ingredient increase the Gold order's cash payout.
+// The opening guide's 70 coins and legacy goldPrice(s, needs) calls remain intact.
+export const GOLD_STAGE_SHARE=.35;
+export const goldPrice=(s,needs,stage=null)=>{
+ const v=needs.reduce((v,r)=>v+r.count*partValue(r),0);
+ const built=totalBuilt(s);
+ // Preserve the guided first stage and the second stage's established payout.
+ // From stage three, the story's materials provide only a minority of build coins.
+ if(stage&&built>=2)return Math.max(10,Math.round(stage.cost*(built<6?.35:GOLD_STAGE_SHARE)/5)*5);
+ return Math.round(v*goldRate(s)/5)*5;
+};
 // The second part of an order comes from another open chain, chosen evenly by the order's own
 // seed (build 41: it was always the first open chain, so Rivet Rover filled most second parts).
 export function secondChain(families,main,tier,seed){const ok=families.filter(f=>f!==main&&tier<=maxTier(f));return ok.length?ok[Math.floor(rand(seed)*ok.length)]:null;}
@@ -543,8 +555,28 @@ export function makeOrder(s){
    // Build 48c: the part is fixed (areas.mjs rare), never lowered for what the player holds; its wait is
    // bounded by the gold-objective guarantee (goldChase, goldPity) instead of by a cheaper recipe.
    const rare=TASKS[story.id]?.stages[story.stage-1]?.rare;
-   if(rare&&secondaryCanDrop(s,rare[0]))needs=[needs[0],{family:rare[0],tier:rare[1],count:1}];
-   return {id:'o'+n,who:crewFor(needs),needs,coins:goldPrice(s,needs),story:story.id};}
+   if(rare&&secondaryCanDrop(s,rare[0])){
+    // A merged rare part is a THIRD requirement, not a replacement.
+    // Make the first rare goal manageable before Survey Kite unlocks.
+    // A Gold shape may collapse two identical materials into one line.
+    // Split that line into two distinct crafted levels before adding the rare
+    // ingredient, to ensure a genuine three-component recipe on the card.
+    if(needs.length===1){
+     const p=needs[0],top=built<6?Math.min(p.tier,2):p.tier;
+     needs=[{family:p.family,tier:top,count:1},{family:p.family,tier:Math.max(1,Math.min(top-1,2)),count:1}];
+    }else if(built<6){
+     // The first Gear Gold order teaches an additional rare crafting goal
+     // without demanding a high-tier primary part at the same time.
+     needs[0]={...needs[0],tier:Math.min(needs[0].tier,2),count:1};
+     if(needs[1])needs[1]={...needs[1],tier:1,count:1};
+    }else if(needs[1])needs[1]={...needs[1],tier:Math.min(needs[1].tier,2),count:1};
+    needs=[...needs,{family:rare[0],tier:rare[1],count:1}];
+   }else if(!story.gold&&built>=6&&families.length>=2&&goldsDelivered(s)%2===0){
+    // Later Gold orders occasionally require another available generator.
+    const support=families.find(f=>!needs.some(r=>r.family===f)&&!isSecondary(f));
+    if(support)needs.push({family:support,tier:Math.max(1,Math.min(2,reach(s,support)+1,maxTier(support)-1)),count:1});
+   }
+   return {id:'o'+n,who:crewFor(needs),needs,coins:goldPrice(s,needs,story),story:story.id};}
   // Build 44 (user, 2026-10-25: "orderuudiig utga uchirtai bolgoy"; docs/V5_ECONOMY_AUDIT_PROPOSAL,
   // proposal A): everyday orders take turns being a quick job (one small part of one chain) and a
   // two-part job (parts of two different chains; pays ×1.15). The big job was dropped on 2026-10-26
@@ -616,9 +648,15 @@ export function makeOrder(s){
   // keeps its first part and its bonus, with the secondary as its second. Never a gold order (above).
   {const intro=(s.secIntro??[]).find(f=>!s.orders.some(o=>o?.needs?.some(r=>r.family===f)));
    if(intro&&bonus!=='chest'&&bonus!=='cog'&&s.orders.filter(asksSecondary).length<secondaryLimit(s)){needs=[{family:intro,tier:0,count:1}];role='quick';}
-   else{const sec=bonus&&role==='quick'?null:secondaryNeed(s,n,k);if(sec){const {use,...need}=sec,cand=bonus?[{...needs[0],count:1},need]:[need];
-    // (Build 52A4: never a card identical to one on the board, here too: the check above runs before this step)
-    if(!others.some(o=>key(o.needs)===key(cand))){if(!bonus)role='quick';needs=cand;}}}}
+   else{const sec=bonus&&role==='quick'?null:secondaryNeed(s,n,k);if(sec){
+    const {use,...need}=sec;
+    // A rare part already mergeable from held drops can pair with a modest
+    // normal crafted part. Unfulfilled rare goals remain quick jobs.
+    const primary=needs.find(r=>!isSecondary(r.family));
+    const mixed=!bonus&&!!use&&built>=3&&!!primary;
+    const support=mixed?{family:primary.family,tier:Math.max(1,Math.min(primary.tier,reach(s,primary.family))),count:1}:null;
+    const cand=bonus?[{...needs[0],count:1},need]:support?[support,need]:[need];
+    if(!others.some(o=>key(o.needs)===key(cand))){if(!bonus)role=cand.length>1?'pair':'quick';needs=cand;}}}}
   recent.push(key(needs));if(recent.length>RECENT)recent.splice(0,recent.length-RECENT);
   return {id:'o'+n,who:crewFor(needs),needs,coins:orderPrice(s,needs,role),role,born:s.moves,...(bonus?{bonus}:{})};
  }
@@ -689,7 +727,10 @@ export const secondaryLimit=s=>Math.max(1,s.slots-1-1);// everyday slots (one is
 //   merged can be: two of them when two are free, else one.
 // - The chain with the most free drops is asked first.
 export function secondaryNeed(s,n,k){
- const fams=Object.values(SECONDARY_OF).filter(f=>(secondaryHeld(s,f)>0||secondaryOn(s,CHAINS[f].gen))&&!(s.secIntro??[]).includes(f));if(!fams.length)return null;
+ // Do not assign a new crew rare goal from the same chain while the
+ // story Gold order is already consuming it; avoid competing rare demand.
+ const goldRare=new Set(s.orders.filter(o=>o?.story).flatMap(o=>o.needs).filter(r=>isSecondary(r.family)).map(r=>r.family));
+ const fams=Object.values(SECONDARY_OF).filter(f=>!goldRare.has(f)&&(secondaryHeld(s,f)>0||secondaryOn(s,CHAINS[f].gen))&&!(s.secIntro??[]).includes(f));if(!fams.length)return null;
  if(s.orders.filter(asksSecondary).length>=secondaryLimit(s))return null;
  const unused=f=>secondaryUnused(s,f);
  const recent=(Array.isArray(s.recent)?s.recent:[]).slice(-(SECONDARY_ORDERS.share-1)),asked=recent.some(key=>key.split('+').some(p=>isSecondary(p.replace(/\d+x\d+$/,''))));
@@ -1018,7 +1059,7 @@ function step(s,a,now){
   // shuud hurdan hiigdej baina"): the stage can be bought once they are delivered. Orders no
   // longer bring a driftwood crate every third time.
   const materials=o.story&&s.materials[o.story]>stageOf(s,o.story)?{id:o.story,stage:s.materials[o.story]}:null;
-  return {ok:true,event:'deliver',index:null,xp:Math.max(1,Math.round(o.coins/COIN_RATE)),coins:o.coins,box:-1,freed:take,...(materials?{materials}:{}),energy:gain,...(boost?{boost}:{}),...(tool?{tool}:{}),message:`+${o.coins} coins`+(gain?` · +${gain} energy`:'')+(boost?` · first crew order: +${boost.energy} energy`:'')+(tool?` · a ${BONUS_NAMES[tool.type]}`:'')+(materials?` · materials for ${TASKS[o.story].stages[materials.stage-1].name}`:'')};
+  return {ok:true,event:'deliver',index:null,xp:Math.max(1,Math.round((o.story?priceOf(o.needs):o.coins)/COIN_RATE)),coins:o.coins,box:-1,freed:take,...(materials?{materials}:{}),energy:gain,...(boost?{boost}:{}),...(tool?{tool}:{}),message:`+${o.coins} coins`+(gain?` · +${gain} energy`:'')+(boost?` · first crew order: +${boost.energy} energy`:'')+(tool?` · a ${BONUS_NAMES[tool.type]}`:'')+(materials?` · materials for ${TASKS[o.story].stages[materials.stage-1].name}`:'')};
  }
  // Upgrade a place on the beach one stage (the action keeps its old name, 'restore').
  if(a.type==='restore'){
@@ -1175,7 +1216,7 @@ function validCell(x){
  return false;
 }
 const validNeed=r=>r&&CHAINS[r.family]&&integer(r.tier,0,maxTier(r.family))&&integer(r.count,1,4);
-const validOrder=o=>o&&typeof o.id==='string'&&Array.isArray(o.needs)&&o.needs.length>=1&&o.needs.length<=2&&o.needs.every(validNeed)&&integer(o.coins,1,999)&&(o.story===undefined||!!TASKS[o.story])&&['ivo','neri','tamsin','bram'].includes(o.who)&&(o.bonus===undefined||BONUSES.includes(o.bonus));
+const validOrder=o=>o&&typeof o.id==='string'&&Array.isArray(o.needs)&&o.needs.length>=1&&o.needs.length<=3&&o.needs.every(validNeed)&&integer(o.coins,1,999)&&(o.story===undefined||!!TASKS[o.story])&&['ivo','neri','tamsin','bram'].includes(o.who)&&(o.bonus===undefined||BONUSES.includes(o.bonus));
 
 // Build 3 (version 1) had sand and numbered cells; build 4 (version 2) had the tide.
 // Both become sealed cargo: each covered cell gets the key this layout gives it and

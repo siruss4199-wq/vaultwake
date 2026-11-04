@@ -1,0 +1,27 @@
+name: Coast order recipe validation
+on:
+  push:
+    branches: [codex/v5-order-economy-recipe-fix]
+
+permissions:
+  contents: read
+
+jobs:
+  recipes:
+    name: V5 order recipe and rule regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate module syntax
+        run: node --check v5/next/game.mjs && node --check v5/next/app.mjs
+      - name: Focused Gold and rare crafting rules
+        run: node --test tests/v5-next-order-recipe-fix.test.mjs tests/v5-next-ch1-rare.test.mjs tests/v5-next-rare-merges.test.mjs
+      - name: All V5 rule tests
+        run: node --test tests/v5-*.test.mjs
+      - name: Capture actual Gold and crew recipes
+        if: always()
+        run: node tests/v5-next-order-evidence.mjs

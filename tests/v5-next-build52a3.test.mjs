@@ -58,7 +58,7 @@ test('a crew order worth 24 Level 1 parts or more gives one more energy; a small
  const big={id:'b',who:'ivo',needs:[{family:'rig',tier:4,count:1},{family:'rig',tier:3,count:1}],coins:60,role:'pair'};
  const small={id:'c',who:'ivo',needs:[{family:'rig',tier:3,count:1},{family:'rig',tier:2,count:1}],coins:30,role:'pair'};
  assert.equal(orderUnits(big),24);assert.equal(orderUnits(small),12);
- assert.equal(deliver(big),DELIVERY_ENERGY[orderEnergyKind(big)]+1);
+ assert.equal(deliver(big),DELIVERY_ENERGY[orderEnergyKind(big)]+DEEP_ENERGY.extra);
  assert.equal(deliver(small),DELIVERY_ENERGY[orderEnergyKind(small)]);
  assert.equal(deliver({...big,id:'g',story:'beach-path'}),0,'a gold order gives none');
 });
