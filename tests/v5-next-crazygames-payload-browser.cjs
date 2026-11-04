@@ -3,7 +3,7 @@
 const assert=require('node:assert/strict');
 const {chromium,webkit,firefox}=require('playwright');
 const {throughHome}=require('./v5-next-home-helper.cjs');
-const URL=process.env.CG_URL||'http://127.0.0.1:8081/index.html';
+const TARGET_URL=process.env.CG_URL||'http://127.0.0.1:8081/index.html';
 const SDK=`window.__cg=[];window.CrazyGames={SDK:{environment:'crazygames',init:async()=>{__cg.push('init')},
 game:{loadingStart(){__cg.push('loadingStart')},loadingStop(){__cg.push('loadingStop')},gameplayStart(){__cg.push('gameplayStart')},gameplayStop(){__cg.push('gameplayStop')},happytime(){},settings:{muteAudio:false},addSettingsChangeListener(){}},
 ad:{requestAd(){throw Error('Basic Launch must not request ads')}}}}`;
@@ -24,7 +24,7 @@ const MB=1024*1024;
     });
     page.on('requestfailed',request=>failed.push(request.url()));
     await page.route('https://sdk.crazygames.com/**',route=>route.fulfill({status:200,contentType:'application/javascript',body:SDK}));
-    await page.goto(URL);
+    await page.goto(TARGET_URL);
     await page.waitForSelector('#board .tile');
     await page.waitForFunction(()=>window.__cg?.includes('gameplayStart'),null,{timeout:10000});
     // Freeze the list at gameplayStart; later lazily loaded screens don't belong to initial download.
