@@ -499,14 +499,14 @@ function header(){
 }
 // Energy pass (build 47v): the HUD shows energy over the player level's refill capacity. At the
 // capacity the timer says FULL; above it (bonus energy, which the refill does not add to) it says
-// BONUS and the pill is marked, e.g. 135/100.
+// the stored bonus amount; the denominator is labeled REFILL, e.g. 135/100.
 function energyHud(){
- const cap=capacityOf(state),over=state.energy>cap,t=refillTimes(state,Date.now());
+ const cap=capacityOf(state),bonus=Math.max(0,state.energy-cap),over=bonus>0,t=refillTimes(state,Date.now());
  $('#energy').innerHTML=`${state.energy}<span class="energyCap">/${cap}</span>`;
- $('#energyTimer').textContent=t?'+1 '+clock(t.next):over?'BONUS':'FULL';
+ $('#energyTimer').textContent=t?'+1 '+clock(t.next):over?`+${bonus} BONUS`:'REFILL FULL';
  $('#energyPill').classList.toggle('overCap',over);
  $('#energyPill').style.setProperty('--g',t?(1-t.next/REFILL_EVERY).toFixed(3):1);
- $('#energyPill').setAttribute('aria-label',`${state.energy} energy. Natural refill capacity ${cap}. Open energy recovery options.`);
+ $('#energyPill').setAttribute('aria-label',`${state.energy} energy available. Natural refill capacity ${cap}. ${bonus} bonus energy stored. Storage limit ${STORE_ENERGY}. Open energy recovery options.`);
  $('#energyPill').title=`Energy ${state.energy} of ${cap}: +1 every 2 minutes up to ${cap} (level ${state.level.level})`+(over?`. Bonus energy above ${cap} is kept; the refill waits until you are below it.`:'')+(state.energyOwed?` ${state.energyOwed} more waits for room (you can hold ${STORE_ENERGY}).`:'');
 }
 
@@ -792,7 +792,7 @@ function showShop(){
  const ids=Object.keys(SHOP);
  $('#shopContent').innerHTML=`<div class="shopTop"><h2 id="shopTitle">Shop</h2><b class="beachCoins">${COIN} ${state.coins}</b></div><p>A little help for coins, a few of each a day; it restocks tomorrow. Coins spent here are not spent on the coast.</p>
   ${ADS&&!coachActive(state)?`<h3>Free with a short ad</h3><ol class="shopList">${ids.filter(id=>SHOP[id].ad).map(row).join('')}</ol>`:''}
-  <p class="energyHelp">${state.energy} energy stored. Natural refill: +1 every 2 minutes up to ${capacityOf(state)}. Bonus energy above that is kept; refill waits until you are below it. Storage limit: ${STORE_ENERGY}.</p>${adFeedback?`<p id="shopAdStatus" role="status">${adFeedback}</p>`:''}
+  <p class="energyHelp"><b>${state.energy} energy available · ${Math.max(0,state.energy-capacityOf(state))} bonus stored</b><br>Natural refill limit: ${capacityOf(state)} (level ${state.level.level}). +1 every 2 minutes when below ${capacityOf(state)}. Bonus energy is kept. Storage limit: ${STORE_ENERGY}.</p>${adFeedback?`<p id="shopAdStatus" role="status">${adFeedback}</p>`:''}
   <h3>For coins</h3><ol class="shopList">${ids.filter(id=>!SHOP[id].ad).map(row).join('')}</ol>`;
  if(!$('#shop').open)$('#shop').showModal();
 }

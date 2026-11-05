@@ -43,7 +43,7 @@ const order=(s,needs)=>{s.orders[0]={id:'tq',who:'ivo',needs,coins:5,role:'quick
     // 1. a new camp: 100 stored above its 50-point refill cap, BONUS
     await write(page,`s.daily={day:9e6,count:1};`);await page.reload();await page.waitForSelector('#board .tile');await closeBeats(page);
     assert.equal((await page.locator('#energy').textContent()).replace(/\s/g,''),'100/50',tag);
-    assert.equal(await page.locator('#energyTimer').textContent(),'BONUS',tag);await fits(page,tag+' 100/50');await shot('1-new-camp');
+    assert.equal(await page.locator('#energyTimer').textContent(),'+50 BONUS',tag);await fits(page,tag+' 100/50');await shot('1-new-camp');
     // the level badge: level, XP, capacity and the next milestone
     let m=await levelCard(page,1);assert.match(m,/Level 1 · 0 of 20 XP/);assert.match(m,/Energy capacity: 50/);assert.match(m,/Level 3: energy capacity increases to 60\./);
     // 2. below the capacity: a countdown; the first crew order's +15 as a short note
@@ -71,7 +71,7 @@ const order=(s,needs)=>{s.orders[0]={id:'tq',who:'ivo',needs,coins:5,role:'quick
     const t=await read(page);assert.equal(t.energy,s.energy);assert.equal(t.capPaid,60);assert.equal(await page.locator('.energyNote').count(),0);
     // 4. bonus energy above the capacity: 135/100 BONUS, and the maximum capacity in the level panel
     await write(page,`s.energy=135;s.level={version:1,level:30,xp:0};s.capPaid=120;`);await page.reload();await page.waitForSelector('#board .tile');await closeBeats(page);
-    assert.equal((await page.locator('#energy').textContent()).replace(/\s/g,''),'135/100');assert.equal(await page.locator('#energyTimer').textContent(),'BONUS');
+    assert.equal((await page.locator('#energy').textContent()).replace(/\s/g,''),'135/100');assert.equal(await page.locator('#energyTimer').textContent(),'+35 BONUS');
     {const t=await read(page);assert.equal(t.energy,135,'energy above the new maximum is kept');assert.equal(t.capPaid,100,'capPaid follows the new maximum');}
     assert.ok(await page.locator('#energyPill.overCap').count(),'marked as bonus energy');await fits(page,tag+' 135/100 (a level-30 save that had capacity 120)');await shot('4-bonus-overflow');
     assert.match(await levelCard(page,30),/Maximum energy capacity: 100\./);
