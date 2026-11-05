@@ -41,7 +41,7 @@ const delay=ms=>new Promise(r=>setTimeout(r,ms)),stages=s=>Object.values(s.built
    await delay(Math.max(0,Math.min(end-Date.now(),actionMs-(Date.now()-stepStart))));
   }
   const s=await read();report.actualSeconds=(Date.now()-start)/1000;report.actions=session.actions.length;report.energyStarvedWaitSeconds=waitMs/1000;
-  report.final={energy:s.energy,coins:s.coins,orders:s.ordersDone,stages:stages(s),area:s.area};report.errors=session.errors;
+  report.final={energy:s.energy,coins:s.coins,orders:s.ordersDone,stages:stages(s),area:s.area};report.errors=session.errors;report.uiEvents=session.uiEvents;
   assert.deepEqual(session.errors,[]);assert.ok(stages(s)>=3,'several restorations completed');assert.ok(s.ordersDone>=3);assert.ok(report.actualSeconds>=minutes*60);
   await page.screenshot({path:path.join(out,'final.png')});fs.writeFileSync(path.join(out,'report.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report));console.log('Paced UI session: PASS');await session.context.close();
  }finally{await browser.close();}

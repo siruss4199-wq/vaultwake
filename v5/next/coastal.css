@@ -32,6 +32,8 @@ body.nextMode header #coinPill::before{top:-3.8px;bottom:-3.6px;border-width:0 1
 body.nextMode header #coinPill .coinIcon{position:absolute;left:4px;top:0;width:32px;height:32px;font-size:0;opacity:0}
 body.nextMode header #coinPill strong{font-size:16px;color:#5a3a12}
 body.nextMode header #energyPill #energyTimer{left:calc(42px + (100% - 79px) / 2)}
+/* Leave room for 200 energy and five-figure coins with WebKit's wider phone font. */
+@media(min-width:381px) and (max-width:430px){body.nextMode header{gap:6px}body.nextMode header #coinPill{padding-right:14px}}
 @media(max-width:380px){body.nextMode header{gap:6px}body.nextMode header #energyPill{padding:0 36px 0 42px}body.nextMode header #coinPill{padding:0 15px 0 42px}}
 /* Build 49a: a late camp's top bar (energy over its capacity, e.g. 137/100 BONUS, five-figure coins, a
    two-digit level) reached 371-375 px at 360 (WebKit's wider rounded font first; measured in CI). Under

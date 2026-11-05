@@ -12,7 +12,7 @@ async function inset(page,context,engine){
 }
 async function fits(page,tag){
  const r=await page.evaluate(()=>({vw:innerWidth,doc:document.documentElement.scrollWidth,energy:document.querySelector('#energy').getBoundingClientRect().toJSON(),pill:document.querySelector('#energyPill').getBoundingClientRect().toJSON(),label:getComputedStyle(document.querySelector('.energyCap'),'::before').content}));
- assert.ok(r.doc<=r.vw+1,tag+' no document overflow');assert.ok(r.energy.x>=r.pill.x&&r.energy.right<=r.pill.right+1,tag+' energy fits');assert.equal(r.label,'"REFILL"',tag+' visible refill denominator label');
+ assert.ok(r.doc<=r.vw+1,`${tag} no document overflow (${r.doc}/${r.vw})`);assert.ok(r.energy.x>=r.pill.x&&r.energy.right<=r.pill.right+1,tag+' energy fits');assert.equal(r.label,'"REFILL"',tag+' visible refill denominator label');
  for(const sel of ['#energyPill','#levelPill','#menuButton','#mapButton','#hint','#shed [data-shed-toggle]']){
   const el=page.locator(sel);if(!await el.isVisible())continue;const b=await el.boundingBox();assert.ok(b.width>=44&&b.height>=44,`${tag} ${sel} 44px target: ${JSON.stringify(b)}`);
  }

@@ -9,6 +9,7 @@ Base: `codex/v5-first-session-energy-balance`, **8c0cdf54934468fb3f395127dd935a6
 | Top safe-area padding applied twice | Chromium native CSS safe-inset override, 47px top/34px bottom, 390×664. The page reserves 47px, then the 52px header adds another 47px. Energy bottom is **112.5px**, overlapping orders starting at **103px**. | Header uses its normal 6px padding; the page owns the safe inset once. All HUD controls fit above the orders. WebKit additionally checks synthetic inset geometry. Physical Safari remains UNVERIFIED. |
 | Energy HUD conflates natural refill and stored energy | Fresh camp displays `100/50 BONUS`; the denominator and bonus amount are unlabeled. | The denominator is labeled **REFILL**, the badge shows **+50 BONUS**, and the existing recovery panel explains current energy, stored bonus, refill limit/rate and storage max. `REFILL FULL` describes a full natural refill pool. No new board button. |
 | Undersized main touch targets | Measured energy target **32px**, guidance **28px**, Shed toggle **42px** high. | These and selection action buttons are at least **44px** high. The painted energy frame retains its original visual position. Shed gains bottom scroll margin above the safe area. |
+| Dense saved-camp HUD overflows with wider phone fonts | The new CI matrix caught document overflow in WebKit at 390×664 with 200 energy, L1 capacity 50 and 99,999 coins. | Compact the 381–430px header gaps and coin end padding. Keep the full numbers, 44px controls and overflow assertion. |
 
 At 360×640, 390×664 and 430×752, the base already allowed document scrolling to the Shed; it was **not** an unreachable-control regression. The board keeps its size, and the candidate preserves that scroll path instead of shrinking merge cells or adding a fixed dock.
 
@@ -33,6 +34,8 @@ MINUTES=20 ACTION_MS=5000 SHOTS=/tmp/mobile-paced node tools/v5-mobile-paced-ses
 ```
 
 The optional paced runner uses **real wall-clock time and visible UI actions**, with no virtual time, injected resources, ad watching or energy purchases. It records actual elapsed time, order/build timings, energy/coins, a ten-minute reload and a fifteen-minute tab roundtrip. Final measured results belong to its `report.json` and the Draft PR; merely invoking the runner is not a pass. Neither scripted play nor simulation proves player retention.
+
+A separate normal-motion input smoke completed **three stages in 91 real game actions**. The runner uses native touch at visible, enabled, unobstructed targets, waits for the build story after its animation, and inspects/declines the optional daily gift through the UI. These changes handle automation timing without forcing clicks, disabling game animation, granting resources or relaxing gameplay assertions. The fast smoke is not a substitute for the recorded twenty-minute run.
 
 Existing rule/economy, onboarding/HUD, energy/ad safeguards, rare orders, save recovery, Chapter 1–6, Classic compatibility and release suites remain enabled. Only the intentional `BONUS` badge expectations change to the exact stored amounts; no pacing thresholds, unrelated assertions or timeouts are relaxed. All required automatic jobs must pass on the final PR head before a GO for candidate review.
 
