@@ -1,9 +1,9 @@
 name: Vaultwake CrazyGames release candidate package
 on:
   push:
-    branches: [codex/v5-order-economy-recipe-fix, codex/v5-release-qa, codex/v5-first-session-energy-balance]
+    branches: [codex/v5-order-economy-recipe-fix, codex/v5-release-qa, codex/v5-first-session-energy-balance, codex/v5-mobile-first-session-final-qa]
   pull_request:
-    branches: [codex/v5-order-economy-recipe-fix, claude/v5-vault-art-integration]
+    branches: [codex/v5-order-economy-recipe-fix, claude/v5-vault-art-integration, codex/v5-first-session-energy-balance]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
@@ -48,6 +48,12 @@ jobs:
           python3 -m http.server 8081 --directory /tmp/vaultwake-package > /tmp/vaultwake-package-http.log 2>&1 &
           sleep 1
           node tests/v5-next-crazygames-browser.cjs
+      - name: Measure extracted Basic initial download
+        env:
+          CG_URL: http://127.0.0.1:8081/index.html
+        run: |
+          set -euo pipefail
+          node tests/v5-next-crazygames-payload-browser.cjs | tee dist/basic-initial-download.jsonl
       - name: Build separate Full Launch QA archive
         run: |
           node tools/coast-crazygames.mjs --zip --full-launch
@@ -62,6 +68,8 @@ jobs:
           python3 -m http.server 8082 --directory /tmp/vaultwake-full-package > /tmp/vaultwake-full-http.log 2>&1 &
           sleep 1
           node tests/v5-energy-full-package-browser.cjs
+      - name: Write exact-head Basic QA report
+        run: node tools/v5-basic-qa-report.mjs
       - name: Store tested ZIP and checksum
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
@@ -71,6 +79,8 @@ jobs:
             dist/vaultwake-coast-crazygames.zip
             dist/vaultwake-coast-crazygames.sha256
             dist/RELEASE-CANDIDATE.txt
+            dist/BASIC-QA-REPORT.md
+            dist/basic-initial-download.jsonl
             dist/vaultwake-coast-crazygames-full.zip
             dist/vaultwake-coast-crazygames-full.sha256
           retention-days: 30

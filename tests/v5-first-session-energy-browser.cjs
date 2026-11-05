@@ -23,7 +23,7 @@ const KEY='vaultwake-v5-coast',URL='http://127.0.0.1:8080/v5/play.html';
    };
    // New camp HUD and coin recovery remain available in Basic Launch, without ad offers.
    {const {context,page,errors,read,fixture}=await open();
-    assert.equal((await page.locator('#energy').innerText()).replace(/\s/g,''),'100/50');assert.equal(await page.locator('#energyTimer').innerText(),'BONUS');
+    assert.equal((await page.locator('#energy').innerText()).replace(/\s/g,''),'100/50');assert.equal(await page.locator('#energyTimer').innerText(),'+50 BONUS');
     await fixture();await page.locator('#energyPill').click();
     assert.equal(await page.locator('[data-ad]').count(),0);assert.match(await page.locator('#shopContent').innerText(),/\+20 energy/);assert.match(await page.locator('#shopContent').innerText(),/3 of 3 left today/);
     await page.locator('[data-buy="energy"]').evaluate(b=>{b.click();b.click();});
