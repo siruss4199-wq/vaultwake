@@ -13,10 +13,11 @@ async function mobileSession(browser,{width=390,height=664,url='http://127.0.0.1
  const beats=async()=>{for(let i=0;i<15&&await page.locator('#beat[open]').count();i++)await page.locator('#beatNext').click();};
  const dismiss=async()=>{
   await beats();if(await page.locator('#daily[open]').count()){await page.locator('#daily .close').click();giftHandled=true;uiEvents.push('daily offer dismissed without claiming');}
-  // A real player can inspect/decline the optional gift once. Settle it before
-  // another gesture, rather than letting its timed modal interrupt that gesture.
-  if(!giftHandled&&Object.values((await read()).built).some(Boolean)&&await page.locator('#dailyButton').isVisible()&&!await page.locator('dialog[open]').count()){
-   await touchVisible(page.locator('#dailyButton'));await page.waitForSelector('#daily[open]');await page.locator('#daily .close').click();giftHandled=true;uiEvents.push('daily offer inspected and declined');
+  // The existing one-second timer offers this automatically after onboarding.
+  // Await that offer once instead of racing it by opening a second copy.
+  const eligible=!giftHandled&&await page.evaluate(k=>{const s=JSON.parse(localStorage.getItem(k)),n=Date.now(),day=Math.floor((n-new Date(n).getTimezoneOffset()*60000)/86400000);return s.moves>=3&&Object.values(s.built).some(Boolean)&&day>s.daily.day;},KEY);
+  if(eligible&&!await page.locator('dialog[open]').count()){
+   await page.waitForSelector('#daily[open]',{state:'visible',timeout:5000});await page.locator('#daily .close').click();giftHandled=true;uiEvents.push('automatic daily offer awaited and declined');
   }
  };
  const cell=i=>page.locator(`#board [data-index="${i}"]`);
