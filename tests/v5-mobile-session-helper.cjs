@@ -1,5 +1,6 @@
 // Real UI actions shared by the mobile matrix and optional paced QA run.
 const {throughHome}=require('./v5-next-home-helper.cjs');
+const assert=require('node:assert/strict');
 const KEY='vaultwake-v5-coast';
 async function mobileSession(browser,{width=390,height=664,url='http://127.0.0.1:8080/v5/play.html',engine='chromium',motion='reduce'}={}){
  const context=await browser.newContext({viewport:{width,height},isMobile:engine==='chromium',hasTouch:true,reducedMotion:motion});
@@ -12,6 +13,13 @@ async function mobileSession(browser,{width=390,height=664,url='http://127.0.0.1
  const dismiss=async()=>{await beats();if(await page.locator('#daily[open]').count())await page.locator('#daily .close').click();};
  const cell=i=>page.locator(`#board [data-index="${i}"]`);
  const select=async i=>{if(await cell(i).getAttribute('aria-pressed')!=='true')await cell(i).tap();};
+ // readyBob moves a book button continuously. Touch its actual visible center,
+ // as a player can, instead of waiting for the animation to become stationary.
+ const touchMoving=async button=>{
+  await button.waitFor({state:'visible'});
+  const p=await button.evaluate(el=>{el.scrollIntoView({block:'center',inline:'nearest',behavior:'instant'});const r=el.getBoundingClientRect(),x=r.x+r.width/2,y=r.y+r.height/2;return {x,y,visible:x>=0&&y>=0&&x<innerWidth&&y<innerHeight,unobstructed:el.contains(document.elementFromPoint(x,y))};});
+  assert.ok(p.visible&&p.unobstructed,'moving book target must be visible and receive the touch');await page.touchscreen.tap(p.x,p.y);
+ };
  const drag=async(a,b)=>{await page.locator('#board').scrollIntoViewIfNeeded();const x=await cell(a).boundingBox(),y=await cell(b).boundingBox();await page.mouse.move(x.x+x.width/2,x.y+x.height/2);await page.mouse.down();await page.mouse.move(y.x+y.width/2,y.y+y.height/2,{steps:8});await page.mouse.up();};
  async function perform(a){
   await dismiss();const before=await read();
@@ -22,7 +30,7 @@ async function mobileSession(browser,{width=390,height=664,url='http://127.0.0.1
    await page.locator('#mapButton').tap();await page.locator(`#coastMap [data-place="${a.id}"] button`).tap();await page.locator(`#coastMap [data-restore="${a.id}"]`).tap();await beats();
    if(await page.locator('#coastMap[open]').count())await page.locator('#coastMap [data-back]').tap();
   }else if(a.type==='book'||a.type==='bookPage'){
-   await page.locator('#bookButton').tap();await page.locator(a.type==='book'?`#book [data-key="${a.key}"]`:`#book [data-page="${a.family}"]`).tap();await page.locator('#book .close').tap();
+   await page.locator('#bookButton').tap();await touchMoving(page.locator(a.type==='book'?`#book [data-key="${a.key}"]`:`#book [data-page="${a.family}"]`));await page.locator('#book .close').tap();
   }else if(a.type==='openKit'){await select(a.index);await page.locator('#selection [data-action="openKit"]').tap();}
   else if(a.type==='recycle'){await select(a.index);const b=page.locator('#selection [data-action="recycle"]'),confirm=await b.getAttribute('data-confirm');await b.tap();if(confirm)await page.locator('#selection [data-action="recycle"]').tap();}
   else if(a.type==='store'){await select(a.index);await page.locator('#selection [data-action="store"]').tap();}
