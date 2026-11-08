@@ -69,8 +69,8 @@ Legend:
 
 | Check | Result | Evidence |
 |---|---|---|
-| Covers 1920×1080, 800×1200, 800×800, same identity, title only, no badges or logos | ✅ technically · ⚠️ rights | `covers/`; art pending rights (`RIGHTS_REPORT.md` §4) |
-| Videos: landscape 1920×1080 and portrait 1080×1620, 15–20 s, ≤ 50 MB, silent, opens on the cover, real gameplay, no cursor, no black bars, not sped up | ✅ technically · ⚠️ rights | `videos/`: 16.9 s, 5.9 MB and 6.7 MB, H.264, no audio stream; recorded from the ZIP with a DevTools screencast in real time |
+| Covers 1920×1080, 800×1200, 800×800, same identity, title only, no badges or logos | ✅ technically · ✅ owner-approved | `covers/`; made only from shipped game art, which the owner approved for commercial use 2026-11-08 (`RIGHTS_REPORT.md` §4, `evidence/owner-declaration-2026-11-08.md`) |
+| Videos: landscape 1920×1080 and portrait 1080×1620, 15–20 s, ≤ 50 MB, silent, opens on the cover, real gameplay, no cursor, no black bars, not sped up | ✅ technically · ✅ owner-approved | `videos/`: 16.9 s, 5.9 MB and 6.7 MB, H.264, no audio stream; recorded from the ZIP with a DevTools screencast in real time; shows only shipped game art, owner-approved for commercial use 2026-11-08 |
 
 ## Commands run (Node 22.22.0, Playwright 1.62.1 Chromium, 2026-11-08)
 

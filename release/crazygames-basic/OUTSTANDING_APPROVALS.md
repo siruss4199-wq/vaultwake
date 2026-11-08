@@ -1,6 +1,6 @@
 # Vaultwake Merge: release readiness and outstanding approvals
 
-**Decision today: NO-GO for upload. Commercial use of shipped artwork was approved by the owner on 2026-11-08; trademark review, developer/publisher details, real-device QA and portal submission remain outstanding.**
+**Decision today: NO-GO for upload. Commercial use of shipped artwork was approved by the owner on 2026-11-08; the OpenAI Sharing & Publication Policy check (D), trademark searches (F), developer/publisher details (G), real-device QA (H) and portal submission (I) remain outstanding.**
 
 The package is technically ready (`CHECKLIST.md`). The account details are owner-confirmed
 (`evidence/owner-confirmation-2026-11-08.md`). The artwork owner-approval decision is now documented; other publishing checks still require the owner or testers.
