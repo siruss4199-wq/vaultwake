@@ -1,0 +1,51 @@
+# Images the Vaultwake Merge (Coast) game never loads, left out of the CrazyGames ZIP (release 2026-11-08).
+# Found by a browser crawl of every area plus every path the game builds from its data
+# (release/crazygames-basic/RIGHTS_REPORT.md section 1). They stay in the repository: Classic V5 (v5/index.html)
+# still uses some of them. One path per line, relative to the repository root; # starts a comment.
+v5/assets/premium/buried-ground-vibrant.webp  # Classic V5 only
+v5/assets/premium/chart-scrap-vibrant.webp  # Classic V5 only
+v5/assets/premium/charting-loft.webp  # Classic V5 only
+v5/assets/premium/coast/brass-cog.webp  # older version beside the art the game draws
+v5/assets/premium/coast/captains-trunk.webp  # older version beside the art the game draws
+v5/assets/premium/coast/cargo-barrel.webp  # older version beside the art the game draws
+v5/assets/premium/coast/cargo-basket.webp  # older version beside the art the game draws
+v5/assets/premium/coast/cargo-bundle.webp  # older version beside the art the game draws
+v5/assets/premium/coast/cargo-crate.webp  # older version beside the art the game draws
+v5/assets/premium/coast/driftwood-crate.webp  # older version beside the art the game draws
+v5/assets/premium/coast/icons/cargo-barrel.webp  # older version beside the art the game draws
+v5/assets/premium/coast/icons/cargo-bundle.webp  # older version beside the art the game draws
+v5/assets/premium/coast/icons/cargo-crate.webp  # older version beside the art the game draws
+v5/assets/premium/coast/icons/gen-rig.webp  # older version beside the art the game draws
+v5/assets/premium/coast/icons/grip-tool-pilot.webp  # older version beside the art the game draws
+v5/assets/premium/coast/sea-chest.webp  # older version beside the art the game draws
+v5/assets/premium/coast/tide-token.webp  # older version beside the art the game draws
+v5/assets/premium/copper-offcut-r2.webp  # Classic V5 only
+v5/assets/premium/copper-offcut.webp  # older version beside the art the game draws
+v5/assets/premium/echo-crucible-vibrant.webp  # Classic V5 only
+v5/assets/premium/entrance-vibrant.webp  # Classic V5 only
+v5/assets/premium/grip-tool-r2.webp  # Classic V5 only
+v5/assets/premium/grip-tool-vibrant.webp  # Classic V5 only
+v5/assets/premium/grip-tool.webp  # older version beside the art the game draws
+v5/assets/premium/harbour-vibrant.webp  # no reference in the shipped code
+v5/assets/premium/landing.webp  # Classic V5 only
+v5/assets/premium/loop-cell-vibrant.webp  # Classic V5 only
+v5/assets/premium/pocket-winch-r2.webp  # Classic V5 only
+v5/assets/premium/pocket-winch.webp  # older version beside the art the game draws
+v5/assets/premium/powered-vibrant.webp  # Classic V5 only
+v5/assets/premium/relic-fragment-vibrant.webp  # Classic V5 only
+v5/assets/premium/resonance-ampoule-vibrant.webp  # Classic V5 only
+v5/assets/premium/resonator-vibrant.webp  # Classic V5 only
+v5/assets/premium/saltstone-tray.webp  # Classic V5 only
+v5/assets/premium/saltstone-vibrant.webp  # Classic V5 only
+v5/assets/premium/split-spanner-r2.webp  # Classic V5 only
+v5/assets/premium/split-spanner-vibrant.webp  # Classic V5 only
+v5/assets/premium/split-spanner.webp  # older version beside the art the game draws
+v5/assets/premium/survey-kite-vibrant.webp  # Classic V5 only
+v5/assets/premium/survey-scope-vibrant.webp  # Classic V5 only
+v5/assets/premium/tide-0.webp  # no reference in the shipped code
+v5/assets/premium/tide-1.webp  # no reference in the shipped code
+v5/assets/premium/tide-2.webp  # no reference in the shipped code
+v5/assets/premium/tide-3.webp  # Classic V5 only
+v5/assets/premium/tide-4.webp  # Classic V5 only
+v5/assets/premium/vault-open-vibrant.webp  # Classic V5 only
+v5/assets/premium/workshop-damaged.webp  # Classic V5 only

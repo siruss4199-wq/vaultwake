@@ -39,8 +39,15 @@ if(process.argv.includes('--zip')){
  // sound check page (its menu link is hidden on CrazyGames), the art render pages and script, the art
  // manifests and the unregistered proposed sprites (docs/release/VAULTWAKE_MERGE_ASSET_AUDIT.md).
  const devOnly=s=>/\/next\/sounds\.html$|\/assets\/premium\/coast\/(render[^/]*|proposed)$|\/assets\/premium\/coast\/[^/]+\/manifest\.json$/.test(s.replace(/\\/g,'/'));
+ // Images the Coast game never loads stay out too (tools/coast-crazygames-unused.txt). A path the Coast
+ // code names in full must never be on that list: the build stops rather than ship a missing picture.
+ const unused=new Set(readFileSync(join(root,'tools/coast-crazygames-unused.txt'),'utf8').split('\n').map(l=>l.replace(/#.*/,'').trim()).filter(Boolean));
+ const coastCode=[...readdirSync(join(root,'v5/next')).filter(f=>/\.(mjs|css|js)$/.test(f)).map(f=>'v5/next/'+f),'v5/play.html'].map(f=>readFileSync(join(root,f),'utf8')).join('\n');
+ for(const u of unused){if(!statSync(join(root,u),{throwIfNoEntry:false}))throw new Error(`tools/coast-crazygames-unused.txt: ${u} does not exist`);
+  if(coastCode.includes(u.slice(3)))throw new Error(`tools/coast-crazygames-unused.txt: ${u} is named in the Coast code; remove it from the list`);}
+ const rel=s=>s.replace(/\\/g,'/').slice(root.replace(/\\/g,'/').length+1);
  cpSync(join(root,'v5/next'),join(stage,'v5/next'),{recursive:true,filter:s=>!devOnly(s)});
- cpSync(join(root,'v5/assets'),join(stage,'v5/assets'),{recursive:true,filter:s=>!s.includes('/assets/review')&&!s.endsWith('.md')&&!devOnly(s)});
+ cpSync(join(root,'v5/assets'),join(stage,'v5/assets'),{recursive:true,filter:s=>!s.includes('/assets/review')&&!s.endsWith('.md')&&!devOnly(s)&&!unused.has(rel(s))});
  writeFileSync(join(stage,'index.html'),'<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Vaultwake Merge</title><script>location.replace("v5/coast-crazygames.html"+location.search)</script></head><body><a href="v5/coast-crazygames.html">Play Vaultwake Merge</a></body></html>\n');
  // Reproducible (release 2026-11-08): every file gets the same timestamp (SOURCE_DATE_EPOCH, default
  // 2026-01-01 UTC) and goes in sorted, without extra attributes, so the same tree always gives the same
