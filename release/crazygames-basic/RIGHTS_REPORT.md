@@ -1,8 +1,8 @@
 # Vaultwake Merge: rights and brand report (Basic Launch package)
 
-**Status: accounts and terms owner-confirmed; awaiting the owner's explicit approval. Not yet cleared.**
+**Status: owner-approved for commercial use of the 264 shipped images (2026-11-08), as an owner attestation; independent third-party rights clearance is not guaranteed. CrazyGames upload remains NO-GO pending name, publisher details and real-device QA.**
 
-This is an engineering audit of what ships and where it came from. It is not legal advice and it approves nothing.
+This is an engineering audit of what ships and where it came from. The owner has expressly approved commercial use of the shipped images; that statement is not an independent legal rights opinion.
 
 **Owner confirmation, 2026-11-08** (recorded in `evidence/owner-confirmation-2026-11-08.md`):
 - Artwork made in October–November 2026, for this game only, with **ChatGPT Astra on a ChatGPT Plus personal account** and **Claude Code on a Claude Pro personal account**, both owned by the owner.
@@ -18,7 +18,7 @@ These are **owner statements**. No account record, invoice or generation log was
 - The **painted images** came into the Claude Code sessions from outside them. The notes say "This session has no image-generation tool" and "built-in image tool".
 - No file names ChatGPT, a plan, an account or dates.
 
-**Approval.** `owner_approved` stays `NO` on all 264 shipped images in `docs/release/VAULTWAKE_ART_RIGHTS_REGISTER.csv`. The account details do not by themselves approve the art, and the issues in section 6 need the owner's explicit decision.
+**Approval.** The owner explicitly approved commercial use of all 264 shipped images on 2026-11-08. `owner_approved=YES` applies only to those 264; non-shipped items remain unapproved. Evidence is `evidence/owner-declaration-2026-11-08.md`. This does not establish independent third-party legal clearance, exclusivity, trademark rights or CrazyGames submission approval.
 
 Package: `vaultwake-merge-crazygames-basic-e72b4bb.zip` (source commit `e72b4bb`; SHA-256 in `SHA256SUMS`).
 Per-file detail: `ASSET_INVENTORY.csv` (path, bytes, use in this release, reported provenance, clearance status, owner_approved).
@@ -143,12 +143,12 @@ This is needed only if the owner cannot document commercial permission for a gro
 - **Observatory (25 files).**
   - Content: five places × 3 stages, the map and strip, six optics parts and the Lens Bench.
 
-## 6. Remaining licensing issues needing the owner's explicit approval
+## 6. Owner approval and remaining publication checks
 
 1. ~~**The 85 assets with no master or generation record**~~ **Accepted 2026-11-08** in the owner's declaration (`evidence/owner-declaration-2026-11-08.md`): same workflow, per-image tool unverifiable, documentation gap accepted.
 2. ~~**No exclusivity, uncertain copyright protection**~~ **Acknowledged 2026-11-08** in the owner's declaration.
 3. ~~**Crew portraits**~~ **Closed 2026-11-08.** The owner confirms Ivo, Bram, Neri and Tamsin (`coast/ui/crew-ivo`, `crew-bram`, `crew-nara`, `crew-sela`) are fully AI-invented fictional characters, not based on real people or reproduced likenesses (owner statement 8). This satisfies the likeness rules in OpenAI's Service Terms §6 and Anthropic's terms as far as the owner's statement goes.
 4. **No independent account evidence.** The plans are owner-confirmed only. Optionally keep a dated screenshot of each subscription page or invoice with the release records.
 5. **Unread policy.** OpenAI's Sharing & Publication Policy could not be loaded. Read it once, or accept the risk.
-6. **Approve.** Complete the declaration's approval and initials/date lines, then set `owner_approved=YES` in `docs/release/VAULTWAKE_ART_RIGHTS_REGISTER.csv`. Only the owner should do this.
+6. ~~**Approve.**~~ **Completed 2026-11-08:** The owner expressly approved commercial use of the 264 shipped images, recorded in the declaration and rights register using the GitHub handle `siruss4199-wq` (personal initials not provided). This does not replace independent rights clearance.
 7. **Name and store fields.** Run a formal trademark search for "Vaultwake Merge" or accept the risk, and fill in the developer/publisher name and contact e-mail in `METADATA.md`.
