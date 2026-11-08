@@ -109,9 +109,19 @@ Search date: 2026-11-08. These were web searches only; no trademark office was s
 | "Vaultwake" in software | A GitHub project `miller-joe/vaultwake` (Vault-related software, not a game; noted in `docs/release/VAULTWAKE_MERGE_RIGHTS_BRAND_AUDIT.md`). Different class of goods, but the owner should see it. |
 | Similar game names | *Battlewake* (Survios, VR naval game; [UploadVR](https://uploadvr.com/naval-combat-vr-game-battlewake-now-available/)). *Merge Ghost – Ghost Vault* ([LDPlayer](https://www.ldplayer.net/games/merge-ghost-on-pc.html)). A "Vault" merge app listing ([AppGoblin](https://appgoblin.info/apps/com.vaultomb)). *Vault Merge Coin Stacker* (noted in the earlier audit). |
 | "MERGE …" marks in games | Metacore Games Oy holds marks such as MERGE MANSION and MERGE VIKINGS ([trademarkdir](https://trademarkdir.com/owner/metacore-games-oy), [markinton](https://markinton.com/company/metacore-games-oy)). There are several US filings for "MERGE" word marks ([Justia 98779725](https://trademarks.justia.com/987/79/merge-98779725.html), [Justia 98894637](https://trademarks.justia.com/988/94/merge-98894637.html)). "Merge" is a generic genre word, but a "MERGE + word" mark owner may object to close imitation. |
-| Trademark filings for "Vaultwake" | None found in the web results. USPTO, EUIPO, WIPO Global Brand Database, UKIPO and the owner's own country's office were **not** searched. |
+| Trademark filings for "Vaultwake" | None found in the web results. |
 
-There is no evidence of a conflict, but **that is not clearance.** The owner should run (or have counsel run) searches in USPTO, EUIPO, WIPO and their home office in classes 9 and 41, and check the domain and social handles, before relying on the name.
+**Register searches, 2026-11-08** (full record, screenshots and raw results in `evidence/name-decision-2026-11-08.md` and `evidence/trademark-search-2026-11-08/`):
+
+| Register | Result |
+|---|---|
+| USPTO | **0** marks for VAULTWAKE, VAULTWAKE MERGE, VAULT WAKE or VAULT + WAKE, in any status or class. Shared-element game marks exist, for example BATTLEWAKE (Survios, registered, classes 9 and 41), ARCHWAKE, ASHWAKE and MERGE MANSION. |
+| EUIPO (EU trade marks) | **0** for VAULTWAKE, VAULTWAKE MERGE, VAULT WAKE, VAULTWAK, VOLTWAKE and BATTLEWAKE. Positive controls returned results. |
+| WIPO Global Brand Database | Not completed: anti-bot check. |
+| TMview | Not completed: firewall rejected the session. |
+| Mongolia (IPOM register) | Not completed: HTTP 403. |
+
+No identical or near-identical mark was found where searching was possible, but **this is not clearance.** The owner must finish the three blocked searches and decide whether to keep, change or file the name.
 
 Other brand content found in the game:
 - No third-party brands, logos or characters appear.
@@ -149,6 +159,6 @@ This is needed only if the owner cannot document commercial permission for a gro
 2. ~~**No exclusivity, uncertain copyright protection**~~ **Acknowledged 2026-11-08** in the owner's declaration.
 3. ~~**Crew portraits**~~ **Closed 2026-11-08.** The owner confirms Ivo, Bram, Neri and Tamsin (`coast/ui/crew-ivo`, `crew-bram`, `crew-nara`, `crew-sela`) are fully AI-invented fictional characters, not based on real people or reproduced likenesses (owner statement 8). This satisfies the likeness rules in OpenAI's Service Terms §6 and Anthropic's terms as far as the owner's statement goes.
 4. **No independent account evidence.** The plans are owner-confirmed only. Optionally keep a dated screenshot of each subscription page or invoice with the release records.
-5. **Unread policy.** OpenAI's Sharing & Publication Policy could not be loaded. Read it once, or accept the risk.
+5. **OpenAI Sharing & Publication Policy.** The live page is behind a Cloudflare check that blocked the session. A review from search-engine copies is in `evidence/openai-sharing-publication-policy-2026-11-08.md`. It says to attribute the work to yourself, disclose AI use clearly, and not present it as human-made. No commercial restriction was found, and the recommended credits are in `METADATA.md`. The owner should open the live page once and record "read", or accept the risk.
 6. ~~**Approve.**~~ **Completed 2026-11-08:** The owner expressly approved commercial use of the 264 shipped images, recorded in the declaration and rights register using the GitHub handle `siruss4199-wq` (personal initials not provided). This does not replace independent rights clearance.
-7. **Name and store fields.** The owner chose on 2026-11-08 to search trademarks before submission (WIPO, USPTO, EUIPO and the Intellectual Property Office of Mongolia, classes 9 and 41; record in `evidence/name-decision-2026-11-08.md`). Also fill in the developer/publisher name and contact e-mail in `METADATA.md`.
+7. **Name and store fields.** USPTO and EUIPO were searched on 2026-11-08 with no conflict. WIPO, TMview and the Mongolian register still need the owner (`evidence/name-decision-2026-11-08.md`). Also fill in the developer/publisher name and contact e-mail in `METADATA.md`.

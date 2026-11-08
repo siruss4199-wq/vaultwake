@@ -53,7 +53,7 @@ Legend:
 | Chrome / Edge | ✅ | Chromium (Playwright 1.62.1) locally |
 | Safari / WebKit, Firefox | ⏳ | `v5-release-package.yml` plays the unzipped ZIP in chromium, webkit and firefox; `v5-release-chapters.yml` runs the Coast suite in WebKit |
 | iOS audio resume | ⚠️ | audio unlocks on the first `pointerdown` or `keydown` and resumes on `visibilitychange` (`v5/next/sfx.mjs:45-53`). CrazyGames recommends `touchend` or `click`. **Not checked on a real iPhone.** Gameplay does not depend on sound. |
-| Real iPhone / Android device | ⚠️ | **no human device test was done** for this package |
+| Real iPhone / Android device | ⚠️ | **no human device test was done** for this package; the test steps and the record to fill in are in `DEVICE_QA.md` |
 | Chromebook 4 GB | ⚠️ | not tested; the 3.3 MB initial download and a DOM board suggest low load, but this is unmeasured |
 
 ## Saves, economy, progression

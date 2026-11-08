@@ -2,13 +2,18 @@
 
 Draft for the owner to paste into the CrazyGames developer portal. Every feature named here is in the
 Basic Launch build `vaultwake-merge-crazygames-basic-e72b4bb.zip` (source commit `e72b4bb`).
-Nothing below has been submitted. Fields marked **OWNER** need the owner's input.
+Nothing below has been submitted. Fields marked **OWNER** need the owner's input; do not paste the
+bracketed placeholders into the portal.
+
+Status of the inputs (2026-11-08):
+- **Artwork:** the owner approved commercial use of all 264 shipped images (`evidence/owner-declaration-2026-11-08.md`).
+- **Name:** see `evidence/name-decision-2026-11-08.md`. USPTO and EUIPO searches found no conflict; the WIPO, TMview and Mongolia searches and the owner's keep/change decision are still open.
 
 ## Title
 
 **Vaultwake Merge**
 
-The name has not been cleared as a trademark. See `RIGHTS_REPORT.md`, section 3.
+Not cleared as a trademark. USPTO and EUIPO showed no identical or similar VAULTWAKE mark on 2026-11-08; the owner still has to finish the WIPO, TMview and Mongolia searches and decide (`evidence/name-decision-2026-11-08.md`). If the name changes, the logo, covers, videos and this file change with it.
 
 ## Short description (≤ 160 characters)
 
@@ -39,6 +44,9 @@ The name has not been cleared as a trademark. See `RIGHTS_REPORT.md`, section 3.
 > - Energy that refills over time; your energy capacity grows as your level rises
 > - A daily gift, a shed for parts you want to keep, and a collection book for every part you find
 > - Progress is saved in your browser
+>
+> Made with the help of AI tools: the game's artwork was created with ChatGPT and Claude Code and
+> edited by the developer.
 
 Checked against the build:
 - The seven generators come from `v5/next/chains.mjs` (`GENERATOR_NAMES`).
@@ -89,7 +97,8 @@ The keyboard row states only what the Home browser test checks (`tests/v5-next-h
 | Launch type | Basic Launch (no ads, no in-game purchases) |
 | Orientation | Both. Landscape works on desktop; portrait fills phones. |
 | Mobile friendly | Yes. Touch controls, tested at 360, 390 and 430 px wide. |
-| Uses CrazyGames SDK | Yes, v3: loading start/stop, gameplay start/stop, happy time. No ads in Basic. |
+| Uses CrazyGames SDK | Yes, v3 (`https://sdk.crazygames.com/crazygames-sdk-v3.js`): init, loading start/stop, gameplay start/stop, happy time, and the portal's mute setting. `data-ads="off"`: the ad call in `v5/next/platform-cg.mjs` is switched off in Basic and no ad UI is shown. |
+| Monetization | None. Basic Launch: no ads, no in-game purchases; the shop sells for in-game coins only. |
 | Multiplayer | No |
 | Languages | English |
 | Save | Browser localStorage (`vaultwake-v5-coast`) |
@@ -99,11 +108,12 @@ The keyboard row states only what the Home browser test checks (`tests/v5-next-h
 | Developer website / social | **OWNER** (optional) |
 | Age rating / content | **OWNER** to confirm in the portal. No violence, no chat, no user-generated content, no data collection beyond local saves. |
 | Release date | **OWNER** |
-| Credits | **OWNER**: optional tool credit (ChatGPT Astra, Claude Code). The art is AI-generated or code-rendered (owner statement, 2026-11-08); do not describe it as hand-painted or human-made |
+| Credits | Vaultwake Merge by **[OWNER: developer name]**. Artwork was created with AI tools (OpenAI's ChatGPT and Anthropic's Claude Code) and selected, edited and assembled by **[OWNER: developer name]**, who takes responsibility for the published game. |
+| AI-generated content disclosure | Yes, if the portal asks: artwork is AI-generated (ChatGPT, ChatGPT Plus account) or drawn by code with Claude Code (Claude Pro account), then edited by the developer. Owner-approved for commercial use, 2026-11-08. Do not describe it as hand-painted or human-made (OpenAI Terms of Use; see `evidence/openai-sharing-publication-policy-2026-11-08.md`). |
 
 ## Media
 
 - Covers: `covers/cover-landscape-1920x1080.png`, `covers/cover-portrait-800x1200.png`, `covers/cover-square-800x800.png`
 - Gameplay previews: `videos/vaultwake-merge-gameplay-landscape-1920x1080.mp4`, `videos/vaultwake-merge-gameplay-portrait-1080x1620.mp4`
 
-All of these are made from the game's AI-generated art. Its commercial permission still needs the owner's tool and account details (`RIGHTS_REPORT.md` §6).
+All of these are made only from the game's own art, which the owner approved for commercial use on 2026-11-08 (`evidence/owner-declaration-2026-11-08.md`). Their SHA-256 sums are in `SHA256SUMS`.
