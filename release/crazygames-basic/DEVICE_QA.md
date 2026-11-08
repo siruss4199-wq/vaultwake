@@ -1,8 +1,6 @@
 # Vaultwake Merge: real-phone test record (iPhone Safari, Android Chrome)
 
-**Status: NOT DONE.** No person has tested this build on a real phone yet. The automated browser tests
-in CI (Chromium, WebKit and Firefox at 360, 390 and 430 px; `CHECKLIST.md`) do **not** count as phone
-tests and are not recorded here.
+**Status: PARTIAL OWNER-REPORTED PASS (2026-11-09).** The owner reports playing the branch preview on an **iPhone and PC** with an overall **PASS** result. This records the owner's report; the precise iPhone/browser version and individual 15-step results (including first-tap sound) were not supplied. **Android Chrome is NOT TESTED / not confirmed.** Automated browser CI is a separate source of evidence and does not count as a real Android test.
 
 ## What to test
 
@@ -34,6 +32,16 @@ Mark each row ✅ pass, ❌ fail (write what happened) or — not reached.
 | 13 | Touch targets | Menu, **How to play**, 🛒 shop, collection book and order buttons can all be hit first time with a thumb. | | |
 | 14 | Missing art | No broken-image icons or empty squares on the board, the orders, the coast or the menus. | | |
 | 15 | Errors | No error message, freeze or crash during the test. | | |
+
+## Owner-reported playtest result (2026-11-09)
+
+| Platform | Reported result | Evidence limits |
+|---|---|---|
+| iPhone (browser version not specified) | **PASS — owner reported** | Owner played preview; individual checklist steps, first-tap sound and OS/browser details not independently verified |
+| PC (browser not specified) | **PASS — owner reported** | Owner played preview; browser and per-step results not specified |
+| Android Chrome | **NOT TESTED / not confirmed** | Must still be checked on a real Android phone |
+
+This is a general playtest PASS, not an assertion that all 15 checklist items were explicitly tested. The table below remains open for detailed device QA evidence.
 
 ## Record (owner/tester fills in)
 
