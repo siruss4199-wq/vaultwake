@@ -21,6 +21,11 @@ Release 2026-11-08. List: `tools/coast-crazygames-unused.txt`. Source commit `e7
 | Unzipped package: CrazyGames page at 907×510, 390×844, 360×780 | passed; 0 requests answered 404 |
 | Unzipped package: download before `gameplayStart` | 3.27 MB in 91 requests (unchanged) |
 | Trimmed tree: `v5-next-browser` (360/390/430) | passed; 0 requests answered 404 |
-| Trimmed tree: the other Coast suites and an all-area crawl | running at the time of this commit; results are added below when they finish |
+| Trimmed tree: `v5-next-home`, `saves`, `energy`, `extras`, `rewards`, `story`, `guide`, `landmark`, `rare-merges`, `ch1-rare`, `playtest`, `journey` | passed in Chromium (`journey` and `playtest` then stopped at WebKit, which is not installed locally) |
+| Trimmed tree: `v5-next-chapter2` … `chapter6` | all passed in Chromium |
+| Trimmed tree: `v5-next-bright` | first run failed one timing check ("the picture starts on the place", the `focusIn` class read right after the map opens) with no missing file; the next two runs passed at 360, 390 (both motion settings), 430 and 907 px |
+| Trimmed tree: all-area crawl (8 areas × start/middle/end, 390×844 and 1280×720, map, book, shop, menu) | 144 images requested, all present |
+| **Server log over every trimmed-tree run** | **0 requests answered 404** |
+| CI on `7509195` (full tree, Chromium + WebKit + Firefox for the ZIP) | all 12 checks passed, including the byte-for-byte ZIP rebuild |
 
 The first list was caught by the trimmed-tree run itself: the Home and saves tests requested `coast/icons/driftwood-crate.webp` (404). That is why the guard in step 1 now exists.
