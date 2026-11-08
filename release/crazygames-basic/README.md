@@ -4,9 +4,9 @@ Release candidate, **not approved for public release.** See `OUTSTANDING_APPROVA
 
 | Item | File |
 |---|---|
-| Upload ZIP (Basic Launch, no ads) | `vaultwake-merge-crazygames-basic-76526ad.zip` (15.4 MB, 380 files) |
+| Upload ZIP (Basic Launch, no ads) | `vaultwake-merge-crazygames-basic-e72b4bb.zip` (14.2 MB, 333 files) |
 | Checksums (ZIP, covers, videos) | `SHA256SUMS` |
-| Source commit and build facts | `SOURCE_COMMIT.txt` (`76526ad2f0cc4417194dcc677f37c3fa179ba49d`) |
+| Source commit and build facts | `SOURCE_COMMIT.txt` (`e72b4bb8bdea4a94ea3246fd64c48c801e3736ee`) |
 | Covers | `covers/cover-landscape-1920x1080.png`, `covers/cover-portrait-800x1200.png`, `covers/cover-square-800x800.png` |
 | Gameplay previews (silent, 16.9 s) | `videos/vaultwake-merge-gameplay-landscape-1920x1080.mp4`, `videos/vaultwake-merge-gameplay-portrait-1080x1620.mp4` |
 | Submission text (English) | `METADATA.md` |
@@ -18,8 +18,8 @@ Release candidate, **not approved for public release.** See `OUTSTANDING_APPROVA
 
 ```bash
 cd release/crazygames-basic && sha256sum -c SHA256SUMS
-git checkout 76526ad && node tools/coast-crazygames.mjs --zip   # rebuild
-cmp dist/vaultwake-coast-crazygames.zip release/crazygames-basic/vaultwake-merge-crazygames-basic-76526ad.zip
+git checkout e72b4bb && node tools/coast-crazygames.mjs --zip   # rebuild
+cmp dist/vaultwake-coast-crazygames.zip release/crazygames-basic/vaultwake-merge-crazygames-basic-e72b4bb.zip
 ```
 
 The ZIP is reproducible: fixed file timestamps, sorted entries and no extra attributes. The CI workflow
@@ -28,7 +28,7 @@ The ZIP is reproducible: fixed file timestamps, sorted entries and no extra attr
 ## Play it locally
 
 ```bash
-mkdir /tmp/vw && unzip -q vaultwake-merge-crazygames-basic-76526ad.zip -d /tmp/vw
+mkdir /tmp/vw && unzip -q vaultwake-merge-crazygames-basic-e72b4bb.zip -d /tmp/vw
 python3 -m http.server 8081 --directory /tmp/vw   # then open http://127.0.0.1:8081/
 ```
 

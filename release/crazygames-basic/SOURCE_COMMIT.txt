@@ -1,10 +1,10 @@
-source_commit=76526ad2f0cc4417194dcc677f37c3fa179ba49d
+source_commit=e72b4bb8bdea4a94ea3246fd64c48c801e3736ee
 base_branch=codex/v5-mobile-first-session-final-qa
 base_commit=fd76b03ed680e87d07ffdb87f017460550b1f960
 build=node tools/coast-crazygames.mjs --zip (SOURCE_DATE_EPOCH default 2026-01-01T00:00:00Z)
-zip=vaultwake-merge-crazygames-basic-76526ad.zip
-sha256=6730879f30af12b5a70c62cbae995c69a097f96e8bbc88ee95532c251ed82e3f
-bytes=16114143
-files=380
+zip=vaultwake-merge-crazygames-basic-e72b4bb.zip
+sha256=f5d880674c52ed5beb0a90ec41bfac4f366ebfd4d76de1d9a64651d29933fb3b
+bytes=14847367
+files=333
 launch=basic (data-ads=off)
 status=NOT APPROVED FOR PUBLIC RELEASE (see OUTSTANDING_APPROVALS.md)

@@ -1,7 +1,7 @@
 # Vaultwake Merge: CrazyGames submission metadata (English)
 
 Draft for the owner to paste into the CrazyGames developer portal. Every feature named here is in the
-Basic Launch build `vaultwake-merge-crazygames-basic-76526ad.zip` (source commit `76526ad`).
+Basic Launch build `vaultwake-merge-crazygames-basic-e72b4bb.zip` (source commit `e72b4bb`).
 Nothing below has been submitted. Fields marked **OWNER** need the owner's input.
 
 ## Title
