@@ -53,3 +53,24 @@ is hand-drawn.
 Open the policy URL in your own browser once. Check that the live text does not add anything for
 **images**, and record "read" with the date in `OUTSTANDING_APPROVALS.md` item D. Alternatively,
 record that you accept the risk without reading it.
+
+---
+
+## Independent follow-up review — 2026-11-09 (assistant; not owner acceptance)
+
+An independent assistant review retrieved the **official live policy text** at
+https://openai.com/policies/sharing-publication-policy/ . The official page identifies its update
+date as **November 14, 2022**. It says people posting their own outputs should manually review
+content, attribute it to themselves or their company, and **clearly indicate AI generation**;
+the section on content co-authored with the OpenAI API similarly calls for intelligible AI
+attribution and human responsibility. That API-written-content section does not apply verbatim
+to images generated in ChatGPT. No image-specific ban on commercial game publication was found
+on this page. Also see OpenAI Terms of Use for additional binding terms.
+
+**Evidence:** official source URL above, reviewed 2026-11-09 through public webpage retrieval.
+**Limit:** the project owner has NOT stated that they personally read/accepted the live page.
+Therefore **release checklist item D remains owner-action pending**. The previous 2026-11-08
+Cloudflare-access failure described above remains historically accurate for Claude's session.
+
+Disclosure already drafted in `METADATA.md` is suitable for further owner review. Nothing in
+this follow-up grants legal clearance or authorizes uploading to CrazyGames.
