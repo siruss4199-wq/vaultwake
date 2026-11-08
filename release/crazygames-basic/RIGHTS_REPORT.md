@@ -1,10 +1,14 @@
 # Vaultwake Merge: rights and brand report (Basic Launch package)
 
-**Status: NOT CLEARED.** This is an engineering audit of what ships and where it came from. It is not
-legal advice and approves nothing. No asset in the build has the owner's written confirmation of
-commercial rights: `owner_approved` is `NO` on all 264 shipped images in
-`docs/release/VAULTWAKE_ART_RIGHTS_REGISTER.csv`. The name has not been searched in any trademark
-office. Commercial upload is blocked until the owner completes section 6.
+**Status: origin owner-confirmed; commercial permission not yet evidenced. Not cleared.**
+
+This is an engineering audit of what ships and where it came from. It is not legal advice and it approves nothing.
+
+- **Origin.** On 2026-11-08 the owner confirmed that all artwork was generated with AI for this project, and that none of it came from external artists or stock libraries. That statement is recorded on all 264 shipped images in `docs/release/VAULTWAKE_ART_RIGHTS_REGISTER.csv`.
+- **Permission.** No shipped image yet has documented commercial-use permission. Nothing in the repository records which AI service, account or plan made the art, or when. `owner_approved` therefore stays `NO` on every row.
+- **Name.** The name has not been searched in any trademark office.
+
+Section 6 lists exactly what the owner still has to supply.
 
 Package: `vaultwake-merge-crazygames-basic-e72b4bb.zip` (source commit `e72b4bb`; SHA-256 in `SHA256SUMS`).
 Per-file detail: `ASSET_INVENTORY.csv` (path, bytes, use in this release, reported provenance, clearance status, owner_approved).
@@ -32,22 +36,57 @@ There are no font files: the game uses system fonts (`system-ui`, `Georgia`). Th
 
 ## 2. Provenance of the 264 used images
 
-| Reported provenance (from the register) | Files | Size | Register status | What the owner must confirm |
+**Two separate questions.** These are kept apart throughout this report:
+1. **Origin:** where each image came from. The owner has confirmed AI generation for all of them; the repository's own records add masters, prompts or code for many.
+2. **Permission:** what licence or terms let the owner use the image commercially and pass it to a platform such as CrazyGames.
+
+| Group | Files | Size | How it was made (`origin_class`) | Record in this repository (`source_record`) |
 |---|---:|---:|---|---|
-| Project source-pack master with JSON manifest (chapter maps, places, story scenes) | 108 | 8.20 MB | REVIEW | who made the masters (person or tool), and the licence terms of any tool used |
-| Project art-source masters: coastal UI, Home, story (`docs/art-source/coastal-*`) | 22 | 1.92 MB | REVIEW | the same; these include the Home picture and logo used on the covers |
-| Project WebGL render / in-project generated | 38 | 0.84 MB | REVIEW | that no third-party model, texture or reference was used |
-| Original project AI-generated / rendered artwork | 14 | 1.23 MB | REVIEW | which AI tool, the account and plan used, and that its terms allow commercial use and sublicensing to a platform |
-| **User-provided painted icon sheet** (the board's parts, generators, crates, tokens) | **60** | 0.76 MB | **HOLD** | **the original artist and the right to use and sublicense commercially** |
-| **User-provided painted coastal sheet** (HUD, cells, order cards, and one derived map) | **22** | 0.87 MB | **HOLD** | **the same** |
+| Chapter 3–6 maps, places, story pictures and area strips | 112 | 8.74 MB | AI-generated masters, cut and exported by `tools/harbour-art.py`, `headland-art.py`, `lowwater-art.py`, `keeper-art.py` | Masters in `docs/art-source/*-2026-11-0*/`. Chapter 3: handoff note "generated with the built-in image tool". Chapter 4: manifest with SHA-256 per master. Chapters 5–6: `prompts.json` with the prompt for each image. |
+| Home picture, button, logo, Vault door crops, opening story | 8 | 1.89 MB | AI-generated masters, exported or cropped. Logo subtitle redrawn by `tools/brand-logo-merge.py`. | Masters in `docs/art-source/coastal-home-2026-10-28/` and `coastal-story-2026-10-28/` |
+| Coastal UI: HUD, cell, order card, deliver button, crew faces, ice, sea background | 16 | 0.25 MB | AI-generated masters, exported | Masters in `docs/art-source/coastal-ui-2026-10-25/` |
+| Board icons with their own masters: v2 tools, v2 cargo, pilot rover and bundle, Bolt…Hand-crank, Note…Logbook | 14 | 0.18 MB | AI-generated masters, framed and exported | Masters in `docs/art-source/coastal-{tools,crate,pilot}-*`, `rover-secondary-*`, `kite-secondary-*` |
+| Chapter 1–2 parts and scenes: Copper offcut, Pocket winch, Route fold, landing and worksite panoramas, workshop | 6 | 0.35 MB | AI-generated, used as generated (resized only) | Prompts recorded in `v5/assets/premium/VIBRANT-SLICE.md`, `README.md`, `BOARD-COHESION.md`, `CHAPTER-ART.md`, `WORKSHOP-ART.md` ("built-in image tool"). No archival master. |
+| Landing Beach map with the Vault | 1 | 0.26 MB | Owner-supplied AI map, Vault painted in by `tools/paint-landing-vault.py` | Original map in git history (`b8c5246:v5/assets/premium/landing-map.webp`) |
+| Worksite place stages; Rivet Rover SVG | 22 | 0.30 MB | **In-project renders**: WebGL ray-marched scenes (`coast/render-places.html`) and vector code. No image generator. | Source code in the repository |
+| **Board icons cut from the owner's icon sheet**: generators, Fieldworks 4–7, charts, rope, shell, lamp, cargo basket, crates, token, cog | **39** | 0.50 MB | AI-generated sheet (owner statement), cut out in the project (build 41l) | **No master or generation record.** The sheet itself is not in the repository. |
+| **Beach places cut from the owner's beach sheet**: path, tent, mast, workshop, pier, beacon, cliff × 3 stages | **21** | 0.61 MB | AI-generated sheet (owner statement), cut out in the project (build 41n) | **No master or generation record.** The sheet is not in the repository. |
+| **Observatory art from PR #80**: 15 place stages, map, strip, 7 optics icons, harbour view | **25** | 0.75 MB | AI-generated (owner statement) | **No master or generation record** in this repository |
 
-The two HOLD groups, 82 files, are the core of the game's look: every item on the board and the HUD.
-If their origin cannot be shown, they need to be redrawn before a commercial release. That is a
-large art job, briefed in section 5.
+Totals:
+- 242 images are AI-generated and 22 are in-project renders.
+- 179 have a master, prompt record, git-history original or source code in the repository.
+- **85 rest on the owner's statement alone**: the 39 icons, 21 beach places and 25 Observatory images above.
 
-Being AI-generated is not treated as cleared here. Each AI tool's terms differ; some depend on the paid plan, and some restrict trademarks, likenesses or "in the style of" prompts. No prompt logs or account records are in the repository.
+**The 82 images previously on HOLD.** These are the 60 board icons, the 21 beach places and the Landing Beach map. They were flagged as "user-provided painted sheets, artist unknown". On the owner's statement they are now recorded as AI-generated for this project, not the work of an outside artist.
+- 15 of them trace to a master in the repository or its history: the 14 board icons with their own masters, and the map.
+- The other 67 do not: 39 icons cut from the icon sheet, 21 beach places, and the 7 optics icons from PR #80.
 
-The logo changed in this release: the subtitle "COAST CAMP" became "MERGE". The new subtitle is set in Liberation Serif Bold (SIL Open Font License 1.1, from Debian `fonts-liberation` 2.1.5), and the OFL permits embedding text rendered in the font in a commercial image. The painted "VAULTWAKE" word, sun and wave are unchanged. They are covered by the logo master's row, which is REVIEW, not approved. The tool is `tools/brand-logo-merge.py`.
+**Tool record.** The repository says "built-in image tool / imagegen". The 2026-10-23 art brief names "ChatGPT image generation". The earlier audit names ChatGPT for the 2026-11-04 key art, which is not in the game. No record names the account, plan or exact dates. Folder dates (2026-10-25 to 2026-11-02) give only the import date.
+
+**Logo.** The logo changed in this release: the subtitle "COAST CAMP" became "MERGE".
+- The new subtitle is set in Liberation Serif Bold (SIL Open Font License 1.1, from Debian `fonts-liberation` 2.1.5). The OFL permits embedding text rendered in the font in a commercial image.
+- The painted "VAULTWAKE" word, sun and wave are unchanged; they come from the logo master.
+
+### Commercial-use terms checked (official source, read 2026-11-08)
+
+The repository's notes point to OpenAI's ChatGPT image tool, but the owner has not yet confirmed the tool or account. The terms below apply **only if** the art was made there.
+
+- **OpenAI Terms of Use** (individual ChatGPT and DALL·E users outside the EEA, Switzerland and the UK; effective 1 January 2026; https://openai.com/policies/row-terms-of-use/). Quoted:
+  - *"As between you and OpenAI, and to the extent permitted by applicable law, you (a) retain your ownership rights in Input and (b) own the Output. We hereby assign to you all our right, title, and interest, if any, in and to Output."*
+  - *"output may not be unique and other users may receive similar output from our Services. Our assignment above does not extend to other users' output."*
+  - Among the things users may not do: *"Represent that Output was human-generated when it was not."*
+- **OpenAI Business Terms** (ChatGPT Business/Enterprise, API; effective 1 January 2026; https://openai.com/policies/business-terms/). §4.1: Customer *"owns all Output. OpenAI hereby assigns to Customer all OpenAI's right, title, and interest, if any"*. §4.4: Output may not be unique.
+- **Residents of the EEA, Switzerland or the UK** are covered by OpenAI's separate EU terms. That page could not be loaded from this environment, so it has not been checked.
+
+**What these terms mean here, in engineering terms (not legal advice):**
+- Neither agreement forbids commercial use of Output or passing it to a game platform. Each assigns OpenAI's interest in the Output to the user.
+- Neither grants exclusivity: someone else may receive similar images.
+- Ownership "to the extent permitted by applicable law" does not mean the images are protected by copyright. Whether purely AI-generated images can be copyrighted depends on the country.
+- The store text must not describe the art as hand-made. `METADATA.md` does not.
+- **None of this applies until the owner confirms the tool and the account the art was made on.**
+
+**CrazyGames.** Its requirements pages have no rule against AI-generated art. The covers page says: *"Don't use copyrighted visuals that you don't have the right to use."*
 
 ## 3. Name and brand check: "Vaultwake Merge"
 
@@ -70,43 +109,36 @@ Other brand content found in the game:
 
 ## 4. Covers and videos made for this release
 
-| File | Made from | Rights status |
+| File | Made from | Origin record |
 |---|---|---|
-| `covers/cover-landscape-1920x1080.png` | Home picture `coast/home/home-bg.webp` at 1:1 plus a blurred copy of its sky and sea, the Vaultwake Merge logo, and shell icons `coast/icons/shell-3..5.webp` | Inherits REVIEW (Home picture, logo) and **HOLD** (shell icons: painted icon sheet) |
+| `covers/cover-landscape-1920x1080.png` | Home picture `coast/home/home-bg.webp` at 1:1, plus a blurred copy of its sky and sea, the Vaultwake Merge logo, and shell icons `coast/icons/shell-3..5.webp` | Home picture and logo: master in repo. Shell icons: icon sheet, owner statement only. |
 | `covers/cover-portrait-800x1200.png` | Same sources | Same |
-| `covers/cover-square-800x800.png` | Home picture and logo | REVIEW |
-| `videos/…landscape-1920x1080.mp4` and `…portrait-1080x1620.mp4` | Opening frame from the covers; then a real recording of the release ZIP played in Chromium (`tools/release-gameplay-video.cjs`) | Inherits everything shown on screen: REVIEW and **HOLD** |
+| `covers/cover-square-800x800.png` | Home picture and logo | Master in repo |
+| `videos/…landscape-1920x1080.mp4` and `…portrait-1080x1620.mp4` | Opening frame from the covers, then a real recording of the release ZIP played in Chromium (`tools/release-gameplay-video.cjs`) | Everything shown on screen, so board icons with the owner statement only |
 
-Every cover and video is built only from game art: there is no stock imagery, no third-party
-logos, no platform badges and no text other than the title. Scripts: `tools/release-covers.py`,
-`tools/release-video-assemble.py`.
+Every cover and video is built only from game art. There is no stock imagery, no third-party logo, no
+platform badge and no text other than the title. Scripts: `tools/release-covers.py`,
+`tools/release-video-assemble.py`. The media were not regenerated for this update.
 
-## 5. If art cannot be cleared: replacement brief
+## 5. Fallback only: replacement brief
 
-If the owner cannot document rights for a group, it needs new art made under a written commercial
-licence: work-for-hire or an assignment from a named artist, or an AI tool whose terms grant
-commercial use, with the account and date recorded. Each replacement must keep the current file
-names and sizes so no code changes.
+This is needed only if the owner cannot document commercial permission for a group. Replacements must be made under terms the owner keeps on record (tool, account and date), and must keep the current file names and sizes so no code changes.
 
 - **Board icons (60 files, 192×192 WebP, transparent background).**
-  - Content: seven generator chains of 5 to 8 steps each, plus the generators, crates, cargo, Tide token and brass cog.
-  - Style: chunky painted 3D-look objects with soft top-left light. Each step must be clearly bigger or richer than the last, and the silhouettes must be readable at 48 px.
-  - Names: the item names in `v5/next/chains.mjs` and `v5/core.mjs` (`FAMILIES`).
-- **Coastal UI (22 files).**
-  - Content: HUD pills, board cell, order card frame, deliver button, ice overlays and the coast background.
-  - Style: bright teal sea and cream paper.
-  - Sizes: keep each file's pixel size and its border-image slice positions (`v5/next/coastal.css`).
-- **Key art for covers.**
-  - Content: one painted scene of a cliff with a round ancient Vault door above a beach camp, sunny lagoon and palms.
-  - Size: at least 3840×2160 so all three crops stay sharp.
-  - Text: the title is added separately.
+  - Content: chunky painted 3D-look objects with soft top-left light, readable at 48 px.
+  - Names: `v5/next/chains.mjs` and `v5/core.mjs` (`FAMILIES`).
+- **Beach places (21 files).**
+  - Content: three stages of each of the seven Landing Beach places, on one shared canvas with the ground at (50 %, 90 %).
+- **Observatory (25 files).**
+  - Content: five places × 3 stages, the map and strip, six optics parts and the Lens Bench.
 
-## 6. Owner actions (in order)
+## 6. Owner actions (exact evidence still needed)
 
-1. For each provenance group in section 2, put the evidence in the register's `evidence_link` column and set `owner_approved=YES` row by row:
-   - who made it;
-   - the tool and account if AI was used;
-   - the licence or terms, with a date.
-2. For the 82 HOLD files, name the original artist of the painted sheets and show the right to sublicense, or commission replacements (section 5).
-3. Run formal trademark searches for "Vaultwake" and "Vaultwake Merge" (section 3), and decide whether to file.
-4. Fill in the developer/publisher and credits fields in `METADATA.md`, including any attribution the art or AI licences require.
+1. **Tool and account.** Name the AI service or services that made the art (for example ChatGPT image generation), the account type (Free, Plus, Pro, Team/Business, Enterprise or API) and its holder, and the country of residence, which decides which OpenAI terms apply.
+2. **Dates.** Give the approximate generation period. The repository shows imports from 2026-10-12 to 2026-11-02.
+3. **The 85 images with no record in the repository**: the icon sheet (39), the beach sheet (21) and the PR #80 Observatory art (25).
+   - Add the original sheet or image files to `docs/art-source/`, or a screenshot or export of the chat or history that produced them.
+   - Alternatively, state in writing that they were made on the same tool and account as item 1.
+4. **Approve.** When 1–3 are recorded, put the evidence (file or link) in `evidence_link` and set `owner_approved=YES` in `docs/release/VAULTWAKE_ART_RIGHTS_REGISTER.csv`, group by group. Only the owner should do this.
+5. **Name.** Run formal trademark searches for "Vaultwake" and "Vaultwake Merge" (section 3), and decide whether to file.
+6. **Store fields.** Fill in the developer/publisher fields in `METADATA.md`. Do not describe the art as hand-painted or human-made.

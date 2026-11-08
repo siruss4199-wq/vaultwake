@@ -1,4 +1,7 @@
 # Vaultwake Merge — preliminary rights and name assessment
+
+> **Update 2026-11-08.** The owner has confirmed that all artwork was AI-generated for this project, and that none came from external artists or stock. The "user-provided painted sheet / HOLD" findings below are superseded by `release/crazygames-basic/RIGHTS_REPORT.md` and the new columns in `VAULTWAKE_ART_RIGHTS_REGISTER.csv`: `origin_class`, `source_record`, `master_or_record`, `ai_tool_recorded` and `commercial_terms`. Commercial-use permission is still not evidenced, because the tool, account and dates are not documented.
+
 Date: 2026-11-04. **Not a legal opinion or clearance certificate.**
 
 ## Source material reviewed

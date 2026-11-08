@@ -99,11 +99,11 @@ The keyboard row states only what the Home browser test checks (`tests/v5-next-h
 | Developer website / social | **OWNER** (optional) |
 | Age rating / content | **OWNER** to confirm in the portal. No violence, no chat, no user-generated content, no data collection beyond local saves. |
 | Release date | **OWNER** |
-| Credits | **OWNER**: name the artists of the painted sheets and of the AI tools used, as their licences require (see `RIGHTS_REPORT.md`) |
+| Credits | **OWNER**: optional AI-tool credit. The art is AI-generated (owner statement, 2026-11-08), so do not describe it as hand-painted or human-made (OpenAI Terms of Use) |
 
 ## Media
 
 - Covers: `covers/cover-landscape-1920x1080.png`, `covers/cover-portrait-800x1200.png`, `covers/cover-square-800x800.png`
 - Gameplay previews: `videos/vaultwake-merge-gameplay-landscape-1920x1080.mp4`, `videos/vaultwake-merge-gameplay-portrait-1080x1620.mp4`
 
-All of these are made from game art that still needs the owner's rights confirmation (`RIGHTS_REPORT.md`).
+All of these are made from the game's AI-generated art. Its commercial permission still needs the owner's tool and account details (`RIGHTS_REPORT.md` §6).
