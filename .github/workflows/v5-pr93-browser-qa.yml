@@ -1,7 +1,7 @@
 name: V5 PR93 browser QA
 on:
   push:
-    branches: [codex/v5-order-economy-recipe-fix, codex/v5-release-qa, codex/v5-first-session-energy-balance, codex/v5-mobile-first-session-final-qa]
+    branches: [codex/v5-order-economy-recipe-fix, codex/v5-release-qa, codex/v5-first-session-energy-balance, codex/v5-mobile-first-session-final-qa, claude/v5-crazygames-release-package]
   pull_request:
     branches: [codex/v5-order-economy-recipe-fix, claude/v5-vault-art-integration, codex/v5-first-session-energy-balance]
 

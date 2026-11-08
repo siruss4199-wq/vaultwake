@@ -68,7 +68,7 @@ path,bytes,reported_provenance,clearance_status,evidence_link,owner_approved,dat
 "v5/assets/premium/coast/hidden-harbour/story-signal.webp","76432","Project source-pack/master with JSON manifest","REVIEW: attach generation record and commercial rights statement","","NO","2026-11-04"
 "v5/assets/premium/coast/home/button.webp","41632","Project art-source/coastal-home master","REVIEW: match master and rights holder","","NO","2026-11-04"
 "v5/assets/premium/coast/home/home-bg.webp","372710","Project art-source/coastal-home master","REVIEW: match master and rights holder","","NO","2026-11-04"
-"v5/assets/premium/coast/home/logo.webp","189572","Project art-source/coastal-home master","REVIEW: match master and rights holder","","NO","2026-11-04"
+"v5/assets/premium/coast/home/logo.webp","179242","Project art-source/coastal-home master; 2026-11-08 subtitle COAST CAMP replaced by MERGE (tools/brand-logo-merge.py, Liberation Serif Bold, SIL OFL 1.1); painted word, sun and wave unchanged","REVIEW: match master and rights holder","","NO","2026-11-08"
 "v5/assets/premium/coast/icons/brass-cog.webp","14190","User-provided painted sheet (documented in Coast README)","HOLD: confirm source artist and commercial sublicensing right","","NO","2026-11-04"
 "v5/assets/premium/coast/icons/captains-trunk.webp","12434","User-provided painted sheet (documented in Coast README)","HOLD: confirm source artist and commercial sublicensing right","","NO","2026-11-04"
 "v5/assets/premium/coast/icons/cargo-barrel-v2.webp","13734","User-provided painted sheet (documented in Coast README)","HOLD: confirm source artist and commercial sublicensing right","","NO","2026-11-04"
