@@ -102,13 +102,13 @@ The keyboard row states only what the Home browser test checks (`tests/v5-next-h
 | Multiplayer | No |
 | Languages | English |
 | Save | Browser localStorage (`vaultwake-v5-coast`) |
-| Developer name | **OWNER** |
-| Publisher name | **OWNER** (or the same as the developer) |
-| Developer contact e-mail | **OWNER** |
+| Developer name | **Vaultwake Merge** (owner-provided; pending trademark review) |
+| Publisher name | **Vaultwake Merge** (owner-provided; pending trademark review) |
+| Developer contact e-mail | siruss4199@gmail.com (owner-provided) |
 | Developer website / social | **OWNER** (optional) |
 | Age rating / content | **OWNER** to confirm in the portal. No violence, no chat, no user-generated content, no data collection beyond local saves. |
 | Release date | **OWNER** |
-| Credits | Vaultwake Merge by **[OWNER: developer name]**. Artwork was created with AI tools (OpenAI's ChatGPT and Anthropic's Claude Code) and selected, edited and assembled by **[OWNER: developer name]**, who takes responsibility for the published game. |
+| Credits | Vaultwake Merge by **Vaultwake Merge**. Artwork was created with AI tools (OpenAI's ChatGPT and Anthropic's Claude Code) and selected, edited and assembled by the developer, who takes responsibility for the published game. |
 | AI-generated content disclosure | Yes, if the portal asks: artwork is AI-generated (ChatGPT, ChatGPT Plus account) or drawn by code with Claude Code (Claude Pro account), then edited by the developer. Owner-approved for commercial use, 2026-11-08. Do not describe it as hand-painted or human-made (OpenAI Terms of Use; see `evidence/openai-sharing-publication-policy-2026-11-08.md`). |
 
 ## Media
