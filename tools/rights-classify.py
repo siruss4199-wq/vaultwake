@@ -12,7 +12,7 @@ repositories themselves show about each step, and never more:
   processing_tool    which tool cut, cropped, composited or exported it (commit in siruss4199-wq/wispwood-game)
   tool_attribution   evidenced / partly evidenced / unverified (owner statement only)
   commercial_terms   what the provider terms say, and what is still missing
-owner_approved is never changed (it stays NO until the owner sets it).
+owner_approved is never changed by this classifier. Owner-approved values are preserved.
 Evidence used: git history of siruss4199-wq/wispwood-game (author "Claude" = Claude Code commits),
 docs/art-source/*, v5/assets/premium/*.md notes, tools/*-art.py.
   python3 tools/rights-classify.py
@@ -152,7 +152,7 @@ def update(path, shipped_only):
                                          if c['source_record'] != 'NO master or generation record in repo' else
                                          'AWAITING EXPLICIT OWNER ACCEPTANCE: no master or generation record; per-asset tool unverified; accounts owner-confirmed 2026-11-08')
             if 'evidence_link' in r:
-                r['evidence_link'] = CONFIRM + ('' if c['source_record'].startswith('NO') else '; ' + c['master_or_record'].split(' (')[0].split(';')[0])
+                r['evidence_link'] = CONFIRM + ('' if c['source_record'].startswith('NO') else '; ' + c['master_or_record'].split(' (')[0].split(';')[0]) + ('; release/crazygames-basic/evidence/owner-declaration-2026-11-08.md' if r.get('owner_approved') == 'YES' else '')
             prov = re.sub(r'; Owner statement 2026-11-08:.*$', '', r['reported_provenance'])
             r['reported_provenance'] = prov + '; ' + OWNER
             if 'date_verified' in r: r['date_verified'] = '2026-11-08'
