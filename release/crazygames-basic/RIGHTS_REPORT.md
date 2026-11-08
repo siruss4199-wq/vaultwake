@@ -1,26 +1,24 @@
 # Vaultwake Merge: rights and brand report (Basic Launch package)
 
-**Status: origin owner-confirmed; tool attribution partly evidenced; commercial permission not yet evidenced. Not cleared.**
+**Status: accounts and terms owner-confirmed; awaiting the owner's explicit approval. Not yet cleared.**
 
 This is an engineering audit of what ships and where it came from. It is not legal advice and it approves nothing.
 
-**Owner statement (2026-11-08).**
-- The artwork was made in October–November 2026, for this game only, with two tools: **ChatGPT Astra (OpenAI)** and **Claude Code (Anthropic)**.
-- No stock art or outside artist's work was knowingly used.
+**Owner confirmation, 2026-11-08** (recorded in `evidence/owner-confirmation-2026-11-08.md`):
+- Artwork made in October–November 2026, for this game only, with **ChatGPT Astra on a ChatGPT Plus personal account** and **Claude Code on a Claude Pro personal account**, both owned by the owner.
+- The owner lives in **Mongolia**.
+- No stock art or outside artist's work was intentionally used.
+- The 85 assets without masters came from the same workflow; their individual tool remains unverified.
 
-This replaces the earlier assumption that every image came from ChatGPT's image tool.
+These are **owner statements**. No account record, invoice or generation log was supplied.
 
-**What the repositories show.**
-- Git history of `siruss4199-wq/wispwood-game`, where this art was integrated before `vaultwake` was imported in one commit, plus the masters, generation notes and art scripts.
-- Claude Code commits (author "Claude") **cut, cropped, composited and exported** most of the shipped images.
-- Claude Code also **drew 21 pictures with code** (WebGL renders).
-- The **painted images themselves** came into the Claude Code sessions from outside them. The repository notes say "This session has no image-generation tool" and "no image-generation tool was available, so these are real 3D renders made here".
-- A few early images were generated with a "built-in image tool" in sessions committed as `siruss4199-wq`, not by Claude.
-- No file names ChatGPT Astra, an account, a plan or exact dates.
+**What the repositories independently show.**
+- Git history of `siruss4199-wq/wispwood-game`, the masters, the generation notes and the art scripts.
+- Claude Code commits (author "Claude") **cut, cropped, composited and exported** most images, and **drew 21 pictures with code**.
+- The **painted images** came into the Claude Code sessions from outside them. The notes say "This session has no image-generation tool" and "built-in image tool".
+- No file names ChatGPT, a plan, an account or dates.
 
-**Approval.** `owner_approved` stays `NO` on all 264 shipped images in `docs/release/VAULTWAKE_ART_RIGHTS_REGISTER.csv`, because neither tool's account or plan is documented. The name has not been searched in any trademark office.
-
-Section 6 lists exactly what is still needed.
+**Approval.** `owner_approved` stays `NO` on all 264 shipped images in `docs/release/VAULTWAKE_ART_RIGHTS_REGISTER.csv`. The account details do not by themselves approve the art, and the issues in section 6 need the owner's explicit decision.
 
 Package: `vaultwake-merge-crazygames-basic-e72b4bb.zip` (source commit `e72b4bb`; SHA-256 in `SHA256SUMS`).
 Per-file detail: `ASSET_INVENTORY.csv` (path, bytes, use in this release, reported provenance, clearance status, owner_approved).
@@ -80,31 +78,26 @@ Totals:
 
 **Logo.** The release's logo subtitle "MERGE" is set in Liberation Serif Bold (SIL Open Font License 1.1, Debian `fonts-liberation` 2.1.5). The OFL permits embedding text rendered in the font in a commercial image.
 
-### Commercial-use terms, checked separately (official sources, read 2026-11-08)
+### Terms for the confirmed plans (official sources, read 2026-11-08)
 
-**OpenAI (for ChatGPT Astra).** Which agreement applies depends on the owner's account and country.
-- **Terms of Use** (individual ChatGPT and DALL·E users outside the EEA, Switzerland and the UK; effective 1 January 2026; https://openai.com/policies/row-terms-of-use/):
-  - *"you (a) retain your ownership rights in Input and (b) own the Output. We hereby assign to you all our right, title, and interest, if any, in and to Output."*
-  - *"output may not be unique and other users may receive similar output."*
-  - Users may not *"Represent that Output was human-generated when it was not."*
-- **Business Terms** (ChatGPT Business/Enterprise and API; effective 1 January 2026; https://openai.com/policies/business-terms/): §4.1 Customer *"owns all Output"* with an assignment; §4.4 Output may not be unique.
-- **EEA, Switzerland and UK residents** are covered by OpenAI's EU terms, which could not be loaded from this environment.
+**ChatGPT Plus, an individual account, owner resident in Mongolia.** This falls under the OpenAI **Terms of Use** for individuals outside the EEA, Switzerland and the UK (effective 1 January 2026; https://openai.com/policies/row-terms-of-use/), which include the **Service Terms** (updated 16 October 2026; https://openai.com/policies/service-terms/).
+- Ownership: *"you … own the Output. We hereby assign to you all our right, title, and interest, if any, in and to Output."*
+- Uniqueness: *"output may not be unique and other users may receive similar output."*
+- Restriction: you may not *"Represent that Output was human-generated when it was not."*
+- Service Terms §6: you may not *"reproduce the likeness of any person without express consent and all necessary rights."*
+- No commercial-use restriction on generated images. The only non-commercial clause is §8, ChatGPT Voice output, which the game does not use: its sounds are synthesised by code.
+- The **Sharing & Publication Policy** referred to by the Terms of Use could not be loaded (403) and has not been checked.
 
-**Anthropic (for Claude Code).** Which agreement applies depends on the owner's Claude plan.
-- **Consumer Terms** (Claude Free, Pro and Max, including Claude Code on those plans; effective 8 October 2025; https://www.anthropic.com/legal/consumer-terms):
-  - *"Subject to your compliance with our Terms, we assign to you all of our right, title, and interest—if any—in Outputs."*
-  - Also: *"Use of our Services for evaluation purposes are for your personal, non-commercial use only."*
-- **Commercial Terms** (API, Team and Enterprise; effective 17 June 2025; https://www.anthropic.com/legal/commercial-terms): Customer *"owns its Outputs"*, and *"Anthropic hereby assigns to Customer its right, title and interest (if any) in and to Outputs."*
-- For Claude Code, the Output is mostly code (renders, cutting and compositing scripts), together with the images that code produced.
+**Claude Pro, an individual account.** This falls under Anthropic's **Consumer Terms** (effective 8 October 2025; https://www.anthropic.com/legal/consumer-terms), which *"govern your use of Claude.ai, Claude Pro…"*.
+- Ownership: *"Subject to your compliance with our Terms, we assign to you all of our right, title, and interest—if any—in Outputs."*
+- No commercial-use restriction for a paid subscription. Only evaluation access is *"for your personal, non-commercial use only"*.
+- Prohibited, among others: infringing others' IP or publicity rights, and developing competing AI products or models.
 
 **What this means, in engineering terms (not legal advice):**
-- Both providers assign their interest in Outputs to the user and neither forbids commercial use. Neither grants exclusivity.
-- "To the extent permitted by applicable law" does not mean AI images are protected by copyright; that depends on the country.
-- The store text must not present the art as human-made. `METADATA.md` does not.
-- Claude Code use must not have been on an evaluation or trial offer, which the Consumer Terms limit to personal, non-commercial use.
-- **Neither set of terms is tied to this art until the owner names the accounts.**
+- Both plans let the owner use and publish the output commercially, including through CrazyGames. Neither grants exclusivity.
+- The rights are assigned only "if any": whether AI-generated images are protected by copyright in Mongolia or elsewhere has not been assessed.
 
-**CrazyGames.** Its requirements pages have no rule against AI-generated art. The covers page says: *"Don't use copyrighted visuals that you don't have the right to use."*
+**CrazyGames.** Its requirements pages have no rule against AI art. The covers page says: *"Don't use copyrighted visuals that you don't have the right to use."*
 
 ## 3. Name and brand check: "Vaultwake Merge"
 
@@ -150,13 +143,12 @@ This is needed only if the owner cannot document commercial permission for a gro
 - **Observatory (25 files).**
   - Content: five places × 3 stages, the map and strip, six optics parts and the Lens Bench.
 
-## 6. Remaining evidence and approvals
+## 6. Remaining licensing issues needing the owner's explicit approval
 
-1. **ChatGPT Astra account:** plan (Free, Plus, Pro, Team/Business, Enterprise or API), account holder, and the country of residence, which decides the OpenAI terms.
-2. **Claude Code account:** plan (Free, Pro, Max, Team, Enterprise or API) and account holder. Confirm it was not an evaluation or trial offer.
-3. **The 85 images without records** (icon sheet 39, beach sheet 21, Observatory concept sheets 25). Either:
-   - add the original sheets to `docs/art-source/`, or exports or screenshots of the chats that made them, so each one's tool is shown; or
-   - accept and sign their attribution as "ChatGPT Astra or Claude Code, unverified".
-4. **Approve:** with 1–3 recorded, put the evidence in `evidence_link` and set `owner_approved=YES` in `docs/release/VAULTWAKE_ART_RIGHTS_REGISTER.csv`. Only the owner should do this.
-5. **Name:** run formal trademark searches for "Vaultwake Merge" (USPTO, EUIPO, WIPO, home office; classes 9 and 41), or accept the risk in writing.
-6. **Store fields:** developer/publisher name and contact e-mail in `METADATA.md`. Do not describe the art as hand-made.
+1. **The 85 assets with no master or generation record** (icon sheet 39, beach sheet 21, Observatory concept sheets 25). Their origin rests on the owner's statement, and the tool for each image is unverified. Releasing them means accepting that residual risk in writing, or supplying the original sheets first.
+2. **No exclusivity, uncertain copyright protection.** Both providers say output may not be unique, and whether AI images are protected in Mongolia or elsewhere has not been assessed. Others could make similar art, and the art may be hard to enforce against copying. Accept or seek advice.
+3. **Crew portraits** (`coast/ui/crew-ivo`, `crew-bram`, `crew-nara` shown as Neri, `crew-sela` shown as Tamsin). Confirm they were not modelled on a real person. OpenAI's Service Terms §6 and Anthropic's terms bar reproducing a likeness without consent.
+4. **No independent account evidence.** The plans are owner-confirmed only. Optionally keep a dated screenshot of each subscription page or invoice with the release records.
+5. **Unread policy.** OpenAI's Sharing & Publication Policy could not be loaded. Read it once, or accept the risk.
+6. **Approve.** Once 1–5 are decided, set `owner_approved=YES`, with your initials and date in `date_verified`, in `docs/release/VAULTWAKE_ART_RIGHTS_REGISTER.csv`. Only the owner should do this.
+7. **Name and store fields.** Run a formal trademark search for "Vaultwake Merge" or accept the risk, and fill in the developer/publisher name and contact e-mail in `METADATA.md`.

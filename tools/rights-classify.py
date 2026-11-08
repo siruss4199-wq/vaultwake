@@ -20,17 +20,19 @@ docs/art-source/*, v5/assets/premium/*.md notes, tools/*-art.py.
 import csv, io, os, re
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 P = 'v5/assets/premium/'
-OWNER = ('Owner statement 2026-11-08: made Oct-Nov 2026 for this project with ChatGPT Astra (OpenAI) and Claude Code '
-         '(Anthropic); no stock art or outside artist')
+OWNER = ('Owner statement 2026-11-08: made Oct-Nov 2026 for this project with ChatGPT Astra (OpenAI, ChatGPT Plus) and '
+         'Claude Code (Anthropic, Claude Pro), personal accounts of the owner, resident in Mongolia; no stock art or outside artist')
+CONFIRM = 'release/crazygames-basic/evidence/owner-confirmation-2026-11-08.md'
 WG = 'siruss4199-wq/wispwood-game'
 GEN_AI, GEN_CODE = 'AI image generation', 'programmatic render (code)'
 CHATGPT_OWNER = ('ChatGPT Astra (OpenAI), by owner statement. Records: the image was supplied to the Claude Code session '
                  'from outside it (handoff/brief: "built-in image tool"; Claude Code had no image generator); tool not named per file')
 EITHER_OWNER = 'ChatGPT Astra or Claude Code (owner statement); individual tool not recorded'
-TERMS_OPENAI = ('OpenAI Terms of Use / Business Terms (eff. 2026-01-01): Output assigned to the user, may not be unique, '
-                'must not be presented as human-made. Not yet tied to an account: owner to name the ChatGPT plan and holder.')
-TERMS_ANTHROPIC = ('Anthropic Consumer Terms (eff. 2025-10-08) / Commercial Terms (eff. 2025-06-17): Outputs assigned to the user '
-                   '(Consumer Terms: evaluation use is personal and non-commercial only). Not yet tied to an account: owner to name the Claude plan.')
+TERMS_OPENAI = ('ChatGPT Plus (owner statement) -> OpenAI Terms of Use eff. 2026-01-01 + Service Terms upd. 2026-10-16: Output owned by '
+                'and assigned to the user; no commercial-use restriction on images; not unique; not to be presented as human-made; '
+                'no likeness of real persons without consent. Plan not independently verified.')
+TERMS_ANTHROPIC = ('Claude Pro (owner statement) -> Anthropic Consumer Terms eff. 2025-10-08: Outputs assigned to the user; no '
+                   'commercial-use restriction for paid plans (evaluation access only is non-commercial). Plan not independently verified.')
 TERMS_BOTH = TERMS_OPENAI + ' | ' + TERMS_ANTHROPIC
 
 sheet41l = {f'gen-{g}' for g in ('chart', 'rope', 'shell', 'lamp')} | {f'rig-{t}' for t in range(4, 8)} | \
@@ -145,10 +147,12 @@ def update(path, shipped_only):
         c = classify(r['path']) if r['path'] in shipped else None
         if c:
             r.update(c)
-            if r.get('clearance_status', '').startswith(('PENDING', 'HOLD', 'REVIEW')):
-                r['clearance_status'] = ('PENDING OWNER EVIDENCE: origin owner-confirmed; tool accounts/plans not documented'
+            if r.get('clearance_status', '').startswith(('PENDING', 'HOLD', 'REVIEW', 'AWAITING')):
+                r['clearance_status'] = ('AWAITING OWNER APPROVAL: accounts and terms owner-confirmed 2026-11-08; origin traced in the repositories'
                                          if c['source_record'] != 'NO master or generation record in repo' else
-                                         'PENDING OWNER EVIDENCE: origin by owner statement only; tool unverified; accounts/plans not documented')
+                                         'AWAITING EXPLICIT OWNER ACCEPTANCE: no master or generation record; per-asset tool unverified; accounts owner-confirmed 2026-11-08')
+            if 'evidence_link' in r:
+                r['evidence_link'] = CONFIRM + ('' if c['source_record'].startswith('NO') else '; ' + c['master_or_record'].split(' (')[0].split(';')[0])
             prov = re.sub(r'; Owner statement 2026-11-08:.*$', '', r['reported_provenance'])
             r['reported_provenance'] = prov + '; ' + OWNER
             if 'date_verified' in r: r['date_verified'] = '2026-11-08'
