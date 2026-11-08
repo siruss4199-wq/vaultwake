@@ -3,7 +3,6 @@
 **Decision today: NO-GO for upload.** The package and its art are ready: commercial use of the shipped artwork was approved by the owner on 2026-11-08. Still outstanding:
 - the OpenAI Sharing & Publication Policy check (D);
 - the three blocked trademark searches and the owner's name decision (F);
-- developer/publisher details (G);
 - the real-phone test (H);
 - portal submission (I).
 
@@ -45,6 +44,6 @@ Nothing has been submitted to CrazyGames, published or merged.
 | H | **Test on real phones** with `DEVICE_QA.md`: iPhone Safari and Android Chrome, about 10 minutes each, 15 steps. Fill in its record. | No human device test yet |
 | I | **Upload** the ZIP, covers, videos and text in the CrazyGames developer portal. | Submission is the owner's act |
 
-When D–H are done, the same ZIP can be uploaded unchanged: its SHA-256 is in `SHA256SUMS`, and CI
+When D, F and H are done, the same ZIP can be uploaded unchanged: its SHA-256 is in `SHA256SUMS`, and CI
 proves it is the reproducible build of `e72b4bb`. A change to any art means a new build and a new
 checksum.

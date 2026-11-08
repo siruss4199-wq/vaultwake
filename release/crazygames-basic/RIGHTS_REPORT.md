@@ -1,6 +1,6 @@
 # Vaultwake Merge: rights and brand report (Basic Launch package)
 
-**Status: owner-approved for commercial use of the 264 shipped images (2026-11-08), as an owner attestation; independent third-party rights clearance is not guaranteed. CrazyGames upload remains NO-GO pending the OpenAI Sharing & Publication Policy check, the trademark searches, publisher details and real-device QA (`OUTSTANDING_APPROVALS.md` D, F–H).**
+**Status: owner-approved for commercial use of the 264 shipped images (2026-11-08), as an owner attestation; independent third-party rights clearance is not guaranteed. CrazyGames upload remains NO-GO pending the OpenAI Sharing & Publication Policy check, the trademark searches and real-device QA (`OUTSTANDING_APPROVALS.md` D, F, H).**
 
 This is an engineering audit of what ships and where it came from. The owner has expressly approved commercial use of the shipped images; that statement is not an independent legal rights opinion.
 
@@ -161,4 +161,4 @@ This is needed only if the owner cannot document commercial permission for a gro
 4. **No independent account evidence.** The plans are owner-confirmed only. Optionally keep a dated screenshot of each subscription page or invoice with the release records.
 5. **OpenAI Sharing & Publication Policy.** The live page is behind a Cloudflare check that blocked the session. A review from search-engine copies is in `evidence/openai-sharing-publication-policy-2026-11-08.md`. It says to attribute the work to yourself, disclose AI use clearly, and not present it as human-made. No commercial restriction was found, and the recommended credits are in `METADATA.md`. The owner should open the live page once and record "read", or accept the risk.
 6. ~~**Approve.**~~ **Completed 2026-11-08:** The owner expressly approved commercial use of the 264 shipped images, recorded in the declaration and rights register using the GitHub handle `siruss4199-wq` (personal initials not provided). This does not replace independent rights clearance.
-7. **Name and store fields.** USPTO and EUIPO were searched on 2026-11-08 with no conflict. WIPO, TMview and the Mongolian register still need the owner (`evidence/name-decision-2026-11-08.md`). Also fill in the developer/publisher name and contact e-mail in `METADATA.md`.
+7. **Name and store fields.** USPTO and EUIPO were searched on 2026-11-08 with no conflict. WIPO, TMview and the Mongolian register still need the owner (`evidence/name-decision-2026-11-08.md`). The developer/publisher name and contact e-mail were filled in by the owner on 2026-11-08 (`METADATA.md`).
