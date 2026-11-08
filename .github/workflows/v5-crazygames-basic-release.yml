@@ -1,0 +1,56 @@
+name: Vaultwake Merge CrazyGames Basic release folder
+# Checks release/crazygames-basic/ against the source it was built from: the committed ZIP must be the exact
+# bytes the reproducible build makes from this tree, the covers and videos must meet CrazyGames' sizes,
+# and the unit tests must pass. The browser suites run in v5-release-package.yml and v5-release-chapters.yml.
+on:
+  push:
+    branches: [claude/v5-crazygames-release-package]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    name: Verify release folder and rebuild ZIP
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Unit and simulation tests
+        run: node --test tests/v5-*.test.mjs
+      - name: CrazyGames page matches the game
+        run: node tools/coast-crazygames.mjs --check
+      - name: Rebuild the Basic ZIP and compare with the committed one
+        run: |
+          set -euo pipefail
+          node tools/coast-crazygames.mjs --zip
+          cd release/crazygames-basic
+          ZIP="$(ls vaultwake-merge-crazygames-basic-*.zip)"
+          sha256sum -c SHA256SUMS
+          cmp "$ZIP" ../../dist/vaultwake-coast-crazygames.zip
+          echo "Committed $ZIP is byte-identical to the rebuild from $(git rev-parse HEAD)"
+      - name: Covers and videos meet CrazyGames' sizes
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
+          python3 - <<'PY'
+          import struct
+          def png(p):
+              b=open(p,'rb').read(24);assert b[:8]==b'\x89PNG\r\n\x1a\n',p;return struct.unpack('>II',b[16:24])
+          for n,s in [('cover-landscape-1920x1080',(1920,1080)),('cover-portrait-800x1200',(800,1200)),('cover-square-800x800',(800,800))]:
+              got=png(f'release/crazygames-basic/covers/{n}.png');assert got==s,(n,got);print(n,got)
+          PY
+          for v in landscape-1920x1080 portrait-1080x1620; do
+            f=release/crazygames-basic/videos/vaultwake-merge-gameplay-$v.mp4
+            ffprobe -v error -show_entries format=duration,size:stream=codec_type,codec_name,width,height -of json "$f" > /tmp/probe.json
+            python3 -c "import json,sys;d=json.load(open('/tmp/probe.json'));s=d['streams'];f=d['format'];w,h=map(int,'$v'.split('-')[1].split('x'));assert [x['codec_type'] for x in s]==['video'],s;assert (s[0]['width'],s[0]['height'])==(w,h),s;assert 15<=float(f['duration'])<=20,f;assert int(f['size'])<=50*1024*1024,f;print('$v',s[0]['codec_name'],f['duration'],f['size'])"
+          done
+      - name: Upload the release folder
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: vaultwake-merge-crazygames-basic-${{ github.sha }}
+          path: release/crazygames-basic/
+          retention-days: 90
