@@ -24,6 +24,7 @@ import {reduced,burst,rewardFlight,moment as sharedMoment} from '../feedback.mjs
 import {sfx as sounds} from './sfx.mjs';
 import {createHome} from './home.mjs';
 import {readSave,keptCamps,freeKey,isKeptKey} from './saves.mjs?build=releaseqa54';
+import {openSaveStore} from './save-store.mjs';
 import {playIntro,preloadIntro,storySeen,playScenes} from './story-intro.mjs';
 import {haptics} from './haptics.mjs';
 import {createEnergyReceipts} from './energy-receipts.mjs';
@@ -52,7 +53,10 @@ const nextUnlock=lv=>LEVEL_PATH.find(u=>u.level>lv)??null;
 const BOLT='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 1.5 4.5 13.5H11L9.5 22.5 19.5 10H13Z"/></svg>';
 enablePremium('vibrant');document.body.dataset.art='premium';document.body.dataset.palette='vibrant';
 const $=q=>document.querySelector(q),board=$('#board');
-const storage={get:k=>{try{return localStorage.getItem(k);}catch{return null;}},set:(k,v)=>{try{localStorage.setItem(k,v);}catch{}}};
+// Progress lives in the CrazyGames SDK's Data module on CrazyGames and in localStorage anywhere else
+// (save-store.mjs, 2026-11-08). The SDK is initialised first, so the save is read from the right place.
+const saveNotes=[];
+const storage=await openSaveStore({init:initPlatform,onEvent:(e,d)=>saveNotes.push([e,d])});
 // ?new=1 (the playtest page's "start from the beginning" link) starts a new camp.
 const startNew=new URLSearchParams(location.search).has('new');
 if(startNew){const q=new URLSearchParams(location.search);q.delete('new');history.replaceState(null,'',location.pathname+(q.size?'?'+q:''));}
@@ -71,7 +75,7 @@ let replaced=startNew?stored:null;
 const receipts=createEnergyReceipts(storage,SAVE_KEY+'-energy-receipts');
 receipts.apply(state);
 const persist=()=>{if(holdSave)return;receipts.apply(state);if(replaced){if(!keepCopy(replaced,'kept'))return;replaced=null;}storage.set(SAVE_KEY,JSON.stringify(state));receipts.remember(state);};
-const storageKeys=()=>{try{return Array.from({length:localStorage.length},(_,i)=>localStorage.key(i)).filter(Boolean);}catch{return [];}};
+const storageKeys=()=>storage.keys();
 // Keeps a copy of a camp before anything replaces it. Build 47c (reconciling PR #80's
 // vaultwake-v5-coast-backup with Build 46p's -damaged key): a kept copy is never overwritten. The
 // save goes to the first free key of its kind (-damaged or -kept, then -2 … -9, then one named by the
@@ -107,6 +111,7 @@ $('#keptList').addEventListener('click',e=>{const b=e.target.closest('[data-rest
 const playlog=createLog({storage:{get:k=>{try{return localStorage.getItem(k);}catch{return null;}},set:(k,v)=>localStorage.setItem(k,v),remove:k=>localStorage.removeItem(k)},
  build:BUILD,viewport:`${innerWidth}x${innerHeight}`,touch:!!globalThis.matchMedia?.('(pointer:coarse)').matches});
 playlog.startSession();
+for(const [e,d] of saveNotes)playlog.event(e,d);
 setInterval(()=>playlog.flush(),5000);
 addEventListener('pagehide',()=>playlog.end('pagehide'));
 document.addEventListener('visibilitychange',()=>{if(document.hidden)playlog.end('hidden');else playlog.event('resume');});

@@ -48,6 +48,7 @@ jobs:
           python3 -m http.server 8081 --directory /tmp/vaultwake-package > /tmp/vaultwake-package-http.log 2>&1 &
           sleep 1
           node tests/v5-next-crazygames-browser.cjs
+          node tests/v5-next-crazygames-save-browser.cjs
       - name: Measure extracted Basic initial download
         env:
           CG_URL: http://127.0.0.1:8081/index.html
