@@ -1,9 +1,9 @@
 # Vaultwake Merge: release readiness and outstanding approvals
 
-**Decision today: NO-GO for upload, pending the owner's explicit approvals below.**
+**Decision today: NO-GO for upload. Commercial use of shipped artwork was approved by the owner on 2026-11-08; trademark review, developer/publisher details, real-device QA and portal submission remain outstanding.**
 
 The package is technically ready (`CHECKLIST.md`). The account details are owner-confirmed
-(`evidence/owner-confirmation-2026-11-08.md`). What remains are decisions only the owner can make.
+(`evidence/owner-confirmation-2026-11-08.md`). The artwork owner-approval decision is now documented; other publishing checks still require the owner or testers.
 Nothing has been submitted to CrazyGames, published or merged.
 
 ## Final release-readiness checklist
@@ -20,7 +20,7 @@ Nothing has been submitted to CrazyGames, published or merged.
 | Store text | ✅ Draft | `METADATA.md`; developer/publisher fields need the owner |
 | Art origin and accounts | ✅ Owner-confirmed | ChatGPT Plus and Claude Pro, personal accounts, Mongolia, Oct–Nov 2026. Not independently verified |
 | Provider terms | ✅ Checked | OpenAI Terms of Use + Service Terms; Anthropic Consumer Terms. Commercial use permitted, output assigned to the user, no exclusivity (`RIGHTS_REPORT.md` §2) |
-| Art approval (`owner_approved`) | ❌ **Owner** | NO on all 264 shipped images until the owner closes D and completes E below |
+| Art approval (`owner_approved`) | ✅ **Owner-approved** | YES for the 264 shipped images, dated 2026-11-08, supported by the owner declaration; 86 non-shipped register rows remain NO. Approval is owner attestation, not independent third-party clearance. |
 | Name "Vaultwake Merge" | ❌ **Owner** | Web searches only; no trademark-office search |
 | Developer/publisher identity | ❌ **Owner** | Name and contact e-mail |
 | Real devices | ❌ **Owner/tester** | No iPhone or Android test yet; first-tap sound on iOS unconfirmed |
@@ -34,7 +34,7 @@ Nothing has been submitted to CrazyGames, published or merged.
 | B | ~~Accept non-exclusivity and uncertain copyright protection~~ | **Acknowledged 2026-11-08** in the owner's declaration |
 | C | ~~Confirm the four crew portraits are not likenesses of real people~~ | **Closed 2026-11-08**: owner confirms Ivo, Bram, Neri and Tamsin are fully AI-invented fictional characters (statement 8 in `evidence/owner-confirmation-2026-11-08.md`) |
 | D | Read OpenAI's **Sharing & Publication Policy** once (it could not be loaded here), or accept the risk. | Unchecked policy |
-| E | Complete the declaration's **Owner approval** and **Owner initials/date** lines (`evidence/owner-declaration-2026-11-08.md`), then set **`owner_approved=YES`** (initials and date in `date_verified`) in `docs/release/VAULTWAKE_ART_RIGHTS_REGISTER.csv`. | The declaration says approval is still pending; only the owner approves |
+| E | ~~Complete owner artwork approval~~ **Completed 2026-11-08.** Declaration explicitly approves commercial use of all 264 shipped images, with GitHub handle/date as owner identifier; rights register and release inventory show YES. | This is owner approval, not an independent guarantee of third-party rights. |
 | F | **Owner chose 2026-11-08: search trademarks before submission.** Search WIPO, USPTO, EUIPO and the Intellectual Property Office of Mongolia for "Vaultwake" / "Vaultwake Merge" (classes 9 and 41), fill in the table in `evidence/name-decision-2026-11-08.md`, then decide to keep, change or file the name. | Upload waits for the searches |
 | G | Give the **developer/publisher name and contact e-mail** for `METADATA.md` and the portal. | Portal fields |
 | H | **Test on real phones**: iPhone (Safari) and Android, about 10 minutes each: merge, deliver, build, reload, and sound after the first tap. | No human device test yet |
