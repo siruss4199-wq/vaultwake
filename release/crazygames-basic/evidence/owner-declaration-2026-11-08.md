@@ -1,7 +1,7 @@
 # Vaultwake Merge — Artwork Ownership Declaration
 
 Recorded verbatim as the owner (GitHub `siruss4199-wq`) supplied it in the release session on
-2026-11-08. The approval and initials lines are **not yet completed**.
+2026-11-08. The owner explicitly approved commercial use of all 264 shipped images in the project chat on 2026-11-08. The GitHub account handle is recorded in place of unprovided personal initials.
 
 ---
 
@@ -18,8 +18,8 @@ I confirm that:
 
 I acknowledge that AI-generated outputs may not be exclusive and that copyright protection may vary by jurisdiction.
 
-Owner approval: [Pending explicit confirmation]
-Owner initials/date: [To complete]
+Owner approval: Approved — commercial use of all 264 images shipped in the Vaultwake Merge CrazyGames Basic package.
+Owner initials/date: siruss4199-wq (GitHub account handle; personal initials not supplied) / 2026-11-08
 
 This declaration records provenance and my acceptance of the documentation gaps. It does not independently establish third-party rights clearance.
 
@@ -33,8 +33,6 @@ This declaration records provenance and my acceptance of the documentation gaps.
 | B. Non-exclusivity and uncertain copyright | **Acknowledged** in the declaration |
 | C. Crew portraits | Already closed; restated here |
 | D. OpenAI Sharing & Publication Policy | **Not covered**: still open |
-| E. `owner_approved=YES` | **Not given**: "Owner approval" and "Owner initials/date" are still placeholders |
+| E. `owner_approved=YES` | **Approved 2026-11-08** by the owner in chat for commercial use of the 264 shipped images; GitHub handle recorded instead of personal initials. This is an owner attestation, not independent legal clearance. |
 
-To complete it, replace the two placeholder lines with an explicit approval and your initials and
-date, for example `Owner approval: Approved` and `Owner initials/date: XX / 2026-11-08`. Then set
-`owner_approved=YES` in `docs/release/VAULTWAKE_ART_RIGHTS_REGISTER.csv`.
+The owner gave explicit commercial-use approval for the 264 shipped images in chat on 2026-11-08. This approval is recorded by GitHub account handle `siruss4199-wq`, not by invented personal initials. It does **not** guarantee third-party rights clearance or authorize portal upload, game publication or a PR merge.
