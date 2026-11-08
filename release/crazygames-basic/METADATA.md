@@ -1,7 +1,7 @@
 # Vaultwake Merge: CrazyGames submission metadata (English)
 
 Draft for the owner to paste into the CrazyGames developer portal. Every feature named here is in the
-Basic Launch build `vaultwake-merge-crazygames-basic-e72b4bb.zip` (source commit `e72b4bb`).
+Basic Launch build `vaultwake-merge-crazygames-basic-dd65d3f.zip` (source commit `dd65d3f`).
 Nothing below has been submitted. Fields marked **OWNER** need the owner's input; do not paste the
 bracketed placeholders into the portal.
 
@@ -43,7 +43,7 @@ Not cleared as a trademark. USPTO and EUIPO showed no identical or similar VAULT
 > - Eight areas to restore, each place in three stages, with short story scenes between chapters
 > - Energy that refills over time; your energy capacity grows as your level rises
 > - A daily gift, a shed for parts you want to keep, and a collection book for every part you find
-> - Progress is saved in your browser
+> - Progress saves automatically, and follows you to other devices when you are logged in to CrazyGames
 >
 > Made with the help of AI tools: the game's artwork was created with ChatGPT and Claude Code and
 > edited by the developer.
@@ -88,7 +88,7 @@ The keyboard row states only what the Home browser test checks (`tests/v5-next-h
 - Short story scenes as each chapter opens
 - Rare parts, sealed cargo, ice and crates keep the board changing
 - Plays on desktop and mobile, in portrait or landscape
-- Your progress saves automatically in the browser
+- Your progress saves automatically and syncs across devices with your CrazyGames account
 
 ## Platform fields
 
@@ -101,12 +101,12 @@ The keyboard row states only what the Home browser test checks (`tests/v5-next-h
 | Monetization | None. Basic Launch: no ads, no in-game purchases; the shop sells for in-game coins only. |
 | Multiplayer | No |
 | Languages | English |
-| Save | Browser localStorage (`vaultwake-v5-coast`) |
+| Progress save (submission form) | **Yes, CrazyGames SDK Data Module.** Guests are saved by the SDK on the device; logged-in players on their CrazyGames account, synced across devices. Outside CrazyGames the game falls back to browser localStorage (`vaultwake-v5-coast`). |
 | Developer name | **Vaultwake Merge** (owner-provided; pending trademark review) |
 | Publisher name | **Vaultwake Merge** (owner-provided; pending trademark review) |
 | Developer contact e-mail | siruss4199@gmail.com (owner-provided) |
 | Developer website / social | **OWNER** (optional) |
-| Age rating / content | **OWNER** to confirm in the portal. No violence, no chat, no user-generated content, no data collection beyond local saves. |
+| Age rating / content | **OWNER** to confirm in the portal. No violence, no chat, no user-generated content, no data collection beyond the game save (CrazyGames SDK Data module). |
 | Release date | **OWNER** |
 | Credits | Vaultwake Merge by **Vaultwake Merge**. Artwork was created with AI tools (OpenAI's ChatGPT and Anthropic's Claude Code) and selected, edited and assembled by the developer, who takes responsibility for the published game. |
 | AI-generated content disclosure | Yes, if the portal asks: artwork is AI-generated (ChatGPT, ChatGPT Plus account) or drawn by code with Claude Code (Claude Pro account), then edited by the developer. Owner-approved for commercial use, 2026-11-08. Do not describe it as hand-painted or human-made (OpenAI Terms of Use; see `evidence/openai-sharing-publication-policy-2026-11-08.md`). |

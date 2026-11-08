@@ -1,10 +1,12 @@
-source_commit=e72b4bb8bdea4a94ea3246fd64c48c801e3736ee
+source_commit=dd65d3f775f1bd4b8e5a529aa6418d6250e5f7f9
 base_branch=codex/v5-mobile-first-session-final-qa
 base_commit=fd76b03ed680e87d07ffdb87f017460550b1f960
 build=node tools/coast-crazygames.mjs --zip (SOURCE_DATE_EPOCH default 2026-01-01T00:00:00Z)
-zip=vaultwake-merge-crazygames-basic-e72b4bb.zip
-sha256=f5d880674c52ed5beb0a90ec41bfac4f366ebfd4d76de1d9a64651d29933fb3b
-bytes=14847367
-files=333
+zip=vaultwake-merge-crazygames-basic-dd65d3f.zip
+sha256=64c41f63988c637558fd52d7643df25fb34972a9ebfbc495fc62b7d0ecca6477
+bytes=14852035
+files=334
 launch=basic (data-ads=off)
+progress_save=CrazyGames SDK Data Module (v5/next/save-store.mjs); localStorage outside CrazyGames
+previous_zip=vaultwake-merge-crazygames-basic-e72b4bb.zip (sha256 f5d880674c52ed5beb0a90ec41bfac4f366ebfd4d76de1d9a64651d29933fb3b), superseded 2026-11-08: saved to localStorage only
 status=NOT APPROVED FOR PUBLIC RELEASE (see OUTSTANDING_APPROVALS.md)

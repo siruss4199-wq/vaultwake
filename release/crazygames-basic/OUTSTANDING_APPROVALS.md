@@ -14,12 +14,13 @@ Nothing has been submitted to CrazyGames, published or merged.
 
 | Area | Status | Evidence / what is left |
 |---|---|---|
-| Upload ZIP | ✅ Ready | `vaultwake-merge-crazygames-basic-e72b4bb.zip`, 333 files, 14.2 MB, SHA-256 in `SHA256SUMS`; reproducible from `e72b4bb` (CI compares bytes) |
+| Upload ZIP | ✅ Ready | `vaultwake-merge-crazygames-basic-dd65d3f.zip`, 334 files, 14.2 MB, SHA-256 in `SHA256SUMS`; reproducible from `dd65d3f` (CI compares bytes). Replaces `e72b4bb` |
 | Basic Launch configuration | ✅ | `data-ads="off"`, SDK v3 lifecycle, no ads or purchases, nothing leads out (CI, three browsers) |
 | Download size and paths | ✅ | 3.27 MB before `gameplayStart`; 0 missing files in the ZIP run and the trimmed-tree run |
-| Unit and simulation tests | ✅ | 443 pass, 0 fail |
+| Unit and simulation tests | ✅ | 459 pass, 0 fail (16 new save-store tests) |
 | CI | ✅ | 12/12 on `473340f` (2026-11-08, first run) and on `6d5af0e`, the last commit that touched the package. Three earlier docs-only commits each had one WebKit timing failure that passed on its single re-run |
-| Saves, economy, energy, progression | ✅ Unchanged | No game code changed since `fd76b03` apart from the title and menu text |
+| Saves, economy, energy, progression | ✅ Rules unchanged | No gameplay or save-format change since `fd76b03` apart from the title and menu text. Only where the save is stored changed (next row) |
+| Progress save | ✅ Built and tested · ⏳ real CrazyGames check | On CrazyGames the save uses the **SDK Data module** (guest and logged-in, synced across devices); localStorage elsewhere. Existing local progress is copied in, nothing is overwritten (`evidence/progress-save-2026-11-08.md`). Portal form: choose **"Yes, CrazyGames SDK Data Module"**. Real account sync needs the portal's private QA |
 | Covers (3) and videos (2) | ✅ Technically | Sizes, durations and silence checked in CI; made from the game's own art |
 | Store text | ✅ Ready to paste | `METADATA.md` checked against the ZIP; includes the AI-art disclosure and credits line. Developer/publisher name, e-mail and release date are **[OWNER]** placeholders |
 | Art origin and accounts | ✅ Owner-confirmed | ChatGPT Plus and Claude Pro, personal accounts, Mongolia, Oct–Nov 2026. Not independently verified |
@@ -42,8 +43,8 @@ Nothing has been submitted to CrazyGames, published or merged.
 | F | Owner chose 2026-11-08 to search before submission. **USPTO ✅ and EUIPO ✅ were done 2026-11-08 with no conflict.** Run the three blocked searches yourself: WIPO Global Brand Database, TMview and the Mongolian register at https://ipom.mn.publish.wipo.net/. Steps are in `evidence/name-decision-2026-11-08.md`, about 15 minutes. Then write keep / change / file and the date. | Upload waits for the searches and the decision |
 | G | ~~Provide developer/publisher and contact details~~ **Completed:** Vaultwake Merge / Vaultwake Merge / siruss4199@gmail.com, recorded in `METADATA.md`. | Name subject to the outstanding trademark review; release date still to be chosen. |
 | H | iPhone and PC: **passed, owner-reported 2026-11-09**. Still to do: **test on a real Android phone** (Chrome) with `DEVICE_QA.md`, about 10 minutes, and record the result there. | Android not tested yet |
-| I | **Upload** the ZIP, covers, videos and text in the CrazyGames developer portal. | Submission is the owner's act |
+| I | **Upload** the ZIP, covers, videos and text in the CrazyGames developer portal. For progress save choose **"Yes, CrazyGames SDK Data Module"** (with "No progress save" the SDK disables the Data module). Before going public, use the portal's private QA link: play as a guest, reload; log in, reload, and open on a second device (`DEVICE_QA.md`). | Submission is the owner's act |
 
 When D, F and H are done, the same ZIP can be uploaded unchanged: its SHA-256 is in `SHA256SUMS`, and CI
-proves it is the reproducible build of `e72b4bb`. A change to any art means a new build and a new
+proves it is the reproducible build of `dd65d3f`. A change to any art means a new build and a new
 checksum.

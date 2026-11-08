@@ -4,7 +4,8 @@
 
 ## What to test
 
-- **Build:** the upload ZIP `vaultwake-merge-crazygames-basic-e72b4bb.zip`. Its SHA-256 is in `SHA256SUMS`.
+- **Build:** the upload ZIP `vaultwake-merge-crazygames-basic-dd65d3f.zip`. Its SHA-256 is in `SHA256SUMS`. The iPhone/PC pass above was on the earlier build `e72b4bb`; `dd65d3f` changes only where progress is stored on CrazyGames (the SDK Data module), nothing on screen.
+- **Progress save on CrazyGames:** in the portal's private QA link, also check steps 11 and 15 once as a guest and once logged in to a CrazyGames account, and that the logged-in camp appears on a second device (`evidence/progress-save-2026-11-08.md`).
 - **Easiest way:** open the branch preview on the phone: https://claude-v5-crazygames-release.wispwood-game.pages.dev/v5/coast-crazygames
   - This serves the same game files as the ZIP, but it is not the ZIP itself.
   - Outside CrazyGames there is no SDK, so the game runs in standalone mode.

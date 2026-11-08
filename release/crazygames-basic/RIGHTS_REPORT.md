@@ -20,12 +20,12 @@ These are **owner statements**. No account record, invoice or generation log was
 
 **Approval.** The owner explicitly approved commercial use of all 264 shipped images on 2026-11-08. `owner_approved=YES` applies only to those 264; non-shipped items remain unapproved. Evidence is `evidence/owner-declaration-2026-11-08.md`. This does not establish independent third-party legal clearance, exclusivity, trademark rights or CrazyGames submission approval.
 
-Package: `vaultwake-merge-crazygames-basic-e72b4bb.zip` (source commit `e72b4bb`; SHA-256 in `SHA256SUMS`).
+Package: `vaultwake-merge-crazygames-basic-dd65d3f.zip` (source commit `dd65d3f`; SHA-256 in `SHA256SUMS`).
 Per-file detail: `ASSET_INVENTORY.csv` (path, bytes, use in this release, reported provenance, clearance status, owner_approved).
 
 ## 1. What ships
 
-The ZIP holds 333 files:
+The ZIP holds 334 files:
 - 264 images (WebP, plus one SVG), every one of them used by the game
 - the game's JavaScript, CSS and HTML
 - `v4/platform.mjs`
