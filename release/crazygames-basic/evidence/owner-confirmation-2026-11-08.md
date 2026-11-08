@@ -15,6 +15,7 @@ licence document was supplied with them, and none is in the repository.
 | 5 | All artwork was created for Vaultwake Merge using these two tools. |
 | 6 | No third-party stock images or external artists' artwork were intentionally used. |
 | 7 | The 85 assets without archived masters also came from this project workflow; their individual tool attribution remains unverified. |
+| 8 | (Added 2026-11-08) The four crew portraits (Ivo, Bram, Neri, Tamsin) are fully AI-invented fictional characters, not based on real people or reproduced likenesses. |
 
 ## Independent evidence held in the repositories
 
