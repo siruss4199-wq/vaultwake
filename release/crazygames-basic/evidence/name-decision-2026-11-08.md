@@ -1,4 +1,4 @@
-# Vaultwake Merge — Game Name Review (decision pending)
+# Vaultwake Merge — Game Name Review (decision: search trademarks first)
 
 Recorded verbatim as the owner (GitHub `siruss4199-wq`) supplied it in the release session on
 2026-11-08. **Decision recorded 2026-11-08: option 1, search trademarks before submission.**
