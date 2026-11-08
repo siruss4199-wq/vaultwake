@@ -3,7 +3,7 @@
 **Decision today: NO-GO for upload.** The package and its art are ready: commercial use of the shipped artwork was approved by the owner on 2026-11-08. Still outstanding:
 - the OpenAI Sharing & Publication Policy check (D);
 - the three blocked trademark searches and the owner's name decision (F);
-- the real-phone test (H);
+- the Android phone test (H; iPhone and PC passed, owner-reported 2026-11-09);
 - portal submission (I).
 
 The package is technically ready (`CHECKLIST.md`). The account details are owner-confirmed
@@ -27,7 +27,7 @@ Nothing has been submitted to CrazyGames, published or merged.
 | Art approval (`owner_approved`) | ✅ **Owner-approved** | YES for the 264 shipped images, dated 2026-11-08, supported by the owner declaration; 86 non-shipped register rows remain NO. Approval is owner attestation, not independent third-party clearance. |
 | Name "Vaultwake Merge" | ⚠️ **Partly searched** | USPTO and EUIPO searched 2026-11-08: no VAULTWAKE or VAULT + WAKE mark. WIPO Global Brand Database, TMview and the Mongolian register blocked automated access, so the owner must search those. Owner keep/change/file decision pending (`evidence/name-decision-2026-11-08.md`) |
 | Developer/publisher identity | ✅ **Owner-provided** | Developer and publisher: Vaultwake Merge; contact: siruss4199@gmail.com. Name use remains conditional on trademark review. |
-| Real devices | ❌ **Owner/tester** | No iPhone or Android test yet; first-tap sound on iOS unconfirmed. Checklist and record: `DEVICE_QA.md` |
+| Real devices | ⚠️ **Partly done** | iPhone and PC: **pass, owner-reported** 2026-11-09. Browser versions and the 15 steps, including first-tap sound, were not itemised. **Android Chrome: not tested.** Record: `DEVICE_QA.md` |
 | CrazyGames submission | ❌ **Owner** | Upload in the developer portal after the above; acceptance is CrazyGames' decision |
 
 ## Exact owner actions
@@ -41,7 +41,7 @@ Nothing has been submitted to CrazyGames, published or merged.
 | E | ~~Complete owner artwork approval~~ **Completed 2026-11-08.** Declaration explicitly approves commercial use of all 264 shipped images, with GitHub handle/date as owner identifier; rights register and release inventory show YES. | This is owner approval, not an independent guarantee of third-party rights. |
 | F | Owner chose 2026-11-08 to search before submission. **USPTO ✅ and EUIPO ✅ were done 2026-11-08 with no conflict.** Run the three blocked searches yourself: WIPO Global Brand Database, TMview and the Mongolian register at https://ipom.mn.publish.wipo.net/. Steps are in `evidence/name-decision-2026-11-08.md`, about 15 minutes. Then write keep / change / file and the date. | Upload waits for the searches and the decision |
 | G | ~~Provide developer/publisher and contact details~~ **Completed:** Vaultwake Merge / Vaultwake Merge / siruss4199@gmail.com, recorded in `METADATA.md`. | Name subject to the outstanding trademark review; release date still to be chosen. |
-| H | **Test on real phones** with `DEVICE_QA.md`: iPhone Safari and Android Chrome, about 10 minutes each, 15 steps. Fill in its record. | No human device test yet |
+| H | iPhone and PC: **passed, owner-reported 2026-11-09**. Still to do: **test on a real Android phone** (Chrome) with `DEVICE_QA.md`, about 10 minutes, and record the result there. | Android not tested yet |
 | I | **Upload** the ZIP, covers, videos and text in the CrazyGames developer portal. | Submission is the owner's act |
 
 When D, F and H are done, the same ZIP can be uploaded unchanged: its SHA-256 is in `SHA256SUMS`, and CI
