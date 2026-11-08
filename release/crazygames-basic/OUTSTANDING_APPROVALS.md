@@ -6,8 +6,8 @@ Nothing has been submitted to CrazyGames, published or merged.
 
 | # | Blocker | Severity | Owner action | Where |
 |---|---|---|---|---|
-| 1 | Commercial permission for the art is not documented. Origin is owner-confirmed (AI-generated for this project, 2026-11-08), but the tool, account/plan and dates are not recorded, so no terms can yet be tied to the images (`owner_approved=NO` on all 264). | **P0** | Name the AI service(s), the account type and holder, the country of residence (decides which OpenAI terms apply) and the approximate generation period. If it was ChatGPT, OpenAI's Terms of Use (effective 2026-01-01) assign Output to the user. | `RIGHTS_REPORT.md` §2, §6 |
-| 2 | 85 shipped images have no master or generation record in the repository: 39 board icons and 21 beach places cut from your sheets, and 25 Observatory images from PR #80. They rest on your statement alone. | **P0** | Add the original sheets or images to `docs/art-source/` (or exports or screenshots of their generation history), or confirm in writing they were made on the same tool and account as row 1. Then set `owner_approved=YES` group by group. | `ASSET_INVENTORY.csv` (`source_record`), `RIGHTS_REPORT.md` §2 |
+| 1 | No tool account is documented for the art. Owner statement: made Oct–Nov 2026 with ChatGPT Astra (OpenAI) and Claude Code (Anthropic). Commits show Claude Code's processing and its 21 code renders, but neither account or plan is recorded, so no terms are tied yet (`owner_approved=NO` on all 264). | **P0** | Name the ChatGPT Astra plan and holder, the Claude Code plan and holder (not an evaluation or trial), and your country of residence. OpenAI and Anthropic terms both assign Output to the user (`RIGHTS_REPORT.md` §2). | `RIGHTS_REPORT.md` §2, §6 |
+| 2 | 85 images have no master or generation record, so their generating tool is **unverified**: 39 icons and 21 beach places cut from your sheets, 25 Observatory images cut from your concept sheets. Only the cutting by Claude Code is shown. | **P0** | Add the original sheets or generation history to `docs/art-source/`, or sign off their attribution as "ChatGPT Astra or Claude Code, unverified". Then set `owner_approved=YES` group by group. | `ASSET_INVENTORY.csv` (`tool_attribution`) |
 | 3 | Covers and videos use the art in rows 1–2 | **P0** (follows 1–2) | Nothing extra: they are cleared when rows 1–2 are. Only remake them if art is replaced. | `covers/`, `videos/` |
 | 4 | The name "Vaultwake Merge" has had web searches only | **P1** | Run formal searches in USPTO, EUIPO, WIPO and the home office (classes 9 and 41), decide on filing, and check the domain and social handles | `RIGHTS_REPORT.md` §3 |
 | 5 | Developer and publisher identity, contact e-mail, credits, age rating and release date | **P1** | Fill in the **OWNER** fields | `METADATA.md` |
@@ -32,10 +32,10 @@ checksum.
 
 ## What the owner needs to send (one message is enough)
 
-1. AI service(s) used for the art. The repository's notes point to ChatGPT image generation.
-2. Account type (Free, Plus, Pro, Team/Business, Enterprise or API) and the account holder's name.
-3. Country of residence.
-4. Approximate period when the art was generated.
-5. The original icon sheet, beach sheet and PR #80 Observatory images, or a written statement that they came from the same account.
-6. Developer/publisher name and contact e-mail for the portal.
-7. Whether trademark searches will be done before upload, or the name risk is accepted.
+1. ChatGPT Astra: plan (Free, Plus, Pro, Team/Business, Enterprise or API) and account holder.
+2. Claude Code: plan (Free, Pro, Max, Team, Enterprise or API) and account holder; confirm it was not an evaluation or trial offer.
+3. Country of residence, which decides the applicable OpenAI terms.
+4. For the 85 unrecorded images: the original sheets, or a signed note accepting "ChatGPT Astra or Claude Code, unverified".
+5. Developer/publisher name and contact e-mail for the portal.
+6. Trademark: formal search results, or written acceptance of the name risk.
+7. Real-device test result: iPhone (Safari) and Android, about 10 minutes each, including sound after the first tap.

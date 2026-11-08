@@ -1,14 +1,26 @@
 # Vaultwake Merge: rights and brand report (Basic Launch package)
 
-**Status: origin owner-confirmed; commercial permission not yet evidenced. Not cleared.**
+**Status: origin owner-confirmed; tool attribution partly evidenced; commercial permission not yet evidenced. Not cleared.**
 
 This is an engineering audit of what ships and where it came from. It is not legal advice and it approves nothing.
 
-- **Origin.** On 2026-11-08 the owner confirmed that all artwork was generated with AI for this project, and that none of it came from external artists or stock libraries. That statement is recorded on all 264 shipped images in `docs/release/VAULTWAKE_ART_RIGHTS_REGISTER.csv`.
-- **Permission.** No shipped image yet has documented commercial-use permission. Nothing in the repository records which AI service, account or plan made the art, or when. `owner_approved` therefore stays `NO` on every row.
-- **Name.** The name has not been searched in any trademark office.
+**Owner statement (2026-11-08).**
+- The artwork was made in October–November 2026, for this game only, with two tools: **ChatGPT Astra (OpenAI)** and **Claude Code (Anthropic)**.
+- No stock art or outside artist's work was knowingly used.
 
-Section 6 lists exactly what the owner still has to supply.
+This replaces the earlier assumption that every image came from ChatGPT's image tool.
+
+**What the repositories show.**
+- Git history of `siruss4199-wq/wispwood-game`, where this art was integrated before `vaultwake` was imported in one commit, plus the masters, generation notes and art scripts.
+- Claude Code commits (author "Claude") **cut, cropped, composited and exported** most of the shipped images.
+- Claude Code also **drew 21 pictures with code** (WebGL renders).
+- The **painted images themselves** came into the Claude Code sessions from outside them. The repository notes say "This session has no image-generation tool" and "no image-generation tool was available, so these are real 3D renders made here".
+- A few early images were generated with a "built-in image tool" in sessions committed as `siruss4199-wq`, not by Claude.
+- No file names ChatGPT Astra, an account, a plan or exact dates.
+
+**Approval.** `owner_approved` stays `NO` on all 264 shipped images in `docs/release/VAULTWAKE_ART_RIGHTS_REGISTER.csv`, because neither tool's account or plan is documented. The name has not been searched in any trademark office.
+
+Section 6 lists exactly what is still needed.
 
 Package: `vaultwake-merge-crazygames-basic-e72b4bb.zip` (source commit `e72b4bb`; SHA-256 in `SHA256SUMS`).
 Per-file detail: `ASSET_INVENTORY.csv` (path, bytes, use in this release, reported provenance, clearance status, owner_approved).
@@ -34,57 +46,63 @@ There are no font files: the game uses system fonts (`system-ui`, `Georgia`). Th
 
 8 of them were on HOLD, so they are now out of the rights question for this release. They stay in the repository, because Classic V5 (`v5/index.html`) still uses some of them. The check that nothing broke with them gone is in `evidence/unused-images-removed.md`.
 
-## 2. Provenance of the 264 used images
+## 2. Provenance of the 264 shipped images
 
-**Two separate questions.** These are kept apart throughout this report:
-1. **Origin:** where each image came from. The owner has confirmed AI generation for all of them; the repository's own records add masters, prompts or code for many.
-2. **Permission:** what licence or terms let the owner use the image commercially and pass it to a platform such as CrazyGames.
+Three questions, kept apart:
+1. **Origin:** made for this project with ChatGPT Astra and Claude Code, per the owner. Recorded on every image.
+2. **Which tool made each picture:** per-file columns `generation_method`, `generation_tool`, `processing_tool` and `tool_attribution` in the register and in `ASSET_INVENTORY.csv` (`tools/rights-classify.py`).
+3. **Commercial permission:** the terms of each tool, which apply once the owner names the accounts used.
 
-| Group | Files | Size | How it was made (`origin_class`) | Record in this repository (`source_record`) |
-|---|---:|---:|---|---|
-| Chapter 3–6 maps, places, story pictures and area strips | 112 | 8.74 MB | AI-generated masters, cut and exported by `tools/harbour-art.py`, `headland-art.py`, `lowwater-art.py`, `keeper-art.py` | Masters in `docs/art-source/*-2026-11-0*/`. Chapter 3: handoff note "generated with the built-in image tool". Chapter 4: manifest with SHA-256 per master. Chapters 5–6: `prompts.json` with the prompt for each image. |
-| Home picture, button, logo, Vault door crops, opening story | 8 | 1.89 MB | AI-generated masters, exported or cropped. Logo subtitle redrawn by `tools/brand-logo-merge.py`. | Masters in `docs/art-source/coastal-home-2026-10-28/` and `coastal-story-2026-10-28/` |
-| Coastal UI: HUD, cell, order card, deliver button, crew faces, ice, sea background | 16 | 0.25 MB | AI-generated masters, exported | Masters in `docs/art-source/coastal-ui-2026-10-25/` |
-| Board icons with their own masters: v2 tools, v2 cargo, pilot rover and bundle, Bolt…Hand-crank, Note…Logbook | 14 | 0.18 MB | AI-generated masters, framed and exported | Masters in `docs/art-source/coastal-{tools,crate,pilot}-*`, `rover-secondary-*`, `kite-secondary-*` |
-| Chapter 1–2 parts and scenes: Copper offcut, Pocket winch, Route fold, landing and worksite panoramas, workshop | 6 | 0.35 MB | AI-generated, used as generated (resized only) | Prompts recorded in `v5/assets/premium/VIBRANT-SLICE.md`, `README.md`, `BOARD-COHESION.md`, `CHAPTER-ART.md`, `WORKSHOP-ART.md` ("built-in image tool"). No archival master. |
-| Landing Beach map with the Vault | 1 | 0.26 MB | Owner-supplied AI map, Vault painted in by `tools/paint-landing-vault.py` | Original map in git history (`b8c5246:v5/assets/premium/landing-map.webp`) |
-| Worksite place stages; Rivet Rover SVG | 22 | 0.30 MB | **In-project renders**: WebGL ray-marched scenes (`coast/render-places.html`) and vector code. No image generator. | Source code in the repository |
-| **Board icons cut from the owner's icon sheet**: generators, Fieldworks 4–7, charts, rope, shell, lamp, cargo basket, crates, token, cog | **39** | 0.50 MB | AI-generated sheet (owner statement), cut out in the project (build 41l) | **No master or generation record.** The sheet itself is not in the repository. |
-| **Beach places cut from the owner's beach sheet**: path, tent, mast, workshop, pier, beacon, cliff × 3 stages | **21** | 0.61 MB | AI-generated sheet (owner statement), cut out in the project (build 41n) | **No master or generation record.** The sheet is not in the repository. |
-| **Observatory art from PR #80**: 15 place stages, map, strip, 7 optics icons, harbour view | **25** | 0.75 MB | AI-generated (owner statement) | **No master or generation record** in this repository |
+### By how the picture was made
+
+| Group | Files | How the picture was made | Which tool, on what evidence | Record in the repository |
+|---|---:|---|---|---|
+| Worksite place stages (7 places × 3 stages) | 21 | **Programmatic render**: a WebGL ray-marched scene | **Claude Code. Evidenced**: commit `11fdee6` by Claude, and the render code `coast/render-places.html` | Source code |
+| Rivet Rover (SVG) | 1 | **Programmatic**: vector geometry | Session committed as `siruss4199-wq` (`698fc78`, `4bbb067`), not Claude Code; ChatGPT Astra by owner statement | Source (SVG) |
+| Chapter 3–6 maps, places, story pictures, strips | 112 | AI image generation (masters), then cut and exported | Masters supplied from outside Claude Code: the Ch3 handoff says "built-in image tool"; Ch5–6 have `prompts.json`. ChatGPT Astra by owner statement. **Processing: Claude Code** (`47cfa57`, `53ff263`, `56cd4ad`, `c4b3b6e`, `tools/*-art.py`) | Masters in `docs/art-source/` |
+| Home picture, button, logo, Vault crops, opening story | 8 | AI image generation (masters), exported or cropped; logo subtitle redrawn by code | ChatGPT Astra by owner statement ("the supplied skin"). **Processing: Claude Code** (`f9dc476`, `6864900`, `56601dd`, `44952a9`; `tools/brand-logo-merge.py`) | Masters in repo |
+| Coastal UI (HUD, cell, order card, crew faces, ice, background) | 16 | AI image generation (masters), exported | ChatGPT Astra by owner statement ("the supplied art"). **Processing: Claude Code** (`5b4a64e`, `758ec38`) | Masters in repo |
+| Board icons with their own masters | 14 | AI image generation (masters), framed and exported | ChatGPT Astra by owner statement. **Processing: Claude Code** (`cf13035`, `1620bcc`, `97513c9`, `3cc4f86`, `e6b9a32`) | Masters in repo |
+| Chapter 1–2 parts and scenes (Copper offcut, Pocket winch, Route fold, landing, worksite, workshop) | 6 | AI image generation, used as generated | "Built-in image tool" with prompts recorded, in sessions committed as `siruss4199-wq` (`698fc78`, `4bbb067`), not Claude Code; ChatGPT Astra by owner statement | Prompt notes |
+| Landing Beach map with the Vault | 1 | AI-generated base map, Vault entrance painted in by code | Base map: **unverified** (owner statement). Vault edit: **Claude Code** (`tools/paint-landing-vault.py`, siruss4199-wq/vaultwake#97) | Original in git history (`b8c5246`) |
+| **Board icons cut from the owner's icon sheet** | **39** | AI image generation (sheet), cut out | **Unverified**: "ChatGPT Astra or Claude Code" by owner statement. Cutting: Claude Code (`b4bf79f`) | **No sheet in repo** |
+| **Beach places cut from the owner's beach sheet** | **21** | AI image generation (sheet), cut out | **Unverified**, as above. Cutting: Claude Code (`6b47b4d`) | **No sheet in repo** |
+| **Observatory: places, map, strip, optics icons, harbour view** | **25** | AI image generation (concept sheets), cut out | **Unverified**, as above. Cutting: Claude Code (`f96d1de` "Art cut from the user's three concept sheets"; `a1eb517`, `7a769a2`) | **No sheets in repo** |
 
 Totals:
-- 242 images are AI-generated and 22 are in-project renders.
-- 179 have a master, prompt record, git-history original or source code in the repository.
-- **85 rest on the owner's statement alone**: the 39 icons, 21 beach places and 25 Observatory images above.
+- 242 images come from AI image generation and 22 are programmatic renders.
+- Of the renders, 21 were made by Claude Code (evidenced), and 1 came from a non-Claude session.
+- 150 trace to a master in the repository, 6 to prompt notes, 1 to an original in git history, and 22 to source code.
+- **85 rest on the owner's statement alone, and their generating tool is unverified**: 39 icons, 21 beach places and 25 Observatory images. For these, only the cutting step (Claude Code) is shown by commits.
+- The 82 images previously on HOLD (60 board icons, 21 beach places, the Landing Beach map) are recorded as owner-confirmed project art. 67 of them are among the 85 unverified.
 
-**The 82 images previously on HOLD.** These are the 60 board icons, the 21 beach places and the Landing Beach map. They were flagged as "user-provided painted sheets, artist unknown". On the owner's statement they are now recorded as AI-generated for this project, not the work of an outside artist.
-- 15 of them trace to a master in the repository or its history: the 14 board icons with their own masters, and the map.
-- The other 67 do not: 39 icons cut from the icon sheet, 21 beach places, and the 7 optics icons from PR #80.
+**Generation period.** October–November 2026 (owner). Repository import dates run from 2026-10-12 to 2026-11-02.
 
-**Tool record.** The repository says "built-in image tool / imagegen". The 2026-10-23 art brief names "ChatGPT image generation". The earlier audit names ChatGPT for the 2026-11-04 key art, which is not in the game. No record names the account, plan or exact dates. Folder dates (2026-10-25 to 2026-11-02) give only the import date.
+**Logo.** The release's logo subtitle "MERGE" is set in Liberation Serif Bold (SIL Open Font License 1.1, Debian `fonts-liberation` 2.1.5). The OFL permits embedding text rendered in the font in a commercial image.
 
-**Logo.** The logo changed in this release: the subtitle "COAST CAMP" became "MERGE".
-- The new subtitle is set in Liberation Serif Bold (SIL Open Font License 1.1, from Debian `fonts-liberation` 2.1.5). The OFL permits embedding text rendered in the font in a commercial image.
-- The painted "VAULTWAKE" word, sun and wave are unchanged; they come from the logo master.
+### Commercial-use terms, checked separately (official sources, read 2026-11-08)
 
-### Commercial-use terms checked (official source, read 2026-11-08)
+**OpenAI (for ChatGPT Astra).** Which agreement applies depends on the owner's account and country.
+- **Terms of Use** (individual ChatGPT and DALL·E users outside the EEA, Switzerland and the UK; effective 1 January 2026; https://openai.com/policies/row-terms-of-use/):
+  - *"you (a) retain your ownership rights in Input and (b) own the Output. We hereby assign to you all our right, title, and interest, if any, in and to Output."*
+  - *"output may not be unique and other users may receive similar output."*
+  - Users may not *"Represent that Output was human-generated when it was not."*
+- **Business Terms** (ChatGPT Business/Enterprise and API; effective 1 January 2026; https://openai.com/policies/business-terms/): §4.1 Customer *"owns all Output"* with an assignment; §4.4 Output may not be unique.
+- **EEA, Switzerland and UK residents** are covered by OpenAI's EU terms, which could not be loaded from this environment.
 
-The repository's notes point to OpenAI's ChatGPT image tool, but the owner has not yet confirmed the tool or account. The terms below apply **only if** the art was made there.
+**Anthropic (for Claude Code).** Which agreement applies depends on the owner's Claude plan.
+- **Consumer Terms** (Claude Free, Pro and Max, including Claude Code on those plans; effective 8 October 2025; https://www.anthropic.com/legal/consumer-terms):
+  - *"Subject to your compliance with our Terms, we assign to you all of our right, title, and interest—if any—in Outputs."*
+  - Also: *"Use of our Services for evaluation purposes are for your personal, non-commercial use only."*
+- **Commercial Terms** (API, Team and Enterprise; effective 17 June 2025; https://www.anthropic.com/legal/commercial-terms): Customer *"owns its Outputs"*, and *"Anthropic hereby assigns to Customer its right, title and interest (if any) in and to Outputs."*
+- For Claude Code, the Output is mostly code (renders, cutting and compositing scripts), together with the images that code produced.
 
-- **OpenAI Terms of Use** (individual ChatGPT and DALL·E users outside the EEA, Switzerland and the UK; effective 1 January 2026; https://openai.com/policies/row-terms-of-use/). Quoted:
-  - *"As between you and OpenAI, and to the extent permitted by applicable law, you (a) retain your ownership rights in Input and (b) own the Output. We hereby assign to you all our right, title, and interest, if any, in and to Output."*
-  - *"output may not be unique and other users may receive similar output from our Services. Our assignment above does not extend to other users' output."*
-  - Among the things users may not do: *"Represent that Output was human-generated when it was not."*
-- **OpenAI Business Terms** (ChatGPT Business/Enterprise, API; effective 1 January 2026; https://openai.com/policies/business-terms/). §4.1: Customer *"owns all Output. OpenAI hereby assigns to Customer all OpenAI's right, title, and interest, if any"*. §4.4: Output may not be unique.
-- **Residents of the EEA, Switzerland or the UK** are covered by OpenAI's separate EU terms. That page could not be loaded from this environment, so it has not been checked.
-
-**What these terms mean here, in engineering terms (not legal advice):**
-- Neither agreement forbids commercial use of Output or passing it to a game platform. Each assigns OpenAI's interest in the Output to the user.
-- Neither grants exclusivity: someone else may receive similar images.
-- Ownership "to the extent permitted by applicable law" does not mean the images are protected by copyright. Whether purely AI-generated images can be copyrighted depends on the country.
-- The store text must not describe the art as hand-made. `METADATA.md` does not.
-- **None of this applies until the owner confirms the tool and the account the art was made on.**
+**What this means, in engineering terms (not legal advice):**
+- Both providers assign their interest in Outputs to the user and neither forbids commercial use. Neither grants exclusivity.
+- "To the extent permitted by applicable law" does not mean AI images are protected by copyright; that depends on the country.
+- The store text must not present the art as human-made. `METADATA.md` does not.
+- Claude Code use must not have been on an evaluation or trial offer, which the Consumer Terms limit to personal, non-commercial use.
+- **Neither set of terms is tied to this art until the owner names the accounts.**
 
 **CrazyGames.** Its requirements pages have no rule against AI-generated art. The covers page says: *"Don't use copyrighted visuals that you don't have the right to use."*
 
@@ -132,13 +150,13 @@ This is needed only if the owner cannot document commercial permission for a gro
 - **Observatory (25 files).**
   - Content: five places × 3 stages, the map and strip, six optics parts and the Lens Bench.
 
-## 6. Owner actions (exact evidence still needed)
+## 6. Remaining evidence and approvals
 
-1. **Tool and account.** Name the AI service or services that made the art (for example ChatGPT image generation), the account type (Free, Plus, Pro, Team/Business, Enterprise or API) and its holder, and the country of residence, which decides which OpenAI terms apply.
-2. **Dates.** Give the approximate generation period. The repository shows imports from 2026-10-12 to 2026-11-02.
-3. **The 85 images with no record in the repository**: the icon sheet (39), the beach sheet (21) and the PR #80 Observatory art (25).
-   - Add the original sheet or image files to `docs/art-source/`, or a screenshot or export of the chat or history that produced them.
-   - Alternatively, state in writing that they were made on the same tool and account as item 1.
-4. **Approve.** When 1–3 are recorded, put the evidence (file or link) in `evidence_link` and set `owner_approved=YES` in `docs/release/VAULTWAKE_ART_RIGHTS_REGISTER.csv`, group by group. Only the owner should do this.
-5. **Name.** Run formal trademark searches for "Vaultwake" and "Vaultwake Merge" (section 3), and decide whether to file.
-6. **Store fields.** Fill in the developer/publisher fields in `METADATA.md`. Do not describe the art as hand-painted or human-made.
+1. **ChatGPT Astra account:** plan (Free, Plus, Pro, Team/Business, Enterprise or API), account holder, and the country of residence, which decides the OpenAI terms.
+2. **Claude Code account:** plan (Free, Pro, Max, Team, Enterprise or API) and account holder. Confirm it was not an evaluation or trial offer.
+3. **The 85 images without records** (icon sheet 39, beach sheet 21, Observatory concept sheets 25). Either:
+   - add the original sheets to `docs/art-source/`, or exports or screenshots of the chats that made them, so each one's tool is shown; or
+   - accept and sign their attribution as "ChatGPT Astra or Claude Code, unverified".
+4. **Approve:** with 1–3 recorded, put the evidence in `evidence_link` and set `owner_approved=YES` in `docs/release/VAULTWAKE_ART_RIGHTS_REGISTER.csv`. Only the owner should do this.
+5. **Name:** run formal trademark searches for "Vaultwake Merge" (USPTO, EUIPO, WIPO, home office; classes 9 and 41), or accept the risk in writing.
+6. **Store fields:** developer/publisher name and contact e-mail in `METADATA.md`. Do not describe the art as hand-made.

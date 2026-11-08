@@ -1,6 +1,6 @@
 # Vaultwake Merge — preliminary rights and name assessment
 
-> **Update 2026-11-08.** The owner has confirmed that all artwork was AI-generated for this project, and that none came from external artists or stock. The "user-provided painted sheet / HOLD" findings below are superseded by `release/crazygames-basic/RIGHTS_REPORT.md` and the new columns in `VAULTWAKE_ART_RIGHTS_REGISTER.csv`: `origin_class`, `source_record`, `master_or_record`, `ai_tool_recorded` and `commercial_terms`. Commercial-use permission is still not evidenced, because the tool, account and dates are not documented.
+> **Update 2026-11-08.** The owner confirms the artwork was made in October–November 2026, for this project only, with ChatGPT Astra (OpenAI) and Claude Code (Anthropic), with no stock art or outside artists. The "user-provided painted sheet / HOLD" findings below are superseded by `release/crazygames-basic/RIGHTS_REPORT.md` and the per-file tool columns in `VAULTWAKE_ART_RIGHTS_REGISTER.csv` (`generation_method`, `generation_tool`, `processing_tool`, `tool_attribution`). Commercial permission is still not evidenced, because neither tool's account or plan is documented.
 
 Date: 2026-11-04. **Not a legal opinion or clearance certificate.**
 

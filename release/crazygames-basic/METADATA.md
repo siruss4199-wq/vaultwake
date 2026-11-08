@@ -99,7 +99,7 @@ The keyboard row states only what the Home browser test checks (`tests/v5-next-h
 | Developer website / social | **OWNER** (optional) |
 | Age rating / content | **OWNER** to confirm in the portal. No violence, no chat, no user-generated content, no data collection beyond local saves. |
 | Release date | **OWNER** |
-| Credits | **OWNER**: optional AI-tool credit. The art is AI-generated (owner statement, 2026-11-08), so do not describe it as hand-painted or human-made (OpenAI Terms of Use) |
+| Credits | **OWNER**: optional tool credit (ChatGPT Astra, Claude Code). The art is AI-generated or code-rendered (owner statement, 2026-11-08); do not describe it as hand-painted or human-made |
 
 ## Media
 
