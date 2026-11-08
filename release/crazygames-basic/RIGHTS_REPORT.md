@@ -145,10 +145,10 @@ This is needed only if the owner cannot document commercial permission for a gro
 
 ## 6. Remaining licensing issues needing the owner's explicit approval
 
-1. **The 85 assets with no master or generation record** (icon sheet 39, beach sheet 21, Observatory concept sheets 25). Their origin rests on the owner's statement, and the tool for each image is unverified. Releasing them means accepting that residual risk in writing, or supplying the original sheets first.
-2. **No exclusivity, uncertain copyright protection.** Both providers say output may not be unique, and whether AI images are protected in Mongolia or elsewhere has not been assessed. Others could make similar art, and the art may be hard to enforce against copying. Accept or seek advice.
+1. ~~**The 85 assets with no master or generation record**~~ **Accepted 2026-11-08** in the owner's declaration (`evidence/owner-declaration-2026-11-08.md`): same workflow, per-image tool unverifiable, documentation gap accepted.
+2. ~~**No exclusivity, uncertain copyright protection**~~ **Acknowledged 2026-11-08** in the owner's declaration.
 3. ~~**Crew portraits**~~ **Closed 2026-11-08.** The owner confirms Ivo, Bram, Neri and Tamsin (`coast/ui/crew-ivo`, `crew-bram`, `crew-nara`, `crew-sela`) are fully AI-invented fictional characters, not based on real people or reproduced likenesses (owner statement 8). This satisfies the likeness rules in OpenAI's Service Terms §6 and Anthropic's terms as far as the owner's statement goes.
 4. **No independent account evidence.** The plans are owner-confirmed only. Optionally keep a dated screenshot of each subscription page or invoice with the release records.
 5. **Unread policy.** OpenAI's Sharing & Publication Policy could not be loaded. Read it once, or accept the risk.
-6. **Approve.** Once 1–5 are decided, set `owner_approved=YES`, with your initials and date in `date_verified`, in `docs/release/VAULTWAKE_ART_RIGHTS_REGISTER.csv`. Only the owner should do this.
+6. **Approve.** Complete the declaration's approval and initials/date lines, then set `owner_approved=YES` in `docs/release/VAULTWAKE_ART_RIGHTS_REGISTER.csv`. Only the owner should do this.
 7. **Name and store fields.** Run a formal trademark search for "Vaultwake Merge" or accept the risk, and fill in the developer/publisher name and contact e-mail in `METADATA.md`.
