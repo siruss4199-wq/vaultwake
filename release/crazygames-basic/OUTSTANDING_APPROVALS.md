@@ -1,6 +1,6 @@
 # Vaultwake Merge: release readiness and outstanding approvals
 
-**Decision today: NO-GO for public submission.** Real CrazyGames QA reported a progress-save failure on 2026-11-09; investigate, fix, rebuild and retest before submission. The package and its art were previously ready: commercial use of the shipped artwork was approved by the owner on 2026-11-08. Still outstanding:
+**Status 2026-11-09: SUBMITTED FOR REVIEW by the owner** (CrazyGames game ID 166859, build `bb041246-a54e-4ef5-bebe-0152414e8fcf`, status "Awaiting review"; `evidence/crazygames-submission-2026-11-09.md`). Not approved or published yet; acceptance is CrazyGames' decision. Still open at submission: guest, second-device and Android save checks, the OpenAI policy check (D) and the trademark searches and name decision (F). Earlier note: **Decision today: NO-GO for public submission.** Real CrazyGames QA reported a progress-save failure on 2026-11-09; investigate, fix, rebuild and retest before submission. The package and its art were previously ready: commercial use of the shipped artwork was approved by the owner on 2026-11-08. Still outstanding:
 - the OpenAI Sharing & Publication Policy check (D);
 - the three blocked trademark searches and the owner's name decision (F);
 - the Android phone test (H; iPhone and PC passed, owner-reported 2026-11-09);
@@ -29,7 +29,7 @@ Nothing has been submitted to CrazyGames, published or merged.
 | Name "Vaultwake Merge" | ⚠️ **Partly searched** | USPTO and EUIPO searched 2026-11-08: no VAULTWAKE or VAULT + WAKE mark. WIPO Global Brand Database, TMview and the Mongolian register blocked automated access, so the owner must search those. Owner keep/change/file decision pending (`evidence/name-decision-2026-11-08.md`) |
 | Developer/publisher identity | ✅ **Owner-provided** | Developer and publisher: Vaultwake Merge; contact: siruss4199@gmail.com. Name use remains conditional on trademark review. |
 | Real devices | ⚠️ **Partly done** | iPhone and PC: **pass, owner-reported** 2026-11-09. Browser versions and the 15 steps, including first-tap sound, were not itemised. **Android Chrome: not tested.** Record: `DEVICE_QA.md` |
-| CrazyGames submission | ❌ **Owner** | Upload in the developer portal after the above; acceptance is CrazyGames' decision |
+| CrazyGames submission | ⏳ **Submitted 2026-11-09, awaiting review** | Owner submitted in the developer portal: game ID 166859, submitted build `bb041246-a54e-4ef5-bebe-0152414e8fcf` (a separate Draft build `ca75516c…` is not the submitted one). Which ZIP that build holds is not visible in the screenshots. Acceptance is CrazyGames' decision |
 
 ## Exact owner actions
 
