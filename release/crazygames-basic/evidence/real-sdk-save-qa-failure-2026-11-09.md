@@ -96,3 +96,12 @@ submission form, Progress Save must be **"Yes, using the Data Module from the Cr
 **D. Mobile.** Repeat A on the Android phone in Chrome. This also covers item H.
 
 **Not fixed until A and C pass on CrazyGames.** Until then this file stays **FAIL** and public submission stays blocked.
+
+
+## Owner retest result — 2026-11-09
+
+**PARTIAL PASS (owner-reported, real CrazyGames private QA):** Following the new `664956e` release upload, the owner reported that refreshing the QA page displayed **Continue** and the game resumed from the **previously saved progress**. This directly resolves the earlier observed **refresh loses progress** symptom for the tested CrazyGames session.
+
+Evidence scope: owner's chat report. We did not receive a screenshot of the in-game save-mode line, QA Data Get/Set logs, account state or exact energy/coin values. A guest run, separate logged-in account run, second-device synchronization and Android Chrome test have **not been independently confirmed**. Do not represent this as full CrazyGames Data Module QA approval.
+
+**Status: observed refresh regression PASS in one real QA session; remaining guest/account/cross-device and Android checks open.** Do not change or clear existing saves. The upload is still a private QA build, not a public publication.
