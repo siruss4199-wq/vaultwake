@@ -1,6 +1,6 @@
 # Vaultwake Merge: release readiness and outstanding approvals
 
-**Decision today: NO-GO for upload.** The package and its art are ready: commercial use of the shipped artwork was approved by the owner on 2026-11-08. Still outstanding:
+**Decision today: NO-GO for public submission.** Real CrazyGames QA reported a progress-save failure on 2026-11-09; investigate, fix, rebuild and retest before submission. The package and its art were previously ready: commercial use of the shipped artwork was approved by the owner on 2026-11-08. Still outstanding:
 - the OpenAI Sharing & Publication Policy check (D);
 - the three blocked trademark searches and the owner's name decision (F);
 - the Android phone test (H; iPhone and PC passed, owner-reported 2026-11-09);
@@ -20,7 +20,7 @@ Nothing has been submitted to CrazyGames, published or merged.
 | Unit and simulation tests | ✅ | 459 pass, 0 fail (16 new save-store tests) |
 | CI | ✅ | 12/12 on `473340f` (2026-11-08, first run) and on `6d5af0e`, the last commit that touched the package. Three earlier docs-only commits each had one WebKit timing failure that passed on its single re-run |
 | Saves, economy, energy, progression | ✅ Rules unchanged | No gameplay or save-format change since `fd76b03` apart from the title and menu text. Only where the save is stored changed (next row) |
-| Progress save | ✅ Built and tested · ⏳ real CrazyGames check | On CrazyGames the save uses the **SDK Data module** (guest and logged-in, synced across devices); localStorage elsewhere. Existing local progress is copied in, nothing is overwritten (`evidence/progress-save-2026-11-08.md`). Portal form: choose **"Yes, CrazyGames SDK Data Module"**. Real account sync needs the portal's private QA |
+| Progress save | ❌ **Real CrazyGames QA FAIL (2026-11-09)** | Owner uploaded the new Data Module build, played, waited and refreshed; progress did not persist. Root cause not yet confirmed. See `evidence/real-sdk-save-qa-failure-2026-11-09.md`. Do not proceed to public submission. |
 | Covers (3) and videos (2) | ✅ Technically | Sizes, durations and silence checked in CI; made from the game's own art |
 | Store text | ✅ Ready to paste | `METADATA.md` checked against the ZIP; includes the AI-art disclosure and credits line. Developer/publisher name, e-mail and release date are **[OWNER]** placeholders |
 | Art origin and accounts | ✅ Owner-confirmed | ChatGPT Plus and Claude Pro, personal accounts, Mongolia, Oct–Nov 2026. Not independently verified |
