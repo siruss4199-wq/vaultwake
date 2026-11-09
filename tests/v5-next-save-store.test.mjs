@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import {SAVE_KEY,fresh} from '../v5/next/game.mjs';
 import {STORY_KEY} from '../v5/next/story-intro.mjs';
 import {freeKey,isKeptKey,keptCamps} from '../v5/next/saves.mjs';
-import {openSaveStore,localStore,dataStore,adoptLocal,reconcile,isProgressKey,tag,
+import {openSaveStore,localStore,dataStore,adoptLocal,reconcile,isProgressKey,tag,saveLine,
  RECEIPTS_KEY,INDEX_KEY,ADOPTED_KEY,JOURNAL_KEY,DATA_LIMIT,DATA_BUDGET} from '../v5/next/save-store.mjs';
 
 // A browser's localStorage.
@@ -173,8 +173,9 @@ test('1 MB: a kept copy that would pass the safety margin is refused; the camp i
  assert.equal(n,4,'four 200 KB copies fit under the margin, the fifth is refused');
  assert.ok(s.size()<=DATA_BUDGET);assert.ok(notes.some(([e])=>e==='dataFull'));
  assert.ok(s.set(SAVE_KEY,camp(2)),'the camp still saves');assert.equal(cloud.getItem(SAVE_KEY),camp(2));
- // Past the hard limit the SDK would not back it up: it is kept in the browser as well.
- assert.equal(s.set(SAVE_KEY,'y'.repeat(DATA_LIMIT)),false);assert.equal(ls.getItem(SAVE_KEY).length,DATA_LIMIT);
+ // Past the hard limit the SDK would refuse it: it goes to the browser and is read back from there.
+ assert.equal(s.set(SAVE_KEY,'y'.repeat(DATA_LIMIT)),true);assert.equal(ls.getItem(SAVE_KEY).length,DATA_LIMIT);
+ assert.equal(s.get(SAVE_KEY).length,DATA_LIMIT,'read back from the browser, not the stale Data module copy');
  assert.ok(notes.some(([e])=>e==='dataOverLimit'));
  // The SDK's own error (dataLimitExcedeed) also lands in the browser.
  cloud.fail='dataLimitExcedeed';assert.ok(s.set(SAVE_KEY,camp(3)));assert.equal(ls.getItem(SAVE_KEY),camp(3));
@@ -182,10 +183,63 @@ test('1 MB: a kept copy that would pass the safety margin is refused; the camp i
  assert.ok(camp(1).length<6000);
 });
 
-test('after a login the store stops writing until the SDK reloads the game',async()=>{
- const cloud=new Cloud({[SAVE_KEY]:camp(1)}),sdk=sdkWith(cloud);const s=await open(sdk,new Mem());
+test('a login does not stop saving (CrazyGames reloads the game itself)',async()=>{
+ const cloud=new Cloud({[SAVE_KEY]:camp(1)}),sdk=sdkWith(cloud),notes=[];const s=await open(sdk,new Mem(),{onEvent:(e,d)=>notes.push([e,d])});
  assert.equal(sdk.auth.length,1);sdk.auth[0]({username:'x'});
- assert.equal(s.set(SAVE_KEY,camp(2)),false);assert.equal(cloud.getItem(SAVE_KEY),camp(1));assert.ok(s.held);
+ assert.ok(s.set(SAVE_KEY,camp(2)));assert.equal(cloud.getItem(SAVE_KEY),camp(2),'the save still reaches the Data module');
+ assert.ok(s.status.loginSeen);assert.ok(notes.some(([e])=>e==='authChange'));
+});
+
+test('regression 2026-11-09: a slow SDK init (several seconds on CrazyGames) still uses the Data module',async()=>{
+ const cloud=new Cloud({[SAVE_KEY]:camp(9)}),sdk=sdkWith(cloud);let t=0;
+ const slow=()=>new Promise(r=>setTimeout(()=>r(true),60));
+ const s=await openSaveStore({sdk:()=>sdk,init:slow,local:localStore(new Mem()),clock:()=>(t+=6000)});
+ assert.equal(s.kind,'data');assert.equal(s.get(SAVE_KEY),camp(9));assert.equal(s.status.initMs,6000);
+});
+
+test('regression 2026-11-09: a refused write is read back from the browser for the rest of the session',async()=>{
+ const cloud=new Cloud({[SAVE_KEY]:camp(1)}),ls=new Mem();const s=await open(sdkWith(cloud),ls);
+ cloud.fail='dataModuleDisabled';assert.ok(s.set(SAVE_KEY,camp(5)));
+ assert.equal(s.get(SAVE_KEY),camp(5),'the app sees its own last save, not the Data module\'s old one');
+ cloud.fail=null;assert.ok(s.set(SAVE_KEY,camp(6)));assert.equal(ls.getItem(SAVE_KEY),camp(6),'the key stays in the browser this session');
+ assert.equal(s.status.errors[0].code,'dataModuleDisabled');assert.match(saveLine(s.status),/refused a save \(dataModuleDisabled\)/);
+ // Next start: back into the Data module.
+ const again=await open(sdkWith(cloud),ls);assert.equal(cloud.getItem(SAVE_KEY),camp(6));assert.equal(again.get(SAVE_KEY),camp(6));
+});
+
+test('regression 2026-11-09: a write the Data module silently drops is caught and kept in the browser',async()=>{
+ const cloud=new Cloud({[SAVE_KEY]:camp(1)}),ls=new Mem();const s=await open(sdkWith(cloud),ls);
+ cloud.setItem=function(k,v){this.writes++;};// accepts the call, keeps nothing
+ assert.ok(s.set(SAVE_KEY,camp(2)));assert.equal(s.get(SAVE_KEY),camp(2));assert.equal(ls.getItem(SAVE_KEY),camp(2));
+ assert.equal(s.status.errors[0].code,'notAccepted');
+});
+
+test('the Data module is read once at start; a save does not read every key again',async()=>{
+ const cloud=new Cloud({[SAVE_KEY]:camp(1),[SAVE_KEY+'-kept']:camp(2)});let reads=0;const g=cloud.getItem.bind(cloud);cloud.getItem=k=>{reads++;return g(k);};
+ const s=await open(sdkWith(cloud),new Mem());reads=0;
+ for(let i=0;i<20;i++)s.set(SAVE_KEY,camp(10+i));
+ // One read-back per save (to confirm the Data module kept it), plus a few at most.
+ assert.ok(reads<=26,`${reads} SDK reads for 20 saves`);
+});
+
+test('diagnostics: where progress goes, why, and whether saves are accepted',async()=>{
+ const cloud=new Cloud();const s=await open(sdkWith(cloud,{user:{__dangerousUserId:'u'}}),new Mem());s.set(SAVE_KEY,camp(1));
+ assert.equal(s.status.kind,'data');assert.equal(s.status.user,'account');assert.equal(s.status.environment,'crazygames');
+ assert.equal(s.status.accepted,1);assert.ok(s.status.lastSaved);assert.match(saveLine(s.status,s.status.lastSaved+3000),/saved to your CrazyGames account · last save 3 s ago/);
+ const l=await open(sdkWith(new Cloud(),{env:'disabled'}),new Mem());assert.equal(l.status.kind,'local');assert.equal(l.status.reason,'environment disabled');
+ l.set(SAVE_KEY,camp(1));assert.equal(l.status.accepted,1);assert.match(saveLine(l.status),/saved in this browser/);
+ const none=await open(sdkWith(new Cloud(),{initOk:false}),new Mem());assert.equal(none.status.reason,'SDK did not initialise');
+});
+
+test('initPlatform: a timeout answers false for that call only; once the SDK is up it answers true',async()=>{
+ const {initPlatform,resetPlatform,onCrazyGamesHost}=await import('../v5/next/platform-cg.mjs');
+ let finish;globalThis.CrazyGames={SDK:{environment:'crazygames',init:()=>new Promise(r=>{finish=r;})}};resetPlatform();
+ try{
+  assert.equal(await initPlatform({timeout:20}),false,'not up yet');
+  finish();assert.equal(await initPlatform({timeout:20}),true,'up now: no longer remembered as a failure');
+ }finally{delete globalThis.CrazyGames;resetPlatform();}
+ assert.ok(onCrazyGamesHost({hostname:'games.crazygames.com'}));assert.ok(onCrazyGamesHost({hostname:'x',ancestorOrigins:['https://www.crazygames.com']}));
+ assert.ok(!onCrazyGamesHost({hostname:'claude-v5-crazygames-release.wispwood-game.pages.dev'}));assert.ok(!onCrazyGamesHost({hostname:'127.0.0.1'}));
 });
 
 test('tag tells saves apart',()=>{assert.notEqual(tag(camp(1)),tag(camp(2)));assert.equal(tag(camp(1)),tag(camp(1)));});

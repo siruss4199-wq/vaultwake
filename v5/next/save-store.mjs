@@ -53,9 +53,22 @@ export function localStore(ls=globalThis.localStorage){
 
 // The Data module store. data: SDK.data (getItem/setItem/removeItem/clear); local: localStore();
 // user: an id for the player (or 'guest'), used only to keep the last-save notes apart on a shared device.
-export function dataStore(data,local,{user='guest',onEvent=()=>{}}={}){
- let held=false,failed=false;
- const read=k=>{try{return data.getItem(k);}catch(e){failed=true;onEvent('dataReadError',{code:e?.code??null});return local.get(k);}};
+// status: the diagnostics object the app shows (window.VWSave, the menu's save line).
+//
+// Fixes after the 2026-11-09 private-QA report (progress did not survive a refresh on CrazyGames):
+// - The progress keys are read from the Data module once and kept in memory. Every SDK getItem call
+//   posts a message to the CrazyGames page; the store used to read every key on every save.
+// - A write the Data module refuses goes to this browser, and that key is then read from this browser
+//   for the rest of the session (it used to be read back from the Data module, which did not have it).
+// - A login no longer stops saving. The SDK keeps the data it opened with until CrazyGames reloads the
+//   game, so nothing can land in the other account; before, a login event silently stopped every
+//   save for the rest of the session.
+export function dataStore(data,local,{user='guest',onEvent=()=>{},status={}}={}){
+ const cache=new Map(),local_=new Set(),errors=status.errors??=[];
+ status.writes??=0;status.accepted??=0;
+ const fail=(what,k,e)=>{const code=e?.code??String(e?.message??e??'error');if(errors.length<20)errors.push({what,key:k,code,at:Date.now()});onEvent(what,{key:k,code});};
+ const load=k=>{if(cache.has(k))return cache.get(k);let v=null;try{v=data.getItem(k)??null;}catch(e){fail('dataReadError',k,e);local_.add(k);v=local.get(k);}cache.set(k,v);return v;};
+ const read=k=>local_.has(k)?local.get(k):load(k);
  const index=new Set(parse(read(INDEX_KEY),[]).filter(isKeptKey));
  // A kept camp under a fixed name is found even if the index was lost.
  for(const kind of ['kept','damaged','backup'])for(const k of [`${SAVE_KEY}-${kind}`,...Array.from({length:8},(_,i)=>`${SAVE_KEY}-${kind}-${i+2}`)])if(read(k)!==null)index.add(k);
@@ -68,32 +81,34 @@ export function dataStore(data,local,{user='guest',onEvent=()=>{}}={}){
   // A camp copied aside (a new camp, a restore) is noted too, so a delayed copy is not lost either.
   keep(v){const j=this.all(),e=j[user]??{seen:[]};j[user]={...e,kept:[...(e.kept??[]).filter(x=>x!==v),v].slice(-5),at:Date.now()};local.set(JOURNAL_KEY,JSON.stringify(j));}
  };
+ // Writes v under k in the Data module; true when the Data module holds it afterwards.
+ const put=(k,v)=>{data.setItem(k,v);let back=null;try{back=data.getItem(k);}catch{}cache.set(k,back??null);return back===v;};
  function set(k,v){
   if(!isProgressKey(k))return local.set(k,v);
-  if(held)return false;
   const main=k===SAVE_KEY||k===RECEIPTS_KEY||k===STORY_KEY,size=sizeWith(k,v);
   // A kept copy never takes the data near the limit; the app then keeps the current camp.
-  if(!main&&size>DATA_BUDGET){onEvent('dataFull',{key:k,size});return false;}
-  if(size>DATA_LIMIT)onEvent('dataOverLimit',{key:k,size});
+  if(!main&&size>DATA_BUDGET){fail('dataFull',k,{code:'budget '+size});return false;}
   if(k===SAVE_KEY)journal.note(read(SAVE_KEY),v);else if(isKeptKey(k))journal.keep(v);
+  status.writes++;
+  if(local_.has(k))return local.set(k,v);
+  if(size>DATA_LIMIT){fail('dataOverLimit',k,{code:'size '+size});local_.add(k);return local.set(k,v);}
   try{
-   data.setItem(k,v);
-   if(isKeptKey(k)&&!index.has(k)){index.add(k);data.setItem(INDEX_KEY,JSON.stringify([...index]));}
-   if(size>DATA_LIMIT){local.set(k,v);return false;}
-   return data.getItem(k)===v;
+   const ok=put(k,v);
+   if(isKeptKey(k)&&!index.has(k)){index.add(k);put(INDEX_KEY,JSON.stringify([...index]));}
+   if(!ok)throw {code:'notAccepted'};
+   status.accepted++;status.lastSaved=Date.now();
+   return true;
   }catch(e){
-   // The Data module refused (full, disabled, or another error): the write goes to this browser
-   // instead, and is copied into the Data module at the next start (adoptLocal, reconcile).
-   failed=true;onEvent('dataWriteError',{key:k,code:e?.code??null});
+   // The Data module refused (full, disabled, or another error): this key goes to this browser for
+   // the rest of the session, and is copied into the Data module at the next start (reconcile).
+   fail('dataWriteError',k,e);local_.add(k);
    return local.set(k,v);
   }
  }
  const get=k=>isProgressKey(k)?read(k):local.get(k);
  const keys=()=>[...progressKeys(),...local.keys().filter(k=>!isProgressKey(k))];
- return {kind:'data',get,set,keys,
-  // After a login the SDK reloads the game; until then nothing more is written, so the camp on
-  // screen cannot land in the account that just logged in.
-  hold(){held=true;},get held(){return held;},get failed(){return failed;},
+ return {kind:'data',get,set,keys,status,
+  get failed(){return errors.length>0;},
   size:()=>sizeWith(INDEX_KEY,JSON.stringify([...index])),user};
 }
 
@@ -149,17 +164,42 @@ export function reconcile(store,local,now=Date.now()){
  return result;
 }
 
-// Opens the store the app uses. init: resolves true once the SDK is up (platform-cg.mjs initPlatform).
-export async function openSaveStore({sdk=()=>globalThis.CrazyGames?.SDK??null,init=async()=>false,local=localStore(),now=Date.now(),onEvent=()=>{}}={}){
+// Opens the store the app uses. init: resolves true once the SDK is up (platform-cg.mjs
+// initPlatform; on CrazyGames the app gives it long enough for the real SDK, whose init can take
+// several seconds: it waits for the CrazyGames page, the player and their cloud data).
+export async function openSaveStore({sdk=()=>globalThis.CrazyGames?.SDK??null,init=async()=>false,local=localStore(),now=Date.now(),onEvent=()=>{},clock=()=>Date.now()}={}){
+ const t0=clock(),status={kind:'local',environment:null,initMs:null,user:null,reconcile:null,copied:0,writes:0,accepted:0,lastSaved:null,errors:[],browserStorage:local.set('vaultwake-storage-check','1')?'ok':'unavailable'};
+ const done=(st,extra={})=>{Object.assign(status,extra);onEvent('saveStore',{kind:status.kind,environment:status.environment,initMs:status.initMs,user:status.user,reconcile:status.reconcile,copied:status.copied,browserStorage:status.browserStorage,...(status.reason?{reason:status.reason}:{})});return st;};
  const s=sdk();
  const up=!!s&&await Promise.resolve().then(init).catch(()=>false);
- if(!up||s.environment!=='crazygames'||typeof s.data?.getItem!=='function'||typeof s.data?.setItem!=='function'){onEvent('saveStore',{kind:'local'});return local;}
- try{s.data.getItem(SAVE_KEY);}catch(e){onEvent('saveStore',{kind:'local',code:e?.code??'dataReadError'});return local;}
+ status.initMs=s?clock()-t0:null;try{status.environment=s?String(s.environment):null;}catch{status.environment='error';}
+ // This browser's storage, counting progress saves for the diagnostics.
+ const localOnly=reason=>done({...local,status,set:(k,v)=>{const ok=local.set(k,v);if(isProgressKey(k)){status.writes++;if(ok){status.accepted++;status.lastSaved=Date.now();}}return ok;}},{reason});
+ if(!s)return localOnly('no SDK');
+ if(!up)return localOnly('SDK did not initialise');
+ if(status.environment!=='crazygames')return localOnly('environment '+status.environment);
+ let d;try{d=s.data;}catch(e){return localOnly('no data module: '+(e?.code??e));}
+ if(typeof d?.getItem!=='function'||typeof d?.setItem!=='function')return localOnly('no data module');
+ try{d.getItem(SAVE_KEY);}catch(e){return localOnly('data module refused: '+(e?.code??'error'));}
  let user='guest';
  try{const u=await Promise.race([s.user?.getUser?.(),new Promise(r=>setTimeout(()=>r(null),2000))]);if(u)user=String(u.__dangerousUserId||u.username||'user');}catch{}
- const store=dataStore(s.data,local,{user,onEvent});
- const fix=reconcile(store,local,now),copied=adoptLocal(store,local,now);
- try{s.user?.addAuthListener?.(()=>store.hold());}catch{}
- onEvent('saveStore',{kind:'data',user:user==='guest'?'guest':'account',reconcile:fix,copied:copied.length});
- return store;
+ status.kind='data';status.user=user==='guest'?'guest':'account';
+ const store=dataStore(d,local,{user,onEvent,status});
+ status.reconcile=reconcile(store,local,now);status.copied=adoptLocal(store,local,now).length;
+ // A login reloads the game (CrazyGames docs); it is only noted here.
+ try{s.user?.addAuthListener?.(u=>{status.loginSeen=Date.now();onEvent('authChange',{user:u?'account':'guest'});});}catch{}
+ return done(store);
+}
+
+// One line for the menu (and the console) saying where progress goes and whether the last save was
+// accepted. Plain words for a player; enough for a QA check.
+export function saveLine(st,now=Date.now()){
+ if(!st)return '';
+ const ago=t=>{const s=Math.round((now-t)/1000);return s<60?`${s} s ago`:`${Math.round(s/60)} min ago`;};
+ if(st.kind==='data'){
+  const who=st.user==='account'?'your CrazyGames account':'CrazyGames (guest)';
+  if(st.errors?.some(e=>e.what==='dataWriteError'))return `Progress: CrazyGames refused a save (${st.errors.find(e=>e.what==='dataWriteError').code}); kept in this browser instead.`;
+  return `Progress: saved to ${who}`+(st.lastSaved?` · last save ${ago(st.lastSaved)}`:'')+'.';
+ }
+ return st.browserStorage==='ok'?'Progress: saved in this browser'+(st.reason&&st.environment==='crazygames'?` (${st.reason})`:'')+'.':'Progress: this browser is not keeping data, so progress may not survive a reload.';
 }

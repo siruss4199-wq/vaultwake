@@ -13,12 +13,12 @@ const assert=require('node:assert/strict');const {chromium,webkit,firefox}=requi
 const URL=process.env.CG_URL||'http://127.0.0.1:8080/v5/coast-crazygames.html',KEY='vaultwake-v5-coast';
 const stub=(cloud,o)=>`(()=>{const m=new Map(${JSON.stringify([...cloud])});window.__auth=[];
  window.__lossy=${!!o.lossy};const push=(k,v)=>{if(!window.__lossy&&window.__cloudPush)window.__cloudPush(k,v);};
- window.CrazyGames={SDK:{environment:'crazygames',init:async()=>{},
+ window.CrazyGames={SDK:{environment:'crazygames',init:async()=>{await new Promise(r=>setTimeout(r,${o.initDelay||0}));},
   game:{loadingStart(){},loadingStop(){},gameplayStart(){},gameplayStop(){},happytime(){},settings:{muteAudio:false},addSettingsChangeListener(){}},
   ad:{requestAd(t,cb){cb.adError&&cb.adError()}},
   user:{getUser:async()=>(${JSON.stringify(o.user??null)}),addAuthListener:f=>window.__auth.push(f),isUserAccountAvailable:true},
   data:{getItem(k){${o.readFail?`throw {code:${JSON.stringify(o.readFail)}};`:''}return m.has(k)?m.get(k):null;},
-   setItem(k,v){v=String(v);m.set(k,v);push(k,v);},removeItem(k){m.delete(k);push(k,null);},clear(){m.clear();}}}};})();`;
+   setItem(k,v){if(window.__failWrites)throw {code:'dataModuleDisabled'};v=String(v);m.set(k,v);push(k,v);},removeItem(k){m.delete(k);push(k,null);},clear(){m.clear();}}}};})();`;
 async function device(browser,cloud,o={},seed=null){
  const context=await browser.newContext({viewport:{width:390,height:844}});
  const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
@@ -26,12 +26,15 @@ async function device(browser,cloud,o={},seed=null){
  // Playwright tries the route added last first: nothing leaves the machine except the stand-in SDK.
  await context.route(u=>!u.href.startsWith('http://127.0.0.1:'),r=>r.abort());
  await context.route('https://sdk.crazygames.com/**',r=>r.fulfill({contentType:'application/javascript',body:stub(cloud,o)}));
+ // o.cgHost: the game served from a CrazyGames host name (as on CrazyGames), mapped to the local server.
+ if(o.cgHost)await context.route('http://qa.crazygames.com/**',async r=>{const u=new globalThis.URL(r.request().url()),base=new globalThis.URL(URL);
+  r.fulfill({response:await r.fetch({url:base.origin+u.pathname+u.search})});});
  if(seed)await context.addInitScript(s=>{if(!sessionStorage.getItem('seeded')){for(const [k,v] of Object.entries(s))localStorage.setItem(k,v);sessionStorage.setItem('seeded','1');}},seed);
  return {context,page,errors,o};
 }
 // Opens the game through Home; answers the main button's text (Play for a new camp, Continue for a save).
 async function enter(page,how='goto'){
- if(how==='goto')await page.goto(URL);else await page.reload();
+ if(how==='goto')await page.goto(page.__url??URL);else await page.reload();
  await page.waitForSelector('#homePlay:not([hidden])',{timeout:20000});const label=(await page.locator('#homePlay').textContent()).trim();
  await page.locator('#homePlay').click();
  await page.waitForFunction(()=>document.querySelector('#home').hidden||!document.querySelector('#story')?.hidden,null,{timeout:20000});
@@ -68,11 +71,14 @@ async function produce(page,cloud){
    const b=await device(browser,cloud);assert.equal(await enter(b.page),'Continue',`${engine}: second device continues`);
    assert.equal(await b.page.locator('#coins').textContent(),String(JSON.parse(cloud.get(KEY)).coins));
    assert.equal(JSON.parse(cloud.get(KEY)).board.filter(Boolean).length,JSON.parse(saved).board.filter(Boolean).length,`${engine}: same board on device 2`);
-   // 4. Login mid-game: the SDK reloads the game; until then nothing is written.
-   const w=cloud.get(KEY);await b.page.evaluate(()=>window.__auth.forEach(f=>f({username:'Someone'})));
-   await produce(b.page,cloud);await b.page.waitForTimeout(400);assert.equal(cloud.get(KEY),w,`${engine}: no write after login`);
+   // 4. A login event (CrazyGames reloads the game itself) no longer stops saving (2026-11-09).
+   const w=JSON.parse(cloud.get(KEY));await b.page.evaluate(()=>window.__auth.forEach(f=>f({username:'Someone'})));
+   await produce(b.page,cloud);await until(()=>JSON.parse(cloud.get(KEY)).energy===w.energy-1,'a save after the login event');
+   // Diagnostics: the Data module is in use and saves are accepted; the menu says so.
+   const st=await b.page.evaluate(()=>window.VWSave);assert.equal(st.kind,'data');assert.ok(st.accepted>0);assert.deepEqual(st.errors,[]);
+   await b.page.locator('#menuButton').click();assert.match(await b.page.locator('#saveNote').textContent(),/saved to CrazyGames \(guest\) · last save \d+ s ago/);await b.page.keyboard.press('Escape');
    assert.deepEqual([...a.errors,...b.errors],[],`${engine}: no page errors`);await a.context.close();await b.context.close();
-   console.log(`${engine}: new guest saves to the Data module; reload and second device continue; no write after login passed`);
+   console.log(`${engine}: new guest saves to the Data module; reload and second device continue; saving continues after a login event; diagnostics passed`);
 
    // 5. A camp already in this browser (from before this build) is copied in; localStorage keeps it.
    const old=new Map(),local=JSON.parse(saved);local.coins=777;local.lastAt=Date.now();const localRaw=JSON.stringify(local);
@@ -109,6 +115,25 @@ async function produce(page,cloud){
    assert.equal(off.size,0,`${engine}: nothing sent to a disabled Data module`);
    assert.equal(await enter(e.page,'reload'),'Continue');assert.deepEqual(e.errors,[],`${engine}: no page errors`);await e.context.close();
    console.log(`${engine}: refusing Data module falls back to localStorage passed`);
+
+   // 9. Regression 2026-11-09: on a CrazyGames host the real SDK's init can take several seconds.
+   // The save waits for it and uses the Data module; reload keeps the progress.
+   const slowCloud=new Map(),f=await device(browser,slowCloud,{initDelay:6000,cgHost:true});f.page.__url='http://qa.crazygames.com'+new globalThis.URL(URL).pathname;
+   assert.equal(await enter(f.page),'Play');await until(()=>slowCloud.has(KEY),'first save in the Data module after a slow init',15000);
+   const fs0=JSON.parse(slowCloud.get(KEY));await produce(f.page,slowCloud);await until(()=>JSON.parse(slowCloud.get(KEY)).energy===fs0.energy-1,'saved');
+   assert.equal((await f.page.evaluate(()=>window.VWSave)).kind,'data');assert.ok((await f.page.evaluate(()=>window.VWSave)).initMs>=5500);
+   assert.equal(await enter(f.page,'reload'),'Continue',`${engine}: progress survives a reload after a slow init`);
+   assert.equal(await f.page.locator('#coins').textContent(),String(JSON.parse(slowCloud.get(KEY)).coins));
+   assert.equal(JSON.parse(slowCloud.get(KEY)).energy,fs0.energy-1);
+   // 10. Regression 2026-11-09: the Data module refuses a save mid-game; the reload still shows it.
+   await f.page.evaluate(()=>{window.__failWrites=true;});const fs1=JSON.parse(slowCloud.get(KEY));await produce(f.page,slowCloud);
+   await f.page.waitForFunction(k=>!!localStorage.getItem(k),KEY);const kept=JSON.parse(await f.page.evaluate(k=>localStorage.getItem(k),KEY));
+   assert.equal(kept.energy,fs1.energy-1,'the refused save is in the browser');
+   await f.page.locator('#menuButton').click();assert.match(await f.page.locator('#saveNote').textContent(),/refused a save \(dataModuleDisabled\)/);await f.page.keyboard.press('Escape');
+   assert.equal(await enter(f.page,'reload'),'Continue');
+   await until(()=>JSON.parse(slowCloud.get(KEY)).energy===kept.energy,'written back into the Data module at the next start',15000);
+   assert.deepEqual(f.errors,[],`${engine}: no page errors`);await f.context.close();
+   console.log(`${engine}: slow SDK init on a CrazyGames host uses the Data module and survives reload; refused save survives reload passed`);
   }finally{await browser.close();}
  }
 })().catch(e=>{console.error(e);process.exit(1);});
