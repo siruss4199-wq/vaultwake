@@ -1,7 +1,7 @@
 # Vaultwake Merge: CrazyGames Basic Launch technical checklist
 
-- Package: `vaultwake-merge-crazygames-basic-dd65d3f.zip`
-- Source commit: `dd65d3f775f1bd4b8e5a529aa6418d6250e5f7f9` (2026-11-08: progress saved with the CrazyGames SDK Data module; replaces `e72b4bb`, which saved to localStorage only). Branch `claude/v5-crazygames-release-package`, made from `codex/v5-mobile-first-session-final-qa` at `fd76b03`.
+- Package: `vaultwake-merge-crazygames-basic-664956e.zip`
+- Source commit: `664956e30a901a280df6c9047e3fe90ae70729d8` (2026-11-09: fixes found after the private-QA save failure with `dd65d3f`; that build replaced `e72b4bb`, which saved to localStorage only). Branch `claude/v5-crazygames-release-package`, made from `codex/v5-mobile-first-session-final-qa` at `fd76b03`.
 - SHA-256: see `SHA256SUMS`.
 - Rebuild: `node tools/coast-crazygames.mjs --zip` gives the same bytes (fixed timestamps, sorted entries). CI job "Vaultwake Merge CrazyGames Basic release folder" checks this on every push.
 
@@ -20,10 +20,10 @@ Legend:
 
 | Check | Result | Evidence |
 |---|---|---|
-| Source commit recorded | ✅ | `dd65d3f`; game files in the ZIP are clean at that commit (`git status --short v5 v4 tools` empty when built) |
+| Source commit recorded | ✅ | `664956e`; game files in the ZIP are clean at that commit (`git status --short v5 v4 tools` empty when built) |
 | ZIP opens the game from its root | ✅ | `index.html` → `v5/coast-crazygames.html` (title "Vaultwake Merge"); played from the unzipped folder |
-| Reproducible bytes | ✅ | repeated builds give the same SHA-256 `64c41f63…ca6477`; CI rebuilds and compares byte for byte |
-| Total size ≤ 250 MB, files ≤ 1,500 | ✅ | 14,852,035 bytes zipped, 15,411,632 unpacked, 334 files (the one new file is `v5/next/save-store.mjs`) |
+| Reproducible bytes | ✅ | repeated builds give the same SHA-256 `14ed8d0d…73db7d`; CI rebuilds and compares byte for byte |
+| Total size ≤ 250 MB, files ≤ 1,500 | ✅ | 14,854,132 bytes zipped, 15,416,964 unpacked, 334 files (the one new file is `v5/next/save-store.mjs`) |
 | Initial download ≤ 20 MB (mobile), ≤ 50 MB (desktop), measured to `gameplayStart` | ✅ | 3.27 MB in 91 requests at 390×844 and at 907×510 (`tests/v5-next-crazygames-payload-browser.cjs` on the unzipped package, Chromium; `evidence/basic-initial-download-chromium.jsonl`) |
 | No developer-only files | ✅ | sound-check page, art render pages and script, art manifests and 20 unregistered sprites are excluded (`tools/coast-crazygames.mjs`); `unzip -l` shows none |
 | Relative paths only | ✅ | no root-relative `src`/`href`/`url()` in the shipped HTML, JS or CSS (grep) |
@@ -60,7 +60,7 @@ Legend:
 
 | Check | Result | Evidence |
 |---|---|---|
-| Progress save: CrazyGames SDK Data module | ✅ unit · ✅ Chromium · ⏳ WebKit, Firefox | `v5/next/save-store.mjs`; `tests/v5-next-save-store.test.mjs` (16 tests); `tests/v5-next-crazygames-save-browser.cjs` on the unzipped package: new guest saves to the Data module and not to localStorage, reload and a second device continue, a camp already in the browser is copied in, an account camp is never replaced (the browser's becomes a kept camp), a restore delayed by the SDK is not lost, a refusing Data module falls back to localStorage, nothing is written after a login. **Real CrazyGames account sync not yet checked** (needs the portal's private QA, see `evidence/progress-save-2026-11-08.md`) |
+| Progress save: CrazyGames SDK Data module | ✅ unit · ✅ Chromium · ⏳ WebKit, Firefox | `v5/next/save-store.mjs`; `tests/v5-next-save-store.test.mjs` (16 tests); `tests/v5-next-crazygames-save-browser.cjs` on the unzipped package: new guest saves to the Data module and not to localStorage, reload and a second device continue, a camp already in the browser is copied in, an account camp is never replaced (the browser's becomes a kept camp), a restore delayed by the SDK is not lost, a refusing Data module falls back to localStorage, nothing is written after a login. **`dd65d3f` FAILED real CrazyGames private QA (2026-11-09): progress did not survive a refresh.** `664956e` fixes the defects found in the real SDK (see `evidence/real-sdk-save-qa-failure-2026-11-09.md`); the real-platform retest is pending |
 | Save keys unchanged | ✅ | `vaultwake-v5-coast` (`v5/next/game.mjs:20`), `vaultwake-v5`, `vaultwake-v5-replay`, `vaultwake-v5-active-slot`: no change to `game.mjs`, `saves.mjs`, `core.mjs`, `replay.mjs` or `v4/` in this branch (`git diff fd76b03 76526ad --stat`) |
 | Save migration and kept camps | ✅ Chromium | `tests/v5-next-saves-browser.cjs`: newer/damaged save kept, restore round trip, new camp keeps progress, backup collision keeps every copy |
 | Economy, rewards, energy capacity by level | ✅ | no gameplay code changed (diff above: one confirm text in `app.mjs`, three strings in `play.html`); `node --test tests/v5-*.test.mjs`: 443 pass, 0 fail |
@@ -76,12 +76,12 @@ Legend:
 ## Commands run (Node 22.22.0, Playwright 1.62.1 Chromium, 2026-11-08)
 
 ```
-node --test tests/v5-*.test.mjs                                   # 459 pass, 0 fail (dd65d3f)
+node --test tests/v5-*.test.mjs                                   # 465 pass, 0 fail (664956e)
 node tools/coast-crazygames.mjs --check                           # up to date
 node tools/coast-crazygames.mjs --zip                             # 14.2 MB, 334 files
 python3 -m http.server 8081 --directory <unzipped package>
 CG_URL=http://127.0.0.1:8081/index.html ENGINES=chromium node tests/v5-next-crazygames-browser.cjs
-CG_URL=http://127.0.0.1:8081/index.html ENGINES=chromium node tests/v5-next-crazygames-save-browser.cjs   # passed (dd65d3f)
+CG_URL=http://127.0.0.1:8081/index.html ENGINES=chromium node tests/v5-next-crazygames-save-browser.cjs   # passed (664956e); fails on dd65d3f (login event, slow init)
 CG_URL=http://127.0.0.1:8081/index.html node tests/v5-next-crazygames-payload-browser.cjs   # chromium rows
 python3 -m http.server 8080   # repo root
 node tests/v5-next-browser.cjs                                    # chromium 360/390/430 passed

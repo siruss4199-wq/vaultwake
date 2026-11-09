@@ -1,5 +1,7 @@
 # Vaultwake Merge: progress save on CrazyGames (2026-11-08)
 
+> **2026-11-09:** the `dd65d3f` build described here **failed** the owner's real CrazyGames private QA (progress did not survive a refresh). See `real-sdk-save-qa-failure-2026-11-09.md` for the investigation and the `664956e` fixes.
+
 ## The blocker
 
 The CrazyGames Basic submission form asks whether the game saves progress and offers three answers:
