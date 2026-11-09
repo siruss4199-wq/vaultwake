@@ -14,13 +14,13 @@ Nothing has been submitted to CrazyGames, published or merged.
 
 | Area | Status | Evidence / what is left |
 |---|---|---|
-| Upload ZIP | ⏳ Built, real-QA retest pending | `vaultwake-merge-crazygames-basic-664956e.zip`, 334 files, 14.2 MB, SHA-256 in `SHA256SUMS`; reproducible from `664956e` (CI compares bytes). Replaces `dd65d3f`, which failed real CrazyGames QA |
+| Upload ZIP | ⏳ Built; refresh save passed in real QA, account/device checks pending | `vaultwake-merge-crazygames-basic-664956e.zip`, 334 files, 14.2 MB, SHA-256 in `SHA256SUMS`; reproducible from `664956e` (CI compares bytes). Replaces `dd65d3f`, which failed real CrazyGames QA |
 | Basic Launch configuration | ✅ | `data-ads="off"`, SDK v3 lifecycle, no ads or purchases, nothing leads out (CI, three browsers) |
 | Download size and paths | ✅ | 3.27 MB before `gameplayStart`; 0 missing files in the ZIP run and the trimmed-tree run |
 | Unit and simulation tests | ✅ | 459 pass, 0 fail (16 new save-store tests) |
 | CI | ✅ | 12/12 on `473340f` (2026-11-08, first run) and on `6d5af0e`, the last commit that touched the package. Three earlier docs-only commits each had one WebKit timing failure that passed on its single re-run |
 | Saves, economy, energy, progression | ✅ Rules unchanged | No gameplay or save-format change since `fd76b03` apart from the title and menu text. Only where the save is stored changed (next row) |
-| Progress save | ❌ **Real CrazyGames QA FAIL (2026-11-09)** | Owner uploaded the new Data Module build, played, waited and refreshed; progress did not persist. Root cause not yet confirmed. See `evidence/real-sdk-save-qa-failure-2026-11-09.md`. Do not proceed to public submission. **Fix built 2026-11-09 in `664956e`** (waits for the real SDK on CrazyGames, never stops saving on a login event, refused saves read back, diagnostics); **still FAIL until the owner's private-QA retest passes** (steps in the evidence file). |
+| Progress save | ❌ **Real CrazyGames QA FAIL (2026-11-09)** | Owner uploaded the new Data Module build, played, waited and refreshed; progress did not persist. Root cause not yet confirmed. See `evidence/real-sdk-save-qa-failure-2026-11-09.md`. Do not proceed to public submission. **Fix built 2026-11-09 in `664956e`** (waits for the real SDK on CrazyGames, never stops saving on a login event, refused saves read back, diagnostics); **Owner retest 2026-11-09: PARTIAL PASS**: in real CrazyGames private QA, a refresh showed Continue and resumed the saved progress (owner-reported). Still open: guest and logged-in runs confirmed separately, second-device sync, Android (steps in the evidence file). |
 | Covers (3) and videos (2) | ✅ Technically | Sizes, durations and silence checked in CI; made from the game's own art |
 | Store text | ✅ Ready to paste | `METADATA.md` checked against the ZIP; includes the AI-art disclosure and credits line. Developer/publisher name, e-mail and release date are **[OWNER]** placeholders |
 | Art origin and accounts | ✅ Owner-confirmed | ChatGPT Plus and Claude Pro, personal accounts, Mongolia, Oct–Nov 2026. Not independently verified |
