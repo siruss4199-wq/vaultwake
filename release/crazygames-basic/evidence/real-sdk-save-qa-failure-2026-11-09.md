@@ -100,8 +100,8 @@ submission form, Progress Save must be **"Yes, using the Data Module from the Cr
 
 ## Owner retest result — 2026-11-09
 
-**PARTIAL PASS (owner-reported, real CrazyGames private QA):** Following the new `664956e` release upload, the owner reported that refreshing the QA page displayed **Continue** and the game resumed from the **previously saved progress**. This directly resolves the earlier observed **refresh loses progress** symptom for the tested CrazyGames session.
+**PARTIAL PASS (owner-reported, real CrazyGames private QA, LOGGED-IN account):** Following the new `664956e` release upload, the owner reported that refreshing the QA page displayed **Continue** and the game resumed from the **previously saved progress**. The owner explicitly confirmed this occurred **while logged into CrazyGames**. This directly resolves the earlier observed **refresh loses progress** symptom for the tested CrazyGames session.
 
-Evidence scope: owner's chat report. We did not receive a screenshot of the in-game save-mode line, QA Data Get/Set logs, account state or exact energy/coin values. A guest run, separate logged-in account run, second-device synchronization and Android Chrome test have **not been independently confirmed**. Do not represent this as full CrazyGames Data Module QA approval.
+Evidence scope: owner's chat report. We did not receive a screenshot of the in-game save-mode line, QA Data Get/Set logs or exact energy/coin values. **The logged-in refresh scenario passed per owner report**, but evidence does not yet confirm the mode line said `saved to your CrazyGames account`, nor that cloud sync works on a different device. A guest run, second-device synchronization and Android Chrome test have **not been confirmed**. Do not represent this as full CrazyGames Data Module QA approval.
 
-**Status: observed refresh regression PASS in one real QA session; remaining guest/account/cross-device and Android checks open.** Do not change or clear existing saves. The upload is still a private QA build, not a public publication.
+**Status: logged-in account same-device refresh PASS (owner-reported); remaining guest, verified SDK save mode, cross-device sync and Android checks open.** Do not change or clear existing saves. The upload is still a private QA build, not a public publication.
