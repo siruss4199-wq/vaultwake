@@ -152,6 +152,50 @@ The page errors went from two "Uncaught [object Object]" to none. Evidence: `doc
   It times out on the old code and passes now.
 - `tests/v5-next-sdk-not-ready.test.mjs`: `platform.muted()` and `onMuteChange()` never throw.
 
+## Tap flicker on a real iPhone: root cause and fix (2026-11-11)
+
+**Report** (owner, PR #103): touching the board or a control made the screen blink as if the page had reloaded. The blink persisted after reopening the preview. Build and Details already worked.
+
+**Root cause: a repaint, not a reload.** The same code is in the live build e6eddf6.
+- **Every tap redrew the whole screen.** `clickTile()` calls `render()` on a plain selection, and `render()` rebuilt the following with `innerHTML` every time:
+  - every board cell (`renderBoard`);
+  - every order card (`renderOrders`);
+  - the shed;
+  - the strip's picture (`renderNextPlace`, an `<img loading="lazy">`).
+- **So one tap recreated about 80 `<img>` elements.** It also restarted the board's running animations: the generators' bob, the crates' nudge and the keys' pulse.
+- **Each new image is drawn empty until it is decoded.** In a frame-by-frame Chromium screencast, after one tap on a part the whole board, the strip picture and the order icons were blank for 3 frames (70–116 ms). On iPhone, Safari decodes images asynchronously, so the gap is at least as visible.
+- **Nothing reloaded.** The boot count and the navigation entries stayed the same, and there were no page errors.
+
+**Measured on a finger tap, 390×664, Chromium:**
+
+| Tap | Live e6eddf6: new `<img>` / restarted animations / frames with undrawn pictures | Fixed |
+|---|---|---|
+| Select a part | 80 / 8 / 4 (66 pictures) | 2 (its 2 changed cells) / 0 / 0 |
+| Deselect | 79 / 8 / 4 | 0 / 0 / 0 |
+| Tap an order card | 83 / 8 / 5–6 | 0 / 0 / 0 |
+| Tap an empty space | 84 / 8 / 4 | 0 / 0 / 0 |
+| Tap the generator | 171 / 8 / 3–5 | 1 (the new part) / 0 / 0 |
+| Details open / close | 0 / 0 / 0 | 0 / 0 / 0 |
+
+On the screencast, the largest change in the board's pixels on a frame in the middle of a tap went from 24.3 (blank cells) to 0.6–1.2 (the selection outline). Evidence: `docs/evidence/v5-order-sheet-2026-11-11/4-tap-flicker-frames-before-after.jpg`.
+
+**Fix (focused, `v5/next/app.mjs`):**
+- **`patch()`** keeps a board cell or order card whose content is unchanged. It only updates that element's attributes: selected, matched, tapped, the order glow. A cell or card whose content changed is drawn fresh, as before. Effect classes that are added after a draw (`merge-pop`, `iceWeak` and others) are cleared in the same way as before, and the style is flushed so that the same effect still plays again.
+- **`setHTML()`** leaves the shed, the strip's picture and line, the selection panel and the Details sheet alone when their content is unchanged.
+- **Unchanged:** rules, save, SDK, economy and animations. No reload was added.
+
+**Regression test: `tests/v5-next-tap-flicker-browser.cjs`.** It runs in Chromium and WebKit, at 390×664 and 360×640, with finger taps. For each of select, deselect, an order card, Details open and close, an empty space and the generator, it checks:
+- no reload;
+- only changed cells get new pictures;
+- no order card or strip picture is recreated;
+- no running animation restarts;
+- no frame shows an undrawn picture (sampled on every frame);
+- in Chromium, no transient frame on a frame-by-frame screencast.
+
+It then checks that the generator, a merge (with its pop) and a reload still work. It fails on e6eddf6 (66 new pictures for 2 changed cells) and passes on this fix.
+
+**Not changed (seen while measuring):** tapping an order on a phone shows its Details button in the guidance line. That moves the board down 41 px (257 → 298), as described in the Layout section above. This is a layout shift, not a blink.
+
 ## Not verified
 
 - **A real iPhone or Android phone,** including Safari's toolbar and the CrazyGames wrapper. The owner's real-device PASS is required before any upload.
