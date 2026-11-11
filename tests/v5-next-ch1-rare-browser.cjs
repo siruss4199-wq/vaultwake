@@ -9,6 +9,8 @@
 //    on the coast screen: the pier at stage 2, charged once; a reload changes nothing.
 // Nothing scrolls sideways; no page errors.   SHOTS=<dir> saves screenshots.
 const assert=require('node:assert/strict');const path=require('node:path');const {chromium,webkit}=require('playwright');const {throughHome}=require('./v5-next-home-helper.cjs');
+// Build 57y: on a phone the tapped order's panel opens from Details (a bottom sheet); elsewhere it shows by itself
+const openDetails=async page=>{if(await page.locator('#orderDetails:visible').count()){await page.locator('#orderDetails').click();await page.waitForSelector('#orderTools.sheetOpen');}};
 const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=process.env.SHOTS;
 (async()=>{
  const g=await import('../v5/next/game.mjs');
@@ -49,7 +51,7 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
    await build('beach-pier');s=await save();assert.equal(s.built['beach-pier'],1);
    const gold=s.orders.find(o=>o?.story);assert.equal(gold?.story,'beach-pier',tag('the crane\'s gold order'));
    assert.deepEqual(gold.needs.at(-1),{family:'mech',tier:1,count:1},tag('a Gear as an additional ingredient'));assert.equal(gold.needs.length,3,tag('two ordinary parts plus a Gear'));
-   await page.locator(`[data-order="${gold.id}"]`).click();await page.waitForSelector('#orderTools .goldNeeds');
+   await page.locator(`[data-order="${gold.id}"]`).click();await openDetails(page);await page.waitForSelector('#orderTools .goldNeeds');
    const panel=await page.locator('#orderTools').innerText();assert.match(panel,/Add a cargo crane/);assert.match(panel,/Gear\s*0\/1/);
    assert.match(panel,/Tap a level 2\+ Rivet Rover: while this order waits, a Bolt comes within every 10 taps/,tag('the guarantee, in taps (Build 52A3: 10 after the first six stages)'));
    await fits('gold order');await shot('2-gold-gear');

@@ -111,7 +111,8 @@ async function drag(page,a,z){const A=await page.locator(`#board [data-index="${
     assert.equal(await page.locator('#homePlay').isVisible(),false,tag('no Play over a damaged save'));
     assert.match(await page.textContent('#homeNote'),/could not be read/);assert.ok(await page.locator('#homeRetry').isVisible());
     await page.waitForTimeout(1500);assert.equal(await save(page),broken,tag('damaged save left untouched'));
-    await page.locator('#homeRetry').click();await homeUsable(page);assert.equal(await save(page),broken,tag('Retry keeps it'));
+    // Retry reloads the page (boot.js): wait for that load before reading, or the read can land mid-navigation
+    await Promise.all([page.waitForEvent('load'),page.locator('#homeRetry').click()]);await homeUsable(page);assert.equal(await save(page),broken,tag('Retry keeps it'));
     await page.locator('#homeNew').click();await page.waitForSelector('#home',{state:'hidden'});
     assert.equal(await page.evaluate(k=>localStorage.getItem(k+'-damaged'),KEY),broken,tag('backup kept'));
     assert.equal(JSON.parse(await save(page)).moves,0,tag('new camp on request'));

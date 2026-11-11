@@ -1,0 +1,80 @@
+name: Vaultwake Merge order sheet + core actions (Coast Camp)
+# Build 57y (2026-11-11): on phones the order details are a bottom sheet behind Details. Release gate for
+# this change: the whole Build workflow, the core actions (generator, merge, deliver, gold, View, Build,
+# find generator, Details, shed, Home/Continue, Data module save) and every Coast Camp suite must pass in
+# Chromium and WebKit. The live Basic Launch ZIP in release/crazygames-basic/ is not rebuilt here.
+# CI fix (2026-11-11): one run per commit (pull_request only; the push trigger ran every commit twice and the two
+# runs cancelled each other), and the job runs in the official Playwright image for the pinned version instead of
+# `npx playwright install --with-deps`, whose apt-get hung for 50+ minutes on unresolvable Ubuntu mirrors. The image
+# has no python3, so tools/ci-static-server.mjs serves the game. Step timeouts fail fast.
+on:
+  pull_request:
+    branches: [claude/v5-crazygames-release-package]
+    paths: ['v5/**', 'tests/v5-next-*', '.github/workflows/v5-order-sheet.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  coast:
+    name: Coast Camp order sheet, Build workflow and core actions (Chromium and WebKit)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      options: --ipc=host
+    env:
+      HOME: /root
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unit and simulation tests
+        timeout-minutes: 8
+        run: node --test tests/v5-*.test.mjs
+      - name: Coast Camp modules and CrazyGames page
+        run: |
+          node --check v5/next/app.mjs
+          node tools/coast-crazygames.mjs --check
+      - name: Playwright 1.62.1 package (browsers come with the image)
+        timeout-minutes: 4
+        run: npm install --no-save --no-audit --no-fund playwright@1.62.1 && ls /ms-playwright
+      - name: P0 Build workflow, end to end (gold → crew → Ready to build → coast → Build once → reload)
+        run: |
+          (node tools/ci-static-server.mjs . 8080 > /tmp/coast-http.log 2>&1 &) ; sleep 1
+          node tests/v5-next-build-flow-browser.cjs
+      - name: Core actions with the order sheet
+        if: ${{ !cancelled() }}
+        run: |
+          (node tools/ci-static-server.mjs . 8080 > /tmp/coast-http.log 2>&1 &) ; sleep 1
+          node tests/v5-next-core-actions-browser.cjs
+          node tests/v5-next-sdk-not-ready-browser.cjs
+          node tests/v5-next-tap-flicker-browser.cjs
+          node tests/v5-next-coast-back-browser.cjs
+          node tests/v5-next-strip-tap-browser.cjs
+      - name: Coast Camp browser suites
+        if: ${{ !cancelled() }}
+        run: |
+          (node tools/ci-static-server.mjs . 8080 > /tmp/coast-http.log 2>&1 &) ; sleep 1
+          node tests/v5-next-browser.cjs
+          node tests/v5-next-playtest-browser.cjs
+          node tests/v5-next-bright-browser.cjs
+          node tests/v5-next-crazygames-browser.cjs
+          node tests/v5-next-crazygames-save-browser.cjs
+          node tests/v5-next-home-browser.cjs
+          node tests/v5-next-story-browser.cjs
+          node tests/v5-next-guide-browser.cjs
+          node tests/v5-next-rewards-browser.cjs
+          node tests/v5-next-saves-browser.cjs
+          node tests/v5-next-extras-browser.cjs
+          node tests/v5-next-energy-browser.cjs
+          node tests/v5-next-rare-merges-browser.cjs
+          node tests/v5-next-ch1-rare-browser.cjs
+          node tests/v5-next-chapter4-browser.cjs
+          node tests/v5-next-chapter5-browser.cjs
+          node tests/v5-next-chapter6-browser.cjs
+          node tests/v5-next-chapter3-browser.cjs
+          node tests/v5-next-chapter2-browser.cjs

@@ -39,7 +39,8 @@ function moment(title,detail='',x=null){sharedMoment(title,detail,null);const el
 // Game sounds go through sfx: silent while an ad plays or when CrazyGames mutes the game
 // (Build 41 M7), without touching the player's own sound setting.
 let adPlaying=false;
-const sfx=(kind,tier=0)=>sounds.play(kind,tier,{muted:adPlaying||platform.muted()});
+// A sound never stops the action that plays it (Build 57y: a throwing SDK getter made the strip and Details dead).
+const sfx=(kind,tier=0)=>{try{return sounds.play(kind,tier,{muted:adPlaying||platform.muted()});}catch{return false;}};
 // Shown in the footer so a playtester can tell which build is running.
 export const BUILD='Build 52A4 · harder orders from stage 3, crates give wanted parts, Tide token always usable';
 // The level path (docs/V5_LEVEL_PATH_2026-10-27.md): a crew order that pays a tool on top shows it
@@ -202,6 +203,30 @@ function render(){
 // portrait until theirs is approved (Nara and Sela are prepared but not part of the game).
 // The supplied Nara and Sela portraits are Neri's and Tamsin's faces (user, 2026-10-26: "Nara Sela-г
 // Neri Tamsin-д ашигла"); the names and roles stay Neri and Tamsin.
+// Build 57y3 (owner, real iPhone, 2026-11-11: "the screen blinks as if the page refreshed" on every tap).
+// render() rebuilt every board cell, every order card, the shed and the strip's picture with innerHTML on
+// every tap, so a plain selection recreated about 80 <img> elements and restarted the board's running
+// animations; until each new image was decoded it was drawn empty, and on iPhone the whole board flashed.
+// setHTML() leaves an element alone when its content is unchanged. patch() keeps each child (a cell, a card)
+// whose inside is unchanged and only brings its attributes up to date (selected, matched, tapped); a child
+// whose inside changed is drawn fresh, as before.
+function setHTML(el,html){if(el.__html===html&&el.innerHTML===el.__live)return;el.innerHTML=html;el.__html=html;el.__live=el.innerHTML;}
+const tpl=document.createElement('template');
+const drawn=n=>{n.__inner=n.innerHTML;n.__cls=n.getAttribute('class');return n;};
+function patch(parent,html){
+ tpl.innerHTML=html;const next=[...tpl.content.childNodes],old=[...parent.childNodes];
+ if(next.length!==old.length||next.some((n,k)=>n.nodeType!==1||old[k].nodeType!==1||n.tagName!==old[k].tagName)){parent.replaceChildren(...next.map(n=>n.nodeType===1?drawn(n):n));return;}
+ let flush=false;
+ next.forEach((n,k)=>{const o=old[k],inner=n.innerHTML;
+  if(o.__inner!==inner||o.innerHTML!==inner){o.replaceWith(drawn(n));return;}
+  // an effect class added after the last draw (merge-pop, iceWeak…) goes, and the style is flushed so the
+  // same effect added again right after this render plays again
+  if(o.getAttribute('class')!==o.__cls)flush=true;
+  for(const a of [...o.attributes])if(!n.hasAttribute(a.name))o.removeAttribute(a.name);
+  for(const a of n.attributes)if(o.getAttribute(a.name)!==a.value)o.setAttribute(a.name,a.value);
+  o.__cls=o.getAttribute('class');});
+ if(flush)void parent.offsetWidth;
+}
 const FACES={ivo:'crew-ivo',bram:'crew-bram',neri:'crew-nara',tamsin:'crew-sela'};
 // Build 51a: Mara, the keeper (Chapter 6), has no approved portrait (the pack's notes): her lines show her
 // name only, never another character's face. CREW (../crew.mjs) is shared with Classic V5 and left alone.
@@ -210,7 +235,8 @@ const face=who=>FACES[who]?`<img class="art face" src="assets/premium/coast/ui/$
 function renderOrders(){
  const held=state.board[selected],heldKey=held?.type==='item'?held.family+held.tier:null;
  $('#requests').style.setProperty('--slots',state.orders.length);
- $('#requests').innerHTML=`<div class="requestShelf">${state.orders.map(o=>{
+ const shelf=$('#requests .requestShelf')??$('#requests').appendChild(Object.assign(document.createElement('div'),{className:'requestShelf'}));
+ patch(shelf,state.orders.map(o=>{
   const p=needsOf(state,o),ready=!!orderItems(state,o),who=CREW[o.who];
   const place=o.story&&AREAS[state.area]?.tasks.find(t=>t.id===o.story),stage=place?Math.min(STAGES,stageOf(state,place.id)+1):0;
   const got=p.reduce((n,r)=>n+r.have,0),want=p.reduce((n,r)=>n+r.count,0);
@@ -226,7 +252,7 @@ function renderOrders(){
   // A crew order taking long (Audit 2026-10-25) suggests a new one; the tapped card's panel has it.
   const stuck=isStuck(state,o);
   return `<button class="requestCard ${ready?'ready':''} ${place?'storyOrder':''} ${stuck?'stuck':''} ${focusOrder===o.id?'active':''}" data-order="${o.id}" data-role="${role}" aria-label="${label}${stuck?'. Taking long: tap it for a new order.':''}"><span class="reqHead">${head}</span>${stuck?'<i class="reqStuck" aria-hidden="true">↻ New?</i>':''}<span class="requestItems">${p.map(r=>`<span class="${r.have>=r.count?'met':''} ${heldKey===r.family+r.tier?'held':''}" data-part="${r.family+r.tier}">${draw(item(r.family,r.tier))}${r.sibling?`<i class="reqLv" aria-hidden="true">Lv${levelOf(r)}</i>`:''}<b>${r.have>=r.count?'<i aria-hidden="true">✓</i>':''}${r.have}/${r.count}</b></span>`).join('')}</span><span class="reqFoot">${ready?`<strong class="reqDeliver">Deliver <em>+${o.coins}</em>${COIN}</strong>`:`<span class="requestReward">${COIN}${o.coins}</span>`}${bonusArt(o)}</span></button>`;
- }).join('')}</div>`;
+ }).join(''));
  renderOrderTools();
 }
 // A tapped order explains where its missing parts come from (the generator, then the real chain up to
@@ -272,12 +298,25 @@ function goldPanel(o){
  const find=gens.map(gen=>`<button class="locate" type="button" data-locate="${gen}" aria-label="Show the ${SOURCES[gen].name}">${draw({type:'source',id:gen})}</button>`).join('');
  return `<p class="orderSay goldSay"><b>${st.name}</b><small>${where} · ${coins}</small></p><div class="goldRow"><ul class="goldNeeds">${need}</ul>${find?`<span class="goldFind">${find}</span>`:''}</div><details class="goldHow"><summary>How to make these</summary><ol class="routes">${missingOf(state,o).map(r=>chainRoute(r,true)).join('')}</ol></details>`;
 }
+// Build 57y (owner, real iPhone, 2026-11-11): on a phone the tapped order's panel is a bottom sheet behind a
+// Details button in the guidance line, not a panel between the orders and the board; the tapped order's
+// parts are still marked on the board, and closing the sheet keeps the order tapped. On a larger screen the
+// panel stays where it was (coastal.css). The panel's buttons and their handlers are the same.
+let detailsOpen=false;
+const SHEET_CLOSE='<button type="button" class="sheetClose" data-sheet-close aria-label="Close the details">×</button>';
+function syncSheet(){
+ const bar=$('#orderTools'),btn=$('#orderDetails'),open=detailsOpen&&!bar.hidden;
+ if(!open)detailsOpen=false;
+ btn.hidden=bar.hidden;btn.setAttribute('aria-expanded',String(open));
+ bar.classList.toggle('sheetOpen',open);$('#sheetBackdrop').hidden=!open;
+}
+function setDetails(open){detailsOpen=open;syncSheet();if(open)$('#orderTools .sheetClose')?.focus({preventScroll:true});}
 function renderOrderTools(){
  const o=state.orders.find(o=>o.id===focusOrder),bar=$('#orderTools');
- if(!o||orderItems(state,o)){bar.hidden=true;bar.innerHTML='';return;}
+ if(!o||orderItems(state,o)){bar.hidden=true;setHTML(bar,'');syncSheet();return;}
  const day=today(),free=swapsLeft(state,day),ads=adSwapsLeft(state,day),missing=missingOf(state,o);
  bar.hidden=false;
- if(o.story){bar.innerHTML=goldPanel(o);return;}
+ if(o.story){setHTML(bar,SHEET_CLOSE+goldPanel(o));syncSheet();return;}
  const swap=`<span class="toolNote">Stuck on ${CREW[o.who].name}'s order?</span>`+(free>0?`<button data-swap>↻ New order <small>${free} free today</small></button>`:ADS&&ads>0?'<button class="adOffer" data-swap-ad>▶ New order</button>':'<button disabled>No more changes today</button>');
  // What the order is for and where its coins go (Build 44): the crew member's reason, and the
  // next stage the coins count toward (the gold order instead brings that stage's materials).
@@ -288,7 +327,8 @@ function renderOrderTools(){
  // Three lines (Audit 2026-10-25, user: "ene yu ve"): why, what it pays and where the coins go,
  // how to make the parts; the bonus sums and the "100/100" progress (it read as done) are gone.
  const pays=!o.story&&n&&!n.ready?`<p class="orderPays">${COIN} +${o.coins} → <b>${n.u.name}</b></p>`:'';
- bar.innerHTML=`${say}${pays}<ol class="routes" aria-label="Where the parts come from">${missing.map(chainRoute).join('')}</ol><div class="toolRow">${swap}</div>`;
+ setHTML(bar,`${SHEET_CLOSE}${say}${pays}<ol class="routes" aria-label="Where the parts come from">${missing.map(chainRoute).join('')}</ol><div class="toolRow">${swap}</div>`);
+ syncSheet();
 }
 // Build 48b: "show the generator" from the gold order's panel: its best copy glows for a moment (a
 // still outline with reduced motion).
@@ -299,7 +339,7 @@ function renderBoard(){
  const focusKeys=new Set(focus?.needs.map(r=>r.family+r.tier)??[]),focusMissing=focus?missingOf(state,focus):[];
  // The tapped order's generators glow too (Build 41 M3, from PR #77).
  const focusGens=new Set(focusMissing.map(r=>CHAINS[r.family].gen));
- board.innerHTML=state.board.map((x,i)=>{
+ patch(board,state.board.map((x,i)=>{
   const [r,c]=cellPos(i),locked=x?.type==='source'&&!sourceOpen(state,x.id);
   const twin=sel&&i!==selected&&(sel.type==='item'&&(x?.type==='item'&&matches(x,sel)&&sel.tier<maxTier(sel.family)||x?.type==='cargo'&&reachable(state,i)&&matches(sel,x.key))||sel.type==='kit'&&kitsMerge(sel,x)||generatorsMerge(sel,x)||sel.type==='cog'&&x?.type==='source'&&producerLevel(x)<MAX_GENERATOR_LEVEL||sel.type==='token'&&x?.type==='item'&&swappable(x)||sel.type==='cargo'&&matches(x,sel.key));
   const focused=x?.type==='item'&&focusKeys.has(x.family+x.tier);
@@ -319,7 +359,7 @@ function renderBoard(){
   const holdsGen=x?.type==='cargo'&&x.find?.type==='source'&&focusGens.has(x.find.id);
   const ice=x?.type==='glass'?`ice${Math.min(2,x.cracks??0)}`:'';
   return `<button class="tile ${x?.type??'empty'} ${i===located?'located':''} ${ice} ${x?.cracks?'cracked':''} ${ready?'keyReady':''} ${deep?'deep':''} ${locked?'locked':''} ${selected===i?'selected':''} ${twin?'match':''} ${focused?'nextAction':''} ${x?.type==='source'&&focusGens.has(x.id)||holdsGen?'orderSource':''} ${(r+c)%2?'odd':''}" data-index="${i}" style="grid-row:${r+1};grid-column:${c+1}" ${x?.family||x?.id?`data-family="${x.family??x.id}"`:''} ${x?.type==='cargo'?`data-key="${x.key.family}"`:''} aria-label="${nameOf(x)}${x?.type==='glass'?` · ${GLASS_HITS-(x.cracks??0)} hit${GLASS_HITS-(x.cracks??0)>1?'s':''} left`:''}${iceNeed(x)?` · cracked by a level ${iceNeed(x)} or better merge beside it`:''}${locked?' · locked':''}${x?.type==='source'&&!locked?' · tap to make a part for 1 energy':''}. Space ${i+1}" aria-pressed="${selected===i}">${draw(deep?{...x,deep:true}:x)}${badge}</button>`;
- }).join('');
+ }).join(''));
  // The free-space count shows only when space is getting short.
  // Build 47a: rewards waiting for space say so here until they land.
  const free=state.board.filter(x=>x===null).length,f=$('#free'),wait=state.pending?.length??0;
@@ -332,8 +372,8 @@ let shedOpen=false;
 function renderShed(){
  const n=state.shed.filter(Boolean).length,el=$('#shed');
  el.hidden=false;el.classList.toggle('open',shedOpen);
- el.innerHTML=`<button class="shedToggle" type="button" data-shed-toggle aria-expanded="${shedOpen}" aria-label="Shed: ${n} of ${SHED_SLOTS} spaces used. ${shedOpen?'Fold':'Open'} the shed"><span class="shedLabel">Shed</span><b>${n}/${SHED_SLOTS}</b><span class="shedPeek" aria-hidden="true">${state.shed.map(x=>`<i class="${x?'full':''}">${x?draw(x):''}</i>`).join('')}</span><i class="shedChevron" aria-hidden="true"></i></button>`
-  +`<div class="shedSlots">${state.shed.map((x,k)=>`<button class="shedSlot ${x?'full':''}" data-slot="${k}" aria-label="${x?nameOf(x)+' · tap to put it back on the board':'Empty shed space'}">${x?draw(x):''}</button>`).join('')}</div>`;
+ setHTML(el,`<button class="shedToggle" type="button" data-shed-toggle aria-expanded="${shedOpen}" aria-label="Shed: ${n} of ${SHED_SLOTS} spaces used. ${shedOpen?'Fold':'Open'} the shed"><span class="shedLabel">Shed</span><b>${n}/${SHED_SLOTS}</b><span class="shedPeek" aria-hidden="true">${state.shed.map(x=>`<i class="${x?'full':''}">${x?draw(x):''}</i>`).join('')}</span><i class="shedChevron" aria-hidden="true"></i></button>`
+  +`<div class="shedSlots">${state.shed.map((x,k)=>`<button class="shedSlot ${x?'full':''}" data-slot="${k}" aria-label="${x?nameOf(x)+' · tap to put it back on the board':'Empty shed space'}">${x?draw(x):''}</button>`).join('')}</div>`);
 }
 // The next place (Build 44): a compact preview of the coast's next stage beside the guidance.
 // It says "Ready" only when the materials are in and the coins are there.
@@ -356,7 +396,7 @@ function renderNextPlace(){
  if(holdPlace>performance.now())return;
  const el=$('#mapButton'),n=nextPlace(),area=currentArea(state);
  if(!n){el.dataset.place='';el.dataset.ready='0';el.classList.remove('ready');
-  el.querySelector('.rsThumb').innerHTML=`<img class="art" src="assets/premium/${area.picture}-vibrant.webp" alt="">`;
+  setHTML(el.querySelector('.rsThumb'),`<img class="art" src="assets/premium/${area.picture}-vibrant.webp" alt="">`);
   // After the last stage (Audit 2026-10-25: coins had no use) the strip says the chapter is done
   // and the coins crew orders keep paying are saved (Build 47f: no area is promised; none is open).
   if(allDone(state)){el.querySelector('.rsText b').textContent='Chapter complete';el.querySelector('.rsText small').innerHTML=`${COIN}${state.coins} saved`;}
@@ -364,9 +404,9 @@ function renderNextPlace(){
   el.querySelector('.rsAction').textContent='View';el.setAttribute('aria-label',`Go to the ${area.name}`);return;}
  const {u,t,ready}=n,was=el.dataset.ready==='1';
  el.dataset.place=u.id;el.dataset.ready=ready?'1':'0';el.classList.toggle('ready',ready);
- el.querySelector('.rsThumb').innerHTML=placeArt(t,u.stage);
+ setHTML(el.querySelector('.rsThumb'),placeArt(t,u.stage));
  el.querySelector('.rsText b').textContent=ready?'Ready to build':u.name;
- el.querySelector('.rsText small').innerHTML=ready?`${u.name} · ${COIN}${u.cost}`:`<i class="rsMat ${u.materials?'ok':''}" aria-hidden="true">${u.materials?'✓':'◆'}</i>${u.materials?'Materials':(g=>!g?'Gold order':g.parts?`${g.parts} part${g.parts>1?'s':''} missing`:'Deliver gold order')(goldShort(u.id))} · ${u.materials&&state.coins<u.cost?`${u.cost-state.coins} more ${COIN}`:`${COIN}${Math.min(state.coins,u.cost)}/${u.cost}`}`;
+ setHTML(el.querySelector('.rsText small'),ready?`${u.name} · ${COIN}${u.cost}`:`<i class="rsMat ${u.materials?'ok':''}" aria-hidden="true">${u.materials?'✓':'◆'}</i>${u.materials?'Materials':(g=>!g?'Gold order':g.parts?`${g.parts} part${g.parts>1?'s':''} missing`:'Deliver gold order')(goldShort(u.id))} · ${u.materials&&state.coins<u.cost?`${u.cost-state.coins} more ${COIN}`:`${COIN}${Math.min(state.coins,u.cost)}/${u.cost}`}`);
  el.querySelector('.rsAction').textContent=ready?'Build':'View';
  el.setAttribute('aria-label',`${u.name} (${t.name}, stage ${u.stage}): ${ready?`ready to build for ${u.cost} coins. Open the ${area.name} to build it`:`${u.materials?'materials in':(g=>g?.parts?`gold order missing ${missText(g.miss)}`:'needs its gold order')(goldShort(u.id))}, ${Math.min(state.coins,u.cost)} of ${u.cost} coins. Open the ${area.name}`}`);
  if(ready&&!was&&el.dataset.seen==='1'&&!reduced()){el.classList.remove('justReady');void el.offsetWidth;el.classList.add('justReady');}
@@ -374,7 +414,7 @@ function renderNextPlace(){
 }
 function renderSelection(){
  const x=state.board[selected];let title='',desc='',buttons='';
- if(!x){$('#selection').innerHTML='';return;}
+ if(!x){setHTML($('#selection'),'');return;}
  title=nameOf(x);
  if(x.type==='item'){
   title+=` <span class="lvTag">Lv${x.tier+1}</span>`;
@@ -423,7 +463,7 @@ function renderSelection(){
    :'Turns a part into the same level of another kind that an order still needs. No order needs a swap right now: keep it (or put it in the shed) for later.';}
  else if(x.type==='cog')desc=`Drag it onto a generator: +1 level, up to ${MAX_GENERATOR_LEVEL}. Higher levels make better parts.`;
  if(SHED_TYPES_UI.includes(x.type))buttons+='<button data-action="store">Shed</button>';
- $('#selection').innerHTML=`<span class="preview">${draw(x)}</span><span class="copy"><b>${title}</b><small>${desc}</small></span><span class="actionGroup">${buttons}</span>`;
+ setHTML($('#selection'),`<span class="preview">${draw(x)}</span><span class="copy"><b>${title}</b><small>${desc}</small></span><span class="actionGroup">${buttons}</span>`);
 }
 const SHED_TYPES_UI=['item','kit','cog','token'];
 const canBuild=u=>u.materials&&state.coins>=u.cost;
@@ -704,10 +744,13 @@ $('#selection').addEventListener('click',e=>{
   $('#message').textContent=`Clear the ${nameOf(x)}? Tap again to clear it for good.`;setTimeout(()=>{if(clearArm?.index===at&&clearArm.until<=performance.now()){clearArm=null;renderSelection();}},3100);return;}
  clearArm=null;run({type:b.dataset.action,index:selected,id:x?.id});});
 let clearArm=null;
-$('#orderTools').addEventListener('click',e=>{const b=e.target.closest('[data-locate]');if(!b)return;locateGen=b.dataset.locate;locateUntil=performance.now()+2600;renderBoard();if(coach)showCoachTarget(coach.target);
+$('#orderTools').addEventListener('click',e=>{if(e.target.closest('[data-sheet-close]')){setDetails(false);return;}const b=e.target.closest('[data-locate]');if(!b)return;setDetails(false);locateGen=b.dataset.locate;locateUntil=performance.now()+2600;renderBoard();if(coach)showCoachTarget(coach.target);
  board.querySelector('.tile.located')?.scrollIntoView({block:'nearest',behavior:reduced()?'auto':'smooth'});
  const i=locateIndex();if(i>=0)$('#message').textContent=`${SOURCES[locateGen].name}${state.board[i]?.level>1?` (level ${state.board[i].level})`:''}: tap it for parts.`;
  setTimeout(()=>{if(performance.now()>=locateUntil){renderBoard();if(coach)showCoachTarget(coach.target);}},2700);});
+$('#orderDetails').addEventListener('click',()=>{sfx('tap');setDetails(true);});
+$('#sheetBackdrop').addEventListener('click',()=>setDetails(false));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&detailsOpen){e.preventDefault();setDetails(false);$('#orderDetails').focus({preventScroll:true});}});
 $('#requests').addEventListener('click',e=>{const c=e.target.closest('[data-order]');if(!c)return;const o=state.orders.find(o=>o.id===c.dataset.order);if(!o)return;if(orderItems(state,o)){run({type:'deliver',id:o.id});return;}focusOrder=focusOrder===o.id?null:o.id;render();$('#message').textContent=`${CREW[o.who].name} needs ${needsOf(state,o).map(r=>r.count+' × '+nameOf(item(r.family,r.tier))+(r.sibling?` (level ${levelOf(r)})`:'')).join(' and ')}. Their parts are marked on the board.`+o.needs.filter(r=>CHAINS[r.family].secondary).map(r=>' '+sourceNote(r.family,r.tier)).join('');});
 // The upgrading happens on the beach screen (user: "tusdaa orchinruu ochij upgrade hiih").
 $('#mapButton').onclick=()=>{mapFocus=$('#mapButton').dataset.place||null;sfx('tap');showMap();};

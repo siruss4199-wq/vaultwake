@@ -4,6 +4,8 @@
 // Rivet Rover's camp sits in the middle; sealed cargo and tideglass cover the rest, and crates
 // touching open ground show the (well-merged) part that opens them.
 const assert=require('node:assert/strict');const {chromium,webkit}=require('playwright');const {throughHome}=require('./v5-next-home-helper.cjs');
+// Build 57y: on a phone the tapped order's panel opens from Details (a bottom sheet); elsewhere it shows by itself
+const openDetails=async page=>{if(await page.locator('#orderDetails:visible').count()){await page.locator('#orderDetails').click();await page.waitForSelector('#orderTools.sheetOpen');}};
 // Developer mode (?dev=1): these tests also check the playtest log, the Classic link and the ad
 // stand-in, which players do not see (2026-10-26).
 const URL='http://127.0.0.1:8080/v5/play.html?dev=1';
@@ -194,7 +196,7 @@ async function perform(page,a){
    for(const sel of ['#shopButton','#bookButton']){const b=await page.locator(sel).boundingBox();assert.ok(b.height>=40&&b.x+b.width<=width,sel+' fits');}
    // Build 36: a tapped order that is not ready can be changed; the gold one cannot.
    {const st=await read(page),o=st.orders.find(o=>!o.story&&!o.needs.every(r=>st.board.filter(x=>x?.type==='item'&&x.family===r.family&&x.tier===r.tier).length>=r.count));
-    if(o){await page.locator(`[data-order="${o.id}"]`).tap();assert.equal(await page.locator('#orderTools [data-swap]').count(),1,'a free change is offered');
+    if(o){await page.locator(`[data-order="${o.id}"]`).tap();await openDetails(page);assert.equal(await page.locator('#orderTools [data-swap]').count(),1,'a free change is offered');
      await page.locator('#orderTools [data-swap]').tap();await page.waitForFunction(id=>!JSON.parse(localStorage.getItem('vaultwake-v5-coast')).orders.some(o=>o.id===id),o.id,{timeout:4000});
      assert.equal((await read(page)).swaps.n,1);assert.equal(await page.locator('#orderTools').isHidden(),true);}
     const g=(await read(page)).orders.find(o=>o.story);if(g){await page.locator(`[data-order="${g.id}"]`).tap();assert.equal(await page.locator('#orderTools [data-swap], #orderTools [data-swap-ad]').count(),0,'the gold order cannot be changed (build 48b: its panel has only Show buttons)');await page.locator(`[data-order="${g.id}"]`).tap();}}

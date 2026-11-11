@@ -35,8 +35,12 @@ export const platform={
  // hidden tab; the app reports its state and only changes are passed on.
  async setPlaying(v){v=!!v;if(v===playing||!await on())return;playing=v;call(s=>v?s.game.gameplayStart():s.game.gameplayStop());},
  async happytime(){if(await on())call(s=>s.game.happytime?.());},
- muted:()=>!!sdk()?.game?.settings?.muteAudio,
- onMuteChange(fn){const s=sdk();if(!s?.game?.addSettingsChangeListener)return;try{s.game.addSettingsChangeListener(x=>fn(!!x?.muteAudio));}catch{}},
+ // Build 57y (P0, owner's iPhone on the Cloudflare preview): the real SDK's SDK.game is a getter that THROWS
+ // while the SDK is not initialised ("sdkNotInitialized") and on a domain that is not CrazyGames
+ // ("sdkDisabled"), as on a preview. Every sound asks muted() first, so the tap that played it (the
+ // restoration strip, Details) died before doing anything. Reading the SDK can never throw here.
+ muted:()=>{try{const s=sdk();return !!(s&&(s.environment==='crazygames'||s.environment==='local')&&s.game?.settings?.muteAudio);}catch{return false;}},
+ onMuteChange(fn){try{const s=sdk();if(!s?.game?.addSettingsChangeListener)return;s.game.addSettingsChangeListener(x=>fn(!!x?.muteAudio));}catch{}},
  get playing(){return playing;}
 };
 // A rewarded ad. Resolves 'finished' (give the reward), 'skipped' or 'error'. onStart/onEnd let
