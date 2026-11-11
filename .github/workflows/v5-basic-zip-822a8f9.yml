@@ -47,6 +47,7 @@ jobs:
         env:
           CG_URL: http://127.0.0.1:8081/index.html
         run: |
+          set -eo pipefail
           (cd /tmp/zip && python3 -m http.server 8081 > /tmp/zip-http.log 2>&1 &) ; sleep 1
           node tests/v5-next-build-flow-browser.cjs
           node tests/v5-next-core-actions-browser.cjs
