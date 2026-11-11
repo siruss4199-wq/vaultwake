@@ -37,6 +37,11 @@ jobs:
         run: |
           (python3 -m http.server 8080 > /tmp/coast-http.log 2>&1 &) ; sleep 1
           node tests/v5-next-spacing-browser.cjs
+      - name: Strip opens the coast with a finger tap (iPhone 13 profile; owner report 2026-11-11)
+        if: ${{ !cancelled() }}
+        run: |
+          (python3 -m http.server 8080 > /tmp/coast-http.log 2>&1 &) ; sleep 1
+          node tests/v5-next-strip-tap-browser.cjs
       - name: Coast Camp browser suites
         if: ${{ !cancelled() }}
         run: |
