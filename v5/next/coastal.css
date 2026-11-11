@@ -548,3 +548,12 @@ body.nextMode .orderTools .sheetClose,body.nextMode .boardHeading .orderDetails,
 }
 @media(max-width:699px) and (prefers-reduced-motion:reduce){body.nextMode #orderTools.sheetOpen{animation:none}}
 @keyframes sheetUp{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}
+/* Build 57y4 (owner, real iPhone, 2026-11-11: the coast screen needs long scrolls and, lower down, the way back to the
+   board had scrolled away). The coast screen scrolls inside #coastMap; its × was position:absolute, so it scrolled off
+   with the content. The header (place name, coins, ×) now stays at the top while the content scrolls under it, and the
+   × (44 px, the same button and handler) is fixed over the header's reserved right corner, clear of the safe area. The
+   content passes under the header, never under the ×, so it covers no Build button, card or marker. "Back to the board"
+   at the bottom stays. */
+body.nextMode #coastMap>.close{position:fixed;top:calc(7px + env(safe-area-inset-top));right:calc(9px + env(safe-area-inset-right));z-index:6;width:44px;height:44px;min-width:44px;min-height:44px}
+body.nextMode #coastMap{scroll-padding-top:calc(64px + env(safe-area-inset-top))}
+body.nextMode #coastMap .beachTop{position:sticky;top:0;z-index:5;padding-top:calc(12px + env(safe-area-inset-top));padding-right:calc(64px + env(safe-area-inset-right));background:#bfeafc;box-shadow:0 1px 0 #1f5b6a1f}

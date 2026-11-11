@@ -196,6 +196,41 @@ It then checks that the generator, a merge (with its pop) and a reload still wor
 
 **Not changed (seen while measuring):** tapping an order on a phone shows its Details button in the guidance line. That moves the board down 41 px (257 → 298), as described in the Layout section above. This is a layout shift, not a blink.
 
+## Coast screen: the way back to the board stays visible (2026-11-11)
+
+**Report** (owner, real iPhone): the coast screen needs long scrolls. Once the player had scrolled down to the map, a stage's card or Build, getting back to the Merge Board meant scrolling back to the top for the × or to the bottom for "Back to the board".
+
+**Cause.** The coast screen (`#coastMap`) scrolls inside itself (`overflow:auto`), and its × was `position:absolute`. At 390×664 it is 933 px tall in a 664 px screen. Scrolled to the middle, the × was 262 px above the top of the screen.
+
+**Fix (CSS only, `v5/next/coastal.css`, section "Build 57y4"):**
+- **The header stays at the top.** The header (place name, coins, ×) is `position:sticky` at the top of the coast screen, with the screen's light-blue background. The content scrolls under it.
+- **The × stays in place.** The × is `position:fixed` over the header's reserved right corner, 44×44, and clear of the iPhone safe area (`env(safe-area-inset-*)`). It is the same button with the same handler (`dialog.close()`).
+- **Nothing is covered.** Content passes under the header, never under the × alone, so the × covers no Build button, card or marker.
+- **Auto-scroll respects the header.** `scroll-padding-top` keeps the guide's automatic scroll to Build clear of the header.
+- **"Back to the board" stays** at the bottom as a second way back.
+- **Unchanged:** rules, saves, SDK, artwork, Build and the rest of the coast screen.
+
+**Measured (390×664, Chromium):**
+- the × sits at y = 7 at the top, the middle and the bottom of the coast screen; before the fix it was at −262 in the middle and off screen at the bottom.
+
+**Evidence:** `docs/evidence/v5-order-sheet-2026-11-11/5-coast-back-before-after-390x664.jpg` (top, middle and bottom; before and after).
+
+**Test: `tests/v5-next-coast-back-browser.cjs`.** It runs at 360×640, 390×664 and 390×844, in Chromium and WebKit, with finger taps.
+1. **The × is reachable.** The coast is opened from the strip and scrolled to the middle and to the bottom. At both points:
+   - the × is on screen and at least 44×44;
+   - the element under its centre is the × itself;
+   - it lies inside the header band;
+   - in the middle, the Build button in view is the element under its own centre.
+2. **Tapping the × returns to the board at once.**
+   - The coast is closed by the next frame and the board shows.
+   - The page's scroll position is unchanged.
+   - The saved camp is unchanged.
+   - No board picture is redrawn (no flicker).
+3. **The bottom button still works.** "Back to the board" closes the coast and keeps the board's position.
+4. **Build still works.** Build from the scrolled coast spends 120 coins once and moves stage 1 → 2. The × then returns to the board, and a reload keeps the result.
+
+It fails on 5b5d006 ("the × is on screen (337,-128)") and passes on the fix.
+
 ## Not verified
 
 - **A real iPhone or Android phone,** including Safari's toolbar and the CrazyGames wrapper. The owner's real-device PASS is required before any upload.

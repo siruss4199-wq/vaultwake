@@ -44,6 +44,7 @@ jobs:
           node tests/v5-next-core-actions-browser.cjs
           node tests/v5-next-sdk-not-ready-browser.cjs
           node tests/v5-next-tap-flicker-browser.cjs
+          node tests/v5-next-coast-back-browser.cjs
           node tests/v5-next-strip-tap-browser.cjs
       - name: Coast Camp browser suites
         if: ${{ !cancelled() }}
