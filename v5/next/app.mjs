@@ -193,6 +193,31 @@ function render(){
  const wait=rationWait(state,Date.now());$('#rationButton').textContent=wait>0?`Field ration in ${clock(wait)}`:'Field ration · +8 ϟ';$('#rationButton').disabled=wait>0;
  $('#soundButton').textContent=sounds.enabled()?'Sound on':'Sound off';
  $('#hapticsButton').hidden=!haptics.supported;$('#hapticsButton').textContent=haptics.enabled()?'Vibration on':'Vibration off';
+ fitBoard();
+}
+// Build 57v (P0, 2026-11-11, owner: on a real phone on CrazyGames the page scrolled between the orders, the
+// gold order's panel and the board): on a phone, and on a short landscape screen, the game fits the screen
+// (coastal.css). Presentation only: no rule, economy, energy, save or SDK change.
+// - How to play, sound and vibration move into the menu, the field ration beside the guidance line (and
+//   back to the footer on a larger screen); the buttons keep their handlers.
+// - fitBoard: the board stays as wide as the screen; only a screen too short to show it whole under the
+//   orders, with the shed row, makes it smaller (coastal.css keeps its tiles at 44 px or more).
+const COMPACT_MQ='(orientation:portrait) and (max-width:699px),(orientation:landscape) and (min-width:700px) and (max-height:620px)';
+const compactHome=new Map(),MENU_IDS=['helpButton','soundButton','hapticsButton'];
+function placeControls(){
+ for(const id of [...MENU_IDS,'rationButton'])if(!compactHome.has(id)){const el=$('#'+id);compactHome.set(id,[el.parentNode,el.nextSibling]);}
+ if(globalThis.matchMedia?.(COMPACT_MQ).matches){
+  const end=$('#newGame'),line=$('.boardHeading'),ration=$('#rationButton');
+  for(const id of MENU_IDS){const el=$('#'+id);if(el.parentNode!==end.parentNode)end.before(el);el.classList.add('menuButton');}
+  if(ration.parentNode!==line)line.append(ration);return;}
+ // back to the footer in reverse order, so each finds the sibling it stood before
+ for(const id of ['rationButton',...MENU_IDS.slice().reverse()]){const el=$('#'+id),[home,next]=compactHome.get(id);el.classList.remove('menuButton');if(el.parentNode!==home)home.insertBefore(el,next);}
+}
+function fitBoard(){
+ const g=$('.game'),b=$('#board');if(!g||!b)return;
+ if(!globalThis.matchMedia?.('(orientation:portrait) and (max-width:699px)').matches){g.style.removeProperty('--boardFit');return;}
+ const used=g.getBoundingClientRect().bottom+scrollY-b.getBoundingClientRect().height;
+ g.style.setProperty('--boardFit',Math.floor(innerHeight-used)+'px');
 }
 // Orders (Build 44): each card says who asks (a crew member, or for the gold order the place
 // and stage its materials are for), the parts with their counts, the progress, the coins, and
@@ -246,8 +271,10 @@ function routeWhy(r,gold=false){
 }
 // brief (the gold panel, whose rows already say where each part comes from): an everyday chain is its
 // pictures only; a rare or not-yet-open one keeps its words
-function chainRoute(r,brief=false){
- const gen=CHAINS[r.family].gen,why=routeWhy(r),steps=Array.from({length:r.tier+1},(_,k)=>k),words=!brief||!why.ok||CHAINS[r.family].secondary;
+// gold: the gold order's wording of a rare part (its guarantee in taps), as its chip says (Build 57v: on a
+// phone the chip shows only the start of it).
+function chainRoute(r,brief=false,gold=false){
+ const gen=CHAINS[r.family].gen,why=routeWhy(r,gold),steps=Array.from({length:r.tier+1},(_,k)=>k),words=!brief||!why.ok||CHAINS[r.family].secondary;
  return `<li class="route ${why.ok?'':'sealed'}" aria-label="${CHAINS[r.family].names[r.tier]}: ${why.text}"><span class="routeGen">${draw({type:'source',id:gen})}</span>${steps.map(k=>`<i class="routeArrow" aria-hidden="true"></i><span class="routeStep ${k===r.tier?'goal':''}" title="${CHAINS[r.family].names[k]}">${draw(item(r.family,k))}</span>`).join('')}${words?`<small>${why.text}</small>`:''}</li>`;
 }
 // Build 48b: the gold order's panel is compact: the stage, each material with what is held of it, where
@@ -270,7 +297,7 @@ function goldPanel(o){
  const where=LABELS[t.id]?LABELS[t.id][0].toUpperCase()+LABELS[t.id].slice(1):AREAS.find(a=>a.id===t.area)?.name??t.name;
  const coins=short?`${COIN}${state.coins} of ${cost}: <b>${short} more</b> from crew orders`:`${COIN}${cost} to build: <b>you have it</b>`;
  const find=gens.map(gen=>`<button class="locate" type="button" data-locate="${gen}" aria-label="Show the ${SOURCES[gen].name}">${draw({type:'source',id:gen})}</button>`).join('');
- return `<p class="orderSay goldSay"><b>${st.name}</b><small>${where} · ${coins}</small></p><div class="goldRow"><ul class="goldNeeds">${need}</ul>${find?`<span class="goldFind">${find}</span>`:''}</div><details class="goldHow"><summary>How to make these</summary><ol class="routes">${missingOf(state,o).map(r=>chainRoute(r,true)).join('')}</ol></details>`;
+ return `<p class="orderSay goldSay" data-open-map role="button" tabindex="0" aria-label="${st.name}: open the coast"><b>${st.name}</b><small>${where} · ${coins}</small></p><div class="goldRow"><ul class="goldNeeds">${need}</ul>${find?`<span class="goldFind">${find}</span>`:''}</div><details class="goldHow"><summary>How to make these</summary><ol class="routes">${missingOf(state,o).map(r=>chainRoute(r,true,true)).join('')}</ol></details>`;
 }
 function renderOrderTools(){
  const o=state.orders.find(o=>o.id===focusOrder),bar=$('#orderTools');
@@ -288,7 +315,7 @@ function renderOrderTools(){
  // Three lines (Audit 2026-10-25, user: "ene yu ve"): why, what it pays and where the coins go,
  // how to make the parts; the bonus sums and the "100/100" progress (it read as done) are gone.
  const pays=!o.story&&n&&!n.ready?`<p class="orderPays">${COIN} +${o.coins} → <b>${n.u.name}</b></p>`:'';
- bar.innerHTML=`${say}${pays}<ol class="routes" aria-label="Where the parts come from">${missing.map(chainRoute).join('')}</ol><div class="toolRow">${swap}</div>`;
+ bar.innerHTML=`${say}${pays}<ol class="routes" aria-label="Where the parts come from">${missing.map((r,i)=>chainRoute(r,i)).join('')}</ol><div class="toolRow">${swap}</div>`;
 }
 // Build 48b: "show the generator" from the gold order's panel: its best copy glows for a moment (a
 // still outline with reduced motion).
@@ -458,6 +485,12 @@ function placeHand(){
  const l=h.querySelector('.handLabel'),w=l.offsetWidth,cx=r.left+r.width/2;h.style.setProperty('--lx',`${Math.max(8-cx+w/2,Math.min(0,innerWidth-8-cx-w/2))}px`);
 }
 addEventListener('resize',placeHand);addEventListener('scroll',placeHand,true);
+placeControls();globalThis.matchMedia?.(COMPACT_MQ).addEventListener?.('change',()=>{placeControls();fitBoard();});
+addEventListener('resize',fitBoard);globalThis.visualViewport?.addEventListener('resize',fitBoard);
+if(globalThis.ResizeObserver)new ResizeObserver(fitBoard).observe($('.game'));
+// the status line floats over the bottom of a phone screen (coastal.css): it shows for five seconds after
+// it changes, then fades (screen readers still hear it: the element and its aria-live stay)
+{const m=$('#message');let t=0;new MutationObserver(()=>{m.classList.toggle('fresh',!!m.textContent.trim());clearTimeout(t);t=setTimeout(()=>m.classList.remove('fresh'),5000);}).observe(m,{childList:true,characterData:true,subtree:true});}
 function showCoachTarget(t){
  clearCoach();if(!t)return;
  if(t.kind==='cell'){const el=board.querySelector(`[data-index="${t.index}"]`);el?.classList.add('coachTarget');coachHand(el,'Tap here');}
@@ -675,21 +708,22 @@ board.addEventListener('click',e=>{if(suppressClick){suppressClick=false;return;
 // movable thing owns its touch gesture (no page scroll), a copy follows the finger, and the
 // space under it is marked; letting go there merges or moves.
 const DRAGGABLE=['item','kit','source','cog','token'];
-function endDrag(){document.querySelectorAll('#board .dragging,#board .target,#shed .target,#shed .shedToggle.target').forEach(x=>x.classList.remove('dragging','target'));if(state.board[drag?.from]?.type==='token'&&drag?.moved)document.querySelectorAll('#board .tile.match').forEach(x=>x.classList.remove('match'));drag?.ghost?.remove();drag=null;}
+function endDrag(){document.body.classList.remove('dragOn');document.querySelectorAll('#board .dragging,#board .target,#shed .target,#shed .shedToggle.target').forEach(x=>x.classList.remove('dragging','target'));if(state.board[drag?.from]?.type==='token'&&drag?.moved)document.querySelectorAll('#board .tile.match').forEach(x=>x.classList.remove('match'));drag?.ghost?.remove();drag=null;}
 board.addEventListener('pointerdown',e=>{suppressClick=false;const t=e.target.closest('[data-index]');if(!t||e.button!==0)return;const i=+t.dataset.index;if(!DRAGGABLE.includes(state.board[i]?.type))return;drag={from:i,id:e.pointerId,x:e.clientX,y:e.clientY,moved:false,over:null};});
-// Move and drop are heard on the whole page: a drag can end on the shed under the board.
+// Move and drop are heard on the whole page: a drag can end on the shed under the board. The drop point is
+// read before the drag ends (Build 57v: the floating card of a selected part is hidden while dragging).
 document.addEventListener('pointermove',e=>{
  if(!drag||drag.id!==e.pointerId)return;
  if(!drag.moved){if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)<=8)return;drag.moved=true;
   const from=board.querySelector(`[data-index="${drag.from}"]`),r=from.getBoundingClientRect();from.classList.add('dragging');
   // a dragged Tide token shows the parts it works on, as a tapped one does (Build 46l)
   if(state.board[drag.from]?.type==='token')state.board.forEach((y,k)=>{if(y?.type==='item'&&swappable(y))board.querySelector(`[data-index="${k}"]`)?.classList.add('match');});
-  drag.ghost=document.createElement('div');drag.ghost.className='dragGhost';drag.ghost.style.cssText=`width:${r.width}px;height:${r.height}px`;drag.ghost.innerHTML=draw(state.board[drag.from]);document.body.append(drag.ghost);}
+  document.body.classList.add('dragOn');drag.ghost=document.createElement('div');drag.ghost.className='dragGhost';drag.ghost.style.cssText=`width:${r.width}px;height:${r.height}px`;drag.ghost.innerHTML=draw(state.board[drag.from]);document.body.append(drag.ghost);}
  drag.ghost.style.transform=`translate(${e.clientX-drag.ghost.offsetWidth/2}px,${e.clientY-drag.ghost.offsetHeight*.7}px)`;
  const t=document.elementFromPoint(e.clientX,e.clientY)?.closest('#board [data-index], #shed [data-slot], #shed [data-shed-toggle]'),i=t?(t.dataset.slot!=null?'s'+t.dataset.slot:t.dataset.index!=null?+t.dataset.index:'shed'):null;
  if(i!==drag.over){document.querySelector('#board .target, #shed .target')?.classList.remove('target');drag.over=i;if(t&&i!==drag.from)t.classList.add('target');}
 });
-document.addEventListener('pointerup',e=>{if(!drag||drag.id!==e.pointerId)return;const d=drag;endDrag();if(!d.moved)return;suppressClick=true;const el=document.elementFromPoint(e.clientX,e.clientY),slot=el?.closest('#shed [data-slot]');if(slot){run({type:'store',index:d.from,slot:+slot.dataset.slot});return;}
+document.addEventListener('pointerup',e=>{if(!drag||drag.id!==e.pointerId)return;const d=drag,el=d.moved?document.elementFromPoint(e.clientX,e.clientY):null;endDrag();if(!d.moved)return;suppressClick=true;const slot=el?.closest('#shed [data-slot]');if(slot){run({type:'store',index:d.from,slot:+slot.dataset.slot});return;}
  if(el?.closest('#shed [data-shed-toggle]')){const k=state.shed.indexOf(null);if(k>=0)run({type:'store',index:d.from,slot:k});else $('#message').textContent='The shed is full.';return;}const t=el?.closest('#board [data-index]');if(t&&+t.dataset.index!==d.from){selected=d.from;run({type:'merge',from:d.from,to:+t.dataset.index});}});
 document.addEventListener('pointercancel',endDrag);
 // iOS Safari can still start a scroll from a button; while dragging, the finger is ours.
@@ -711,6 +745,10 @@ $('#orderTools').addEventListener('click',e=>{const b=e.target.closest('[data-lo
 $('#requests').addEventListener('click',e=>{const c=e.target.closest('[data-order]');if(!c)return;const o=state.orders.find(o=>o.id===c.dataset.order);if(!o)return;if(orderItems(state,o)){run({type:'deliver',id:o.id});return;}focusOrder=focusOrder===o.id?null:o.id;render();$('#message').textContent=`${CREW[o.who].name} needs ${needsOf(state,o).map(r=>r.count+' × '+nameOf(item(r.family,r.tier))+(r.sibling?` (level ${levelOf(r)})`:'')).join(' and ')}. Their parts are marked on the board.`+o.needs.filter(r=>CHAINS[r.family].secondary).map(r=>' '+sourceNote(r.family,r.tier)).join('');});
 // The upgrading happens on the beach screen (user: "tusdaa orchinruu ochij upgrade hiih").
 $('#mapButton').onclick=()=>{mapFocus=$('#mapButton').dataset.place||null;sfx('tap');showMap();};
+// Build 57v: on a phone the gold order's panel stands where the restoration strip was; its first line (the
+// stage, the place and the coins, as the strip says them) opens the coast as the strip does
+$('#orderTools').addEventListener('click',e=>{if(e.target.closest('[data-open-map]'))$('#mapButton').click();});
+$('#orderTools').addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.closest?.('[data-open-map]')){e.preventDefault();$('#mapButton').click();}});
 $('#rationButton').onclick=()=>run({type:'ration'});
 $('#shed').addEventListener('click',e=>{if(e.target.closest('[data-shed-toggle]')){shedOpen=!shedOpen;sfx('tap');renderShed();return;}const b=e.target.closest('[data-slot]');if(!b)return;if(state.shed[+b.dataset.slot])run({type:'unstore',slot:+b.dataset.slot});else $('#message').textContent='Drag a part, crate, cog or token here to keep it off the board.';});
 // ---------- the daily gift ----------
@@ -869,9 +907,9 @@ async function watchAd(action){
 function offerGift(){if(!homeOpen&&!adBusy&&giftReady()&&giftShown!==today()&&state.moves>=3&&!coachActive(state)&&!drag&&!document.querySelector('dialog[open]'))showDaily();}
 $('#soundButton').onclick=()=>{sounds.toggle();render();sfx('tap');};
 $('#hapticsButton').onclick=()=>{haptics.toggle();render();haptics.pulse('merge');};
-$('#helpButton').onclick=()=>$('#help').showModal();
+$('#helpButton').onclick=()=>{if($('#menu').open)$('#menu').close();$('#help').showModal();};// in the menu on a phone (Build 57v)
 $('#keptButton').onclick=()=>{$('#menu').close();showKept();};
-$('#menuButton').onclick=()=>{$('#homeButton').hidden=homeOpen;{const n=kept().length;$('#keptButton').hidden=!n;$('#keptButton').textContent=`Kept camps (${n})`;}{let n=$('#saveNote');if(!n){n=document.createElement('small');n.id='saveNote';$('#hapticsNote').after(n);}n.textContent=saveLine(storage.status);}$('#classicNote').textContent=storage.get('vaultwake-v5')?'Your Classic save is kept and continues where you left it.':'';$('#hapticsNote').textContent=haptics.method==='vibrate'?'Vibration on merges: use the button at the bottom of the board screen.':haptics.method==='ios-switch'?'Vibration on merges may work on this iPhone (iOS 18 and later); turn it off at the bottom of the board screen.':'Vibration is not available in this browser.';$('#menu').showModal();};
+$('#menuButton').onclick=()=>{$('#homeButton').hidden=homeOpen;{const n=kept().length;$('#keptButton').hidden=!n;$('#keptButton').textContent=`Kept camps (${n})`;}{let n=$('#saveNote');if(!n){n=document.createElement('small');n.id='saveNote';$('#hapticsNote').after(n);}n.textContent=saveLine(storage.status);}$('#classicNote').textContent=storage.get('vaultwake-v5')?'Your Classic save is kept and continues where you left it.':'';$('#hapticsNote').textContent=haptics.method==='vibrate'?(globalThis.matchMedia?.(COMPACT_MQ).matches?'Vibration on merges: use the Vibration button below.':'Vibration on merges: use the button at the bottom of the board screen.'):haptics.method==='ios-switch'?'Vibration on merges may work on this iPhone (iOS 18 and later); turn it off at the bottom of the board screen.':'Vibration is not available in this browser.';$('#menu').showModal();};
 $('#newGame').onclick=()=>{if(!confirm('Start a new game from the beginning? This camp is kept in this browser (Kept camps in this menu brings it back), and your Classic save is not affected.'))return;if(!newCamp())return;$('#menu').close();if(homeOpen&&home)home.enter();else showIntro();};
 // A new camp, chosen by the player (the menu, or Home after a save could not be read).
 // Round 2: the camp a new camp replaces is kept (SAVE_KEY-kept…), so starting again loses nothing.

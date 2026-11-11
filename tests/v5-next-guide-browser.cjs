@@ -76,6 +76,8 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
     await page.evaluate(k=>{const s=JSON.parse(localStorage.getItem(k));s.daily={day:9e6,count:1};localStorage.setItem(k,JSON.stringify(s));},KEY);// today's gift taken (it may open once the guide is off)
     await page.reload();await page.waitForSelector('#homePlay:not([hidden])');await page.locator('#homePlay').click();await page.waitForSelector('#home',{state:'hidden'});
     assert.notEqual(await page.locator('#hint').getAttribute('data-kind'),'coach',tag('stays skipped after a reload'));
+    // How to play: in the menu on a phone (Build 57v), at the bottom elsewhere
+    if(await page.locator('#menu #helpButton').count()){await page.locator('#menuButton').click();await page.waitForSelector('#menu[open]');}
     await page.locator('#helpButton').click();await page.locator('#helpReplay').click();
     const replay=await beats();assert.match(replay,/Crew orders pay coins/);assert.match(replay,/gold order pays coins too, and secures the materials/);await fits('help replay');
     // 4. an existing camp played before the guide: no guide
