@@ -95,7 +95,7 @@ body.nextMode :is(textarea,input){-webkit-user-select:text;user-select:text}
 /* a crew order taking long suggests a new one (Audit 2026-10-25) */
 body.nextMode #requests .reqStuck{position:absolute;right:6px;top:-9px;z-index:3;font-style:normal;font-size:9px;font-weight:900;line-height:16px;padding:0 6px;border-radius:999px;background:linear-gradient(#5b9cf6,#3f7be0);color:#fff;box-shadow:0 1px 0 #2c5fb5,0 0 0 1.5px #fff}
 /* ---------- the restoration strip: the board's way to the coast (52–56 px) ---------- */
-body.nextMode .restoreStrip{position:relative;display:flex;align-items:center;width:100%;height:56px;min-height:0;margin:6px 0 0;padding:0;border-style:solid;border-width:0 76px 0 60px;border-image:url('../assets/premium/coast/ui/restore-strip.webp') 0 215 0 170 fill / 0 76px 0 60px stretch;background:none;box-shadow:none;border-radius:0;color:var(--cb-ink);text-align:left;filter:drop-shadow(0 2px 3px #0d5a6a33)}
+body.nextMode .restoreStrip{position:relative;display:flex;align-items:center;width:100%;--sh:56px;height:var(--sh);min-height:0;margin:6px 0 0;padding:0;border-style:solid;border-width:0 calc(var(--sh) * 215 / 159) 0 calc(var(--sh) * 170 / 159);border-image:url('../assets/premium/coast/ui/restore-strip.webp') 0 215 0 170 fill / 0 calc(var(--sh) * 215 / 159) 0 calc(var(--sh) * 170 / 159) stretch;background:none;box-shadow:none;border-radius:0;color:var(--cb-ink);text-align:left;filter:drop-shadow(0 2px 3px #0d5a6a33)}
 body.nextMode .restoreStrip .rsThumb{position:absolute;left:-52.5px;top:5px;width:44px;height:44px;border-radius:50%;overflow:hidden;background:radial-gradient(circle at 50% 35%,#e3f8f8,#9fdde2)}
 body.nextMode .restoreStrip .rsThumb :is(img,.art){width:100%;height:100%;object-fit:cover;transform:scale(1.15)}
 body.nextMode .restoreStrip .rsText{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;padding:0 8px 2px 10px;line-height:1.15}
@@ -537,13 +537,15 @@ body.nextMode #board .tile.coachTarget,body.nextMode #board .tile.coachTo{box-sh
      never below 44 px tiles (app.mjs fitBoard sets --boardFit).
    Presentation only: no rule, economy, energy, save or SDK change. */
 @media(orientation:portrait) and (max-width:699px){
- body.nextMode .game{min-height:0;padding-top:max(4px,env(safe-area-inset-top));padding-bottom:max(6px,env(safe-area-inset-bottom));display:flex;flex-wrap:wrap;align-content:flex-start;column-gap:6px}
- body.nextMode .game>*{flex:0 0 100%;min-width:0}
- /* centred by its margins, so the board's line is always the whole width (nothing joins it) */
- body.nextMode[data-art] #board.board{--bw:min(100%,max(334px,var(--boardFit,100%)));flex:0 0 auto;width:var(--bw);margin-left:calc((100% - var(--bw)) / 2);margin-right:calc((100% - var(--bw)) / 2)}
+ body.nextMode .game{min-height:0;padding-top:max(4px,env(safe-area-inset-top));padding-bottom:max(6px,env(safe-area-inset-bottom));display:grid;grid-template-columns:minmax(0,1fr) auto;align-content:start;column-gap:6px}
+ body.nextMode .game>*{grid-column:1 / -1;min-width:0}
+ /* one column, with the shed and the dock side by side in the row under the board (Build 57w: a grid, not
+    a wrapping flex row, so the free-space tab keeps its own width on the board's rim) */
+ body.nextMode[data-art] #board.board{--bw:min(100%,max(334px,var(--boardFit,100%)));width:var(--bw);justify-self:center}
+ body.nextMode #free.freeTab{justify-self:end;margin-bottom:-3px}
  /* the shed and the dock: one row */
- body.nextMode #shed{flex:1 1 0;margin-top:6px}
- body.nextMode .dock{flex:0 0 auto;margin:6px 0 0;gap:6px;align-items:center;flex-wrap:nowrap}
+ body.nextMode #shed{grid-column:1;margin-top:6px}
+ body.nextMode .dock{grid-column:2;margin:6px 0 0;gap:6px;align-items:center;flex-wrap:nowrap}
  /* the selected thing and the status line float over the bottom of the screen */
  body.nextMode #selection{position:fixed;z-index:30;left:max(10px,env(safe-area-inset-left));right:max(10px,env(safe-area-inset-right));bottom:max(6px,env(safe-area-inset-bottom));max-width:440px;margin:0 auto}
  body.nextMode .message{position:fixed;z-index:31;left:max(10px,env(safe-area-inset-left));right:max(10px,env(safe-area-inset-right));bottom:max(8px,env(safe-area-inset-bottom));width:fit-content;max-width:min(440px,calc(100vw - 20px));margin:0 auto}
@@ -630,7 +632,7 @@ body.nextMode #board .tile.coachTarget,body.nextMode #board .tile.coachTo{box-sh
  /* short screens: the order cards and the strip give up a little height (the board keeps it) */
  body.nextMode header{height:auto;min-height:46px;padding-top:2px}
  body.nextMode #requests .requestCard.requestCard{height:94px}
- body.nextMode .restoreStrip{min-height:0;height:46px}
+ body.nextMode .restoreStrip{--sh:46px}
 }
 @media(orientation:portrait) and (max-width:699px) and (max-height:700px){
  body.nextMode[data-art] #board.board{--bw:min(100%,max(326px,var(--boardFit,100%)));gap:2px}
@@ -650,3 +652,14 @@ body.nextMode #board .tile.coachTarget,body.nextMode #board .tile.coachTo{box-sh
  body.nextMode .orderTools .goldHow[open] .routes{--gw:min(100vw,calc(396px + var(--bs)));left:calc((100vw - var(--gw)) / 2 + max(10px,env(safe-area-inset-left)));right:auto;width:calc(var(--gw) - var(--bs) - 16px - 2 * max(10px,env(safe-area-inset-left)));max-height:calc(100svh - 190px);margin:0}
  body.nextMode .orderTools .goldHow[open] .routes{max-width:none}
 }
+/* ---------- Build 57w (2026-11-11, owner on a real iPhone: "View" overlapped the strip's right border) ----------
+   The strip is one picture (restore-strip.webp, 720 × 159): the place's round picture on the left, a cream
+   panel, and a painted pill in the right end. Its pieces were placed in pixels measured at the 56 px strip,
+   so on the 46 px strip of short phones (Build 57v) the "View" pill kept its 56 px size and position and
+   ran over the gold frame, with the painted pill showing behind it. Now everything is measured on the
+   picture and scales with the strip's height (--sh): the frame's ends, the round picture, and the pill,
+   which covers the painted pill's coral face (picture x 521–713, y 28–129: the face is x 525–705, y 30–127), inside the frame. At
+   56 px the sizes are the same as before. The text ends before the pill; the whole strip stays the button
+   (46 px or more tall). */
+body.nextMode .restoreStrip .rsThumb{left:calc(var(--sh) * -149 / 159);top:calc(var(--sh) * 14 / 159);width:calc(var(--sh) * 125 / 159);height:calc(var(--sh) * 125 / 159)}
+body.nextMode .restoreStrip .rsAction{left:calc(100% + var(--sh) * 16 / 159);top:calc(var(--sh) * 28 / 159);width:calc(var(--sh) * 192 / 159);height:calc(var(--sh) * 101 / 159);font-size:max(11px,calc(var(--sh) * 36 / 159))}

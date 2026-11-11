@@ -5,6 +5,7 @@
 //   orders, the board and the shed row do not overlap;
 // - the gold order's panel opens without pushing the board off the screen, its first line opens the coast,
 //   and "How to make these" opens as a sheet on the screen and closes again;
+// - the restoration strip's View / Build pill sits inside its frame (Build 57w);
 // - a selected part's card, the menu's How to play / sound, and the field ration are on screen;
 // - a part dragged onto its twin in the bottom row merges, one dragged onto the shed is stored (with a
 //   selected part's card showing), and both survive a reload.
@@ -29,7 +30,7 @@ const settle=async page=>{for(let k=0;k<8;k++){await page.waitForTimeout(150);le
 async function fits(page,tag){
  const m=await page.evaluate(()=>{const r=s=>{const e=document.querySelector(s);if(!e||!e.getClientRects().length)return null;const b=e.getBoundingClientRect();return {top:b.top,bottom:b.bottom,left:b.left,right:b.right};};
   const tiles=[...document.querySelectorAll('#board .tile')].map(t=>t.getBoundingClientRect());
-  return {inner:innerHeight,width:innerWidth,scrollH:document.scrollingElement.scrollHeight,scrollW:document.scrollingElement.scrollWidth,header:r('header'),requests:r('#requests'),tools:r('#orderTools:not([hidden])'),board:r('#board'),shed:r('#shed'),dock:r('.dock'),
+  return {inner:innerHeight,width:innerWidth,scrollH:document.scrollingElement.scrollHeight,scrollW:document.scrollingElement.scrollWidth,header:r('header'),requests:r('#requests'),tools:r('#orderTools:not([hidden])'),board:r('#board'),free:r('#free:not([hidden])'),shed:r('#shed'),dock:r('.dock'),
    tiles:tiles.length,minTile:Math.min(...tiles.map(t=>Math.min(t.width,t.height))),tilesOut:tiles.filter(t=>t.top<0||t.bottom>innerHeight+0.5||t.left<0||t.right>innerWidth+0.5).length};});
  assert.ok(m.scrollH<=m.inner+1,`${tag}: the page does not scroll (${m.scrollH} > ${m.inner})`);
  assert.ok(m.scrollW<=m.width+1,`${tag}: no sideways scroll (${m.scrollW} > ${m.width})`);
@@ -42,6 +43,10 @@ async function fits(page,tag){
  for(const k of ['shed','dock']){const b=m[k];assert.ok(b&&b.bottom<=m.inner+0.5&&b.top>=0,`${tag}: the ${k} is on screen`);
   if(portrait)assert.ok(b.top>=m.board.bottom-1,`${tag}: the ${k} is under the board`);
   else assert.ok(b.right<=m.board.left+1,`${tag}: the ${k} is beside the board`);}
+ // the free-space tab is a small tab on the board's bottom-right rim, not a bar over the last row (Build 57w)
+ if(m.free){assert.ok(m.free.right-m.free.left<=(m.board.right-m.board.left)*0.7,`${tag}: the free-space tab is a tab, not a bar (${Math.round(m.free.right-m.free.left)} px)`);
+  assert.ok(m.free.right<=m.board.right+1&&m.free.right>=m.board.right-40,`${tag}: the free-space tab sits at the board's right`);
+  assert.ok(m.free.top>=m.board.bottom-16,`${tag}: the free-space tab is on the board's rim, below its last row`);}
  return m;
 }
 const onScreen=async(page,sel,tag)=>{const b=await page.locator(sel).boundingBox();const vp=page.viewportSize();
@@ -52,6 +57,20 @@ async function drag(page,from,to){
  for(let k=1;k<=8;k++)await page.mouse.move(a.x+a.width/2+(b.x+b.width/2-a.x-a.width/2)*k/8,a.y+a.height/2+(b.y+b.height/2-a.y-a.height/2)*k/8);
  await page.mouse.up();await page.waitForTimeout(250);
 }
+// Build 57w (owner, real iPhone: "View" ran over the strip's right border): the restoration strip's
+// View / Build pill sits inside the strip's painted frame, centred on it, after the place's text; the strip
+// (the button) is 44 px or taller.
+async function stripFits(page,tag,label){
+ const m=await page.evaluate(()=>{const s=document.querySelector('#mapButton'),r=e=>e.getBoundingClientRect();
+  return {strip:r(s),action:r(s.querySelector('.rsAction')),text:r(s.querySelector('.rsText')),label:s.querySelector('.rsAction').textContent,visible:!!s.getClientRects().length};});
+ assert.ok(m.visible,`${tag}: the restoration strip shows`);assert.equal(m.label,label,`${tag}: the strip says ${label}`);
+ const {strip,action,text}=m,frame=strip.height*0.12;
+ assert.ok(strip.height>=44,`${tag}: the strip is a 44 px target (${strip.height})`);
+ assert.ok(action.left>=strip.left&&action.right<=strip.right-1,`${tag}: ${label} inside the strip's ends (${action.left.toFixed(1)}–${action.right.toFixed(1)} in ${strip.left}–${strip.right})`);
+ assert.ok(action.top>=strip.top+frame&&action.bottom<=strip.bottom-frame,`${tag}: ${label} inside the strip's frame (${action.top.toFixed(1)}–${action.bottom.toFixed(1)} in ${strip.top}–${strip.bottom})`);
+ assert.ok(Math.abs((action.top+action.bottom)/2-(strip.top+strip.bottom)/2)<=2,`${tag}: ${label} centred on the strip`);
+ assert.ok(text.right<=action.left+0.5,`${tag}: the place's text ends before ${label} (${text.right} > ${action.left})`);
+}
 const saved=page=>page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
 (async()=>{
  const engines=(process.env.ENGINES||'chromium,webkit').split(',').map(e=>[e,{chromium,webkit,firefox}[e]]);
@@ -59,13 +78,21 @@ const saved=page=>page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
   const browser=await type.launch();
   try{for(const [W,H] of SIZES){
    const tag=`${engine} ${W}×${H}`,shot=s=>page.screenshot({path:path.join(OUT,`${engine}-${W}x${H}-${s}.png`)});
+   // a new camp: the strip says View
+   {const context=await browser.newContext({viewport:{width:W,height:H},isMobile:engine==='chromium',hasTouch:true});
+    const page=await context.newPage();throughHome(page);
+    await page.route(u=>!u.href.startsWith('http://127.0.0.1:'),r=>r.abort());
+    await page.route('https://sdk.crazygames.com/**',r=>r.fulfill({contentType:'application/javascript',body:STUB}));
+    await page.goto(URL);await page.waitForSelector('#board .tile');await settle(page);
+    await fits(page,`${tag} new camp`);await stripFits(page,`${tag} new camp`,'View');
+    await page.screenshot({path:path.join(OUT,`${engine}-${W}x${H}-view.png`)});await context.close();}
    const context=await browser.newContext({viewport:{width:W,height:H},isMobile:engine==='chromium',hasTouch:true});
    const page=await context.newPage(),errors=[];throughHome(page);page.on('pageerror',e=>errors.push(e.message));
    await page.route(u=>!u.href.startsWith('http://127.0.0.1:'),r=>r.abort());
    await page.route('https://sdk.crazygames.com/**',r=>r.fulfill({contentType:'application/javascript',body:STUB}));
    await page.addInitScript(([k,v])=>{if(!sessionStorage.vpSeeded){localStorage.setItem(k,v);localStorage.setItem('vaultwake-v5-coast-story','{"intro":"skip"}');sessionStorage.vpSeeded='1';}},[KEY,JSON.stringify(camp)]);
    await page.goto(URL);await page.waitForSelector('#board .tile');await settle(page);
-   await fits(page,`${tag} board`);await shot('board');
+   await fits(page,`${tag} board`);await stripFits(page,`${tag} ready stage`,'Build');await shot('board');
    // the field ration (energy is low in this camp) stands on screen beside the guidance line
    if(await page.locator('#rationButton:not([hidden])').count())await onScreen(page,'#rationButton',`${tag} ration`);
    // the gold order's panel
