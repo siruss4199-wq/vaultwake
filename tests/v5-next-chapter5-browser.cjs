@@ -37,7 +37,8 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
     if(r.width&&r.right>vw+1&&getComputedStyle(e).display!=='none')past.push(`${e.tagName.toLowerCase()}${e.id?'#'+e.id:''}${[...e.classList].map(c=>'.'+c).join('')}<${e.parentElement?.tagName.toLowerCase()}> ${Math.round(r.left)}..${Math.round(r.right)} ${getComputedStyle(e).position}`);}
     return {doc:document.documentElement.scrollWidth,vw,past:past.slice(0,20)};});
     assert.ok(o.doc<=o.vw+1,tag(`${what}: no sideways scroll (${o.doc} > ${o.vw}); past the edge: ${o.past.join(' | ')}`));};
-   const openMap=async()=>{if(!(await page.locator('#coastMap[open]').count())){await page.locator('#mapButton').click();await page.waitForSelector('#coastMap[open]');}};
+   // on a phone an open gold order's panel stands where the strip was; its first line opens the coast (Build 57v)
+   const openMap=async()=>{if(!(await page.locator('#coastMap[open]').count())){if(await page.locator('#mapButton').isVisible())await page.locator('#mapButton').click();else await page.locator('#orderTools [data-open-map]').click();await page.waitForSelector('#coastMap[open]');}};
    await page.goto(URL+'?new=1');await page.waitForSelector('#board .tile');await beats();
    // a camp at the end of Chapter 4, as build 49a saved it: still on the headland, its end card seen or not
    await write(`Object.assign(s,{area:5,built:arg[0],materials:{...arg[0]},coins:950,moves:8000,ordersDone:700,energy:141,level:{version:1,level:29,xp:7},capPaid:100,daily:{day:9e6,count:1},

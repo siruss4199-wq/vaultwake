@@ -152,13 +152,16 @@ async function run(engine,W,H,motion){
    await page.waitForFunction(()=>/board is full/i.test(document.querySelector('#message').textContent),null,{timeout:3000});assert.equal((await read(page)).energy,before);}
 
   // Sound and vibration: separate settings; the vibration one only where the browser has it.
-  {const vib=await page.evaluate(()=>typeof navigator.vibrate==='function');
+  // On a phone they are in the menu (Build 57v: the game fits the screen), elsewhere at the bottom.
+  {const vib=await page.evaluate(()=>typeof navigator.vibrate==='function'),inMenu=await page.locator('#menu #soundButton').count()>0;
+   if(inMenu){await page.locator('#menuButton').click();await page.waitForSelector('#menu[open]');}
    assert.equal(await page.locator('#hapticsButton').isVisible(),vib,`${tag}: vibration setting only where supported`);
    if(vib){await page.locator('#hapticsButton').click();assert.equal(await page.evaluate(()=>localStorage.getItem('vaultwake-haptics')),'off');assert.match(await page.locator('#hapticsButton').textContent(),/off/);await page.locator('#hapticsButton').click();}
    const sound=await page.locator('#soundButton').textContent();await page.locator('#soundButton').click();
    assert.notEqual(await page.locator('#soundButton').textContent(),sound);assert.equal(await page.evaluate(()=>localStorage.getItem('vaultwake-sound')),sound==='Sound on'?'off':'on');
    if(sound==='Sound off')await page.locator('#soundButton').click();
    else await page.locator('#soundButton').click();
+   if(inMenu)await page.locator('#menu .close').click();
    // Rapid play: a second merge cue inside 45 ms is dropped, not stacked.
    const plays=await page.evaluate(async()=>{const {sfx}=await import('/v5/next/sfx.mjs');if(!sfx.enabled())sfx.toggle();return [sfx.play('merge',1),sfx.play('merge',1),sfx.play('produce'),sfx.play('nonsense')];});
    if(plays[0])assert.deepEqual(plays,[true,false,true,false],`${tag}: repeats are throttled`);}

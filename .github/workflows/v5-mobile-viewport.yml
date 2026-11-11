@@ -1,0 +1,70 @@
+name: Vaultwake Merge mobile viewport (Coast Camp)
+# Build 57v (P0 2026-11-11): the game fits a phone screen with no page scroll. Runs the Coast Camp unit
+# tests and browser suites, plus tests/v5-next-viewport-browser.cjs (360×640 … 430×932 and short
+# landscape), in Chromium and WebKit. The live Basic Launch ZIP in release/crazygames-basic/ is not
+# rebuilt here.
+on:
+  push:
+    branches: [claude/v5-mobile-viewport-fix]
+  pull_request:
+    branches: [claude/v5-crazygames-release-package]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  coast:
+    name: Coast Camp on phones (Chromium and WebKit)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Unit and simulation tests
+        run: node --test tests/v5-*.test.mjs
+      - name: Coast Camp modules and CrazyGames page
+        run: |
+          node --check v5/next/app.mjs
+          node tools/coast-crazygames.mjs --check
+      - name: Install browsers
+        run: npm install --no-save playwright@1.62.1 && npx playwright install --with-deps chromium webkit
+      - name: Phone viewport regression (no page scroll, whole board, gold panel, drag, reload)
+        run: |
+          (python3 -m http.server 8080 > /tmp/coast-http.log 2>&1 &) ; sleep 1
+          node tests/v5-next-viewport-browser.cjs
+      - name: Coast Camp browser suites
+        if: ${{ !cancelled() }}
+        run: |
+          (python3 -m http.server 8080 > /tmp/coast-http.log 2>&1 &) ; sleep 1
+          node tests/v5-next-browser.cjs
+          node tests/v5-next-playtest-browser.cjs
+          node tests/v5-next-bright-browser.cjs
+          node tests/v5-next-crazygames-browser.cjs
+          node tests/v5-next-crazygames-save-browser.cjs
+          node tests/v5-next-home-browser.cjs
+          node tests/v5-next-story-browser.cjs
+          node tests/v5-next-guide-browser.cjs
+          node tests/v5-next-rewards-browser.cjs
+          node tests/v5-next-saves-browser.cjs
+          node tests/v5-next-extras-browser.cjs
+          node tests/v5-next-energy-browser.cjs
+          node tests/v5-next-rare-merges-browser.cjs
+          node tests/v5-next-ch1-rare-browser.cjs
+          node tests/v5-next-chapter4-browser.cjs
+          node tests/v5-next-chapter5-browser.cjs
+          node tests/v5-next-chapter6-browser.cjs
+          node tests/v5-next-chapter3-browser.cjs
+          node tests/v5-next-chapter2-browser.cjs
+      - name: Phone screenshots
+        if: ${{ !cancelled() }}
+        # artifact storage has been over quota (test.yml): a failed upload does not fail the run
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: vaultwake-mobile-viewport-${{ github.sha }}
+          path: test-artifacts/v5/viewport/
+          retention-days: 30
