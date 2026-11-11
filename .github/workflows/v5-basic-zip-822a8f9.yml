@@ -1,16 +1,27 @@
-name: Vaultwake Merge Basic ZIP update from 822a8f9 (build + test the ZIP itself)
+name: Vaultwake Merge Basic ZIP QA from 822a8f9 (build + test the ZIP itself)
 # Owner (2026-11-11): prepare the updated CrazyGames Basic Launch ZIP from claude/v5-order-details-sheet @ 822a8f9
 # (Order Details sheet, Build/Details SDK fix, tap flicker fix, sticky coast ×). This checks out exactly that commit,
-# builds the ZIP with the release tool, requires the same SHA-256 as the local build, extracts it and runs the
-# browser tests against the ZIP's own index.html in Chromium and WebKit, then uploads the ZIP. It does not upload
-# anything to CrazyGames and does not touch release/crazygames-basic/ (the live 664956e package).
+# builds the ZIP with the release tool, requires the SHA-256 of the local build, extracts it and runs the browser
+# tests against the ZIP's own index.html in Chromium and WebKit (payload also in Firefox). The ZIP is uploaded only
+# when every step passed. Nothing is uploaded to CrazyGames; release/crazygames-basic/ (live 664956e) is not touched.
+#
+# CI fix (2026-11-11): `npx playwright install --with-deps` hung for 50+ minutes in every run: its apt-get could not
+# resolve the Ubuntu mirrors on the runner ("Temporary failure resolving 'azure.archive.ubuntu.com' /
+# 'archive.ubuntu.com' / 'security.ubuntu.com'") and apt retries each package without failing. The job now runs in
+# the official Playwright image for the pinned version, which already has Chromium, WebKit, Firefox and their system
+# libraries: no apt, no browser download. The image has no python3/unzip, so two dependency-free Node helpers serve
+# and extract the ZIP (tools/ci-static-server.mjs, tools/ci-unzip.mjs, checked out from this branch). One run at a
+# time (concurrency), short step timeouts, fail fast.
 on:
+  workflow_dispatch:
   push:
     branches: [claude/v5-order-details-sheet]
-    paths: ['.github/workflows/v5-basic-zip-822a8f9.yml']
-  workflow_dispatch:
+    paths: ['.github/workflows/v5-basic-zip-822a8f9.yml', 'tools/ci-unzip.mjs', 'tools/ci-static-server.mjs']
 permissions:
   contents: read
+concurrency:
+  group: v5-basic-zip-822a8f9
+  cancel-in-progress: true
 env:
   SOURCE: 822a8f9d85f209fd389ccee3a92b0b710b943251
   EXPECTED_SHA256: b160a59a9f0ac9ff78fe968b638433ea104bf7fde6363667528d4365e067e890
@@ -19,36 +30,63 @@ jobs:
   zip:
     name: Build the Basic ZIP from 822a8f9 and test its index.html (Chromium and WebKit)
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 45
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      options: --ipc=host
+    env:
+      HOME: /root # Firefox (payload check) refuses a HOME it does not own when run as root in the container
+    defaults:
+      run:
+        shell: bash
     steps:
-      - uses: actions/checkout@v4
+      - name: Game source at 822a8f9
+        uses: actions/checkout@v4
         with:
           ref: ${{ env.SOURCE }}
-      - uses: actions/setup-node@v4
+          path: src
+      - name: CI helpers from this branch
+        uses: actions/checkout@v4
         with:
-          node-version: '22'
+          path: ci
+          sparse-checkout: tools
+      - name: Toolchain in the image (no apt, no browser download)
+        timeout-minutes: 3
+        run: |
+          git config --global --add safe.directory '*'
+          test "$(git -C src rev-parse HEAD)" = "$SOURCE"
+          node --version
+          ls /ms-playwright
       - name: Unit and simulation tests at 822a8f9
+        timeout-minutes: 8
+        working-directory: src
+        run: node --test tests/v5-*.test.mjs
+      - name: Build the ZIP (node tools/coast-crazygames.mjs --zip), check its SHA-256, extract it
+        timeout-minutes: 5
+        working-directory: src
         run: |
-          test "$(git rev-parse HEAD)" = "$SOURCE"
-          node --test tests/v5-*.test.mjs
-      - name: Build the ZIP (node tools/coast-crazygames.mjs --zip) and check its SHA-256
-        run: |
-          set -euo pipefail
           node tools/coast-crazygames.mjs --check
           node tools/coast-crazygames.mjs --zip
           mkdir -p out && cp dist/vaultwake-coast-crazygames.zip "out/$ZIP_NAME"
-          (cd out && sha256sum "$ZIP_NAME" | tee SHA256SUMS && stat -c '%s bytes' "$ZIP_NAME")
+          (cd out && sha256sum "$ZIP_NAME" | tee SHA256SUMS && echo "$(stat -c %s "$ZIP_NAME") bytes")
           echo "$EXPECTED_SHA256  out/$ZIP_NAME" | sha256sum -c
-          mkdir -p /tmp/zip && unzip -q "out/$ZIP_NAME" -d /tmp/zip && unzip -l "out/$ZIP_NAME" | tail -1
-          echo "source_commit=$SOURCE" > out/SOURCE_COMMIT.txt
-      - name: Install browsers
-        run: npm install --no-save playwright@1.62.1 && npx playwright install --with-deps chromium webkit firefox
+          printf 'source_commit=%s\nbranch=claude/v5-order-details-sheet\nbuild=node tools/coast-crazygames.mjs --zip\nstatus=QA candidate, not uploaded to CrazyGames\n' "$SOURCE" > out/SOURCE_COMMIT.txt
+          node ../ci/tools/ci-unzip.mjs "out/$ZIP_NAME" /tmp/zip
+          test -f /tmp/zip/index.html
+      - name: Playwright 1.62.1 package (browsers come with the image)
+        timeout-minutes: 4
+        working-directory: src
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.62.1
+          node -e "const p=require('playwright');console.log('playwright',require('playwright/package.json').version,p.chromium.executablePath(),p.webkit.executablePath())"
       - name: The ZIP's index.html in Chromium and WebKit (Build, Deliver, Merge, Details, shed, coast ×, flicker, SDK, save/reload)
+        timeout-minutes: 30
+        working-directory: src
         env:
           CG_URL: http://127.0.0.1:8081/index.html
         run: |
-          set -eo pipefail
-          (cd /tmp/zip && python3 -m http.server 8081 > /tmp/zip-http.log 2>&1 &) ; sleep 1
+          (node ../ci/tools/ci-static-server.mjs /tmp/zip 8081 > /tmp/zip-http.log 2>&1 &)
+          for i in $(seq 1 30); do node -e "fetch('http://127.0.0.1:8081/index.html').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))" && break; sleep 1; done
           node tests/v5-next-build-flow-browser.cjs
           node tests/v5-next-core-actions-browser.cjs
           node tests/v5-next-sdk-not-ready-browser.cjs
@@ -58,17 +96,18 @@ jobs:
           node tests/v5-next-crazygames-save-browser.cjs
           node tests/v5-next-crazygames-browser.cjs
           node tests/v5-next-crazygames-payload-browser.cjs | tee out/initial-download.jsonl
-      - name: Upload the ZIP
+      - name: Upload the ZIP (only when every step passed)
         if: ${{ success() }}
         uses: actions/upload-artifact@v4
         with:
           name: vaultwake-merge-crazygames-basic-822a8f9
-          path: out/
+          path: src/out/
           retention-days: 90
       - name: Upload test screenshots
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
           name: zip-test-screenshots-822a8f9
-          path: test-artifacts/
+          path: src/test-artifacts/
           retention-days: 14
+          if-no-files-found: ignore
