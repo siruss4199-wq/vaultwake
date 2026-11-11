@@ -1,0 +1,73 @@
+name: Vaultwake Merge Basic ZIP update from 822a8f9 (build + test the ZIP itself)
+# Owner (2026-11-11): prepare the updated CrazyGames Basic Launch ZIP from claude/v5-order-details-sheet @ 822a8f9
+# (Order Details sheet, Build/Details SDK fix, tap flicker fix, sticky coast ×). This checks out exactly that commit,
+# builds the ZIP with the release tool, requires the same SHA-256 as the local build, extracts it and runs the
+# browser tests against the ZIP's own index.html in Chromium and WebKit, then uploads the ZIP. It does not upload
+# anything to CrazyGames and does not touch release/crazygames-basic/ (the live 664956e package).
+on:
+  push:
+    branches: [claude/v5-order-details-sheet]
+    paths: ['.github/workflows/v5-basic-zip-822a8f9.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+env:
+  SOURCE: 822a8f9d85f209fd389ccee3a92b0b710b943251
+  EXPECTED_SHA256: b160a59a9f0ac9ff78fe968b638433ea104bf7fde6363667528d4365e067e890
+  ZIP_NAME: vaultwake-merge-crazygames-basic-822a8f9.zip
+jobs:
+  zip:
+    name: Build the Basic ZIP from 822a8f9 and test its index.html (Chromium and WebKit)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.SOURCE }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Unit and simulation tests at 822a8f9
+        run: |
+          test "$(git rev-parse HEAD)" = "$SOURCE"
+          node --test tests/v5-*.test.mjs
+      - name: Build the ZIP (node tools/coast-crazygames.mjs --zip) and check its SHA-256
+        run: |
+          set -euo pipefail
+          node tools/coast-crazygames.mjs --check
+          node tools/coast-crazygames.mjs --zip
+          mkdir -p out && cp dist/vaultwake-coast-crazygames.zip "out/$ZIP_NAME"
+          (cd out && sha256sum "$ZIP_NAME" | tee SHA256SUMS && stat -c '%s bytes' "$ZIP_NAME")
+          echo "$EXPECTED_SHA256  out/$ZIP_NAME" | sha256sum -c
+          mkdir -p /tmp/zip && unzip -q "out/$ZIP_NAME" -d /tmp/zip && unzip -l "out/$ZIP_NAME" | tail -1
+          echo "source_commit=$SOURCE" > out/SOURCE_COMMIT.txt
+      - name: Install browsers
+        run: npm install --no-save playwright@1.62.1 && npx playwright install --with-deps chromium webkit
+      - name: The ZIP's index.html in Chromium and WebKit (Build, Deliver, Merge, Details, shed, coast ×, flicker, SDK, save/reload)
+        env:
+          CG_URL: http://127.0.0.1:8083/index.html
+        run: |
+          (cd /tmp/zip && python3 -m http.server 8083 > /tmp/zip-http.log 2>&1 &) ; sleep 1
+          node tests/v5-next-build-flow-browser.cjs
+          node tests/v5-next-core-actions-browser.cjs
+          node tests/v5-next-sdk-not-ready-browser.cjs
+          node tests/v5-next-tap-flicker-browser.cjs
+          node tests/v5-next-coast-back-browser.cjs
+          node tests/v5-next-strip-tap-browser.cjs
+          node tests/v5-next-crazygames-save-browser.cjs
+          node tests/v5-next-crazygames-browser.cjs
+          node tests/v5-next-crazygames-payload-browser.cjs
+      - name: Upload the ZIP
+        if: ${{ success() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: vaultwake-merge-crazygames-basic-822a8f9
+          path: out/
+          retention-days: 90
+      - name: Upload test screenshots
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: zip-test-screenshots-822a8f9
+          path: test-artifacts/
+          retention-days: 14
