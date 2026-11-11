@@ -42,12 +42,12 @@ jobs:
           mkdir -p /tmp/zip && unzip -q "out/$ZIP_NAME" -d /tmp/zip && unzip -l "out/$ZIP_NAME" | tail -1
           echo "source_commit=$SOURCE" > out/SOURCE_COMMIT.txt
       - name: Install browsers
-        run: npm install --no-save playwright@1.62.1 && npx playwright install --with-deps chromium webkit
+        run: npm install --no-save playwright@1.62.1 && npx playwright install --with-deps chromium webkit firefox
       - name: The ZIP's index.html in Chromium and WebKit (Build, Deliver, Merge, Details, shed, coast ×, flicker, SDK, save/reload)
         env:
-          CG_URL: http://127.0.0.1:8083/index.html
+          CG_URL: http://127.0.0.1:8081/index.html
         run: |
-          (cd /tmp/zip && python3 -m http.server 8083 > /tmp/zip-http.log 2>&1 &) ; sleep 1
+          (cd /tmp/zip && python3 -m http.server 8081 > /tmp/zip-http.log 2>&1 &) ; sleep 1
           node tests/v5-next-build-flow-browser.cjs
           node tests/v5-next-core-actions-browser.cjs
           node tests/v5-next-sdk-not-ready-browser.cjs
@@ -56,7 +56,7 @@ jobs:
           node tests/v5-next-strip-tap-browser.cjs
           node tests/v5-next-crazygames-save-browser.cjs
           node tests/v5-next-crazygames-browser.cjs
-          node tests/v5-next-crazygames-payload-browser.cjs
+          node tests/v5-next-crazygames-payload-browser.cjs | tee out/initial-download.jsonl
       - name: Upload the ZIP
         if: ${{ success() }}
         uses: actions/upload-artifact@v4
