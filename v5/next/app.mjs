@@ -39,7 +39,8 @@ function moment(title,detail='',x=null){sharedMoment(title,detail,null);const el
 // Game sounds go through sfx: silent while an ad plays or when CrazyGames mutes the game
 // (Build 41 M7), without touching the player's own sound setting.
 let adPlaying=false;
-const sfx=(kind,tier=0)=>sounds.play(kind,tier,{muted:adPlaying||platform.muted()});
+// A sound never stops the action that plays it (Build 57y: a throwing SDK getter made the strip and Details dead).
+const sfx=(kind,tier=0)=>{try{return sounds.play(kind,tier,{muted:adPlaying||platform.muted()});}catch{return false;}};
 // Shown in the footer so a playtester can tell which build is running.
 export const BUILD='Build 52A4 · harder orders from stage 3, crates give wanted parts, Tide token always usable';
 // The level path (docs/V5_LEVEL_PATH_2026-10-27.md): a crew order that pays a tool on top shows it

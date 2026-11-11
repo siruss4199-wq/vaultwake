@@ -105,6 +105,53 @@ All four sizes pass (360×640, 390×664, 390×844, 430×932), with finger taps.
 - `2-build-workflow-390x664.jpg`: the six steps of the Build workflow.
 - `focus-<size>.jpg` and `sheet-<size>.jpg`: each size, order tapped and Details open.
 
+## P0: Build and Details did nothing on the owner's iPhone (Cloudflare preview), root cause and fix
+
+**Report** (PR #103, 2026-11-11): on the real iPhone preview of `coast-crazygames.html`, the strip read "Ready to build · Lay a boardwalk · 70" with an orange Build pill. Tapping Build did nothing, and the teal Details pill did nothing either. The earlier 57x report ("Ready to build does not open") was the same failure.
+
+**Root cause, verified with the real SDK.**
+- **The page loads the real CrazyGames HTML5 SDK v3** (`sdk.crazygames.com/crazygames-sdk-v3.js`). That SDK makes its modules (`SDK.game`, `ad`, `data`, `user`, `banner`, `analytics`) *getters that throw*:
+  - `sdkNotInitialized` while it is not initialised;
+  - `sdkDisabled` on a domain that is not CrazyGames. The disabled class is `get game(){throw new h(this.code,this.message)}`.
+- **The preview never initialises it.** On `*.pages.dev`, `SDK.environment` stays `uninitialized`.
+- **Every sound read `SDK.game`.** The app's `sfx()` calls `platform.muted()`, which reads `sdk()?.game?.settings?.muteAudio` (`platform-cg.mjs`). Optional chaining does not catch a throwing getter.
+- **Both controls play a sound before acting:**
+  - the strip: `sfx('tap')` then `showMap()`;
+  - Details: `sfx('tap')` then `setDetails(true)`.
+
+  So the tap threw "Uncaught [object Object]" and did nothing.
+- **Why the tests missed it:** their stand-in SDKs never throw.
+- **Why the hit target was not the cause:**
+  - Under the finger at the visible centre of Build is `span.rsAction` inside `button#mapButton` (WebKit and Chromium). The pill sits in the strip's own border box.
+  - Under Details is the button itself.
+- **Live CrazyGames:** the SDK initialises before the board is shown, so this is not normally reached there. A tap before initialisation finishes (for example a slow init past the 25 s save timeout) would have hit the same throw.
+
+**Reproduced with the real SDK file**, served on a fake `*.pages.dev` host, at 390×664 with finger taps:
+
+| | Build pill → coast | Details → sheet |
+|---|---|---|
+| Before | not opened | not opened |
+| After | opened | opened |
+
+The page errors went from two "Uncaught [object Object]" to none. Evidence: `docs/evidence/v5-order-sheet-2026-11-11/3-real-sdk-preview-before-after.jpg`.
+
+**Fix (focused):**
+- **`v5/next/platform-cg.mjs`:**
+  - `muted()` reads the SDK only when it reports `crazygames` (or `local`), inside a try, and is otherwise not muted;
+  - `onMuteChange()` does its check inside its try.
+- **`v5/next/app.mjs`:** `sfx()` can never throw, so a sound never stops the action that plays it.
+- **Unchanged:** the CrazyGames mute setting is still followed when the SDK runs. No rule, save or Build-handler change.
+
+**Regression tests:**
+- `tests/v5-next-sdk-not-ready-browser.cjs`: a stand-in that throws exactly as the real SDK does, in both states, at 390×664 and 360×640, Chromium and WebKit, with finger taps at the visible centre of each control. The element under the finger is checked. It covers:
+  - Build pill → coast → Build (120 coins once, stage 1 → 2);
+  - Details → sheet → ✕;
+  - a generator and a merge (both play sounds);
+  - a reload.
+
+  It times out on the old code and passes now.
+- `tests/v5-next-sdk-not-ready.test.mjs`: `platform.muted()` and `onMuteChange()` never throw.
+
 ## Not verified
 
 - **A real iPhone or Android phone,** including Safari's toolbar and the CrazyGames wrapper. The owner's real-device PASS is required before any upload.
