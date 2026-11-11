@@ -84,7 +84,7 @@ All four sizes pass (360×640, 390×664, 390×844, 430×932), with finger taps.
 - `v5-next-ch1-rare-browser.cjs`
 - `v5-next-rare-merges-browser.cjs`, which also closes the sheet before dragging on the board, as a player would.
 
-**Unit tests:** `node --test tests/v5-*.test.mjs` gives 465 pass, 0 fail.
+**Unit tests:** `node --test tests/v5-*.test.mjs` gives 466 pass, 0 fail.
 
 **WebKit** cannot be installed in this dev container, so it runs in CI: `.github/workflows/v5-order-sheet.yml` (Chromium and WebKit, every test above).
 
@@ -155,4 +155,4 @@ The page errors went from two "Uncaught [object Object]" to none. Evidence: `doc
 ## Not verified
 
 - **A real iPhone or Android phone,** including Safari's toolbar and the CrazyGames wrapper. The owner's real-device PASS is required before any upload.
-- **The owner's earlier report** that "Ready to build" did not open on 57x is not reproduced: Chromium and WebKit (iPhone 13 profile, finger taps) pass. It must be rechecked on the phone with this build.
+- **The owner's earlier report** that "Ready to build" did not open on 57x is explained by the P0 root cause above. The SDK stand-in in `v5-next-strip-tap-browser.cjs` did not throw, so it passed. It must be rechecked on the phone with this build.
