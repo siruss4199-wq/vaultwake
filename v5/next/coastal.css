@@ -523,3 +523,29 @@ body.nextMode #board .tile.coachTarget,body.nextMode #board .tile.coachTo{box-sh
 }
 @keyframes coachTap{0%,100%{transform:translateY(7px) scale(1)}45%{transform:translateY(0) scale(.94)}}
 @keyframes coachHandDrag{0%,15%{transform:translate(0,0)}75%,100%{transform:translate(var(--dx,0),var(--dy,0))}}
+/* ---------- Build 57x (2026-11-11, owner on a real iPhone): two empty vertical spaces ----------
+   Built on 664956e/e6eddf6 (the live Basic Launch layout); nothing from the rejected 57v/57w.
+   1. The guidance line under the restoration strip kept its 28 px height and 3 px margin while both of
+      its buttons were hidden (the hint hides itself when it would repeat the strip's "upgrade" or the
+      order card's "deliver"; Skip guide is hidden once the guide is over): 33 px of empty space between
+      the strip and the board. It now takes no space when nothing in it shows, and the board sits 8 px
+      under the strip. A shown hint (the guide, energy, space…) keeps its line as before. */
+body.nextMode .boardHeading:is(:has(#hint[data-kind="upgrade"]),:has(#hint[data-kind="deliver"])):has(#coachSkip[hidden]){display:none}
+body.nextMode[data-art] .boardHeading:is(:has(#hint[data-kind="upgrade"]),:has(#hint[data-kind="deliver"])):has(#coachSkip[hidden])+#board.board{margin-top:8px}
+/* 2. The gold order's panel on a phone (176 px tall at every phone width): the stage and the coins, with
+      "How to make these" beside them instead of on a 44 px line of its own; each material as its picture
+      and count (its name stays in the chip's label, and its picture is the one on the order card above);
+      less padding. A rare or not-yet-open material keeps its words. Open, "How to make these" lists the
+      chains under the materials as before. Nothing is clipped: lines wrap, and every button stays 44 px. */
+@media(max-width:699px){
+ body.nextMode #orderTools:has(>.goldSay){flex-direction:row;flex-wrap:wrap;align-items:center;gap:2px 8px;margin-top:4px;padding:4px 8px}
+ body.nextMode .orderTools .goldSay{order:0;flex:1 1 0;min-width:0}
+ body.nextMode .orderTools .goldSay small{line-height:1.25}
+ body.nextMode .orderTools .goldHow{order:1;flex:none}
+ body.nextMode .orderTools .goldHow summary{min-height:44px;padding:0 12px;border-radius:999px;background:#d9f4f2;box-shadow:inset 0 0 0 1.5px #2fb3a6;font-size:12px;white-space:nowrap}
+ body.nextMode .orderTools .goldHow[open]{order:3;flex:1 1 100%}
+ body.nextMode .orderTools .goldHow[open] summary{width:fit-content;margin-left:auto}
+ body.nextMode .orderTools .goldRow{order:2;flex:1 1 100%;margin-top:0}
+ body.nextMode .orderTools .goldNeed:not(.wide) .goldText b{font-size:0}
+ body.nextMode .orderTools .goldNeed:not(.wide) .goldText b em{margin-left:0;font-size:13px}
+}
