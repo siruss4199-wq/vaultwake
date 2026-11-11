@@ -1,7 +1,7 @@
 name: Vaultwake CrazyGames release candidate package
 on:
   push:
-    branches: [codex/v5-order-economy-recipe-fix, codex/v5-release-qa, codex/v5-first-session-energy-balance, codex/v5-mobile-first-session-final-qa]
+    branches: [codex/v5-order-economy-recipe-fix, codex/v5-release-qa, codex/v5-first-session-energy-balance, codex/v5-mobile-first-session-final-qa, claude/v5-crazygames-release-package]
   pull_request:
     branches: [codex/v5-order-economy-recipe-fix, claude/v5-vault-art-integration, codex/v5-first-session-energy-balance]
 
@@ -48,6 +48,7 @@ jobs:
           python3 -m http.server 8081 --directory /tmp/vaultwake-package > /tmp/vaultwake-package-http.log 2>&1 &
           sleep 1
           node tests/v5-next-crazygames-browser.cjs
+          node tests/v5-next-crazygames-save-browser.cjs
       - name: Measure extracted Basic initial download
         env:
           CG_URL: http://127.0.0.1:8081/index.html

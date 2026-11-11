@@ -1,0 +1,3044 @@
+{
+ "retrieved": "2026-11-08",
+ "note": "Raw query results captured from the official search back-ends during the 2026-11-08 search; hit lists trimmed to mark, status, classes and owner.",
+ "uspto": {
+  "endpoint": "https://tmsearch.uspto.gov/prod-stage-v1-0-0/tmsearch (the back-end of https://tmsearch.uspto.gov)",
+  "queries": {
+   "exact_vaultwake": {
+    "query": {
+     "match_phrase": {
+      "WM": "vaultwake"
+     }
+    },
+    "total": 0,
+    "hits": []
+   },
+   "exact_vaultwake_merge": {
+    "query": {
+     "match_phrase": {
+      "WM": "vaultwake merge"
+     }
+    },
+    "total": 0,
+    "hits": []
+   },
+   "phrase_vault_wake": {
+    "query": {
+     "match_phrase": {
+      "WM": "vault wake"
+     }
+    },
+    "total": 0,
+    "hits": []
+   },
+   "fuzzy2_vaultwake": {
+    "query": {
+     "fuzzy": {
+      "WM": {
+       "value": "vaultwake",
+       "fuzziness": 2
+      }
+     }
+    },
+    "total": 9,
+    "hits": [
+     {
+      "serial": "76413061",
+      "mark": "VAULTWARE",
+      "live": false,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Realty DataTrust Corporation (CORPORATION; ARIZONA, USA)"
+     },
+     {
+      "serial": "86480191",
+      "mark": "VAULTWARE",
+      "live": false,
+      "registered": true,
+      "classes": [
+       "IC 042"
+      ],
+      "owner": "MRI Software LLC (LIMITED LIABILITY COMPANY; DELAWARE, USA)"
+     },
+     {
+      "serial": "75576397",
+      "mark": "VAULTWARE",
+      "live": false,
+      "registered": false,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "U.S. Municipal Products, LLC (LIMITED LIABILITY COMPANY; MISSOURI, USA)"
+     },
+     {
+      "serial": "88695462",
+      "mark": "VAULTSAFE",
+      "live": false,
+      "registered": false,
+      "classes": [
+       "IC 028"
+      ],
+      "owner": "Vault Safe, Inc. (CORPORATION; VIRGIN ISLANDS, U.S., USA)"
+     },
+     {
+      "serial": "78619322",
+      "mark": "VAULTSAFE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 011"
+      ],
+      "owner": "Val-Matic Valve and Manufacturing Corporation (CORPORATION; ILLINOIS, USA)"
+     },
+     {
+      "serial": "87490700",
+      "mark": "VAULTPAK",
+      "live": false,
+      "registered": false,
+      "classes": [
+       "IC 016"
+      ],
+      "owner": "WestRock Packaging Systems, LLC (LIMITED LIABILITY COMPANY; DELAWARE, USA)"
+     },
+     {
+      "serial": "85134639",
+      "mark": "VAULTAGE",
+      "live": false,
+      "registered": false,
+      "classes": [
+       "IC 039"
+      ],
+      "owner": "Steinfield, Gary (INDIVIDUAL; USA)"
+     },
+     {
+      "serial": "90274607",
+      "mark": "M.O.T.M. VAULTAGE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 041"
+      ],
+      "owner": "Matters of the Mind, LLC (LIMITED LIABILITY COMPANY; MARYLAND, USA)"
+     },
+     {
+      "serial": "90977597",
+      "mark": "M.O.T.M. VAULTAGE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 044",
+       "IC 045"
+      ],
+      "owner": "Matters of the Mind, LLC (LIMITED LIABILITY COMPANY; MARYLAND, USA)"
+     }
+    ]
+   },
+   "wildcard_vaultwake": {
+    "query": {
+     "wildcard": {
+      "WM": {
+       "value": "*vaultwake*"
+      }
+     }
+    },
+    "total": 0,
+    "hits": []
+   },
+   "wildcard_vault_wake_joined": {
+    "query": {
+     "wildcard": {
+      "WM": {
+       "value": "*vault*wake*"
+      }
+     }
+    },
+    "total": 0,
+    "hits": []
+   },
+   "prefix_vaultw": {
+    "query": {
+     "prefix": {
+      "WM": "vaultw"
+     }
+    },
+    "total": 11,
+    "hits": [
+     {
+      "serial": "75576397",
+      "mark": "VAULTWARE",
+      "live": false,
+      "registered": false,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "U.S. Municipal Products, LLC (LIMITED LIABILITY COMPANY; MISSOURI, USA)"
+     },
+     {
+      "serial": "85575248",
+      "mark": "VAULTWORTHY",
+      "live": false,
+      "registered": true,
+      "classes": [
+       "IC 039",
+       "IC 042"
+      ],
+      "owner": "Vaultworthy, LLC (LIMITED LIABILITY COMPANY; ILLINOIS, USA)"
+     },
+     {
+      "serial": "76413061",
+      "mark": "VAULTWARE",
+      "live": false,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Realty DataTrust Corporation (CORPORATION; ARIZONA, USA)"
+     },
+     {
+      "serial": "85643433",
+      "mark": "VAULTWORKS",
+      "live": false,
+      "registered": true,
+      "classes": [
+       "IC 042"
+      ],
+      "owner": "Spear Marketing, Inc. (CORPORATION; TEXAS, USA)"
+     },
+     {
+      "serial": "86480191",
+      "mark": "VAULTWARE",
+      "live": false,
+      "registered": true,
+      "classes": [
+       "IC 042"
+      ],
+      "owner": "MRI Software LLC (LIMITED LIABILITY COMPANY; DELAWARE, USA)"
+     },
+     {
+      "serial": "50009189",
+      "mark": "VAULTWYN",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 036"
+      ],
+      "owner": "VaultWyn LLC (LIMITED LIABILITY COMPANY; New Jersey, USA)"
+     },
+     {
+      "serial": "97338711",
+      "mark": "THE VAULTWICH",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 030"
+      ],
+      "owner": "Subway IP LLC (LIMITED LIABILITY COMPANY; DELAWARE, USA)"
+     },
+     {
+      "serial": "50068368",
+      "mark": "VAULTWOOD CORE",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 019",
+       "IC 020"
+      ],
+      "owner": "Murphy Door, Inc. (CORPORATION; Utah, USA)"
+     },
+     {
+      "serial": "76190672",
+      "mark": "VAULTWORKS",
+      "live": false,
+      "registered": true,
+      "classes": [
+       "IC 036",
+       "IC 042"
+      ],
+      "owner": "SPEAR MARKETING, INC. (CORPORATION; TEXAS, USA)"
+     },
+     {
+      "serial": "88624446",
+      "mark": "VAULTWRAP",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 019"
+      ],
+      "owner": "Structural Wrap, LLC (LIMITED LIABILITY COMPANY; FLORIDA, USA)"
+     },
+     {
+      "serial": "78506131",
+      "mark": "VAULTWORKS",
+      "live": false,
+      "registered": false,
+      "classes": [
+       "IC 042"
+      ],
+      "owner": "Charter Communications Holding Company, LLC (LIMITED LIABILITY COMPANY; DELAWARE, USA)"
+     }
+    ]
+   },
+   "both_words_vault_and_wake": {
+    "query": {
+     "bool": {
+      "must": [
+       {
+        "match": {
+         "WM": "vault"
+        }
+       },
+       {
+        "match": {
+         "WM": "wake"
+        }
+       }
+      ]
+     }
+    },
+    "total": 0,
+    "hits": []
+   },
+   "fuzzy_voltwake": {
+    "query": {
+     "fuzzy": {
+      "WM": {
+       "value": "voltwake",
+       "fuzziness": 1
+      }
+     }
+    },
+    "total": 2,
+    "hits": [
+     {
+      "serial": "98033254",
+      "mark": "VOLTWAVE",
+      "live": false,
+      "registered": false,
+      "classes": [
+       "IC 007",
+       "IC 009"
+      ],
+      "owner": "Schok LLC (LIMITED LIABILITY COMPANY; DELAWARE, USA)"
+     },
+     {
+      "serial": "98076232",
+      "mark": "VOLTWAVE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 028"
+      ],
+      "owner": "Shenzhen Hengfu Network Technology Co., Ltd. (limited company (ltd.); CHINA)"
+     }
+    ]
+   },
+   "fuzzy_vaultwalk": {
+    "query": {
+     "fuzzy": {
+      "WM": {
+       "value": "vaultwalk",
+       "fuzziness": 1
+      }
+     }
+    },
+    "total": 0,
+    "hits": []
+   },
+   "wildcard_wake_merge": {
+    "query": {
+     "match_phrase": {
+      "WM": "wake merge"
+     }
+    },
+    "total": 0,
+    "hits": []
+   },
+   "wildcard_vault_merge": {
+    "query": {
+     "match_phrase": {
+      "WM": "vault merge"
+     }
+    },
+    "total": 0,
+    "hits": []
+   },
+   "live_vault_prefix_9_41_games": {
+    "query": {
+     "bool": {
+      "must": [
+       {
+        "prefix": {
+         "WM": "vault"
+        }
+       },
+       {
+        "term": {
+         "alive": true
+        }
+       },
+       {
+        "bool": {
+         "should": [
+          {
+           "match": {
+            "internationalClass": "IC 009"
+           }
+          },
+          {
+           "match": {
+            "internationalClass": "IC 041"
+           }
+          }
+         ],
+         "minimum_should_match": 1
+        }
+       },
+       {
+        "match": {
+         "goodsAndServices": "game games gaming"
+        }
+       }
+      ]
+     }
+    },
+    "total": 132,
+    "hits": [
+     {
+      "serial": "50121940",
+      "mark": "CASH VAULT HERO",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 009",
+       "IC 041"
+      ],
+      "owner": "Lotto Logic Limited (Limited Company; United Kingdom)"
+     },
+     {
+      "serial": "79379528",
+      "mark": "VAULT OF LIONS",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009",
+       "IC 028",
+       "IC 041"
+      ],
+      "owner": "Fennica Gaming Oy (osakeyhtiö (oy); FINLAND)"
+     },
+     {
+      "serial": "79407744",
+      "mark": "500X 150X 100X 50X GOLD VAULT ROULETTE LIVE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009",
+       "IC 041"
+      ],
+      "owner": "Evolution Malta Limited (limited company (ltd.); MALTA)"
+     },
+     {
+      "serial": "97259729",
+      "mark": "BUST THE VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 041",
+       "IC 009"
+      ],
+      "owner": "bet365 Group Limited (private limited company; UNITED KINGDOM)"
+     },
+     {
+      "serial": "97497498",
+      "mark": "VAULT SHIFTER",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009",
+       "IC 041"
+      ],
+      "owner": "bet365 Group Limited (private limited company; UNITED KINGDOM)"
+     },
+     {
+      "serial": "90342940",
+      "mark": "VAULT OF ANUBIS",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009",
+       "IC 041"
+      ],
+      "owner": "Wholesale Games Limited (LIMITED LIABILITY COMPANY; MALTA)"
+     },
+     {
+      "serial": "86024640",
+      "mark": "THE VAULT HEIST",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 028",
+       "IC 009"
+      ],
+      "owner": "Xylomen Participations, S.à r.l. (LIMITED LIABILITY COMPANY; LUXEMBOURG)"
+     },
+     {
+      "serial": "99448687",
+      "mark": "DRAGON VAULT LINK",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 028",
+       "IC 009"
+      ],
+      "owner": "Aristocrat Technologies Australia Pty Ltd. (PROPRIETARY LIMITED COMPANY; Australia)"
+     },
+     {
+      "serial": "99385203",
+      "mark": "BANK VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009",
+       "IC 028"
+      ],
+      "owner": "Valicy, Inc. (CORPORATION; North Carolina, USA)"
+     },
+     {
+      "serial": "88195775",
+      "mark": "THE VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "EVERI GAMES INC. (CORPORATION; DELAWARE, USA)"
+     },
+     {
+      "serial": "99162210",
+      "mark": "SANTA'S VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 041",
+       "IC 042"
+      ],
+      "owner": "Push Gaming Product Limited (Limited Company (ltd.); Malta)"
+     },
+     {
+      "serial": "99249675",
+      "mark": "VEGAS VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 041",
+       "IC 042"
+      ],
+      "owner": "Push Gaming Product Limited (Limited Company; Malta)"
+     },
+     {
+      "serial": "79409831",
+      "mark": "LUCKY VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009",
+       "IC 028"
+      ],
+      "owner": "ZITRO LABORATORY S.L.U. (Sociedad limitada unipersonal; SPAIN)"
+     },
+     {
+      "serial": "99016381",
+      "mark": "THE VAULT SAFECRACKER",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "EVERI GAMES INC (CORPORATION; Delaware, USA)"
+     },
+     {
+      "serial": "98646328",
+      "mark": "UNLOCK THE VAULT",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 028",
+       "IC 009",
+       "IC 041"
+      ],
+      "owner": "Interblock d.o.o. (drustvo s ogranicenom odgovornoscu (d.o.o.); Slovenia)"
+     },
+     {
+      "serial": "97747148",
+      "mark": "THE VAULT DOUBLE JACKPOT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "EVERI GAMES INC. (CORPORATION; DELAWARE, USA)"
+     },
+     {
+      "serial": "88282886",
+      "mark": "FLYING CASH VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "King Show Games, Inc. (CORPORATION; MINNESOTA, USA)"
+     },
+     {
+      "serial": "97747134",
+      "mark": "THE VAULT BEAT THE BANK",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "EVERI GAMES INC. (CORPORATION; DELAWARE, USA)"
+     },
+     {
+      "serial": "79413787",
+      "mark": "LUCKY VAULT LUXURY",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 028",
+       "IC 009"
+      ],
+      "owner": "ZITRO LABORATORY S.L.U. (Sociedad limitada unipersonal; SPAIN)"
+     },
+     {
+      "serial": "79413788",
+      "mark": "LUCKY VAULT BUSINESS",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 028",
+       "IC 009"
+      ],
+      "owner": "ZITRO LABORATORY S.L.U. (Sociedad limitada unipersonal; SPAIN)"
+     },
+     {
+      "serial": "99335987",
+      "mark": "REWARD VAULT",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 041"
+      ],
+      "owner": "Games Global USA Inc. (CORPORATION; Delaware, USA)"
+     },
+     {
+      "serial": "87253915",
+      "mark": "GOLDEN VAULT OF THE PHARAOHS",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "High 5 Games, LLC (LIMITED LIABILITY COMPANY; DELAWARE, USA)"
+     },
+     {
+      "serial": "99561991",
+      "mark": "ACTION STRIKE VAULT",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 041"
+      ],
+      "owner": "Games Global USA Inc. (CORPORATION; Delaware, USA)"
+     },
+     {
+      "serial": "97678689",
+      "mark": "LEPRECHAUN'S VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 041",
+       "IC 009"
+      ],
+      "owner": "Play'n GO Marks Ltd (LIMITED LIABILITY COMPANY; MALTA)"
+     },
+     {
+      "serial": "50168866",
+      "mark": "CLEOPATRA'S VAULT",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 041"
+      ],
+      "owner": "Aristocrat Technologies, Inc. (CORPORATION; Nevada, USA)"
+     },
+     {
+      "serial": "99383698",
+      "mark": "VAULT OF GOLD",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 041"
+      ],
+      "owner": "White Water Gaming IP Holding, LLC (LIMITED LIABILITY COMPANY; Delaware, USA)"
+     },
+     {
+      "serial": "99310816",
+      "mark": "DRAGON VAULT",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 028"
+      ],
+      "owner": "Aristocrat Technologies Australia Pty Ltd. (PROPRIETARY LIMITED COMPANY; Australia)"
+     },
+     {
+      "serial": "99449429",
+      "mark": "BIG MONEY VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 041"
+      ],
+      "owner": "Aristocrat Interactive S.a r.l (Société à Responsabilité Limitée; Luxembourg)"
+     },
+     {
+      "serial": "99580701",
+      "mark": "GAME VAULT",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 009",
+       "IC 041"
+      ],
+      "owner": "Pure Games LLC (LIMITED LIABILITY COMPANY; Wyoming, USA)"
+     },
+     {
+      "serial": "98897553",
+      "mark": "POWER VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 042",
+       "IC 041"
+      ],
+      "owner": "PUSH GAMING PRODUCT LIMITED (limited company (ltd.); Malta)"
+     },
+     {
+      "serial": "99895050",
+      "mark": "CUPID'S VAULT",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 041"
+      ],
+      "owner": "Aristocrat Technologies, Inc. (CORPORATION; Nevada, USA)"
+     },
+     {
+      "serial": "98497365",
+      "mark": "TRIPLE VAULT BANDIT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 041"
+      ],
+      "owner": "Aristocrat Technologies, Inc. (CORPORATION; Nevada, USA)"
+     },
+     {
+      "serial": "99412861",
+      "mark": "CRACK THE VAULT",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 041"
+      ],
+      "owner": "Aristocrat Technologies, Inc. (CORPORATION; Nevada, USA)"
+     },
+     {
+      "serial": "50075151",
+      "mark": "CHALLENGE VAULT",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Hint of Mischief LLC (LIMITED LIABILITY COMPANY; Illinois, USA)"
+     },
+     {
+      "serial": "87752858",
+      "mark": "VOLKENO VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Intralot, Inc. (CORPORATION; GEORGIA, USA)"
+     },
+     {
+      "serial": "78546124",
+      "mark": "JOKER'S VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Spielo Manufacturing ULC (CORPORATION; CANADA)"
+     },
+     {
+      "serial": "77748537",
+      "mark": "MR. MONEY BAG'S VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Video Gaming Technologies, Inc. (CORPORATION; TENNESSEE, USA)"
+     },
+     {
+      "serial": "77151891",
+      "mark": "VAULT BREAKER",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Spielo Manufacturing ULC (CORPORATION; CANADA)"
+     },
+     {
+      "serial": "88458047",
+      "mark": "VAULTED SKY GAMES",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Mellowsoft LLC (LIMITED LIABILITY COMPANY; CALIFORNIA, USA)"
+     },
+     {
+      "serial": "98765219",
+      "mark": "AREA SURGE PIGGY VAULT",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 041"
+      ],
+      "owner": "Games Global USA Inc. (CORPORATION; Delaware, USA)"
+     },
+     {
+      "serial": "97063530",
+      "mark": "CRYSTAL VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 041"
+      ],
+      "owner": "LIGHT & WONDER, INC. (CORPORATION; NEVADA, USA)"
+     },
+     {
+      "serial": "88873815",
+      "mark": "ORIGINS OF THE LOST POETIC ARCHIVES FROM AN UNKNOWN SCHOLAR (ABOUNDED VAULTS) B-POET",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 028"
+      ],
+      "owner": "Freelance Poetry LLC (LIMITED LIABILITY COMPANY; NEVADA, USA)"
+     },
+     {
+      "serial": "99895045",
+      "mark": "CUPID'S VAULT",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Aristocrat Technologies, Inc. (CORPORATION; Nevada, USA)"
+     },
+     {
+      "serial": "50132060",
+      "mark": "THE VAULT LINK DYNASTY",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 028"
+      ],
+      "owner": "Everi Games Inc. (CORPORATION; Delaware, USA)"
+     },
+     {
+      "serial": "98497518",
+      "mark": "TRIPLE VAULT BANDIT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Aristocrat Technologies, Inc. (CORPORATION; Nevada, USA)"
+     },
+     {
+      "serial": "50132059",
+      "mark": "THE VAULT LINK EMPIRE",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 028"
+      ],
+      "owner": "Everi Games Inc. (CORPORATION; Delaware, USA)"
+     },
+     {
+      "serial": "99905664",
+      "mark": "THE VAULT DIAMOND EDITION",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 028"
+      ],
+      "owner": "Everi Games Inc. (CORPORATION; Delaware, USA)"
+     },
+     {
+      "serial": "50009640",
+      "mark": "VAULTARA LINK TITANS",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 028"
+      ],
+      "owner": "IGT (CORPORATION; Nevada, USA)"
+     },
+     {
+      "serial": "99633721",
+      "mark": "ADVENTURE VAULT N E S W",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 041"
+      ],
+      "owner": "Adventure Vault LLC (LIMITED LIABILITY COMPANY; Florida, USA)"
+     },
+     {
+      "serial": "88282728",
+      "mark": "JACKPOT RUSH CASH VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 028"
+      ],
+      "owner": "EVERI GAMES INC. (CORPORATION; DELAWARE, USA)"
+     },
+     {
+      "serial": "97121947",
+      "mark": "CLEOPATRA'S VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 028"
+      ],
+      "owner": "ARISTOCRAT TECHNOLOGIES, INC. (CORPORATION; TENNESSEE, USA)"
+     },
+     {
+      "serial": "97122072",
+      "mark": "AZTEC VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 028"
+      ],
+      "owner": "ARISTOCRAT TECHNOLOGIES, INC. (CORPORATION; NEVADA, USA)"
+     },
+     {
+      "serial": "99321111",
+      "mark": "JACKPOT VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009",
+       "IC 042"
+      ],
+      "owner": "LIGHT & WONDER, INC. (CORPORATION; Nevada, USA)"
+     },
+     {
+      "serial": "86678918",
+      "mark": "GREEN VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 028"
+      ],
+      "owner": "AGS LLC (LIMITED LIABILITY COMPANY; DELAWARE, USA)"
+     },
+     {
+      "serial": "98582065",
+      "mark": "DREAMERS VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 041",
+       "IC 035"
+      ],
+      "owner": "Dreamers Vault Games, Inc. (CORPORATION; Minnesota, USA)"
+     },
+     {
+      "serial": "99557060",
+      "mark": "REDTAIL ROBBER CASH VAULT HEIST",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 041"
+      ],
+      "owner": "Play'n GO Marks Ltd (LIMITED LIABILITY COMPANY; Malta)"
+     },
+     {
+      "serial": "99284064",
+      "mark": "THE VAULT FORTUNES",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 042"
+      ],
+      "owner": "EVERI GAMES INC (CORPORATION; Delaware, USA)"
+     },
+     {
+      "serial": "99720725",
+      "mark": "VAULT OF MIDAS CASH ERUPTION",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 028"
+      ],
+      "owner": "IGT Canada Solutions Limited (Limited Liability Company; Nova Scotia, Canada)"
+     },
+     {
+      "serial": "99649321",
+      "mark": "THE OLD SCHOOL GAME VAULT",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 035"
+      ],
+      "owner": "Windy City Auction Liquidators, Inc. (CORPORATION; Illinois, USA)"
+     },
+     {
+      "serial": "99633556",
+      "mark": "VAULTORY",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 035"
+      ],
+      "owner": "Vaultory Holdings Inc. (CORPORATION; North Carolina, USA)"
+     },
+     {
+      "serial": "99535865",
+      "mark": "VAULT",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 028"
+      ],
+      "owner": "Plaid Hat Games LLC (LIMITED LIABILITY COMPANY; Ohio, USA)"
+     },
+     {
+      "serial": "50018249",
+      "mark": "TREASURE VAULT ARCADE",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 041"
+      ],
+      "owner": "Treasure Vault Arcade LLC (LIMITED LIABILITY COMPANY; Pennsylvania, USA)"
+     },
+     {
+      "serial": "78280385",
+      "mark": "OPEN THE VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "WMS GAMING INC. (CORPORATION; DELAWARE, USA)"
+     },
+     {
+      "serial": "98948389",
+      "mark": "VAULT DESTINY",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 042"
+      ],
+      "owner": "EVERI GAMES INC. (CORPORATION; Delaware, USA)"
+     },
+     {
+      "serial": "99639222",
+      "mark": "HONEY VAULT",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 042"
+      ],
+      "owner": "LIGHT & WONDER, INC. (CORPORATION; Nevada, USA)"
+     },
+     {
+      "serial": "85828739",
+      "mark": "WALTER THE VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 028"
+      ],
+      "owner": "Money Masters, Inc. (CORPORATION; NEW YORK, USA)"
+     },
+     {
+      "serial": "86649770",
+      "mark": "VAULT BOY",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 016"
+      ],
+      "owner": "Bethesda Softworks LLC (LIMITED LIABILITY COMPANY; DELAWARE, USA)"
+     },
+     {
+      "serial": "97821146",
+      "mark": "SILENT SLAYER: VAULT OF THE VAMPIRE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Schell Games LLC (LIMITED LIABILITY COMPANY; PENNSYLVANIA, USA)"
+     },
+     {
+      "serial": "77699528",
+      "mark": "DIAMOND VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "IGT (CORPORATION; NEVADA, USA)"
+     },
+     {
+      "serial": "50017060",
+      "mark": "DRAGON VAULT",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 028"
+      ],
+      "owner": "FanRoll LLC (LIMITED LIABILITY COMPANY; Indiana, USA)"
+     },
+     {
+      "serial": "90589343",
+      "mark": "ANCIENT VAULT INVESTIGATION LAB",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "ACTION SQUARE CO., LTD. (CORPORATION; REPUBLIC OF KOREA)"
+     },
+     {
+      "serial": "99901685",
+      "mark": "VAULTLORDS",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Safelinkllc (LIMITED LIABILITY COMPANY; Texas, USA)"
+     },
+     {
+      "serial": "99412866",
+      "mark": "CRACK THE VAULT",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Aristocrat Technologies, Inc. (CORPORATION; Nevada, USA)"
+     },
+     {
+      "serial": "86882621",
+      "mark": "VOLTAGE VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 028"
+      ],
+      "owner": "Diamond Game Enterprises (CORPORATION; CALIFORNIA, USA)"
+     },
+     {
+      "serial": "90278437",
+      "mark": "SUPER $ VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 028"
+      ],
+      "owner": "Eclipse Gaming Systems, LLC (LIMITED LIABILITY COMPANY; TEXAS, USA)"
+     },
+     {
+      "serial": "90711822",
+      "mark": "EMPEROR'S VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 028"
+      ],
+      "owner": "Eclipse Gaming Systems (LIMITED LIABILITY COMPANY; TEXAS, USA)"
+     },
+     {
+      "serial": "99939140",
+      "mark": "GOLDEN VAULT PROGRESSIVE",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 041"
+      ],
+      "owner": "Galaxy Gaming, Inc. (CORPORATION; Nevada, USA)"
+     },
+     {
+      "serial": "99096987",
+      "mark": "MEGA VAULT",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 041"
+      ],
+      "owner": "IGT (CORPORATION; Nevada, USA)"
+     },
+     {
+      "serial": "97914721",
+      "mark": "MULTIPLIER VAULTS",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 041"
+      ],
+      "owner": "IGT Global Solutions Corporation (CORPORATION; DELAWARE, USA)"
+     },
+     {
+      "serial": "99905637",
+      "mark": "VOLTAGE VAULT",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 041"
+      ],
+      "owner": "ISB Magma Limited (Limited Liability Company; Malta)"
+     },
+     {
+      "serial": "86074978",
+      "mark": "VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "PTT, LLC (LIMITED LIABILITY COMPANY; DELAWARE, USA)"
+     },
+     {
+      "serial": "88808307",
+      "mark": "THE VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 041"
+      ],
+      "owner": "Panthers Football, LLC (LIMITED LIABILITY COMPANY; NORTH CAROLINA, USA)"
+     },
+     {
+      "serial": "99852521",
+      "mark": "HIP HOP VAULT",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 041"
+      ],
+      "owner": "Powerhouse Collective LLC (LIMITED LIABILITY COMPANY; New Jersey, USA)"
+     },
+     {
+      "serial": "77231378",
+      "mark": "WORD VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 041"
+      ],
+      "owner": "Tribune Media Services, Inc. (CORPORATION; DELAWARE, USA)"
+     },
+     {
+      "serial": "97750125",
+      "mark": "VAULT OF FIRE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "High 5 Games, LLC (LIMITED LIABILITY COMPANY; DELAWARE, USA)"
+     },
+     {
+      "serial": "99883107",
+      "mark": "VAULTRA",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Vaultra Studios LLC (LIMITED LIABILITY COMPANY; Louisiana, USA)"
+     },
+     {
+      "serial": "77618760",
+      "mark": "VAULT-TEC",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "ZeniMax Media Inc. (CORPORATION; DELAWARE, USA)"
+     },
+     {
+      "serial": "97822648",
+      "mark": "VAULT-TEC",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 041"
+      ],
+      "owner": "ZeniMax Media Inc. (CORPORATION; DELAWARE, USA)"
+     },
+     {
+      "serial": "88504588",
+      "mark": "VOLTA-X",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "GungHo Online Entertainment America, Inc. (CORPORATION; CALIFORNIA, USA)"
+     },
+     {
+      "serial": "50144383",
+      "mark": "THE VAULT LIVE",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 041"
+      ],
+      "owner": "FLEXPACKGEAR LLC (LIMITED LIABILITY COMPANY; New York, USA)"
+     },
+     {
+      "serial": "99180683",
+      "mark": "CLAW VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 028",
+       "IC 041"
+      ],
+      "owner": "Claw City Limited Partnership (LIMITED PARTNERSHIP; Utah, USA)"
+     },
+     {
+      "serial": "86122390",
+      "mark": "MEGA VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 028"
+      ],
+      "owner": "IGT (CORPORATION; NEVADA, USA)"
+     },
+     {
+      "serial": "85535143",
+      "mark": "DRAGON'S VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 028"
+      ],
+      "owner": "Aristocrat Technologies Australia Pty Ltd. (PROPRIETARY LIMITED COMPANY (P/L OR PTY.LTD.); AUSTRALIA)"
+     },
+     {
+      "serial": "88778809",
+      "mark": "THE ROYAL VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 041"
+      ],
+      "owner": "SCIPLAY HOLDING COMPANY, LLC (LIMITED LIABILITY COMPANY; NEVADA, USA)"
+     },
+     {
+      "serial": "97822645",
+      "mark": "VAULT-TEC",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 016"
+      ],
+      "owner": "ZeniMax Media Inc. (CORPORATION; DELAWARE, USA)"
+     },
+     {
+      "serial": "76414998",
+      "mark": "VAULT CARD",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "CardLogix Corporation (CORPORATION; CALIFORNIA, USA)"
+     },
+     {
+      "serial": "88587527",
+      "mark": "DICE VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 028"
+      ],
+      "owner": "Wyrmwood, Inc. (CORPORATION; MASSACHUSETTS, USA)"
+     },
+     {
+      "serial": "90171842",
+      "mark": "THE MOCAP VAULTS",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 041"
+      ],
+      "owner": "The Mocap Vaults Ltd (limited company (ltd.); UNITED KINGDOM)"
+     },
+     {
+      "serial": "88695944",
+      "mark": "CALCULATOR VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "YUE, HUANG (INDIVIDUAL; CHINA)"
+     },
+     {
+      "serial": "99040501",
+      "mark": "CARDBOARD VAULT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 035"
+      ],
+      "owner": "Cardboard Vault LLC (LIMITED LIABILITY COMPANY; Minnesota, USA)"
+     }
+    ]
+   },
+   "live_wake_suffix_9_41_games": {
+    "query": {
+     "bool": {
+      "must": [
+       {
+        "wildcard": {
+         "WM": {
+          "value": "*wake"
+         }
+        }
+       },
+       {
+        "term": {
+         "alive": true
+        }
+       },
+       {
+        "bool": {
+         "should": [
+          {
+           "match": {
+            "internationalClass": "IC 009"
+           }
+          },
+          {
+           "match": {
+            "internationalClass": "IC 041"
+           }
+          }
+         ],
+         "minimum_should_match": 1
+        }
+       },
+       {
+        "match": {
+         "goodsAndServices": "game games gaming"
+        }
+       }
+      ]
+     }
+    },
+    "total": 36,
+    "hits": [
+     {
+      "serial": "50128922",
+      "mark": "DAWN'S WAKE",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 009",
+       "IC 041"
+      ],
+      "owner": "Neptune Corp. (CORPORATION; Korea, Republic of)"
+     },
+     {
+      "serial": "99671413",
+      "mark": "RAVENWAKE GAMES",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 041",
+       "IC 038",
+       "IC 042"
+      ],
+      "owner": "Daybreak Game Company LLC (LIMITED LIABILITY COMPANY; Delaware, USA)"
+     },
+     {
+      "serial": "98832269",
+      "mark": "MEMORIA WAKE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009",
+       "IC 041"
+      ],
+      "owner": "Team Crescendo, LLC (LIMITED LIABILITY COMPANY; New York, USA)"
+     },
+     {
+      "serial": "87900316",
+      "mark": "BATTLEWAKE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009",
+       "IC 041"
+      ],
+      "owner": "Survios, Inc. (CORPORATION; DELAWARE, USA)"
+     },
+     {
+      "serial": "97438934",
+      "mark": "SLEEP AWAKE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009",
+       "IC 025",
+       "IC 041"
+      ],
+      "owner": "Eyes Out LLC (LIMITED LIABILITY COMPANY; CALIFORNIA, USA)"
+     },
+     {
+      "serial": "78574816",
+      "mark": "ALAN WAKE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009",
+       "IC 041",
+       "IC 042"
+      ],
+      "owner": "Remedy Entertainment Oy (LIMITED LIABILITY COMPANY; FINLAND)"
+     },
+     {
+      "serial": "79392590",
+      "mark": "EZ WAKE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009",
+       "IC 010"
+      ],
+      "owner": "Au-Yeung Medical Technology Pty Ltd (proprietary limited company (p/l or pty. ltd.); AUSTRALIA)"
+     },
+     {
+      "serial": "98951237",
+      "mark": "ASHWAKE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Ghost Development Limited (LIMITED LIABILITY COMPANY; Colorado, USA)"
+     },
+     {
+      "serial": "98368359",
+      "mark": "WALK WAKE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 028"
+      ],
+      "owner": "Xinyang Zhu (INDIVIDUAL; CHINA)"
+     },
+     {
+      "serial": "99647544",
+      "mark": "CASHWAKE",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 041"
+      ],
+      "owner": "Entravision Communications Corporation (CORPORATION; Delaware, USA)"
+     },
+     {
+      "serial": "86129197",
+      "mark": "WAKE UP CALL",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 041"
+      ],
+      "owner": "TURNER NETWORK TELEVISION, INC. (CORPORATION; DELAWARE, USA)"
+     },
+     {
+      "serial": "88127127",
+      "mark": "WAKE UP STARS",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 028"
+      ],
+      "owner": "SimplyFun, LLC (LIMITED LIABILITY COMPANY; WASHINGTON, USA)"
+     },
+     {
+      "serial": "99807385",
+      "mark": "SILENT RAID DON'T WAKE THE DEAD",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 028"
+      ],
+      "owner": "Marcus McGowan (INDIVIDUAL; USA)"
+     },
+     {
+      "serial": "85310251",
+      "mark": "AWAKE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Twentieth Century Fox Film Corporation (CORPORATION; DELAWARE, USA)"
+     },
+     {
+      "serial": "99790503",
+      "mark": "SUNDERWAKE",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 016"
+      ],
+      "owner": "DreamGlyph Studios LLC (LIMITED LIABILITY COMPANY; Wisconsin, USA)"
+     },
+     {
+      "serial": "50143955",
+      "mark": "ARCHWAKE",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 009",
+       "IC 041"
+      ],
+      "owner": "Guardian Kenny Studios LLC (LIMITED LIABILITY COMPANY; Pennsylvania, USA)"
+     },
+     {
+      "serial": "98862870",
+      "mark": "ALLWAKE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 028"
+      ],
+      "owner": "Quanzhou Wuzhen Trading Co., Ltd. (limited company (ltd.); China)"
+     },
+     {
+      "serial": "74165688",
+      "mark": "DON'T WAKE DADDY",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 028"
+      ],
+      "owner": "Tonka Corporation (CORPORATION; MINNESOTA, USA)"
+     },
+     {
+      "serial": "90517152",
+      "mark": "PWAKE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 028"
+      ],
+      "owner": "Xiamen Wenyuan Trade Co.,Ltd. (limited company (ltd.); CHINA)"
+     },
+     {
+      "serial": "79396480",
+      "mark": "YAMAWAKE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 036",
+       "IC 042",
+       "IC 009",
+       "IC 035"
+      ],
+      "owner": "WeCapital Co., Ltd. (CORPORATION; JAPAN)"
+     },
+     {
+      "serial": "97051597",
+      "mark": "WAKE UP WASTED",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 028"
+      ],
+      "owner": "Harnett, Jessica (INDIVIDUAL; USA)"
+     },
+     {
+      "serial": "99935523",
+      "mark": "DON'T WAKE THE DRAGON",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 028"
+      ],
+      "owner": "Wizards Against Monsters LLC (LIMITED LIABILITY COMPANY; Louisiana, USA)"
+     },
+     {
+      "serial": "99927410",
+      "mark": "BAR CODE ITS SHAPED LIKE A HEART FROM THE BACK BUT FROM THE SIDE IT'S A CAPITAL P XXXX DON'T MIND ME IM JUST TRYIN TO SUDCE YOU WHEN MY MOMS DIED I PROVED THAT THUGS DO CRY XX WHEN MY POPS DIED IT PROVED THAT REAL GEES DO DIE XXX FOR TALKIN WRECKLESS I MIGHT PUT SOMETHIN THROUGH YA A RAZOR ANDA BLICK MAKES ME A SHARP SHOOTA XXX I SUPOSE THAT U CAN TELL, I'M ONE OF THE BEST XXXX BEEN SPITTIN SINCE HANDICAP PEOPLE WERE USING THE STEPS XXXX YOUR FLOW WOULDN'T BE ABOVE MINE IF YOU SPIT WHILE YOU SKYDIVED XX I KNOW WHAT ITS LIKE TO HAVE NI&&@S THAT'S PREDECATE FELONS THAT COME AROUND YOU AND KEEP SETTIN SHIT XXXX IF I LENT YOU MY DICK YOU COULDN'T FUCK WIT ME XXXX THE BEST RAPPER YOU NEVER HEARD OF XX STAY ON SOME OTHER SHIT LIKE A FLY WITH ADHD WHEN I SPIN IM ON POINT LIKE A PROTRACTOR XXXX WHAT YOU SPENT ON THAT CH HAVE GOT YOU A LAWYER 2 OMFORTABLE AROL D THAT CLOSE TO A 1 K OUT THE STRAP LIKE CLASSIC REBC UP WHEN I DROP XXXX THE DREAM IS 8 LI SEE IS FOOD I EAT MC'S FOR DINNER HE BACK WHILE IM GRABBING YOUR FU 3 COAST PRODUCTIOI 1 ACH OTHER ON XX 5 K RIDING SHOTGUN 4 XXXX ALWAYS ASK 5 JMED WIT YOU WH THE SAME ROOM WITH YC E THE KIDS THAT WERE IN J WAKE UP FEELIN AHEAD OLVED WHEN I C OPS AND THAT BULLSHIT YOU N TREE TOPS XXXX PLEASE REMEMBER RAWS NO TO THE SIDE LIKE YOUR THONG WAS A PADIO DOOR HE-DO LIKE A FUCKING ROOSTA XXXX KINKY LIKE A ES DON'T COMMUNICATE H ME IN THE WHIP DOING ¡SENGERS PRESSING MY YOU WERE LIKE SHE WAS RE THERE HATED SHAREIN HER THINKING YOU WERE SOMETHING SHE COULDN'T LIVE WITHOUT YOU THE REASON YOU IN THE PS CAUSE YOU BURNT DOWN THE HOUSE I HATE U THE STREETS CAN BE HEAVEN OR HELL A YELLOW BRICK ROAD TO JAIL CELLS GET INTRODUCED TO YOUR MAKER, OH WELL XXXX I KEPT SCALES LIKE A GECKO MOVED WEIGHT LIKE A TECH BLOW LOST A LOT OF MONEY WHEN I SLEPT WITH A CLEPTO XXXX IM FROM A PLACE WHERE THE HEAT LEAVE YOU PROPERLY FROZEN CATS RATHER TAKE THE FRUITS OF YOUR LABOR THAN SEEDS TO PLANT A GARDEN",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 028"
+      ],
+      "owner": "Lemerrell Gibran Maddox (INDIVIDUAL; USA)"
+     },
+     {
+      "serial": "79396481",
+      "mark": "YAMAWAKE RESALE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 036",
+       "IC 042",
+       "IC 009",
+       "IC 035"
+      ],
+      "owner": "WeCapital Co., Ltd. (CORPORATION; JAPAN)"
+     },
+     {
+      "serial": "79396482",
+      "mark": "YAMAWAKE JOURNAL",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 036",
+       "IC 042",
+       "IC 009",
+       "IC 035"
+      ],
+      "owner": "WeCapital Co., Ltd. (CORPORATION; JAPAN)"
+     },
+     {
+      "serial": "79396899",
+      "mark": "YAMAWAKE ESTATE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 036",
+       "IC 042",
+       "IC 009",
+       "IC 035"
+      ],
+      "owner": "WeCapital Co., Ltd. (CORPORATION; JAPAN)"
+     },
+     {
+      "serial": "79396900",
+      "mark": "YAMAWAKE GUARANTEE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 036",
+       "IC 042",
+       "IC 009",
+       "IC 035"
+      ],
+      "owner": "WeCapital Co., Ltd. (CORPORATION; JAPAN)"
+     },
+     {
+      "serial": "79396898",
+      "mark": "YAMAWAKE LENDING",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 036",
+       "IC 042",
+       "IC 009",
+       "IC 035"
+      ],
+      "owner": "WeCapital Co., Ltd. (CORPORATION; JAPAN)"
+     },
+     {
+      "serial": "99647532",
+      "mark": "CASHWAKE",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 035"
+      ],
+      "owner": "Entravision Communications Corporation (CORPORATION; Delaware, USA)"
+     },
+     {
+      "serial": "97441556",
+      "mark": "ALTA WAKE YOUR WARRIOR",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 042",
+       "IC 009",
+       "IC 025",
+       "IC 041"
+      ],
+      "owner": "Alta Global Group Limited (public company; AUSTRALIA)"
+     },
+     {
+      "serial": "77336057",
+      "mark": "AWAKE IN A DREAM",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009",
+       "(CANCELLED) IC 016",
+       "(CANCELLED) IC 025",
+       "IC 041"
+      ],
+      "owner": "Peyton, Brian Leigh (INDIVIDUAL; USA)"
+     },
+     {
+      "serial": "50156565",
+      "mark": "QODERWAKE",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 009",
+       "IC 042"
+      ],
+      "owner": "ALIBABA INNOVATION PRIVATE LIMITED (PRIVATE LIMITED COMPANY; Singapore)"
+     },
+     {
+      "serial": "97343179",
+      "mark": "PARKS, RECREATION & CULTURAL RESOURCES TOWN OF WAKE FOREST",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 035",
+       "IC 041"
+      ],
+      "owner": "Town of Wake Forest (municipal corporation; NORTH CAROLINA, USA)"
+     },
+     {
+      "serial": "97343181",
+      "mark": "WAKE FOREST DOWNTOWN",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 035",
+       "IC 041"
+      ],
+      "owner": "WAKE FOREST DOWNTOWN, INC. (charitable, non-profit corporation; NORTH CAROLINA, USA)"
+     },
+     {
+      "serial": "97343184",
+      "mark": "WAKE FOREST RENAISSANCE CENTRE FOR THE ARTS",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 035",
+       "IC 041"
+      ],
+      "owner": "Town of Wake Forest (municipal corporation; NORTH CAROLINA, USA)"
+     },
+     {
+      "serial": "97342878",
+      "mark": "TOWN OF WAKE FOREST",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 035",
+       "IC 037",
+       "IC 039",
+       "IC 041",
+       "IC 043",
+       "IC 045"
+      ],
+      "owner": "Town of Wake Forest (municipal corporation; NORTH CAROLINA, USA)"
+     }
+    ]
+   },
+   "live_merge_word_9_41_games": {
+    "query": {
+     "bool": {
+      "must": [
+       {
+        "match": {
+         "WM": "merge"
+        }
+       },
+       {
+        "term": {
+         "alive": true
+        }
+       },
+       {
+        "bool": {
+         "should": [
+          {
+           "match": {
+            "internationalClass": "IC 009"
+           }
+          },
+          {
+           "match": {
+            "internationalClass": "IC 041"
+           }
+          }
+         ],
+         "minimum_should_match": 1
+        }
+       },
+       {
+        "match": {
+         "goodsAndServices": "game games gaming"
+        }
+       }
+      ]
+     }
+    },
+    "total": 132,
+    "hits": [
+     {
+      "serial": "99886144",
+      "mark": "TREASURE MERGE",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 028",
+       "IC 009"
+      ],
+      "owner": "Aristocrat Technologies Australia Pty Ltd. (PROPRIETARY LIMITED COMPANY; Australia)"
+     },
+     {
+      "serial": "79394358",
+      "mark": "ANIPANG MERGE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 041"
+      ],
+      "owner": "Wemade Play Co., Ltd. (CORPORATION; KOREA, SOUTH)"
+     },
+     {
+      "serial": "79318813",
+      "mark": "MERGE KUYA ISLAND",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009",
+       "IC 041"
+      ],
+      "owner": "Netmarble Corporation (Corporation; REPUBLIC OF KOREA)"
+     },
+     {
+      "serial": "98286288",
+      "mark": "MERGE DALE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009",
+       "IC 041"
+      ],
+      "owner": "LevelApp Limited (limited company (ltd.); CYPRUS)"
+     },
+     {
+      "serial": "99886146",
+      "mark": "TREASURE MERGE MATEY",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 028",
+       "IC 009"
+      ],
+      "owner": "Aristocrat Technologies Australia Pty Ltd. (PROPRIETARY LIMITED COMPANY; Australia)"
+     },
+     {
+      "serial": "90016849",
+      "mark": "MERGE MANSION",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009",
+       "IC 041",
+       "IC 042"
+      ],
+      "owner": "METACORE GAMES OY (OSAKEYHTIO (OY); FINLAND)"
+     },
+     {
+      "serial": "99900268",
+      "mark": "MERGE COOKING",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 041"
+      ],
+      "owner": "HAPPIBITS TECHNOLOGIES PTE. LTD. (EXEMPT PRIVATE COMPANY LIMITED BY SHARES; Singapore)"
+     },
+     {
+      "serial": "90210187",
+      "mark": "STICKIN' SPREE MERGE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "ARISTOCRAT TECHNOLOGIES, INC. (CORPORATION; NEVADA, USA)"
+     },
+     {
+      "serial": "79449120",
+      "mark": "LUDUS MERGE ARENA",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 009",
+       "IC 041",
+       "IC 042"
+      ],
+      "owner": "TOP APP GAMES LTD (LIMITED LIABILITY COMPANY; Cyprus, Cyprus)"
+     },
+     {
+      "serial": "79422339",
+      "mark": "WORLD TOUR MERGE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009",
+       "IC 041"
+      ],
+      "owner": "Soloband Games LTD (limited company (ltd.); CYPRUS)"
+     },
+     {
+      "serial": "98460266",
+      "mark": "MANSION TALE: MERGE SECRETS",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 041",
+       "IC 009"
+      ],
+      "owner": "Tapclap LTD (limited company (ltd.); Cyprus)"
+     },
+     {
+      "serial": "99264472",
+      "mark": "MERGE KITCHEN",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 041",
+       "IC 009"
+      ],
+      "owner": "Hangzhou Mengku Technology Co., Ltd. (Limited Company; China)"
+     },
+     {
+      "serial": "99264385",
+      "mark": "MERGE TASTY",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 009",
+       "IC 041"
+      ],
+      "owner": "Hangzhou Mengku Technology Co., Ltd. (Limited Company; China)"
+     },
+     {
+      "serial": "98894637",
+      "mark": "MERGE FAMILY",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 041",
+       "IC 009"
+      ],
+      "owner": "Hangzhou Mengku Technology Co., Ltd. (limited company (ltd.); China)"
+     },
+     {
+      "serial": "98779725",
+      "mark": "MERGE SURVIVAL",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 009",
+       "IC 041"
+      ],
+      "owner": "STICKY HANDS INC. (CORPORATION; REPUBLIC OF KOREA)"
+     },
+     {
+      "serial": "98507591",
+      "mark": "MERGE MILLIONS",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 041"
+      ],
+      "owner": "Aristocrat Technologies, Inc. (CORPORATION; Nevada, USA)"
+     },
+     {
+      "serial": "99567328",
+      "mark": "MERGE HOPE",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 041",
+       "IC 009"
+      ],
+      "owner": "BUILDING-BLOCKS NETWORK TECHNOLOGY CO., LIMITED (Limited company; Hong Kong)"
+     },
+     {
+      "serial": "50083740",
+      "mark": "SPOOKY MERGE",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 009",
+       "IC 041"
+      ],
+      "owner": "Joy2Ever Games Pte. Ltd (PRIVATE LIMITED COMPANY; Singapore)"
+     },
+     {
+      "serial": "79391135",
+      "mark": "MERGE HEARTS",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 041",
+       "IC 009"
+      ],
+      "owner": "PLR Worldwide Sales Limited (Limited Company; IRELAND)"
+     },
+     {
+      "serial": "98465941",
+      "mark": "MERGE AFFAIRS",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 009",
+       "IC 041"
+      ],
+      "owner": "BUILDING-BLOCKS NETWORK TECHNOLOGY CO., LIMITED (LIMITED COMPANY; HONG KONG)"
+     },
+     {
+      "serial": "88748093",
+      "mark": "MERGE MAGIC",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 041",
+       "IC 009"
+      ],
+      "owner": "Gram Games Limited (limited company (ltd.); UNITED KINGDOM)"
+     },
+     {
+      "serial": "90308029",
+      "mark": "MERGE MAGIC",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 041",
+       "IC 009"
+      ],
+      "owner": "Gram Games Limited (limited company (ltd.); UNITED KINGDOM)"
+     },
+     {
+      "serial": "90324982",
+      "mark": "MERGE DRAGONS!",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009",
+       "IC 041"
+      ],
+      "owner": "Gram Games Limited (limited company (ltd.); UNITED KINGDOM)"
+     },
+     {
+      "serial": "86782209",
+      "mark": "MERGE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Merge Labs, Inc. (CORPORATION; TEXAS, USA)"
+     },
+     {
+      "serial": "99227694",
+      "mark": "MERGE ADVENTURE",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 041",
+       "IC 009"
+      ],
+      "owner": "MOON ACTIVE LIMITED (limited company (ltd.); ISRAEL)"
+     },
+     {
+      "serial": "99227719",
+      "mark": "MERGE MATTERS",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 009",
+       "IC 041"
+      ],
+      "owner": "MOON ACTIVE LIMITED (limited company (ltd.); ISRAEL)"
+     },
+     {
+      "serial": "79294170",
+      "mark": "MERGE GARDENS",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009",
+       "IC 028",
+       "IC 041"
+      ],
+      "owner": "Futureplay Oy (PRIVATE LIMITED COMPANY; FINLAND)"
+     },
+     {
+      "serial": "97268194",
+      "mark": "MERGE EM ALL!",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009",
+       "IC 041"
+      ],
+      "owner": "VOODOO (SOCIÉTÉ PAR ACTIONS SIMPLIFIÉE (SAS); FRANCE)"
+     },
+     {
+      "serial": "97049601",
+      "mark": "MERGE COUNTY",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Microfun Limited (limited company (ltd.); HONG KONG)"
+     },
+     {
+      "serial": "97430646",
+      "mark": "MERGE COUNTY",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Microfun Limited (limited company (ltd.); HONG KONG)"
+     },
+     {
+      "serial": "90795857",
+      "mark": "MERGE FABLES",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Microfun Limited (limited company (ltd.); HONG KONG)"
+     },
+     {
+      "serial": "79328635",
+      "mark": "MERGE VIKINGS",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009",
+       "IC 016",
+       "IC 025",
+       "IC 028",
+       "IC 041"
+      ],
+      "owner": "Metacore Games Oy (Limited company; FINLAND)"
+     },
+     {
+      "serial": "79416852",
+      "mark": "ROYAL MERGE",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 028",
+       "IC 042",
+       "IC 041",
+       "IC 009"
+      ],
+      "owner": "Dream Games Dijital Teknolojiler                   (UNKNOWN; TÜRKİYE)"
+     },
+     {
+      "serial": "50144809",
+      "mark": "MERGE MAGE",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 041",
+       "IC 009"
+      ],
+      "owner": "GEARY BUSINESS VENTURES, L.L.C. (LIMITED LIABILITY COMPANY; Maryland, USA)"
+     },
+     {
+      "serial": "79430689",
+      "mark": "MERGE DRAMA",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 041",
+       "IC 009"
+      ],
+      "owner": "Moon Active LTD. (limited company (ltd.); ISRAEL)"
+     },
+     {
+      "serial": "97608997",
+      "mark": "MERGE MASTER",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Hangzhou Mengku Technology Co., Ltd. (limited company (ltd.); CHINA)"
+     },
+     {
+      "serial": "97635145",
+      "mark": "MERGE COOKING",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "HAPPIBITS TECHNOLOGIES PTE. LTD. (PRIVATE LIMITED COMPANY; SINGAPORE)"
+     },
+     {
+      "serial": "98192276",
+      "mark": "MERGE FASHION",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Happibits Technologies Pte. Ltd (PRIVATE LIMITED COMPANY; SINGAPORE)"
+     },
+     {
+      "serial": "98721766",
+      "mark": "MERGE DESIGN",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Playchamp Technologies Limited (PRIVATE LIMITED COMPANY; Hong Kong)"
+     },
+     {
+      "serial": "99896074",
+      "mark": "MERGE HAVEN",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 009",
+       "IC 041"
+      ],
+      "owner": "Clever Apps Pte. Ltd. (Limited Company; Singapore)"
+     },
+     {
+      "serial": "99825476",
+      "mark": "FAMILY FARM MERGE",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 009",
+       "IC 041"
+      ],
+      "owner": "Century Games Pte. Ltd. (PRIVATE LIMITED COMPANY; Singapore)"
+     },
+     {
+      "serial": "98509293",
+      "mark": "MERGE MILLIONS",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Aristocrat Technologies, Inc. (CORPORATION; Nevada, USA)"
+     },
+     {
+      "serial": "50148050",
+      "mark": "JUICE MERGE",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Paxie Games Oyun ve Yazilim Anonim Sirketi (Joint Stock Company; Türki̇ye)"
+     },
+     {
+      "serial": "99619958",
+      "mark": "MERGE MODERN",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Hangzhou Mengku Technology Co., Ltd. (Limited Company; China)"
+     },
+     {
+      "serial": "99896072",
+      "mark": "TROPICAL MERGE",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 041",
+       "IC 009"
+      ],
+      "owner": "Clever Apps Pte. Ltd. (Limited Company; Singapore)"
+     },
+     {
+      "serial": "90217556",
+      "mark": "MERGE TYCOON",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Hangzhou Mengku Technology Co., Ltd. (LIMITED LIABILITY COMPANY; CHINA)"
+     },
+     {
+      "serial": "98961851",
+      "mark": "MERGE STUDIO",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Paxie Games Oyun ve Yazilim Anonim Sirket (JOINT STOCK COMPANY; Turkey)"
+     },
+     {
+      "serial": "90207708",
+      "mark": "IDLE MERGE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Hangzhou Mengku Technology Co., Ltd. (LIMITED LIABILITY COMPANY; CHINA)"
+     },
+     {
+      "serial": "97358916",
+      "mark": "COOK & MERGE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009",
+       "IC 041",
+       "IC 042"
+      ],
+      "owner": "Supersolid Limited (private limited company; UNITED KINGDOM)"
+     },
+     {
+      "serial": "98524936",
+      "mark": "MERGE MATCHING",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Hangzhou Mengku Technology Co., Ltd. (limited company (ltd.); China)"
+     },
+     {
+      "serial": "99896078",
+      "mark": "FAIRYLAND MERGE",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 009",
+       "IC 041"
+      ],
+      "owner": "Clever Apps Pte. Ltd. (Limited Company; Singapore)"
+     },
+     {
+      "serial": "99607143",
+      "mark": "MERGE VALLEY",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Hangzhou Mengku Technology Co., Ltd. (Limited Company; China)"
+     },
+     {
+      "serial": "99603774",
+      "mark": "MERGE CITY",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Hangzhou Mengku Technology Co., Ltd. (Limited Company; China)"
+     },
+     {
+      "serial": "99763442",
+      "mark": "SINKING SECRETS: MERGE & RESCUE",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 041",
+       "IC 009"
+      ],
+      "owner": "Shanghai Yiyu Network Technology Co., Ltd. (Limited Company; China)"
+     },
+     {
+      "serial": "98749380",
+      "mark": "FLAMBÉ: MERGE & COOK",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Microfun Limited (limited company (ltd.); Hong Kong)"
+     },
+     {
+      "serial": "98182912",
+      "mark": "MIDAS MERGE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "WILD LIFE INC. (CORPORATION; DELAWARE, USA)"
+     },
+     {
+      "serial": "90689041",
+      "mark": "RAGNAROK PORING MERGE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009",
+       "IC 041"
+      ],
+      "owner": "Gravity Co., Ltd. (CORPORATION; REPUBLIC OF KOREA)"
+     },
+     {
+      "serial": "79322854",
+      "mark": "MERGE MANSION",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 016",
+       "IC 025",
+       "IC 009",
+       "IC 028"
+      ],
+      "owner": "Metacore Games Oy (Limited company; FINLAND)"
+     },
+     {
+      "serial": "50150810",
+      "mark": "JUICE MERGE",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "RODER BALYEN (INDIVIDUAL; Türki̇ye)"
+     },
+     {
+      "serial": "98033087",
+      "mark": "THE GRAND MERGE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009",
+       "IC 041"
+      ],
+      "owner": "X-FLOW LTD (CORPORATION; CYPRUS)"
+     },
+     {
+      "serial": "79394348",
+      "mark": "ANIPANG MERGE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Wemade Play Co., Ltd. (CORPORATION; KOREA, SOUTH)"
+     },
+     {
+      "serial": "97675302",
+      "mark": "MERGE SNAKE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "WUHAN WEIPAI NETWORK TECHNOLOGY CO., LTD. (limited company (ltd.); CHINA)"
+     },
+     {
+      "serial": "87278878",
+      "mark": "MERGE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009",
+       "IC 028"
+      ],
+      "owner": "MERGE LABS, INC. (CORPORATION; DELAWARE, USA)"
+     },
+     {
+      "serial": "88527944",
+      "mark": "MERGE STORIES",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Jelly Button Games Ltd. (limited company (ltd.); ISRAEL)"
+     },
+     {
+      "serial": "99760237",
+      "mark": "RAKIN BACON MERGE SURGE",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "AGS LLC (LIMITED LIABILITY COMPANY; Delaware, USA)"
+     },
+     {
+      "serial": "98513981",
+      "mark": "MERGE OCEAN",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Shanghai Zhenglang Technology Co., Ltd. (limited company (ltd.); China)"
+     },
+     {
+      "serial": "98513980",
+      "mark": "MERGE FRENZY",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Shanghai Zhenglang Technology Co., Ltd. (limited company (ltd.); China)"
+     },
+     {
+      "serial": "88394546",
+      "mark": "DRAG N MERGE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Chengdu Chengfeng Quyou Technology Co., Ltd. (limited company (ltd.); CHINA)"
+     },
+     {
+      "serial": "87140408",
+      "mark": "MERGE DRAGONS",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Mazza Studios LLC (LIMITED LIABILITY COMPANY; CALIFORNIA, USA)"
+     },
+     {
+      "serial": "97911649",
+      "mark": "MERGE FISH",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Shanghai Zhenglang Technology Co., Ltd. (limited company (ltd.); CHINA)"
+     },
+     {
+      "serial": "97911648",
+      "mark": "MERGE MANIA",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Shanghai Zhenglang Technology Co., Ltd. (limited company (ltd.); CHINA)"
+     },
+     {
+      "serial": "87278862",
+      "mark": "MERGE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Merge Labs, Inc. (CORPORATION; DELAWARE, USA)"
+     },
+     {
+      "serial": "50166530",
+      "mark": "POP DROP MERGE PUZZLE",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "GAME DISTRICT LLC (LIMITED LIABILITY COMPANY; Delaware, USA)"
+     },
+     {
+      "serial": "99594264",
+      "mark": "MERGE: RECIPE OF WORLDS",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Shanghai Zhenglang Technology Co., Ltd. (Limited Company; China)"
+     },
+     {
+      "serial": "99402950",
+      "mark": "MERGE",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Merge Labs Inc. (CORPORATION; Delaware, USA)"
+     },
+     {
+      "serial": "87278881",
+      "mark": "MERGE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 041"
+      ],
+      "owner": "MERGE LABS, INC. (CORPORATION; DELAWARE, USA)"
+     },
+     {
+      "serial": "99823373",
+      "mark": "MERGE SPY: MOM'S SECRET",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Shanghai Zhenglang Technology Co., Ltd. (Limited Company; China)"
+     },
+     {
+      "serial": "88715733",
+      "mark": "DRAG N MERGE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 041"
+      ],
+      "owner": "Chengdu Chengfeng Quyou Technology Co., Ltd. (limited company (ltd.); CHINA)"
+     },
+     {
+      "serial": "79295956",
+      "mark": "DROP MERGE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "SUPERBOX Inc. (CORPORATION; REPUBLIC OF KOREA)"
+     },
+     {
+      "serial": "99237997",
+      "mark": "MERGE LEGENDS",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Shenzhen QiXunXinYou Technology Co., Ltd. (Limited Company; China)"
+     },
+     {
+      "serial": "99317628",
+      "mark": "FRUIT MERGE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "BRAVE HK LIMITED (Limited Company; Hong Kong)"
+     },
+     {
+      "serial": "90888071",
+      "mark": "TILE MERGE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "HIGGS TECHNOLOGY CO.,LIMITED (limited company (ltd.); HONG KONG)"
+     },
+     {
+      "serial": "97723849",
+      "mark": "CHEF MERGE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "HIGGS TECHNOLOGY CO., LIMITED (limited company (ltd.); HONG KONG)"
+     },
+     {
+      "serial": "79366420",
+      "mark": "MERGE 2248",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "SUPERBOX Inc. (CORPORATION; REPUBLIC OF KOREA)"
+     },
+     {
+      "serial": "97292312",
+      "mark": "CHEF MERGE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "HIGGS TECHNOLOGY CO., LIMITED (limited company (ltd.); HONG KONG)"
+     },
+     {
+      "serial": "79385478",
+      "mark": "MERGE SWEETS",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "SPRINGCOMES, Inc. (CORPORATION; KOREA, SOUTH)"
+     },
+     {
+      "serial": "98750734",
+      "mark": "MERGE JOURNEY",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Shenzhen QiXunXinYou Technology Co., Ltd. (limited company (ltd.); China)"
+     },
+     {
+      "serial": "99825233",
+      "mark": "MERGE TILE",
+      "live": true,
+      "registered": false,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Hong Kong Fotoable Technology Limited (Limited Company; Hong Kong)"
+     },
+     {
+      "serial": "90560653",
+      "mark": "MERGE MAKEOVER",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "MICROFUN LIMITED (limited company (ltd.); CHINA)"
+     },
+     {
+      "serial": "97599808",
+      "mark": "MERGE NEVERLAND",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Hefei Changchunteng Mobile Technology Co., Ltd. (limited company (ltd.); CHINA)"
+     },
+     {
+      "serial": "79358876",
+      "mark": "MERGE 2048",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "SUPERBOX Inc. (CORPORATION; REPUBLIC OF KOREA)"
+     },
+     {
+      "serial": "99743053",
+      "mark": "MERGE BISTRO",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Solotopia Network Technology (Beijing) Co., Ltd. (Limited Company; China)"
+     },
+     {
+      "serial": "97599810",
+      "mark": "MERGE TALES",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Hefei Changchunteng Mobile Technology Co., Ltd. (limited company (ltd.); CHINA)"
+     },
+     {
+      "serial": "88881003",
+      "mark": "MERGE WARFARE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Beijing ELEX Technology Co., Ltd (limited company (ltd.); CHINA)"
+     },
+     {
+      "serial": "90835608",
+      "mark": "MERGE WITCHES",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "HAINAN XINGYUEWAN NETWORK TECHNOLOGY LIMITED (limited company (ltd.); CHINA)"
+     },
+     {
+      "serial": "98294151",
+      "mark": "ROYAL MERGE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Hefei Changchunteng Mobile Technology Co., Ltd. (limited company (ltd.); CHINA)"
+     },
+     {
+      "serial": "97502604",
+      "mark": "MERGE OUT",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Shenzhen Eyewind Technology Co., Ltd. (limited company (ltd.); CHINA)"
+     },
+     {
+      "serial": "88554397",
+      "mark": "MERGE FLOWERS",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "BEIJING MENGZU INTERACTIVE TECHNOLOGY CO., LTD. (limited company (ltd.); CHINA)"
+     },
+     {
+      "serial": "97391446",
+      "mark": "MERGE HOTEL",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "APPQUANTUM PUBLISHING LTD (limited company (ltd.); CYPRUS)"
+     },
+     {
+      "serial": "98463509",
+      "mark": "STAR MERGE",
+      "live": true,
+      "registered": true,
+      "classes": [
+       "IC 009"
+      ],
+      "owner": "Plummy Games OÜ (osaühing (oü); Estonia)"
+     }
+    ]
+   }
+  }
+ },
+ "euipo": {
+  "endpoint": "https://euipo.europa.eu/copla/ctmsearch/json (the back-end of https://euipo.europa.eu/eSearch/, basic search, condition CONTAINS on the mark's verbal element)",
+  "queries": {
+   "merge mansion": {
+    "total": 2,
+    "hits": [
+     {
+      "number": "018177575",
+      "mark": "Merge Mansion",
+      "status": "Registered",
+      "classes": "9, 41, 42",
+      "owner": "Metacore Games Oy"
+     },
+     {
+      "number": "018455233",
+      "mark": "Merge Mansion",
+      "status": "Registered",
+      "classes": "9, 16, 25, 28",
+      "owner": "Metacore Games Oy"
+     }
+    ]
+   },
+   "alan wake": {
+    "total": 4,
+    "hits": [
+     {
+      "number": "004247722",
+      "mark": "ALAN WAKE",
+      "status": "Registration expired",
+      "classes": "9, 16, 24, 25, 28, 38, 41, 42",
+      "owner": "Remedy Entertainment Oyj"
+     },
+     {
+      "number": "015135882",
+      "mark": "Alan Wake’s Return",
+      "status": "Registered",
+      "classes": "9, 28, 41",
+      "owner": "Remedy Entertainment Oyj"
+     },
+     {
+      "number": "018872304",
+      "mark": "ALAN WAKE",
+      "status": "Registered",
+      "classes": "9, 16, 25, 41",
+      "owner": "Remedy Entertainment Oyj"
+     },
+     {
+      "number": "019422415",
+      "mark": "Alan Wake's Return",
+      "status": "Application published",
+      "classes": "9, 16, 25, 41",
+      "owner": "Remedy Entertainment Oyj"
+     }
+    ]
+   },
+   "vaultwake": {
+    "total": 0,
+    "hits": []
+   },
+   "wake merge": {
+    "total": 0,
+    "hits": []
+   },
+   "vault merge": {
+    "total": 0,
+    "hits": []
+   }
+  }
+ }
+}

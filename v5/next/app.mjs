@@ -10,7 +10,7 @@ import {kit} from '../kits.mjs';
 import {iceNeed,weakIceBeside} from './ice.mjs';
 import {purposeOf} from './purposes.mjs';
 import {createLog} from './playtest.mjs';
-import {rewardedAd,adsAvailable,initPlatform,platform} from './platform-cg.mjs';
+import {rewardedAd,adsAvailable,initPlatform,platform,onCrazyGamesHost,SAVE_INIT_TIMEOUT} from './platform-cg.mjs';
 import {cellPos} from '../core.mjs';
 import {CHAINS,draw,maxTier,chainsAt,GENERATOR_CHAINS} from './chains.mjs';
 import {art,portrait} from '../art.mjs';
@@ -24,6 +24,7 @@ import {reduced,burst,rewardFlight,moment as sharedMoment} from '../feedback.mjs
 import {sfx as sounds} from './sfx.mjs';
 import {createHome} from './home.mjs';
 import {readSave,keptCamps,freeKey,isKeptKey} from './saves.mjs?build=releaseqa54';
+import {openSaveStore,saveLine} from './save-store.mjs';
 import {playIntro,preloadIntro,storySeen,playScenes} from './story-intro.mjs';
 import {haptics} from './haptics.mjs';
 import {createEnergyReceipts} from './energy-receipts.mjs';
@@ -52,7 +53,15 @@ const nextUnlock=lv=>LEVEL_PATH.find(u=>u.level>lv)??null;
 const BOLT='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 1.5 4.5 13.5H11L9.5 22.5 19.5 10H13Z"/></svg>';
 enablePremium('vibrant');document.body.dataset.art='premium';document.body.dataset.palette='vibrant';
 const $=q=>document.querySelector(q),board=$('#board');
-const storage={get:k=>{try{return localStorage.getItem(k);}catch{return null;}},set:(k,v)=>{try{localStorage.setItem(k,v);}catch{}}};
+// Progress lives in the CrazyGames SDK's Data module on CrazyGames and in localStorage anywhere else
+// (save-store.mjs, 2026-11-08). The SDK is initialised first, so the save is read from the right place.
+const saveNotes=[];
+// On CrazyGames the real SDK's init can take several seconds (2026-11-09 private-QA failure): the
+// save waits for it (the loading screen stays up) rather than falling back to localStorage.
+const storage=await openSaveStore({init:()=>initPlatform({timeout:onCrazyGamesHost()?SAVE_INIT_TIMEOUT:4000}),
+ onEvent:(e,d)=>{saveNotes.push([e,d]);if(/Error|Full|OverLimit/.test(e))console.warn('[Vaultwake save]',e,d);}});
+// Diagnostics for QA: where progress goes and whether saves are accepted (also the menu's save line).
+globalThis.VWSave=storage.status;console.info('[Vaultwake save]',saveLine(storage.status),storage.status);
 // ?new=1 (the playtest page's "start from the beginning" link) starts a new camp.
 const startNew=new URLSearchParams(location.search).has('new');
 if(startNew){const q=new URLSearchParams(location.search);q.delete('new');history.replaceState(null,'',location.pathname+(q.size?'?'+q:''));}
@@ -71,7 +80,7 @@ let replaced=startNew?stored:null;
 const receipts=createEnergyReceipts(storage,SAVE_KEY+'-energy-receipts');
 receipts.apply(state);
 const persist=()=>{if(holdSave)return;receipts.apply(state);if(replaced){if(!keepCopy(replaced,'kept'))return;replaced=null;}storage.set(SAVE_KEY,JSON.stringify(state));receipts.remember(state);};
-const storageKeys=()=>{try{return Array.from({length:localStorage.length},(_,i)=>localStorage.key(i)).filter(Boolean);}catch{return [];}};
+const storageKeys=()=>storage.keys();
 // Keeps a copy of a camp before anything replaces it. Build 47c (reconciling PR #80's
 // vaultwake-v5-coast-backup with Build 46p's -damaged key): a kept copy is never overwritten. The
 // save goes to the first free key of its kind (-damaged or -kept, then -2 … -9, then one named by the
@@ -107,6 +116,7 @@ $('#keptList').addEventListener('click',e=>{const b=e.target.closest('[data-rest
 const playlog=createLog({storage:{get:k=>{try{return localStorage.getItem(k);}catch{return null;}},set:(k,v)=>localStorage.setItem(k,v),remove:k=>localStorage.removeItem(k)},
  build:BUILD,viewport:`${innerWidth}x${innerHeight}`,touch:!!globalThis.matchMedia?.('(pointer:coarse)').matches});
 playlog.startSession();
+for(const [e,d] of saveNotes)playlog.event(e,d);
 setInterval(()=>playlog.flush(),5000);
 addEventListener('pagehide',()=>playlog.end('pagehide'));
 document.addEventListener('visibilitychange',()=>{if(document.hidden)playlog.end('hidden');else playlog.event('resume');});
@@ -861,8 +871,8 @@ $('#soundButton').onclick=()=>{sounds.toggle();render();sfx('tap');};
 $('#hapticsButton').onclick=()=>{haptics.toggle();render();haptics.pulse('merge');};
 $('#helpButton').onclick=()=>$('#help').showModal();
 $('#keptButton').onclick=()=>{$('#menu').close();showKept();};
-$('#menuButton').onclick=()=>{$('#homeButton').hidden=homeOpen;{const n=kept().length;$('#keptButton').hidden=!n;$('#keptButton').textContent=`Kept camps (${n})`;}$('#classicNote').textContent=storage.get('vaultwake-v5')?'Your Classic save is kept and continues where you left it.':'';$('#hapticsNote').textContent=haptics.method==='vibrate'?'Vibration on merges: use the button at the bottom of the board screen.':haptics.method==='ios-switch'?'Vibration on merges may work on this iPhone (iOS 18 and later); turn it off at the bottom of the board screen.':'Vibration is not available in this browser.';$('#menu').showModal();};
-$('#newGame').onclick=()=>{if(!confirm('Start the Coast Camp from the beginning? This camp is kept in this browser (Kept camps in this menu brings it back), and your Classic save is not affected.'))return;if(!newCamp())return;$('#menu').close();if(homeOpen&&home)home.enter();else showIntro();};
+$('#menuButton').onclick=()=>{$('#homeButton').hidden=homeOpen;{const n=kept().length;$('#keptButton').hidden=!n;$('#keptButton').textContent=`Kept camps (${n})`;}{let n=$('#saveNote');if(!n){n=document.createElement('small');n.id='saveNote';$('#hapticsNote').after(n);}n.textContent=saveLine(storage.status);}$('#classicNote').textContent=storage.get('vaultwake-v5')?'Your Classic save is kept and continues where you left it.':'';$('#hapticsNote').textContent=haptics.method==='vibrate'?'Vibration on merges: use the button at the bottom of the board screen.':haptics.method==='ios-switch'?'Vibration on merges may work on this iPhone (iOS 18 and later); turn it off at the bottom of the board screen.':'Vibration is not available in this browser.';$('#menu').showModal();};
+$('#newGame').onclick=()=>{if(!confirm('Start a new game from the beginning? This camp is kept in this browser (Kept camps in this menu brings it back), and your Classic save is not affected.'))return;if(!newCamp())return;$('#menu').close();if(homeOpen&&home)home.enter();else showIntro();};
 // A new camp, chosen by the player (the menu, or Home after a save could not be read).
 // Round 2: the camp a new camp replaces is kept (SAVE_KEY-kept…), so starting again loses nothing.
 function newCamp(){const wasDamaged=damaged;if(!keepDamaged()){alert('Your old save could not be copied aside (this browser\'s storage is full), so nothing was replaced.');return false;}

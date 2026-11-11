@@ -6,7 +6,7 @@
 //   node tools/coast-crazygames.mjs --check  fails when the committed page is out of date
 //   node tools/coast-crazygames.mjs --zip    also writes dist/vaultwake-coast-crazygames.zip,
 //                                            ready to upload (index.html opens the game)
-import {readFileSync,writeFileSync,mkdirSync,rmSync,cpSync,readdirSync,statSync} from 'node:fs';
+import {readFileSync,writeFileSync,mkdirSync,rmSync,cpSync,readdirSync,statSync,utimesSync} from 'node:fs';
 import {execFileSync} from 'node:child_process';
 import {join,dirname,basename} from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -35,10 +35,27 @@ if(process.argv.includes('--zip')){
  for(const f of readdirSync(join(root,'v5')))if(/\.(mjs|css)$/.test(f))cpSync(join(root,'v5',f),join(stage,'v5',f));
  cpSync(out,join(stage,'v5/coast-crazygames.html'));
  if(fullLaunch)writeFileSync(join(stage,'v5/coast-crazygames.html'),crazyPage(readFileSync(join(root,'v5/play.html'),'utf8'),{fullLaunch:true}));
- cpSync(join(root,'v5/next'),join(stage,'v5/next'),{recursive:true});
- cpSync(join(root,'v5/assets'),join(stage,'v5/assets'),{recursive:true,filter:s=>!s.includes('/assets/review')&&!s.endsWith('.md')});
- writeFileSync(join(stage,'index.html'),'<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Vaultwake — Coast Camp</title><script>location.replace("v5/coast-crazygames.html"+location.search)</script></head><body><a href="v5/coast-crazygames.html">Play Vaultwake — Coast Camp</a></body></html>\n');
- execFileSync('zip',['-qr',zip,'.'],{cwd:stage});
+ // Release package (2026-11-08): developer pages and files the game never loads stay out too: the
+ // sound check page (its menu link is hidden on CrazyGames), the art render pages and script, the art
+ // manifests and the unregistered proposed sprites (docs/release/VAULTWAKE_MERGE_ASSET_AUDIT.md).
+ const devOnly=s=>/\/next\/sounds\.html$|\/assets\/premium\/coast\/(render[^/]*|proposed)$|\/assets\/premium\/coast\/[^/]+\/manifest\.json$/.test(s.replace(/\\/g,'/'));
+ // Images the Coast game never loads stay out too (tools/coast-crazygames-unused.txt). A path the Coast
+ // code names in full must never be on that list: the build stops rather than ship a missing picture.
+ const unused=new Set(readFileSync(join(root,'tools/coast-crazygames-unused.txt'),'utf8').split('\n').map(l=>l.replace(/#.*/,'').trim()).filter(Boolean));
+ const coastCode=[...readdirSync(join(root,'v5/next')).filter(f=>/\.(mjs|css|js)$/.test(f)).map(f=>'v5/next/'+f),'v5/play.html'].map(f=>readFileSync(join(root,f),'utf8')).join('\n');
+ for(const u of unused){if(!statSync(join(root,u),{throwIfNoEntry:false}))throw new Error(`tools/coast-crazygames-unused.txt: ${u} does not exist`);
+  if(coastCode.includes(u.slice(3)))throw new Error(`tools/coast-crazygames-unused.txt: ${u} is named in the Coast code; remove it from the list`);}
+ const rel=s=>s.replace(/\\/g,'/').slice(root.replace(/\\/g,'/').length+1);
+ cpSync(join(root,'v5/next'),join(stage,'v5/next'),{recursive:true,filter:s=>!devOnly(s)});
+ cpSync(join(root,'v5/assets'),join(stage,'v5/assets'),{recursive:true,filter:s=>!s.includes('/assets/review')&&!s.endsWith('.md')&&!devOnly(s)&&!unused.has(rel(s))});
+ writeFileSync(join(stage,'index.html'),'<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Vaultwake Merge</title><script>location.replace("v5/coast-crazygames.html"+location.search)</script></head><body><a href="v5/coast-crazygames.html">Play Vaultwake Merge</a></body></html>\n');
+ // Reproducible (release 2026-11-08): every file gets the same timestamp (SOURCE_DATE_EPOCH, default
+ // 2026-01-01 UTC) and goes in sorted, without extra attributes, so the same tree always gives the same
+ // bytes and the CI rebuild can be checked against a published SHA-256.
+ const epoch=Number(process.env.SOURCE_DATE_EPOCH??Date.UTC(2026,0,1)/1000),files=[];
+ const list=d=>{for(const f of readdirSync(join(stage,d)).sort()){const p=d?d+'/'+f:f;if(statSync(join(stage,p)).isDirectory())list(p);else files.push(p);}};list('');
+ for(const f of files)utimesSync(join(stage,f),epoch,epoch);
+ execFileSync('zip',['-q','-X','-D',zip,'-@'],{cwd:stage,input:files.join('\n')+'\n',env:{...process.env,TZ:'UTC'}});
  const size=f=>statSync(f).size,walk=d=>readdirSync(d).reduce((n,f)=>{const p=join(d,f);return n+(statSync(p).isDirectory()?walk(p):size(p));},0);
  console.log(`wrote dist/${basename(zip)}: ${(size(zip)/1048576).toFixed(1)} MB (${(walk(stage)/1048576).toFixed(1)} MB unpacked)`);
 }

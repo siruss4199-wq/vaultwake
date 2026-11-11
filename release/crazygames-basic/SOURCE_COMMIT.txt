@@ -1,0 +1,13 @@
+source_commit=664956e30a901a280df6c9047e3fe90ae70729d8
+base_branch=codex/v5-mobile-first-session-final-qa
+base_commit=fd76b03ed680e87d07ffdb87f017460550b1f960
+build=node tools/coast-crazygames.mjs --zip (SOURCE_DATE_EPOCH default 2026-01-01T00:00:00Z)
+zip=vaultwake-merge-crazygames-basic-664956e.zip
+sha256=14ed8d0d5a741507201e594d4099b05814f3d9d1a89982121647342f9873db7d
+bytes=14854132
+files=334
+launch=basic (data-ads=off)
+progress_save=CrazyGames SDK Data Module (v5/next/save-store.mjs); localStorage outside CrazyGames
+fix=2026-11-09 after the private-QA save failure with dd65d3f: wait for the real SDK on CrazyGames hosts, never stop saving on a login event, read refused saves back from the browser, diagnostics (window.VWSave, menu save line)
+previous_zips=vaultwake-merge-crazygames-basic-dd65d3f.zip (sha256 64c41f63988c637558fd52d7643df25fb34972a9ebfbc495fc62b7d0ecca6477; FAILED real CrazyGames QA 2026-11-09), vaultwake-merge-crazygames-basic-e72b4bb.zip (sha256 f5d880674c52ed5beb0a90ec41bfac4f366ebfd4d76de1d9a64651d29933fb3b; localStorage only)
+status=NOT APPROVED FOR PUBLIC RELEASE: real CrazyGames private-QA save retest pending (see OUTSTANDING_APPROVALS.md)

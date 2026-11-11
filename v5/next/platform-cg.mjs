@@ -8,13 +8,24 @@ const sdk=()=>globalThis.CrazyGames?.SDK??null;
 let ready=null,playing=false,loading=false;
 const call=f=>{try{f(sdk());}catch{}};
 // Resolves true once the SDK is up on CrazyGames; false without it, when it is disabled outside
-// CrazyGames, when it fails, or when it does not answer in time.
+// CrazyGames, when it fails, or when it does not answer within timeout. The SDK's own init is
+// started once and kept: a timeout answers false for that call only, and a later call answers true
+// once init has finished (2026-11-09: a slow init used to be remembered as a failure for the whole
+// session). On CrazyGames the real SDK's init waits for the CrazyGames page, the player and their
+// cloud data, which can take more than 4 s.
 export function initPlatform({timeout=4000}={}){
- if(ready)return ready;
- const s=sdk();if(!s?.init)return ready=Promise.resolve(false);
- ready=Promise.race([Promise.resolve().then(()=>s.init()).then(()=>s.environment!=='disabled',()=>false),new Promise(r=>setTimeout(()=>r(false),timeout))]);
- return ready;
+ const s=sdk();if(!s?.init)return Promise.resolve(false);
+ ready??=Promise.resolve().then(()=>s.init()).then(()=>s.environment!=='disabled',()=>false);
+ return Promise.race([ready,new Promise(r=>setTimeout(()=>r(false),timeout))]);
 }
+// Whether this page is served by CrazyGames (its game host, or framed by a CrazyGames page): there
+// the save waits for the SDK for longer (SAVE_INIT_TIMEOUT) instead of falling back to localStorage.
+export function onCrazyGamesHost(loc=globalThis.location){
+ const cg=h=>/(^|\.)crazygames\.[a-z.]+$/i.test(h||'');
+ try{if(cg(loc?.hostname))return true;for(const o of loc?.ancestorOrigins??[])if(cg(new URL(o).hostname))return true;}catch{}
+ try{return !!globalThis.document?.referrer&&cg(new URL(globalThis.document.referrer).hostname);}catch{return false;}
+}
+export const SAVE_INIT_TIMEOUT=25000;
 const on=async()=>!!sdk()&&await initPlatform();
 export const platform={
  available:on,

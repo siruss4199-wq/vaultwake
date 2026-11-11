@@ -5,7 +5,7 @@
 // - the round trip through an older build: the pilot camp kept aside (as an older build keeps a save it
 //   cannot read when a new camp is started there) is restored from the menu's Kept camps, and the camp
 //   it replaces is kept too;
-// - ?new=1 and the menu's "Start the Coast Camp again" keep the camp they replace.
+// - ?new=1 and the menu's "Start a new game" button keep the camp they replace.
 const assert=require('node:assert/strict');const fs=require('node:fs');const path=require('node:path');const {chromium,webkit}=require('playwright');
 const BASE='http://127.0.0.1:8080/v5/',KEY='vaultwake-v5-coast';
 const PILOT=fs.readFileSync(path.join(__dirname,'fixtures/coast/coast-pilot-extras.json'),'utf8').trim();
@@ -64,7 +64,7 @@ async function skipStory(page){await page.waitForFunction(()=>document.querySele
     await page.locator('#homePlay').click();await skipStory(page);await page.waitForSelector('#home',{state:'hidden'});await page.waitForTimeout(300);
     const after=await all(page);assert.equal(after[KEY+'-kept'],PILOT,'kept, exactly as stored, before the new camp was saved');assert.notEqual(after[KEY],PILOT);
     assert.deepEqual(errors,[]);await context.close();}
-   // 5. The menu's "Start the Coast Camp again" keeps the camp it replaces (once, however often).
+   // 5. The menu's "Start a new game" button keeps the camp it replaces (once, however often).
    {const {context,page,errors}=await open({[KEY]:PILOT});
     await page.locator('#homePlay').click();await page.waitForSelector('#home',{state:'hidden'});
     await page.locator('#menuButton').click();await page.locator('#newGame').click();await skipStory(page).catch(()=>{});await page.waitForTimeout(400);
