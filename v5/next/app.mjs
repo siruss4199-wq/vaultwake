@@ -272,12 +272,25 @@ function goldPanel(o){
  const find=gens.map(gen=>`<button class="locate" type="button" data-locate="${gen}" aria-label="Show the ${SOURCES[gen].name}">${draw({type:'source',id:gen})}</button>`).join('');
  return `<p class="orderSay goldSay"><b>${st.name}</b><small>${where} · ${coins}</small></p><div class="goldRow"><ul class="goldNeeds">${need}</ul>${find?`<span class="goldFind">${find}</span>`:''}</div><details class="goldHow"><summary>How to make these</summary><ol class="routes">${missingOf(state,o).map(r=>chainRoute(r,true)).join('')}</ol></details>`;
 }
+// Build 57y (owner, real iPhone, 2026-11-11): on a phone the tapped order's panel is a bottom sheet behind a
+// Details button in the guidance line, not a panel between the orders and the board; the tapped order's
+// parts are still marked on the board, and closing the sheet keeps the order tapped. On a larger screen the
+// panel stays where it was (coastal.css). The panel's buttons and their handlers are the same.
+let detailsOpen=false;
+const SHEET_CLOSE='<button type="button" class="sheetClose" data-sheet-close aria-label="Close the details">×</button>';
+function syncSheet(){
+ const bar=$('#orderTools'),btn=$('#orderDetails'),open=detailsOpen&&!bar.hidden;
+ if(!open)detailsOpen=false;
+ btn.hidden=bar.hidden;btn.setAttribute('aria-expanded',String(open));
+ bar.classList.toggle('sheetOpen',open);$('#sheetBackdrop').hidden=!open;
+}
+function setDetails(open){detailsOpen=open;syncSheet();if(open)$('#orderTools .sheetClose')?.focus({preventScroll:true});}
 function renderOrderTools(){
  const o=state.orders.find(o=>o.id===focusOrder),bar=$('#orderTools');
- if(!o||orderItems(state,o)){bar.hidden=true;bar.innerHTML='';return;}
+ if(!o||orderItems(state,o)){bar.hidden=true;bar.innerHTML='';syncSheet();return;}
  const day=today(),free=swapsLeft(state,day),ads=adSwapsLeft(state,day),missing=missingOf(state,o);
  bar.hidden=false;
- if(o.story){bar.innerHTML=goldPanel(o);return;}
+ if(o.story){bar.innerHTML=SHEET_CLOSE+goldPanel(o);syncSheet();return;}
  const swap=`<span class="toolNote">Stuck on ${CREW[o.who].name}'s order?</span>`+(free>0?`<button data-swap>↻ New order <small>${free} free today</small></button>`:ADS&&ads>0?'<button class="adOffer" data-swap-ad>▶ New order</button>':'<button disabled>No more changes today</button>');
  // What the order is for and where its coins go (Build 44): the crew member's reason, and the
  // next stage the coins count toward (the gold order instead brings that stage's materials).
@@ -288,7 +301,8 @@ function renderOrderTools(){
  // Three lines (Audit 2026-10-25, user: "ene yu ve"): why, what it pays and where the coins go,
  // how to make the parts; the bonus sums and the "100/100" progress (it read as done) are gone.
  const pays=!o.story&&n&&!n.ready?`<p class="orderPays">${COIN} +${o.coins} → <b>${n.u.name}</b></p>`:'';
- bar.innerHTML=`${say}${pays}<ol class="routes" aria-label="Where the parts come from">${missing.map(chainRoute).join('')}</ol><div class="toolRow">${swap}</div>`;
+ bar.innerHTML=`${SHEET_CLOSE}${say}${pays}<ol class="routes" aria-label="Where the parts come from">${missing.map(chainRoute).join('')}</ol><div class="toolRow">${swap}</div>`;
+ syncSheet();
 }
 // Build 48b: "show the generator" from the gold order's panel: its best copy glows for a moment (a
 // still outline with reduced motion).
@@ -704,10 +718,13 @@ $('#selection').addEventListener('click',e=>{
   $('#message').textContent=`Clear the ${nameOf(x)}? Tap again to clear it for good.`;setTimeout(()=>{if(clearArm?.index===at&&clearArm.until<=performance.now()){clearArm=null;renderSelection();}},3100);return;}
  clearArm=null;run({type:b.dataset.action,index:selected,id:x?.id});});
 let clearArm=null;
-$('#orderTools').addEventListener('click',e=>{const b=e.target.closest('[data-locate]');if(!b)return;locateGen=b.dataset.locate;locateUntil=performance.now()+2600;renderBoard();if(coach)showCoachTarget(coach.target);
+$('#orderTools').addEventListener('click',e=>{if(e.target.closest('[data-sheet-close]')){setDetails(false);return;}const b=e.target.closest('[data-locate]');if(!b)return;setDetails(false);locateGen=b.dataset.locate;locateUntil=performance.now()+2600;renderBoard();if(coach)showCoachTarget(coach.target);
  board.querySelector('.tile.located')?.scrollIntoView({block:'nearest',behavior:reduced()?'auto':'smooth'});
  const i=locateIndex();if(i>=0)$('#message').textContent=`${SOURCES[locateGen].name}${state.board[i]?.level>1?` (level ${state.board[i].level})`:''}: tap it for parts.`;
  setTimeout(()=>{if(performance.now()>=locateUntil){renderBoard();if(coach)showCoachTarget(coach.target);}},2700);});
+$('#orderDetails').addEventListener('click',()=>{sfx('tap');setDetails(true);});
+$('#sheetBackdrop').addEventListener('click',()=>setDetails(false));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&detailsOpen){e.preventDefault();setDetails(false);$('#orderDetails').focus({preventScroll:true});}});
 $('#requests').addEventListener('click',e=>{const c=e.target.closest('[data-order]');if(!c)return;const o=state.orders.find(o=>o.id===c.dataset.order);if(!o)return;if(orderItems(state,o)){run({type:'deliver',id:o.id});return;}focusOrder=focusOrder===o.id?null:o.id;render();$('#message').textContent=`${CREW[o.who].name} needs ${needsOf(state,o).map(r=>r.count+' × '+nameOf(item(r.family,r.tier))+(r.sibling?` (level ${levelOf(r)})`:'')).join(' and ')}. Their parts are marked on the board.`+o.needs.filter(r=>CHAINS[r.family].secondary).map(r=>' '+sourceNote(r.family,r.tier)).join('');});
 // The upgrading happens on the beach screen (user: "tusdaa orchinruu ochij upgrade hiih").
 $('#mapButton').onclick=()=>{mapFocus=$('#mapButton').dataset.place||null;sfx('tap');showMap();};

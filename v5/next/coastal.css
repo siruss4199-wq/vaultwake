@@ -523,3 +523,28 @@ body.nextMode #board .tile.coachTarget,body.nextMode #board .tile.coachTo{box-sh
 }
 @keyframes coachTap{0%,100%{transform:translateY(7px) scale(1)}45%{transform:translateY(0) scale(.94)}}
 @keyframes coachHandDrag{0%,15%{transform:translate(0,0)}75%,100%{transform:translate(var(--dx,0),var(--dy,0))}}
+/* ---------- Build 57y (2026-11-11, owner on a real iPhone): order details in a bottom sheet ----------
+   Built on 664956e/e6eddf6 (the live Basic Launch layout); nothing from the rejected 57v/57w.
+   On a phone, tapping an order marks its parts on the board (as before) and shows a Details button in the
+   guidance line; the order's panel (materials, progress, generator buttons, how to make the parts, a new
+   order) opens from it as a bottom sheet over the board and closes with ✕, a tap outside it, Esc or a
+   generator button, keeping the order tapped. The panel no longer stands between the orders and the
+   restoration strip, so nothing moves when an order is tapped; the strip (View / Build) stays where it is.
+   The backdrop is display:none whenever the sheet is closed, so it never takes a tap. Larger screens keep
+   the panel where it was. */
+body.nextMode .orderTools .sheetClose,body.nextMode .boardHeading .orderDetails,body.nextMode .sheetBackdrop{display:none}
+@media(max-width:699px){
+ body.nextMode #orderTools:not(.sheetOpen){display:none}
+ body.nextMode #orderTools.sheetOpen{position:fixed;z-index:36;left:max(8px,env(safe-area-inset-left));right:max(8px,env(safe-area-inset-right));bottom:max(8px,env(safe-area-inset-bottom));max-width:480px;margin:0 auto;max-height:min(72dvh,560px);overflow-y:auto;overscroll-behavior:contain;padding:14px 12px 12px;border-radius:20px;background:#fffdf8;box-shadow:0 0 0 2px #f5c24e,0 -6px 30px #0d2c3a59;animation:sheetUp .2s ease-out}
+ body.nextMode .orderTools .sheetClose{display:grid;place-items:center;position:absolute;top:6px;right:6px;width:44px;height:44px;margin:0;padding:0;border:0;border-radius:50%;background:#eef6f6;color:var(--cb-ink);font:900 22px/1 system-ui,sans-serif;cursor:pointer;z-index:1}
+ body.nextMode #orderTools.sheetOpen>.orderSay{padding-right:48px}
+ body.nextMode .sheetBackdrop:not([hidden]){display:block;position:fixed;inset:0;z-index:35;background:#0d2c3a59}
+ body.nextMode .boardHeading .orderDetails:not([hidden]){display:inline-flex;align-items:center;flex:none;min-height:44px;padding:0 14px;border:0;border-radius:999px;background:linear-gradient(#3fd0d6,var(--cb-turq2));color:#fff;font:900 13px/1 inherit;letter-spacing:.02em;box-shadow:0 2px 0 #0a6b70;cursor:pointer}
+ body.nextMode .boardHeading .orderDetails:not([hidden])::after{content:"▴";margin-left:6px;font-size:11px}
+ /* the guidance line takes no space when nothing in it shows (its hint hides itself when the strip or an
+    order card already says it, Skip guide after the guide, Details with no order tapped) */
+ body.nextMode .boardHeading:is(:has(#hint[data-kind="upgrade"]),:has(#hint[data-kind="deliver"])):has(#coachSkip[hidden]):has(#orderDetails[hidden]){display:none}
+ body.nextMode[data-art] .boardHeading:is(:has(#hint[data-kind="upgrade"]),:has(#hint[data-kind="deliver"])):has(#coachSkip[hidden]):has(#orderDetails[hidden])+#board.board{margin-top:8px}
+}
+@media(max-width:699px) and (prefers-reduced-motion:reduce){body.nextMode #orderTools.sheetOpen{animation:none}}
+@keyframes sheetUp{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}

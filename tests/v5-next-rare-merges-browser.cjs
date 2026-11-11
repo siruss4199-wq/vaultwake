@@ -13,6 +13,9 @@
 // Nothing scrolls sideways; buttons are 44 px; no page errors.
 //   SHOTS=<dir> also saves screenshots.
 const assert=require('node:assert/strict');const path=require('node:path');const {chromium,webkit}=require('playwright');const {throughHome}=require('./v5-next-home-helper.cjs');
+// Build 57y: on a phone the tapped order's panel opens from Details (a bottom sheet); elsewhere it shows by itself
+const openDetails=async page=>{if(await page.locator('#orderDetails:visible').count()){await page.locator('#orderDetails').click();await page.waitForSelector('#orderTools.sheetOpen');}};
+const closeDetails=async page=>{if(await page.locator('#orderTools.sheetOpen').count()){await page.locator('#orderTools .sheetClose').click();await page.waitForSelector('#sheetBackdrop',{state:'hidden'});}};
 const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=process.env.SHOTS;
 (async()=>{
  const g=await import('../v5/next/game.mjs'),{AREAS}=await import('../v5/next/areas.mjs');
@@ -54,7 +57,7 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
 
    // 1. the signal mast: a Survey scope in hand, one Pocket winch of two
    await load(mast,mastGold,[['chart',3],['rig',3],['rig',2],['mech',1],['notes',0]]);
-   await page.locator(`[data-order="${mastGold.id}"]`).click();await page.waitForSelector('#orderTools .goldNeeds');
+   await page.locator(`[data-order="${mastGold.id}"]`).click();await openDetails(page);await page.waitForSelector('#orderTools .goldNeeds');
    const panel=await page.locator('#orderTools').innerText();
    assert.match(panel,/Raise the signal mast/,tag('the stage'));assert.match(panel,/100 to build: you have it/,tag('the build cost, once (build 51d)'));
    assert.match(panel,/Survey scope\s*1\/1/,tag('held/needed'));assert.match(panel,/Pocket winch\s*1\/2/,tag('held/needed'));assert.match(panel,/Landing Beach · /,tag('the place'));
@@ -99,7 +102,7 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
    // 2. Gear the hoist. Build 48c: with no Bolt held, the gold panel states the guarantee in taps (while
    // this order waits, a Bolt within every 10 taps: Build 52A3's rate after the first six stages), not as a time
    await load(hoist,hoistGold,[['chart',3]]);
-   await page.locator(`[data-order="${hoistGold.id}"]`).click();await page.waitForSelector('#orderTools .goldNeeds');
+   await page.locator(`[data-order="${hoistGold.id}"]`).click();await openDetails(page);await page.waitForSelector('#orderTools .goldNeeds');
    assert.match(await page.locator('#orderTools').innerText(),/Tap a level 2\+ Rivet Rover: while this order waits, a Bolt comes within every 10 taps · merge matching items to reach Gear/,tag('the guarantee, in taps'));
    assert.doesNotMatch(await page.locator('#orderTools').innerText(),/minute|guaranteed time/i);await fits('guarantee');await shot('6a-gold-guarantee');
    // two Bolts and ordinary components, 40 coins of 200
@@ -107,8 +110,9 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
    s=await save();const b=s.board.findIndex(x=>x?.type==='item'&&x.family==='mech');await page.locator(`#board [data-index="${b}"]`).click();
    const sel=await page.locator('#selection').innerText();assert.match(sel,/Needed for .+: merge matching items to reach Gear/,tag('Needed for, with the merge'));
    await fits('needed for');await shot('6-needed-for');
-   await page.locator(`[data-order="${hoistGold.id}"]`).click();await page.waitForSelector('#orderTools .goldNeeds');
+   await page.locator(`[data-order="${hoistGold.id}"]`).click();await openDetails(page);await page.waitForSelector('#orderTools .goldNeeds');
    const hp=await page.locator('#orderTools').innerText();assert.match(hp,/Gear\s*0\/1/);assert.match(hp,/merge matching items to reach Gear/i);assert.match(hp,/40 of 200: 160 more/,tag('coins short, from crew orders'));
+   await closeDetails(page);// the sheet covers the board while open: a player closes it to play
    // merge the Bolts into a Gear by hand, then deliver
    s=await save();const bolts=s.board.map((x,i)=>x?.type==='item'&&x.family==='mech'&&x.tier===0?i:-1).filter(i=>i>=0);
    {const a=await page.locator(`#board [data-index="${bolts[0]}"]`).boundingBox(),c=await page.locator(`#board [data-index="${bolts[1]}"]`).boundingBox();
