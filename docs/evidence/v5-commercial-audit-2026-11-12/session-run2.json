@@ -1,0 +1,3849 @@
+{
+ "engine": "chromium",
+ "viewport": "390x664",
+ "think": 1500,
+ "read": 3500,
+ "firsts": {
+  "act produce": 21.6,
+  "tap": 21.6,
+  "act merge": 28.2,
+  "merge": 28.2,
+  "act deliver": 39,
+  "crew delivered": 39,
+  "gold delivered": 80,
+  "coast opened": 85.1,
+  "act restore": 100.1,
+  "stage 1": 100.1,
+  "book opened": 114.5,
+  "act book": 115.8,
+  "guide done": 115.8,
+  "act openKit": 152.4,
+  "act unseal": 174.9,
+  "stage 2": 276.7,
+  "act store": 287.8,
+  "stage 3": 328,
+  "act unstore": 332.1,
+  "stage 4": 605.5
+ },
+ "log": [
+  {
+   "t": 0.3,
+   "e": "page opened"
+  },
+  {
+   "t": 0.4,
+   "e": "home ready",
+   "button": "Play"
+  },
+  {
+   "t": 4.1,
+   "e": "play tapped"
+  },
+  {
+   "t": 4.6,
+   "e": "story page",
+   "n": 1,
+   "txt": "Skip An unsigned letter led you to this forgotten coast. Next"
+  },
+  {
+   "t": 8.7,
+   "e": "story page",
+   "n": 2,
+   "txt": "Skip Bram That seal… it’s on the Vault, too. Who sent you this? Next"
+  },
+  {
+   "t": 12.7,
+   "e": "story page",
+   "n": 3,
+   "txt": "Skip Ivo The letter brought us to that Vault. First, let’s clear a landing. Clear a landing"
+  },
+  {
+   "t": 16.8,
+   "e": "board visible",
+   "storyPages": 3
+  },
+  {
+   "t": 21.6,
+   "e": "produce",
+   "src": "guide",
+   "ok": true,
+   "energy": 99,
+   "coins": 0,
+   "orders": 0,
+   "stages": 0,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 21.6,
+   "e": "FIRST act produce"
+  },
+  {
+   "t": 21.6,
+   "e": "FIRST tap"
+  },
+  {
+   "t": 23.7,
+   "e": "produce",
+   "src": "guide",
+   "ok": true,
+   "energy": 98,
+   "coins": 0,
+   "orders": 0,
+   "stages": 0,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 28.2,
+   "e": "merge",
+   "src": "guide",
+   "ok": true,
+   "energy": 98,
+   "coins": 0,
+   "orders": 0,
+   "stages": 0,
+   "msg": "Grip tool · the tideglass cracks · too small for the tideglass: merge a level 3 or better beside it"
+  },
+  {
+   "t": 28.2,
+   "e": "FIRST act merge"
+  },
+  {
+   "t": 28.2,
+   "e": "FIRST merge"
+  },
+  {
+   "t": 30.3,
+   "e": "produce",
+   "src": "guide",
+   "ok": true,
+   "energy": 97,
+   "coins": 0,
+   "orders": 0,
+   "stages": 0,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 32.4,
+   "e": "produce",
+   "src": "guide",
+   "ok": true,
+   "energy": 96,
+   "coins": 0,
+   "orders": 0,
+   "stages": 0,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 34.9,
+   "e": "merge",
+   "src": "guide",
+   "ok": true,
+   "energy": 96,
+   "coins": 0,
+   "orders": 0,
+   "stages": 0,
+   "msg": "Split spanner · the tideglass cracks"
+  },
+  {
+   "t": 39,
+   "e": "deliver",
+   "src": "guide",
+   "ok": true,
+   "energy": 112,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "+10 coins · +1 energy · first crew order: +15 energy"
+  },
+  {
+   "t": 39,
+   "e": "FIRST act deliver"
+  },
+  {
+   "t": 39,
+   "e": "FIRST crew delivered"
+  },
+  {
+   "t": 41.2,
+   "e": "produce",
+   "src": "guide",
+   "ok": true,
+   "energy": 111,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 43.6,
+   "e": "merge",
+   "src": "guide",
+   "ok": true,
+   "energy": 111,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "Grip tool · the tideglass cracks · too small for the tideglass: merge a level 3 or better beside it"
+  },
+  {
+   "t": 45.7,
+   "e": "produce",
+   "src": "guide",
+   "ok": true,
+   "energy": 110,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 47.7,
+   "e": "produce",
+   "src": "guide",
+   "ok": true,
+   "energy": 109,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 50.2,
+   "e": "merge",
+   "src": "guide",
+   "ok": true,
+   "energy": 109,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "Grip tool · the tideglass cracks"
+  },
+  {
+   "t": 52.6,
+   "e": "merge",
+   "src": "guide",
+   "ok": true,
+   "energy": 109,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "Split spanner · the tideglass breaks"
+  },
+  {
+   "t": 54.7,
+   "e": "produce",
+   "src": "guide",
+   "ok": true,
+   "energy": 108,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 57.2,
+   "e": "merge",
+   "src": "guide",
+   "ok": true,
+   "energy": 108,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "Split spanner · the tideglass cracks"
+  },
+  {
+   "t": 59.6,
+   "e": "merge",
+   "src": "guide",
+   "ok": true,
+   "energy": 108,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "Pocket winch"
+  },
+  {
+   "t": 61.7,
+   "e": "produce",
+   "src": "guide",
+   "ok": true,
+   "energy": 107,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 64.2,
+   "e": "merge",
+   "src": "guide",
+   "ok": true,
+   "energy": 107,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "Grip tool · the tideglass cracks"
+  },
+  {
+   "t": 66.4,
+   "e": "produce",
+   "src": "guide",
+   "ok": true,
+   "energy": 106,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 68.5,
+   "e": "produce",
+   "src": "guide",
+   "ok": true,
+   "energy": 105,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 70.9,
+   "e": "merge",
+   "src": "guide",
+   "ok": true,
+   "energy": 110,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "Grip tool · the tideglass breaks · too small for the tideglass: merge a level 3 or better beside it"
+  },
+  {
+   "t": 70.9,
+   "e": "level up",
+   "level": 2
+  },
+  {
+   "t": 73.4,
+   "e": "merge",
+   "src": "guide",
+   "ok": true,
+   "energy": 110,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "Split spanner · the tideglass cracks"
+  },
+  {
+   "t": 75.5,
+   "e": "produce",
+   "src": "guide",
+   "ok": true,
+   "energy": 109,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 77.9,
+   "e": "merge",
+   "src": "guide",
+   "ok": true,
+   "energy": 109,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "Split spanner · the tideglass cracks"
+  },
+  {
+   "t": 80,
+   "e": "deliver",
+   "src": "guide",
+   "ok": true,
+   "energy": 109,
+   "coins": 80,
+   "orders": 2,
+   "stages": 0,
+   "msg": "+70 coins · materials for Clear the landing path"
+  },
+  {
+   "t": 80,
+   "e": "FIRST gold delivered"
+  },
+  {
+   "t": 85.1,
+   "e": "FIRST coast opened"
+  },
+  {
+   "t": 87.4,
+   "e": "beat",
+   "text": "CLEAR THE LANDING PATH −40 coins IVO A path from the boats to dry ground. Now the crew can carry real loads. Next"
+  },
+  {
+   "t": 91.3,
+   "e": "beat",
+   "text": "CLEAR THE LANDING PATH −40 coins IVO Somebody left a driftwood crate on it: it is ours now. Continue"
+  },
+  {
+   "t": 99.6,
+   "e": "coast closed"
+  },
+  {
+   "t": 100.1,
+   "e": "restore",
+   "src": "guide",
+   "ok": true,
+   "energy": 129,
+   "coins": 40,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Guide complete. Next: Lay a boardwalk: its gold order brings the materials and coins, crew orders add more coins."
+  },
+  {
+   "t": 100.1,
+   "e": "FIRST act restore"
+  },
+  {
+   "t": 100.1,
+   "e": "FIRST stage 1"
+  },
+  {
+   "t": 108.6,
+   "e": "action failed",
+   "a": {
+    "type": "book",
+    "key": "rig0"
+   },
+   "err": "TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#book[open]') to be visible\u001b[22m\n"
+  },
+  {
+   "t": 114.5,
+   "e": "FIRST book opened"
+  },
+  {
+   "t": 115.8,
+   "e": "book",
+   "src": "policy",
+   "ok": true,
+   "energy": 139,
+   "coins": 41,
+   "orders": 2,
+   "stages": 1,
+   "msg": "In the book · +1 coins"
+  },
+  {
+   "t": 115.8,
+   "e": "FIRST act book"
+  },
+  {
+   "t": 115.8,
+   "e": "FIRST guide done"
+  },
+  {
+   "t": 120,
+   "e": "book",
+   "src": "policy",
+   "ok": true,
+   "energy": 139,
+   "coins": 42,
+   "orders": 2,
+   "stages": 1,
+   "msg": "In the book · +1 coins"
+  },
+  {
+   "t": 124.2,
+   "e": "book",
+   "src": "policy",
+   "ok": true,
+   "energy": 139,
+   "coins": 44,
+   "orders": 2,
+   "stages": 1,
+   "msg": "In the book · +2 coins"
+  },
+  {
+   "t": 128.4,
+   "e": "book",
+   "src": "policy",
+   "ok": true,
+   "energy": 139,
+   "coins": 45,
+   "orders": 2,
+   "stages": 1,
+   "msg": "In the book · +1 coins"
+  },
+  {
+   "t": 132.5,
+   "e": "book",
+   "src": "policy",
+   "ok": true,
+   "energy": 139,
+   "coins": 48,
+   "orders": 2,
+   "stages": 1,
+   "msg": "In the book · +3 coins"
+  },
+  {
+   "t": 134.6,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 138,
+   "coins": 48,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 137.1,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 138,
+   "coins": 48,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Grip tool · too small for the tideglass: merge a level 3 or better beside it"
+  },
+  {
+   "t": 139.1,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 137,
+   "coins": 48,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 141.2,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 136,
+   "coins": 48,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 143.6,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 136,
+   "coins": 48,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 145.7,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 135,
+   "coins": 48,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 147.8,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 134,
+   "coins": 48,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 152.4,
+   "e": "openKit",
+   "src": "policy",
+   "ok": true,
+   "energy": 134,
+   "coins": 48,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Grip tool · 2 left"
+  },
+  {
+   "t": 152.4,
+   "e": "FIRST act openKit"
+  },
+  {
+   "t": 154.9,
+   "e": "openKit",
+   "src": "policy",
+   "ok": true,
+   "energy": 134,
+   "coins": 48,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Grip tool · the crate is empty"
+  },
+  {
+   "t": 157.3,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 134,
+   "coins": 48,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Grip tool · the tideglass cracks"
+  },
+  {
+   "t": 159.4,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 133,
+   "coins": 48,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 161.5,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 132,
+   "coins": 48,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 163.9,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 132,
+   "coins": 48,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Grip tool · the tideglass breaks"
+  },
+  {
+   "t": 168.1,
+   "e": "book",
+   "src": "policy",
+   "ok": true,
+   "energy": 132,
+   "coins": 49,
+   "orders": 2,
+   "stages": 1,
+   "msg": "In the book · +1 coins"
+  },
+  {
+   "t": 170.5,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 132,
+   "coins": 49,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Split spanner · the tideglass cracks"
+  },
+  {
+   "t": 174.9,
+   "e": "unseal",
+   "src": "policy",
+   "ok": false,
+   "energy": 132,
+   "coins": 49,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Split spanner · the tideglass cracks"
+  },
+  {
+   "t": 174.9,
+   "e": "FIRST act unseal"
+  },
+  {
+   "t": 177.3,
+   "e": "unseal",
+   "src": "policy",
+   "ok": false,
+   "energy": 132,
+   "coins": 49,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Split spanner · the tideglass cracks"
+  },
+  {
+   "t": 179.8,
+   "e": "stuck: falling back to a generator tap",
+   "a": {
+    "type": "unseal",
+    "from": 16,
+    "index": 9
+   }
+  },
+  {
+   "t": 179.8,
+   "e": "unseal",
+   "src": "policy",
+   "ok": false,
+   "energy": 132,
+   "coins": 49,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 182.3,
+   "e": "unseal",
+   "src": "policy",
+   "ok": true,
+   "energy": 131,
+   "coins": 64,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Cargo opened · Empty space"
+  },
+  {
+   "t": 184.5,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 130,
+   "coins": 64,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 186.6,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 129,
+   "coins": 64,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 189,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 144,
+   "coins": 64,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Grip tool · the tideglass breaks · too small for the tideglass: merge a level 3 or better beside it"
+  },
+  {
+   "t": 189,
+   "e": "level up",
+   "level": 3
+  },
+  {
+   "t": 191.5,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 144,
+   "coins": 64,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Split spanner · the tideglass cracks"
+  },
+  {
+   "t": 193.6,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 143,
+   "coins": 64,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 195.7,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 142,
+   "coins": 64,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 198.1,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 142,
+   "coins": 64,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 200.6,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 142,
+   "coins": 64,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Pocket winch · the tideglass cracks"
+  },
+  {
+   "t": 203,
+   "e": "unseal",
+   "src": "policy",
+   "ok": true,
+   "energy": 142,
+   "coins": 64,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Cargo opened · Driftwood crate · Rivet Rover"
+  },
+  {
+   "t": 205.1,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 141,
+   "coins": 64,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 207.5,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 141,
+   "coins": 64,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Grip tool · too small for the tideglass: merge a level 3 or better beside it"
+  },
+  {
+   "t": 209.6,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 140,
+   "coins": 64,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 212.2,
+   "e": "openKit",
+   "src": "policy",
+   "ok": true,
+   "energy": 140,
+   "coins": 64,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Grip tool · 2 left"
+  },
+  {
+   "t": 214.6,
+   "e": "merge",
+   "src": "policy",
+   "ok": false,
+   "energy": 140,
+   "coins": 64,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Grip tool · 2 left"
+  },
+  {
+   "t": 217,
+   "e": "merge",
+   "src": "policy",
+   "ok": false,
+   "energy": 140,
+   "coins": 64,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Grip tool · 2 left"
+  },
+  {
+   "t": 219.4,
+   "e": "stuck: falling back to a generator tap",
+   "a": {
+    "type": "merge",
+    "from": 9,
+    "to": 14
+   }
+  },
+  {
+   "t": 219.4,
+   "e": "merge",
+   "src": "policy",
+   "ok": false,
+   "energy": 140,
+   "coins": 64,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 221.9,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 139,
+   "coins": 64,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Split spanner · the tideglass breaks"
+  },
+  {
+   "t": 224.3,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 139,
+   "coins": 64,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Pocket winch"
+  },
+  {
+   "t": 226.7,
+   "e": "unseal",
+   "src": "policy",
+   "ok": true,
+   "energy": 144,
+   "coins": 64,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Cargo opened · +5 energy"
+  },
+  {
+   "t": 229.2,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 144,
+   "coins": 64,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 231.7,
+   "e": "openKit",
+   "src": "policy",
+   "ok": true,
+   "energy": 144,
+   "coins": 64,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Copper offcut · 1 left"
+  },
+  {
+   "t": 241.7,
+   "e": "action failed",
+   "a": {
+    "type": "openKit",
+    "index": 13
+   },
+   "err": "TimeoutError: locator.waitFor: Timeout 8000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#selection [data-action=\"openKit\"]') to be visible\u001b[22m\n"
+  },
+  {
+   "t": 245.2,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 144,
+   "coins": 64,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Split spanner · the tideglass cracks"
+  },
+  {
+   "t": 247.3,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 143,
+   "coins": 64,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 249.4,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 142,
+   "coins": 64,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 251.8,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 142,
+   "coins": 64,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 254.2,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 142,
+   "coins": 64,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 256.7,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 142,
+   "coins": 64,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Pocket winch · the tideglass cracks"
+  },
+  {
+   "t": 258.8,
+   "e": "deliver",
+   "src": "policy",
+   "ok": true,
+   "energy": 142,
+   "coins": 104,
+   "orders": 3,
+   "stages": 1,
+   "msg": "+40 coins · materials for Lay a boardwalk"
+  },
+  {
+   "t": 264,
+   "e": "beat",
+   "text": "LAY A BOARDWALK −70 coins IVO Planks over the sand. The carts stop sinking. Next"
+  },
+  {
+   "t": 267.9,
+   "e": "beat",
+   "text": "LAY A BOARDWALK −70 coins IVO A Rivet Rover was buried under the old planks! Merge it with yours. Continue"
+  },
+  {
+   "t": 276.1,
+   "e": "coast closed"
+  },
+  {
+   "t": 276.7,
+   "e": "restore",
+   "src": "policy",
+   "ok": true,
+   "energy": 152,
+   "coins": 34,
+   "orders": 3,
+   "stages": 2,
+   "msg": "Lay a boardwalk · stage 2"
+  },
+  {
+   "t": 276.7,
+   "e": "FIRST stage 2"
+  },
+  {
+   "t": 279.1,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 157,
+   "coins": 34,
+   "orders": 3,
+   "stages": 2,
+   "msg": "Rivet Rover reaches level 2"
+  },
+  {
+   "t": 279.1,
+   "e": "level up",
+   "level": 4
+  },
+  {
+   "t": 283.3,
+   "e": "book",
+   "src": "policy",
+   "ok": true,
+   "energy": 157,
+   "coins": 35,
+   "orders": 3,
+   "stages": 2,
+   "msg": "In the book · +1 coins"
+  },
+  {
+   "t": 287.8,
+   "e": "store",
+   "src": "policy",
+   "ok": true,
+   "energy": 157,
+   "coins": 35,
+   "orders": 3,
+   "stages": 2,
+   "msg": "Bolt · in the shed"
+  },
+  {
+   "t": 287.8,
+   "e": "FIRST act store"
+  },
+  {
+   "t": 289.9,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 156,
+   "coins": 35,
+   "orders": 3,
+   "stages": 2,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 292,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 155,
+   "coins": 35,
+   "orders": 3,
+   "stages": 2,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 294,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 154,
+   "coins": 35,
+   "orders": 3,
+   "stages": 2,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 296.5,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 154,
+   "coins": 35,
+   "orders": 3,
+   "stages": 2,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 298.6,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 153,
+   "coins": 35,
+   "orders": 3,
+   "stages": 2,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 300.7,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 152,
+   "coins": 35,
+   "orders": 3,
+   "stages": 2,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 303.2,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 152,
+   "coins": 35,
+   "orders": 3,
+   "stages": 2,
+   "msg": "Grip tool · too small for the tideglass: merge a level 3 or better beside it"
+  },
+  {
+   "t": 305.7,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 152,
+   "coins": 35,
+   "orders": 3,
+   "stages": 2,
+   "msg": "Split spanner · the tideglass breaks"
+  },
+  {
+   "t": 308.1,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 152,
+   "coins": 35,
+   "orders": 3,
+   "stages": 2,
+   "msg": "Pocket winch ×2 · triple merge"
+  },
+  {
+   "t": 310.2,
+   "e": "deliver",
+   "src": "policy",
+   "ok": true,
+   "energy": 152,
+   "coins": 80,
+   "orders": 4,
+   "stages": 2,
+   "msg": "+45 coins · materials for Pitch the camp tent"
+  },
+  {
+   "t": 315.4,
+   "e": "beat",
+   "text": "PITCH THE CAMP TENT −80 coins NERI Dry blankets and hot tea. Everyone works faster after a rest. Next"
+  },
+  {
+   "t": 319.2,
+   "e": "beat",
+   "text": "PITCH THE CAMP TENT −80 coins IVO +8 energy for the crew. Continue"
+  },
+  {
+   "t": 327.5,
+   "e": "coast closed"
+  },
+  {
+   "t": 328,
+   "e": "restore",
+   "src": "policy",
+   "ok": true,
+   "energy": 170,
+   "coins": 0,
+   "orders": 4,
+   "stages": 3,
+   "msg": "Pitch the camp tent · restored"
+  },
+  {
+   "t": 328,
+   "e": "FIRST stage 3"
+  },
+  {
+   "t": 332.1,
+   "e": "unstore",
+   "src": "policy",
+   "ok": true,
+   "energy": 170,
+   "coins": 0,
+   "orders": 4,
+   "stages": 3,
+   "msg": "Bolt · back on the board"
+  },
+  {
+   "t": 332.1,
+   "e": "FIRST act unstore"
+  },
+  {
+   "t": 334.2,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 169,
+   "coins": 0,
+   "orders": 4,
+   "stages": 3,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 336.3,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 168,
+   "coins": 0,
+   "orders": 4,
+   "stages": 3,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 338.4,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 167,
+   "coins": 0,
+   "orders": 4,
+   "stages": 3,
+   "msg": "Copper offcut · and a Bolt"
+  },
+  {
+   "t": 340.9,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 167,
+   "coins": 0,
+   "orders": 4,
+   "stages": 3,
+   "msg": "Gear"
+  },
+  {
+   "t": 345.1,
+   "e": "book",
+   "src": "policy",
+   "ok": true,
+   "energy": 167,
+   "coins": 1,
+   "orders": 4,
+   "stages": 3,
+   "msg": "In the book · +1 coins"
+  },
+  {
+   "t": 347.2,
+   "e": "deliver",
+   "src": "policy",
+   "ok": true,
+   "energy": 167,
+   "coins": 36,
+   "orders": 5,
+   "stages": 3,
+   "msg": "+35 coins · materials for Line the path with lanterns"
+  },
+  {
+   "t": 349.6,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 167,
+   "coins": 36,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 351.7,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 166,
+   "coins": 36,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 353.8,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 165,
+   "coins": 36,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 355.9,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 164,
+   "coins": 36,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 358.4,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 164,
+   "coins": 36,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 360.4,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 163,
+   "coins": 36,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 362.9,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 163,
+   "coins": 36,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 365,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 162,
+   "coins": 36,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 367.4,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 162,
+   "coins": 36,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 369.9,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 162,
+   "coins": 36,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Pocket winch"
+  },
+  {
+   "t": 372,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 161,
+   "coins": 36,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 374.1,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 160,
+   "coins": 36,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 376.2,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 159,
+   "coins": 36,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 378.6,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 159,
+   "coins": 36,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 380.7,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 158,
+   "coins": 36,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 383.2,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 158,
+   "coins": 36,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 385.3,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 157,
+   "coins": 36,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 387.4,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 156,
+   "coins": 36,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 389.8,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 156,
+   "coins": 36,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Pocket winch"
+  },
+  {
+   "t": 392.3,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 156,
+   "coins": 36,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Crawler jack"
+  },
+  {
+   "t": 396.4,
+   "e": "book",
+   "src": "policy",
+   "ok": true,
+   "energy": 156,
+   "coins": 41,
+   "orders": 5,
+   "stages": 3,
+   "msg": "In the book · +5 coins"
+  },
+  {
+   "t": 398.9,
+   "e": "unseal",
+   "src": "policy",
+   "ok": false,
+   "energy": 156,
+   "coins": 41,
+   "orders": 5,
+   "stages": 3,
+   "msg": "In the book · +5 coins"
+  },
+  {
+   "t": 401.3,
+   "e": "unseal",
+   "src": "policy",
+   "ok": false,
+   "energy": 156,
+   "coins": 41,
+   "orders": 5,
+   "stages": 3,
+   "msg": "In the book · +5 coins"
+  },
+  {
+   "t": 403.7,
+   "e": "stuck: falling back to a generator tap",
+   "a": {
+    "type": "unseal",
+    "from": 20,
+    "index": 7
+   }
+  },
+  {
+   "t": 403.8,
+   "e": "unseal",
+   "src": "policy",
+   "ok": false,
+   "energy": 156,
+   "coins": 41,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 406.3,
+   "e": "unseal",
+   "src": "policy",
+   "ok": true,
+   "energy": 155,
+   "coins": 41,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Cargo opened · a Tide token! Lay it on a part to turn it into one an order wants"
+  },
+  {
+   "t": 408.8,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 155,
+   "coins": 41,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 411.2,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 170,
+   "coins": 41,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 411.3,
+   "e": "level up",
+   "level": 5
+  },
+  {
+   "t": 413.7,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 170,
+   "coins": 41,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Tide token · Grip tool"
+  },
+  {
+   "t": 415.8,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 169,
+   "coins": 41,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 417.9,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 168,
+   "coins": 41,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 420.3,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 168,
+   "coins": 41,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 422.8,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 168,
+   "coins": 41,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Pocket winch"
+  },
+  {
+   "t": 424.9,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 167,
+   "coins": 41,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 427,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 166,
+   "coins": 41,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 429.4,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 166,
+   "coins": 41,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Grip tool · the tideglass cracks"
+  },
+  {
+   "t": 431.8,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 166,
+   "coins": 41,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Split spanner · the tideglass cracks"
+  },
+  {
+   "t": 433.9,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 165,
+   "coins": 41,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 436,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 164,
+   "coins": 41,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 438.1,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 163,
+   "coins": 41,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 440.6,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 163,
+   "coins": 41,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 443,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 163,
+   "coins": 41,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Pocket winch · the tideglass breaks"
+  },
+  {
+   "t": 447.2,
+   "e": "book",
+   "src": "policy",
+   "ok": true,
+   "energy": 163,
+   "coins": 42,
+   "orders": 5,
+   "stages": 3,
+   "msg": "In the book · +1 coins"
+  },
+  {
+   "t": 449.6,
+   "e": "merge",
+   "src": "policy",
+   "ok": false,
+   "energy": 163,
+   "coins": 42,
+   "orders": 5,
+   "stages": 3,
+   "msg": "In the book · +1 coins"
+  },
+  {
+   "t": 452,
+   "e": "merge",
+   "src": "policy",
+   "ok": false,
+   "energy": 163,
+   "coins": 42,
+   "orders": 5,
+   "stages": 3,
+   "msg": "In the book · +1 coins"
+  },
+  {
+   "t": 454.4,
+   "e": "stuck: falling back to a generator tap",
+   "a": {
+    "type": "merge",
+    "from": 7,
+    "to": 15
+   }
+  },
+  {
+   "t": 454.5,
+   "e": "merge",
+   "src": "policy",
+   "ok": false,
+   "energy": 163,
+   "coins": 42,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Grip tool · and a Bolt"
+  },
+  {
+   "t": 457.1,
+   "e": "store",
+   "src": "policy",
+   "ok": true,
+   "energy": 162,
+   "coins": 42,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Bolt · in the shed"
+  },
+  {
+   "t": 459.5,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 162,
+   "coins": 42,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Crawler jack"
+  },
+  {
+   "t": 461.6,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 161,
+   "coins": 42,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 464,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 161,
+   "coins": 42,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 466.5,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 161,
+   "coins": 42,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 468.6,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 160,
+   "coins": 42,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 470.7,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 159,
+   "coins": 42,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 473.1,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 159,
+   "coins": 42,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Pocket winch"
+  },
+  {
+   "t": 475.3,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 158,
+   "coins": 42,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 477.7,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 158,
+   "coins": 42,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 479.9,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 157,
+   "coins": 42,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 482,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 156,
+   "coins": 42,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 484.4,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 156,
+   "coins": 42,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 486.5,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 155,
+   "coins": 42,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 488.7,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 154,
+   "coins": 42,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 491.1,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 154,
+   "coins": 42,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 493.5,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 154,
+   "coins": 42,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 496,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 154,
+   "coins": 42,
+   "orders": 5,
+   "stages": 3,
+   "msg": "Pocket winch"
+  },
+  {
+   "t": 498.1,
+   "e": "deliver",
+   "src": "policy",
+   "ok": true,
+   "energy": 154,
+   "coins": 77,
+   "orders": 6,
+   "stages": 3,
+   "msg": "+35 coins · materials for Add bunks and a stove"
+  },
+  {
+   "t": 500.2,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 153,
+   "coins": 77,
+   "orders": 6,
+   "stages": 3,
+   "msg": "Grip tool · and a Bolt"
+  },
+  {
+   "t": 502.3,
+   "e": "unstore",
+   "src": "policy",
+   "ok": true,
+   "energy": 153,
+   "coins": 77,
+   "orders": 6,
+   "stages": 3,
+   "msg": "Bolt · back on the board"
+  },
+  {
+   "t": 504.7,
+   "e": "merge",
+   "src": "policy",
+   "ok": false,
+   "energy": 153,
+   "coins": 77,
+   "orders": 6,
+   "stages": 3,
+   "msg": "Bolt · back on the board"
+  },
+  {
+   "t": 507.1,
+   "e": "merge",
+   "src": "policy",
+   "ok": false,
+   "energy": 153,
+   "coins": 77,
+   "orders": 6,
+   "stages": 3,
+   "msg": "Bolt · back on the board"
+  },
+  {
+   "t": 509.5,
+   "e": "stuck: falling back to a generator tap",
+   "a": {
+    "type": "merge",
+    "from": 7,
+    "to": 23
+   }
+  },
+  {
+   "t": 509.5,
+   "e": "merge",
+   "src": "policy",
+   "ok": false,
+   "energy": 153,
+   "coins": 77,
+   "orders": 6,
+   "stages": 3,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 512,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 152,
+   "coins": 77,
+   "orders": 6,
+   "stages": 3,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 514.4,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 152,
+   "coins": 77,
+   "orders": 6,
+   "stages": 3,
+   "msg": "Gear"
+  },
+  {
+   "t": 524.4,
+   "e": "action failed",
+   "a": {
+    "type": "store",
+    "index": 21,
+    "slot": 0
+   },
+   "err": "TimeoutError: locator.waitFor: Timeout 8000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#selection [data-action=\"store\"]') to be visible\u001b[22m\n"
+  },
+  {
+   "t": 527.9,
+   "e": "store",
+   "src": "policy",
+   "ok": true,
+   "energy": 152,
+   "coins": 77,
+   "orders": 6,
+   "stages": 3,
+   "msg": "Gear · in the shed"
+  },
+  {
+   "t": 530,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 151,
+   "coins": 77,
+   "orders": 6,
+   "stages": 3,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 532.1,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 150,
+   "coins": 77,
+   "orders": 6,
+   "stages": 3,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 534.5,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 150,
+   "coins": 77,
+   "orders": 6,
+   "stages": 3,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 536.6,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 149,
+   "coins": 77,
+   "orders": 6,
+   "stages": 3,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 539,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 149,
+   "coins": 77,
+   "orders": 6,
+   "stages": 3,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 541.1,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 148,
+   "coins": 77,
+   "orders": 6,
+   "stages": 3,
+   "msg": "Copper offcut · and a Bolt"
+  },
+  {
+   "t": 543.6,
+   "e": "store",
+   "src": "policy",
+   "ok": true,
+   "energy": 148,
+   "coins": 77,
+   "orders": 6,
+   "stages": 3,
+   "msg": "Bolt · in the shed"
+  },
+  {
+   "t": 545.7,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 147,
+   "coins": 77,
+   "orders": 6,
+   "stages": 3,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 547.8,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 146,
+   "coins": 77,
+   "orders": 6,
+   "stages": 3,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 550.2,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 146,
+   "coins": 77,
+   "orders": 6,
+   "stages": 3,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 552.7,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 146,
+   "coins": 77,
+   "orders": 6,
+   "stages": 3,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 554.8,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 145,
+   "coins": 77,
+   "orders": 6,
+   "stages": 3,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 556.9,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 144,
+   "coins": 77,
+   "orders": 6,
+   "stages": 3,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 559,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 143,
+   "coins": 77,
+   "orders": 6,
+   "stages": 3,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 561.1,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 142,
+   "coins": 77,
+   "orders": 6,
+   "stages": 3,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 563.5,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 142,
+   "coins": 77,
+   "orders": 6,
+   "stages": 3,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 565.9,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 142,
+   "coins": 77,
+   "orders": 6,
+   "stages": 3,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 568,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 141,
+   "coins": 77,
+   "orders": 6,
+   "stages": 3,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 570.1,
+   "e": "deliver",
+   "src": "policy",
+   "ok": true,
+   "energy": 142,
+   "coins": 97,
+   "orders": 7,
+   "stages": 3,
+   "msg": "+20 coins · +1 energy"
+  },
+  {
+   "t": 572.2,
+   "e": "unstore",
+   "src": "policy",
+   "ok": true,
+   "energy": 142,
+   "coins": 97,
+   "orders": 7,
+   "stages": 3,
+   "msg": "Gear · back on the board"
+  },
+  {
+   "t": 574.3,
+   "e": "unstore",
+   "src": "policy",
+   "ok": true,
+   "energy": 142,
+   "coins": 97,
+   "orders": 7,
+   "stages": 3,
+   "msg": "Bolt · back on the board"
+  },
+  {
+   "t": 576.4,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 141,
+   "coins": 97,
+   "orders": 7,
+   "stages": 3,
+   "msg": "Copper offcut · and a Bolt"
+  },
+  {
+   "t": 578.8,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 141,
+   "coins": 97,
+   "orders": 7,
+   "stages": 3,
+   "msg": "Gear"
+  },
+  {
+   "t": 581,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 140,
+   "coins": 97,
+   "orders": 7,
+   "stages": 3,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 583.1,
+   "e": "produce",
+   "src": "policy",
+   "ok": true,
+   "energy": 139,
+   "coins": 97,
+   "orders": 7,
+   "stages": 3,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 585.5,
+   "e": "merge",
+   "src": "policy",
+   "ok": true,
+   "energy": 139,
+   "coins": 97,
+   "orders": 7,
+   "stages": 3,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 587.6,
+   "e": "deliver",
+   "src": "policy",
+   "ok": true,
+   "energy": 155,
+   "coins": 157,
+   "orders": 8,
+   "stages": 3,
+   "msg": "+60 coins · +1 energy · a Tide token"
+  },
+  {
+   "t": 587.6,
+   "e": "level up",
+   "level": 6
+  },
+  {
+   "t": 592.8,
+   "e": "beat",
+   "text": "LINE THE PATH WITH LANTERNS −100 coins NERI Geared lanterns all the way to the boats. They wind themselves at dusk, and night shifts are saf"
+  },
+  {
+   "t": 596.7,
+   "e": "beat",
+   "text": "LINE THE PATH WITH LANTERNS −100 coins IVO The first night shift dug up a Rivet Rover the storm had buried. Merge it with ours. Continue"
+  },
+  {
+   "t": 605,
+   "e": "coast closed"
+  },
+  {
+   "t": 605.5,
+   "e": "restore",
+   "src": "policy",
+   "ok": true,
+   "energy": 155,
+   "coins": 57,
+   "orders": 8,
+   "stages": 4,
+   "msg": "Line the path with lanterns · stage 3"
+  },
+  {
+   "t": 605.5,
+   "e": "FIRST stage 4"
+  }
+ ],
+ "snaps": [
+  {
+   "t": 17.5,
+   "energy": 100,
+   "coins": 0,
+   "level": 1,
+   "xp": 0,
+   "orders": 0,
+   "merges": 0,
+   "moves": 0,
+   "stages": 0,
+   "free": 4,
+   "items": 0,
+   "cargo": 27,
+   "glass": 17,
+   "gens": "rig1"
+  },
+  {
+   "t": 30.4,
+   "energy": 97,
+   "coins": 0,
+   "level": 1,
+   "xp": 1,
+   "orders": 0,
+   "merges": 1,
+   "moves": 6,
+   "stages": 0,
+   "free": 2,
+   "items": 2,
+   "cargo": 27,
+   "glass": 17,
+   "gens": "rig1"
+  },
+  {
+   "t": 61.7,
+   "energy": 107,
+   "coins": 10,
+   "level": 1,
+   "xp": 15,
+   "orders": 1,
+   "merges": 7,
+   "moves": 19,
+   "stages": 0,
+   "free": 3,
+   "items": 4,
+   "cargo": 27,
+   "glass": 14,
+   "gens": "rig1"
+  },
+  {
+   "t": 100.1,
+   "energy": 129,
+   "coins": 40,
+   "level": 2,
+   "xp": 20,
+   "orders": 2,
+   "merges": 11,
+   "moves": 29,
+   "stages": 1,
+   "free": 6,
+   "items": 2,
+   "cargo": 27,
+   "glass": 12,
+   "gens": "rig1"
+  },
+  {
+   "t": 120,
+   "energy": 139,
+   "coins": 42,
+   "level": 2,
+   "xp": 20,
+   "orders": 2,
+   "merges": 11,
+   "moves": 32,
+   "stages": 1,
+   "free": 6,
+   "items": 2,
+   "cargo": 27,
+   "glass": 12,
+   "gens": "rig1"
+  },
+  {
+   "t": 152.4,
+   "energy": 134,
+   "coins": 48,
+   "level": 2,
+   "xp": 22,
+   "orders": 2,
+   "merges": 13,
+   "moves": 43,
+   "stages": 1,
+   "free": 2,
+   "items": 6,
+   "cargo": 27,
+   "glass": 12,
+   "gens": "rig1"
+  },
+  {
+   "t": 182.3,
+   "energy": 131,
+   "coins": 64,
+   "level": 2,
+   "xp": 29,
+   "orders": 2,
+   "merges": 16,
+   "moves": 54,
+   "stages": 1,
+   "free": 3,
+   "items": 8,
+   "cargo": 26,
+   "glass": 11,
+   "gens": "rig1"
+  },
+  {
+   "t": 212.2,
+   "energy": 140,
+   "coins": 64,
+   "level": 3,
+   "xp": 8,
+   "orders": 2,
+   "merges": 21,
+   "moves": 67,
+   "stages": 1,
+   "free": 2,
+   "items": 10,
+   "cargo": 25,
+   "glass": 10,
+   "gens": "rig1"
+  },
+  {
+   "t": 242.7,
+   "energy": 144,
+   "coins": 64,
+   "level": 3,
+   "xp": 15,
+   "orders": 2,
+   "merges": 24,
+   "moves": 74,
+   "stages": 1,
+   "free": 5,
+   "items": 10,
+   "cargo": 24,
+   "glass": 9,
+   "gens": "rig1"
+  },
+  {
+   "t": 276.7,
+   "energy": 152,
+   "coins": 34,
+   "level": 3,
+   "xp": 36,
+   "orders": 3,
+   "merges": 28,
+   "moves": 82,
+   "stages": 2,
+   "free": 11,
+   "items": 3,
+   "cargo": 24,
+   "glass": 9,
+   "gens": "rig1,rig1"
+  },
+  {
+   "t": 300.7,
+   "energy": 152,
+   "coins": 35,
+   "level": 4,
+   "xp": 2,
+   "orders": 3,
+   "merges": 29,
+   "moves": 93,
+   "stages": 2,
+   "free": 8,
+   "items": 7,
+   "cargo": 24,
+   "glass": 9,
+   "gens": "rig2"
+  },
+  {
+   "t": 332.2,
+   "energy": 170,
+   "coins": 0,
+   "level": 4,
+   "xp": 26,
+   "orders": 4,
+   "merges": 33,
+   "moves": 99,
+   "stages": 3,
+   "free": 12,
+   "items": 4,
+   "cargo": 24,
+   "glass": 8,
+   "gens": "rig2"
+  },
+  {
+   "t": 360.4,
+   "energy": 163,
+   "coins": 36,
+   "level": 4,
+   "xp": 39,
+   "orders": 5,
+   "merges": 36,
+   "moves": 111,
+   "stages": 3,
+   "free": 10,
+   "items": 6,
+   "cargo": 24,
+   "glass": 8,
+   "gens": "rig2"
+  },
+  {
+   "t": 392.3,
+   "energy": 156,
+   "coins": 36,
+   "level": 4,
+   "xp": 46,
+   "orders": 5,
+   "merges": 43,
+   "moves": 125,
+   "stages": 3,
+   "free": 10,
+   "items": 6,
+   "cargo": 24,
+   "glass": 8,
+   "gens": "rig2"
+  },
+  {
+   "t": 420.3,
+   "energy": 168,
+   "coins": 41,
+   "level": 5,
+   "xp": 3,
+   "orders": 5,
+   "merges": 46,
+   "moves": 134,
+   "stages": 3,
+   "free": 12,
+   "items": 5,
+   "cargo": 23,
+   "glass": 8,
+   "gens": "rig2"
+  },
+  {
+   "t": 452,
+   "energy": 163,
+   "coins": 42,
+   "level": 5,
+   "xp": 10,
+   "orders": 5,
+   "merges": 51,
+   "moves": 145,
+   "stages": 3,
+   "free": 12,
+   "items": 6,
+   "cargo": 23,
+   "glass": 7,
+   "gens": "rig2"
+  },
+  {
+   "t": 482,
+   "energy": 156,
+   "coins": 42,
+   "level": 5,
+   "xp": 15,
+   "orders": 5,
+   "merges": 56,
+   "moves": 158,
+   "stages": 3,
+   "free": 10,
+   "items": 8,
+   "cargo": 23,
+   "glass": 7,
+   "gens": "rig2"
+  },
+  {
+   "t": 512,
+   "energy": 152,
+   "coins": 77,
+   "level": 5,
+   "xp": 39,
+   "orders": 6,
+   "merges": 61,
+   "moves": 169,
+   "stages": 3,
+   "free": 12,
+   "items": 6,
+   "cargo": 23,
+   "glass": 7,
+   "gens": "rig2"
+  },
+  {
+   "t": 541.1,
+   "energy": 148,
+   "coins": 77,
+   "level": 5,
+   "xp": 42,
+   "orders": 6,
+   "merges": 64,
+   "moves": 177,
+   "stages": 3,
+   "free": 11,
+   "items": 7,
+   "cargo": 23,
+   "glass": 7,
+   "gens": "rig2"
+  },
+  {
+   "t": 570.2,
+   "energy": 142,
+   "coins": 97,
+   "level": 5,
+   "xp": 50,
+   "orders": 7,
+   "merges": 68,
+   "moves": 190,
+   "stages": 3,
+   "free": 12,
+   "items": 6,
+   "cargo": 23,
+   "glass": 7,
+   "gens": "rig2"
+  }
+ ],
+ "hints": [
+  {
+   "t": 17.5,
+   "h": "Tap the Rivet Rover for a part."
+  },
+  {
+   "t": 21.7,
+   "h": "Goal: Ivo's order. Tap and merge to make the parts it shows."
+  },
+  {
+   "t": 23.7,
+   "h": "Drag one part onto its twin to merge them."
+  },
+  {
+   "t": 28.3,
+   "h": "Goal: Ivo's order. Tap and merge to make the parts it shows."
+  },
+  {
+   "t": 34.9,
+   "h": "Ivo's order is ready: tap it to deliver for coins."
+  },
+  {
+   "t": 41.2,
+   "h": "+10 coins from Ivo's order: crew orders pay coins."
+  },
+  {
+   "t": 43.6,
+   "h": "Goal: the gold order. Make its parts for the path's materials and coins."
+  },
+  {
+   "t": 77.9,
+   "h": "Tap the gold order: it pays coins and secures the path's materials."
+  },
+  {
+   "t": 100.1,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 134.6,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 137.1,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 141.2,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 143.7,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 154.9,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 157.3,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 161.5,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 163.9,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 170.5,
+   "h": "✓ Deliver · +20 coins"
+  },
+  {
+   "t": 182.4,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 186.6,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 189,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 191.5,
+   "h": "✓ Deliver · +20 coins"
+  },
+  {
+   "t": 200.6,
+   "h": "✓ Deliver · +40 coins"
+  },
+  {
+   "t": 203,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 205.1,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 207.5,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 221.9,
+   "h": "✓ Deliver · +20 coins"
+  },
+  {
+   "t": 224.3,
+   "h": "✓ Deliver · +40 coins"
+  },
+  {
+   "t": 226.8,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 229.2,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 245.2,
+   "h": "✓ Deliver · +20 coins"
+  },
+  {
+   "t": 256.7,
+   "h": "✓ Deliver · +40 coins"
+  },
+  {
+   "t": 276.7,
+   "h": "Two Rivet Rovers: drag one onto the other for a stronger Rivet Rover."
+  },
+  {
+   "t": 279.1,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 289.9,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 296.5,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 298.6,
+   "h": "✓ Deliver · +20 coins"
+  },
+  {
+   "t": 305.7,
+   "h": "Drag a Split spanner onto its twin"
+  },
+  {
+   "t": 308.1,
+   "h": "✓ Deliver · +45 coins"
+  },
+  {
+   "t": 328.1,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 338.4,
+   "h": "Drag a Bolt onto its twin"
+  },
+  {
+   "t": 340.9,
+   "h": "✓ Deliver · +35 coins"
+  },
+  {
+   "t": 349.7,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 353.8,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 358.4,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 360.5,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 362.9,
+   "h": "✓ Deliver · +20 coins"
+  },
+  {
+   "t": 367.4,
+   "h": "Drag a Split spanner onto its twin"
+  },
+  {
+   "t": 369.9,
+   "h": "✓ Deliver · +25 coins"
+  },
+  {
+   "t": 392.3,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 403.9,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 408.8,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 411.3,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 413.7,
+   "h": "✓ Deliver · +20 coins"
+  },
+  {
+   "t": 420.3,
+   "h": "Drag a Split spanner onto its twin"
+  },
+  {
+   "t": 422.8,
+   "h": "✓ Deliver · +25 coins"
+  },
+  {
+   "t": 459.5,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 461.6,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 464.1,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 466.5,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 470.7,
+   "h": "Drag a Split spanner onto its twin"
+  },
+  {
+   "t": 473.2,
+   "h": "✓ Deliver · +25 coins"
+  },
+  {
+   "t": 496,
+   "h": "✓ Deliver · +35 coins"
+  },
+  {
+   "t": 500.2,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 512,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 532.1,
+   "h": "✓ Deliver · +20 coins"
+  },
+  {
+   "t": 534.5,
+   "h": "Drag a Split spanner onto its twin"
+  },
+  {
+   "t": 536.6,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 539,
+   "h": "Drag a Split spanner onto its twin"
+  },
+  {
+   "t": 547.8,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 550.2,
+   "h": "✓ Deliver · +20 coins"
+  },
+  {
+   "t": 552.7,
+   "h": "Drag a Split spanner onto its twin"
+  },
+  {
+   "t": 559,
+   "h": "✓ Deliver · +20 coins"
+  },
+  {
+   "t": 566,
+   "h": "Drag a Split spanner onto its twin"
+  },
+  {
+   "t": 568.1,
+   "h": "✓ Deliver · +20 coins"
+  },
+  {
+   "t": 572.2,
+   "h": "✓ Deliver · +60 coins"
+  }
+ ],
+ "dialogs": [
+  {
+   "t": 28.3,
+   "id": "moment",
+   "text": "Tideglass cracked · 1 of 3 2 more merges beside it free the part inside. Any merge counts."
+  },
+  {
+   "t": 34.4,
+   "id": "moment",
+   "text": "New: Split spanner Next: Pocket winch · in the book: +2 coins"
+  },
+  {
+   "t": 38.5,
+   "id": "energyNote",
+   "text": "First crew order · +15 energy"
+  },
+  {
+   "t": 59.1,
+   "id": "moment",
+   "text": "New: Pocket winch Next: Crawler jack · in the book: +3 coins"
+  },
+  {
+   "t": 70.8,
+   "id": "moment",
+   "text": "Level 2! +5 ϟ for the level. Level 3: Triple merge."
+  },
+  {
+   "t": 80.5,
+   "id": "moment",
+   "text": "Materials secured · +70 coins The gold order paid 70 coins and brought the materials for Clear the landing path. Build · 40 coins: tap the strip under the order"
+  },
+  {
+   "t": 83.7,
+   "id": "coastMap",
+   "text": "× Landing Beach 80 BEACH SURVEY VAULT OBSERVATORY HARBOUR LIGHT REEF STATION ▲ 0 / 21 stages Coins and materials are ready: build it here. STAGE 1 NEW PLACE Cle"
+  },
+  {
+   "t": 85.7,
+   "id": "energyNote",
+   "text": "First stage · +20 energy"
+  },
+  {
+   "t": 87,
+   "id": "beat",
+   "text": "CLEAR THE LANDING PATH −40 coins IVO A path from the boats to dry ground. Now the crew can carry real loads. Next"
+  },
+  {
+   "t": 94.8,
+   "id": "moment",
+   "text": "Clear the landing path · stage 1 of 3 Rewards: first stage: +20 energy · Driftwood crate for Rivet Rover · +8 XP · Next: Lay a boardwalk"
+  },
+  {
+   "t": 100.3,
+   "id": "daily",
+   "text": "× Daily gift A gift from the crew for coming back. One each day; a missed day does not reset the row. Day 1 ϟ +10 ϟ Day 2 +25 Day 3 Crate Day 4 ϟ +15 ϟ Day 5 To"
+  },
+  {
+   "t": 103.6,
+   "id": "moment",
+   "text": "Daily gift · day 1 of 7+10 energy"
+  },
+  {
+   "t": 113.2,
+   "id": "book",
+   "text": "× Collection book 0 of 33 parts · tick off new finds for coins; a generator's full page gives a Brass cog. Tick off all 5 Rivet Rover 0 / 8 in the book Copper o"
+  },
+  {
+   "t": 161,
+   "id": "moment",
+   "text": "The board is full Tap a part and choose Shed to keep it for later, or deliver and merge to make room."
+  },
+  {
+   "t": 188.9,
+   "id": "moment",
+   "text": "Level 3! · New: Triple merge Drag a level 3 or bigger part onto its twin while a third one touches it: all three make two of the next level. +5 ϟ for the level."
+  },
+  {
+   "t": 190.8,
+   "id": "energyNote",
+   "text": "Energy capacity 50 → 60 · +10 energy"
+  },
+  {
+   "t": 259.2,
+   "id": "moment",
+   "text": "Materials secured · +40 coins The gold order paid 40 coins and brought the materials for Lay a boardwalk. Build · 70 coins: tap the strip under the orders."
+  },
+  {
+   "t": 262.2,
+   "id": "energyNote",
+   "text": "Restoration 2 · +10 energy"
+  },
+  {
+   "t": 271.4,
+   "id": "moment",
+   "text": "Lay a boardwalk · stage 2 of 3 Rewards: restoration 2: +10 energy · a Rivet Rover to merge · +8 XP · Next: Pitch the camp tent"
+  },
+  {
+   "t": 278.6,
+   "id": "moment",
+   "text": "Rivet Rover extras unlocked A level 2+ Rivet Rover now sometimes adds a rare Bolt to a tap, at no extra energy. Your first Bolt is on the board (or waits for sp"
+  },
+  {
+   "t": 279,
+   "id": "moment",
+   "text": "Level 4! +5 ϟ for the level. Level 5: Tide tokens from the crew."
+  },
+  {
+   "t": 310.7,
+   "id": "moment",
+   "text": "Materials secured · +45 coins The gold order paid 45 coins and brought the materials for Pitch the camp tent. Build · 80 coins: tap the strip under the orders."
+  },
+  {
+   "t": 313.6,
+   "id": "energyNote",
+   "text": "Restoration 3 · +10 energy"
+  },
+  {
+   "t": 322.8,
+   "id": "moment",
+   "text": "Pitch the camp tent · stage 1 of 3 Rewards: +8 energy · restoration 3: +10 energy · +8 XP · Next: Line the path with lanterns"
+  },
+  {
+   "t": 347.7,
+   "id": "moment",
+   "text": "Materials secured · +35 coins The gold order paid 35 coins and brought the materials for Line the path with lanterns. 64 more coins to build it: deliver crew or"
+  },
+  {
+   "t": 391.7,
+   "id": "moment",
+   "text": "New: Crawler jack Next: Bridge rig · in the book: +5 coins"
+  },
+  {
+   "t": 405.8,
+   "id": "moment",
+   "text": "A Tide token! Lay it on a part: it turns into a part of the same tier that a crew order wants."
+  },
+  {
+   "t": 411.1,
+   "id": "moment",
+   "text": "Level 5! · New: Tide tokens from the crew Every eighth crew order also pays a Tide token. +5 ϟ for the level. Energy capacity is now 70."
+  },
+  {
+   "t": 413,
+   "id": "energyNote",
+   "text": "Energy capacity 60 → 70 · +10 energy"
+  },
+  {
+   "t": 498.5,
+   "id": "moment",
+   "text": "Materials secured · +35 coins The gold order paid 35 coins and brought the materials for Add bunks and a stove. 23 more coins to build it: deliver crew orders."
+  },
+  {
+   "t": 587.5,
+   "id": "moment",
+   "text": "Level 6! +15 ϟ for the level. Level 8: Crew favours."
+  },
+  {
+   "t": 600.3,
+   "id": "moment",
+   "text": "Line the path with lanterns · stage 3 of 3 Rewards: a Rivet Rover to merge · +8 XP · Next: Add bunks and a stove"
+  }
+ ],
+ "cg": [
+  [
+   "init",
+   224.5
+  ],
+  [
+   "loadingStart",
+   254.19999999995343
+  ],
+  [
+   "loadingStop",
+   254.19999999995343
+  ],
+  [
+   "gameplayStart",
+   16264.800000000047
+  ],
+  [
+   "gameplayStart",
+   16264.800000000047
+  ]
+ ],
+ "errors": [],
+ "final": {
+  "version": 5,
+  "board": [
+   {
+    "type": "glass",
+    "family": "chart",
+    "tier": 3
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "chart",
+     "tier": 5
+    },
+    "find": {
+     "type": "kit",
+     "family": "chart",
+     "size": 3,
+     "left": 6
+    }
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "rope",
+     "tier": 3
+    },
+    "find": {
+     "type": "jar",
+     "energy": 5
+    }
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "chart",
+     "tier": 4
+    },
+    "find": {
+     "type": "coins",
+     "n": 50
+    }
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "rope",
+     "tier": 4
+    },
+    "find": {
+     "type": "kit",
+     "family": "chart",
+     "size": 2,
+     "left": 5
+    }
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "chart",
+     "tier": 4
+    },
+    "find": {
+     "type": "token"
+    }
+   },
+   {
+    "type": "item",
+    "family": "shell",
+    "tier": 1
+   },
+   {
+    "type": "item",
+    "family": "rig",
+    "tier": 0
+   },
+   {
+    "type": "source",
+    "id": "rig",
+    "level": 2
+   },
+   {
+    "type": "source",
+    "id": "rig"
+   },
+   null,
+   {
+    "type": "cargo",
+    "key": {
+     "family": "chart",
+     "tier": 5
+    },
+    "find": {
+     "type": "kit",
+     "family": "chart",
+     "size": 3,
+     "left": 6
+    }
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "chart",
+     "tier": 4
+    },
+    "find": {
+     "type": "coins",
+     "n": 60
+    }
+   },
+   {
+    "type": "item",
+    "family": "rig",
+    "tier": 2
+   },
+   {
+    "type": "item",
+    "family": "rig",
+    "tier": 2
+   },
+   {
+    "type": "item",
+    "family": "rig",
+    "tier": 2
+   },
+   null,
+   {
+    "type": "cargo",
+    "key": {
+     "family": "rig",
+     "tier": 5
+    },
+    "find": {
+     "type": "coins",
+     "n": 60
+    }
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "rope",
+     "tier": 3
+    },
+    "find": {
+     "type": "kit",
+     "family": "rig",
+     "size": 2,
+     "left": 5
+    }
+   },
+   null,
+   {
+    "type": "token"
+   },
+   {
+    "type": "item",
+    "family": "mech",
+    "tier": 1
+   },
+   null,
+   {
+    "type": "item",
+    "family": "rig",
+    "tier": 2
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "chart",
+     "tier": 5
+    },
+    "find": {
+     "type": "token"
+    }
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "chart",
+     "tier": 3
+    },
+    "find": {
+     "type": "coins",
+     "n": 20
+    }
+   },
+   null,
+   null,
+   null,
+   {
+    "type": "cargo",
+    "key": {
+     "family": "chart",
+     "tier": 3
+    },
+    "find": {
+     "type": "item",
+     "family": "chart",
+     "tier": 3
+    }
+   },
+   {
+    "type": "glass",
+    "family": "rope",
+    "tier": 1
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "rope",
+     "tier": 5
+    },
+    "find": {
+     "type": "token"
+    }
+   },
+   {
+    "type": "glass",
+    "family": "rig",
+    "tier": 1,
+    "cracks": 2
+   },
+   null,
+   {
+    "type": "item",
+    "family": "rope",
+    "tier": 1
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "chart",
+     "tier": 3
+    },
+    "find": {
+     "type": "kit",
+     "family": "chart",
+     "size": 1,
+     "left": 3
+    }
+   },
+   {
+    "type": "glass",
+    "family": "shell",
+    "tier": 2
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "rope",
+     "tier": 3
+    },
+    "find": {
+     "type": "coins",
+     "n": 30
+    }
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "chart",
+     "tier": 3
+    },
+    "find": {
+     "type": "item",
+     "family": "rope",
+     "tier": 2
+    }
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "rope",
+     "tier": 5
+    },
+    "find": {
+     "type": "coins",
+     "n": 80
+    }
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "chart",
+     "tier": 5
+    },
+    "find": {
+     "type": "kit",
+     "family": "rope",
+     "size": 3,
+     "left": 6
+    }
+   },
+   {
+    "type": "glass",
+    "family": "lamp",
+    "tier": 2
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "rope",
+     "tier": 4
+    },
+    "find": {
+     "type": "coins",
+     "n": 80
+    }
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "rope",
+     "tier": 5
+    },
+    "find": {
+     "type": "kit",
+     "family": "rig",
+     "size": 3,
+     "left": 6
+    }
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "chart",
+     "tier": 3
+    },
+    "find": {
+     "type": "kit",
+     "family": "rope",
+     "size": 1,
+     "left": 3
+    }
+   },
+   {
+    "type": "glass",
+    "family": "rope",
+    "tier": 3
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "rope",
+     "tier": 4
+    },
+    "find": {
+     "type": "coins",
+     "n": 50
+    }
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "chart",
+     "tier": 3
+    },
+    "find": {
+     "type": "kit",
+     "family": "chart",
+     "size": 1,
+     "left": 3
+    }
+   },
+   {
+    "type": "glass",
+    "family": "lamp",
+    "tier": 1
+   }
+  ],
+  "energy": 155,
+  "energyAt": 1794492645080,
+  "coins": 57,
+  "level": {
+   "version": 1,
+   "level": 6,
+   "xp": 12
+  },
+  "taps": {
+   "rig": 81,
+   "chart": 0,
+   "rope": 0,
+   "shell": 0,
+   "lamp": 0,
+   "flux": 0,
+   "optic": 0
+  },
+  "orders": [
+   {
+    "id": "o9",
+    "who": "bram",
+    "needs": [
+     {
+      "family": "rig",
+      "tier": 4,
+      "count": 1
+     },
+     {
+      "family": "rig",
+      "tier": 2,
+      "count": 4
+     }
+    ],
+    "coins": 35,
+    "story": "beach-mast"
+   },
+   {
+    "id": "o1",
+    "who": "ivo",
+    "needs": [
+     {
+      "family": "rig",
+      "tier": 3,
+      "count": 1
+     }
+    ],
+    "coins": 25,
+    "born": 0
+   },
+   {
+    "id": "o11",
+    "who": "bram",
+    "needs": [
+     {
+      "family": "rig",
+      "tier": 2,
+      "count": 1
+     },
+     {
+      "family": "mech",
+      "tier": 1,
+      "count": 1
+     }
+    ],
+    "coins": 60,
+    "role": "pair",
+    "born": 197
+   }
+  ],
+  "slots": 3,
+  "orderSeq": 12,
+  "ordersDone": 8,
+  "area": 0,
+  "built": {
+   "beach-path": 3,
+   "beach-tent": 1
+  },
+  "found": [
+   "rig0",
+   "rig1",
+   "rig2",
+   "chart1",
+   "rig3",
+   "rope1",
+   "mech0",
+   "mech1",
+   "rig4",
+   "shell1"
+  ],
+  "moves": 199,
+  "merges": 70,
+  "lastAt": 1794493235869,
+  "shed": [
+   null,
+   null,
+   null,
+   null
+  ],
+  "pending": [],
+  "seen": {
+   "coach-on": true,
+   "tip-ice": true,
+   "coach-done": true,
+   "tip-shed": true,
+   "tip-genmerge": true,
+   "extras-rig": true
+  },
+  "daily": {
+   "day": 20769,
+   "count": 1
+  },
+  "book": {
+   "claimed": [
+    "rig0",
+    "rig1",
+    "rig2",
+    "chart1",
+    "rig3",
+    "rope1",
+    "mech0",
+    "mech1",
+    "rig4",
+    "shell1"
+   ],
+   "pages": []
+  },
+  "shop": {
+   "day": -1,
+   "bought": {}
+  },
+  "swaps": {
+   "day": -1,
+   "n": 0,
+   "ads": 0
+  },
+  "materials": {
+   "beach-path": 3,
+   "beach-tent": 2
+  },
+  "secSince": {
+   "rig": 2,
+   "chart": 0
+  },
+  "secTaps": {
+   "rig": 52,
+   "chart": 0
+  },
+  "secOpen": {
+   "rig": true
+  },
+  "secIntro": [],
+  "capPaid": 70,
+  "boost": {
+   "order": true,
+   "stage": true
+  },
+  "energyRewards": {
+   "id": "08274ce8-1a0d-49bb-abd3-344873f9ebf5",
+   "stages": 3
+  },
+  "recent": [
+   "rig1x1+rig1x2",
+   "mech1x1+rig2x1",
+   "mech1x1+rig2x1"
+  ]
+ }
+}
