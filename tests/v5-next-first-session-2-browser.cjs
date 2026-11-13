@@ -72,9 +72,14 @@ const cgStub=(cloud,o={})=>`(()=>{const m=new Map(${JSON.stringify([...cloud])})
  const engines=(process.env.ENGINES||'chromium,webkit').split(',').map(e=>[e,{chromium,webkit}[e]]);
  for(const [engine,type] of engines){
   let browser;try{browser=await type.launch();}catch(e){if(engine!=='chromium'&&/Executable doesn't exist/.test(e.message)){console.log(`${engine}: not installed here, skipped`);continue;}throw e;}
+  // A fresh browser for each long run: WebKit's page process crashed twice in CI late in one long-lived browser
+  // (7d2674e at 430×932, a840801 at an existing-save page), never at the same step; isolating the runs keeps one
+  // degraded process from failing the rest. The crash listener in newContext() still names any crash.
+  const relaunch=async()=>{await browser.close().catch(()=>{});browser=await type.launch();};
   try{
    // ---------- 1. a new player, guided to the first restoration ----------
    for(const [W,H] of SIZES){
+    await relaunch();
     const tag=s=>`${engine} ${W}×${H}: ${s}`,{context,page,errors}=await newContext(browser,engine,W,H);
     const shot=n=>page.screenshot({path:path.join(OUT,`${engine}-${W}x${H}-${n}.png`)});
     await page.goto(PLAY);await page.waitForFunction(()=>document.querySelector('#home').hidden,null,{timeout:30000});await page.waitForTimeout(600);
@@ -138,6 +143,7 @@ const cgStub=(cloud,o={})=>`(()=>{const m=new Map(${JSON.stringify([...cloud])})
     await context.close();
    }
    // ---------- 2. existing saves: never a new player, never a restarted tutorial ----------
+   await relaunch();
    const pre=JSON.parse(fixture('coast-ch1-pre-secondary.json'));
    // camps made by the real reducer: one played before the guide existed (no coach flags), one with the guide skipped
    const g=await import(path.join(__dirname,'..','v5','next','game.mjs')),gd=await import(path.join(__dirname,'..','v5','next','guide.mjs'));

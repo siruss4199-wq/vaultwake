@@ -154,13 +154,19 @@ async function drag(page,a,z){const A=await page.locator(`#board [data-index="${
     assert.match(await page.textContent('#homeStatus'),/Some pictures could not be loaded/);assert.ok(await page.locator('#homeRetry').isVisible());
     await page.locator('#homeSkip').click();await homeUsable(page);assert.equal((await page.textContent('#homePlay')).trim(),'Continue');
     await page.unroute(/home\/logo\.webp/);
-    await page.route(/next\/home\.mjs/,r=>r.abort());await page.reload({waitUntil:'commit'});
-    await page.waitForSelector('#homeRetry:not([hidden])',{timeout:20000});
-    assert.match(await page.textContent('#homeStatus'),/A game file could not be loaded/,tag('module failure shown'));
-    assert.equal(await page.locator('#homePlay').isVisible(),false);assert.equal(await camp(),kept,tag('failure keeps the save'));
-    await page.unroute(/next\/home\.mjs/);await page.locator('#homeRetry').click();await homeUsable(page);
-    assert.equal((await page.textContent('#homePlay')).trim(),'Continue');assert.equal(await camp(),kept);
-    await context.close();}
+    // a game module that fails: checked in a fresh context (nothing cached), since WebKit can serve a module the page
+    // preloaded before from its memory cache on reload, which no network failure reaches
+    const raw=await save(page);await context.close();
+    {const {context,page}=await fresh();
+     const camp=async()=>{const x=JSON.parse(await save(page));return JSON.stringify([x.board,x.coins,x.moves,x.orders,x.level,x.built]);};
+     await page.addInitScript(([k,v])=>{if(!sessionStorage.getItem('seeded')){localStorage.setItem(k,v);sessionStorage.setItem('seeded','1');}},[KEY,raw]);
+     await page.route(/next\/home\.mjs/,r=>r.abort());await page.goto(BASE+'play.html',{waitUntil:'commit'});
+     await page.waitForSelector('#homeRetry:not([hidden])',{timeout:20000});
+     assert.match(await page.textContent('#homeStatus'),/A game file could not be loaded/,tag('module failure shown'));
+     assert.equal(await page.locator('#homePlay').isVisible(),false);assert.equal(await camp(),kept,tag('failure keeps the save'));
+     await page.unroute(/next\/home\.mjs/);await page.locator('#homeRetry').click();await homeUsable(page);
+     assert.equal((await page.textContent('#homePlay')).trim(),'Continue');assert.equal(await camp(),kept);
+     await context.close();}}
 
    // 5. Play waits only for board pictures still loading, with a real count, then goes in.
    {const {context,page}=await fresh();
