@@ -1,0 +1,17 @@
+== play-new-slow4g
+MEDIAN {"fcp":1040,"homeVisible":1010,"module":4084,"board":7272,"ready":7272,"boardArt":7272,"load":7280,"firstActionMs":171,"reqsBeforeReady":89,"kbBeforeReady":1268,"reqsTotal":90,"kbTotal":1268}
+== play-ret-slow4g
+MEDIAN {"fcp":1032,"homeVisible":1006,"module":4104,"board":null,"ready":7357,"boardArt":null,"load":7347,"reqsBeforeReady":89,"kbBeforeReady":1268,"reqsTotal":89,"kbTotal":1268}
+== cg-new-slow4g
+  name: 'Error'
+== cg-ret-slow4g
+  name: 'Error'
+== play-new-4g
+MEDIAN {"fcp":328,"homeVisible":305,"module":1015,"board":1435,"ready":1435,"boardArt":1435,"load":1439,"firstActionMs":83,"reqsBeforeReady":89,"kbBeforeReady":1268,"reqsTotal":90,"kbTotal":1268}
+== cg-new-4g
+  name: 'Error'
+== play-new-slow4g-warm
+MEDIAN {"fcp":496,"homeVisible":438,"module":1346,"board":null,"ready":1346,"boardArt":null,"load":1533,"reqsBeforeReady":92,"kbBeforeReady":5,"reqsTotal":92,"kbTotal":5}
+== play-ret-slow4g-warm
+MEDIAN {"fcp":500,"homeVisible":437,"module":1413,"board":null,"ready":1413,"boardArt":null,"load":1560,"reqsBeforeReady":92,"kbBeforeReady":5,"reqsTotal":92,"kbTotal":5}
+DONE

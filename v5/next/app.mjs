@@ -4,8 +4,10 @@ import {blockedStage,isStuck,allDone,swapsLeft,adSwapsLeft,SHOP,shopLeft,BOOK_CO
 import {AREAS,STAGES,TASKS,LABELS} from './areas.mjs';
 import {primaryAction} from './guide.mjs';
 import {coachStep,coachActive,laterTip,nextRareUse,COACH_ON,COACH_DONE,FIRST_PLACE} from './coach.mjs';
+import {tutorStep,guideLevel,tutorActive,signature,skills,COACH_NEXT,focusOrder as tutorFocus} from './tutor.mjs';
+import {isNewPlayer} from './newcomer.mjs';
 import {needsOf,missingOf,levelOf} from './needs.mjs';
-import {LEVEL_PATH,BONUS_NAMES,CHEST_ENERGY,EARLY_LEVELS,EARLY_LEVEL_ENERGY,ONBOARDING,goldChase} from './game.mjs';
+import {LEVEL_PATH,BONUS_NAMES,CHEST_ENERGY,EARLY_LEVELS,EARLY_LEVEL_ENERGY,ONBOARDING,goldChase,CAMP} from './game.mjs';
 import {kit} from '../kits.mjs';
 import {iceNeed,weakIceBeside} from './ice.mjs';
 import {purposeOf} from './purposes.mjs';
@@ -25,7 +27,7 @@ import {sfx as sounds} from './sfx.mjs';
 import {createHome} from './home.mjs';
 import {readSave,keptCamps,freeKey,isKeptKey} from './saves.mjs?build=releaseqa54';
 import {openSaveStore,saveLine} from './save-store.mjs';
-import {playIntro,preloadIntro,storySeen,playScenes} from './story-intro.mjs';
+import {playIntro,preloadIntro,storySeen,playScenes,INTRO} from './story-intro.mjs';
 import {haptics} from './haptics.mjs';
 import {createEnergyReceipts} from './energy-receipts.mjs';
 // The shared moment draws its icon with the Classic art; new chains need draw().
@@ -75,6 +77,14 @@ if(startNew){const q=new URLSearchParams(location.search);q.delete('new');histor
 const bootNow=Date.now(),stored=storage.get(SAVE_KEY)||null,rawSave=startNew?null:stored,read=readSave(rawSave,bootNow);
 let state=startNew?fresh(bootNow):read.state,selected=null,focusOrder=null,drag=null,suppressClick=false;
 let damaged=read.status==='damaged'||read.status==='newer',newer=read.status==='newer',holdSave=!rawSave||damaged,homeOpen=!!document.getElementById('home');
+// First Session 2.0 (2026-11-13): a genuinely new player goes straight to the playable board (no Home click,
+// no three story pages). "New" is decided only here, after openSaveStore has settled: the SDK initialised and
+// the CrazyGames cloud data read (or, off CrazyGames, this browser's storage). Never new: any save under the
+// key (even an unreadable one), any kept camp, ?new=1 (the playtest link keeps Home), or a CrazyGames page
+// whose cloud data could not be read (the SDK timed out or refused: that player may have a cloud save, so
+// Home stays as before). Nothing is written until the player's first action: an untouched default camp never
+// reaches the save.
+let newPlayer=false,waitFirstAction=false;
 // Round 2: ?new=1 (the playtest page's "start from the beginning" link) no longer writes over the
 // camp it replaces: that camp is kept (SAVE_KEY-kept…) before the new one is first saved.
 let replaced=startNew?stored:null;
@@ -234,6 +244,14 @@ const GUESTS={mara:'Mara'},who$=w=>CREW[w]?.name??GUESTS[w]??w;
 const face=who=>FACES[who]?`<img class="art face" src="assets/premium/coast/ui/${FACES[who]}.webp" alt="" draggable="false">`:GUESTS[who]?'':portrait(who);
 function renderOrders(){
  const held=state.board[selected],heldKey=held?.type==='item'?held.family+held.tier:null;
+ // First Session 2.0: during the guided span one order card is shown, the one the guide is about (a ready order it
+ // points at, else its focus order). Every order stays in the camp and comes back after the span.
+ let primary=null;if(tutorActive(state)){const st=tutorStep(state,{});primary=['deliver','gold'].includes(st.kind)?st.target?.id:st.focus??tutorFocus(state)?.id;if(!state.orders.some(o=>o?.id===primary))primary=null;}
+ $('#requests').classList.toggle('onboarding',!!primary);
+ // Premium polish (2026-11-13): one lead card, the order the player's next step serves: one that can be delivered
+ // now, else the one the player picked, else the guide's focus (a crew order when coins are short, so the gold
+ // order is not always first). The others are compact cards in the same rail: all stay tappable and deliverable.
+ const live=state.orders.filter(Boolean),lead=primary??live.find(o=>orderItems(state,o))?.id??(live.some(o=>o.id===focusOrder)?focusOrder:null)??tutorFocus(state)?.id??live[0]?.id??null;
  $('#requests').style.setProperty('--slots',state.orders.length);
  const shelf=$('#requests .requestShelf')??$('#requests').appendChild(Object.assign(document.createElement('div'),{className:'requestShelf'}));
  patch(shelf,state.orders.map(o=>{
@@ -251,7 +269,7 @@ function renderOrders(){
    :`<span class="reqFace">${face(o.who)}</span><span class="reqName"><b>${who.name}</b>${tag}</span>`;
   // A crew order taking long (Audit 2026-10-25) suggests a new one; the tapped card's panel has it.
   const stuck=isStuck(state,o);
-  return `<button class="requestCard ${ready?'ready':''} ${place?'storyOrder':''} ${stuck?'stuck':''} ${focusOrder===o.id?'active':''}" data-order="${o.id}" data-role="${role}" aria-label="${label}${stuck?'. Taking long: tap it for a new order.':''}"><span class="reqHead">${head}</span>${stuck?'<i class="reqStuck" aria-hidden="true">↻ New?</i>':''}<span class="requestItems">${p.map(r=>`<span class="${r.have>=r.count?'met':''} ${heldKey===r.family+r.tier?'held':''}" data-part="${r.family+r.tier}">${draw(item(r.family,r.tier))}${r.sibling?`<i class="reqLv" aria-hidden="true">Lv${levelOf(r)}</i>`:''}<b>${r.have>=r.count?'<i aria-hidden="true">✓</i>':''}${r.have}/${r.count}</b></span>`).join('')}</span><span class="reqFoot">${ready?`<strong class="reqDeliver">Deliver <em>+${o.coins}</em>${COIN}</strong>`:`<span class="requestReward">${COIN}${o.coins}</span>`}${bonusArt(o)}</span></button>`;
+  return `<button class="requestCard ${ready?'ready':''} ${place?'storyOrder':''} ${stuck?'stuck':''} ${focusOrder===o.id?'active':''} ${primary===o.id?'primary':''} ${lead===o.id?'lead':''}" data-order="${o.id}" data-role="${role}" aria-label="${label}${stuck?'. Taking long: tap it for a new order.':''}"><span class="reqHead">${head}</span>${stuck?'<i class="reqStuck" aria-hidden="true">↻ New?</i>':''}<span class="requestItems">${p.map(r=>`<span class="${r.have>=r.count?'met':''} ${heldKey===r.family+r.tier?'held':''}" data-part="${r.family+r.tier}">${draw(item(r.family,r.tier))}${r.sibling?`<i class="reqLv" aria-hidden="true">Lv${levelOf(r)}</i>`:''}<b>${r.have>=r.count?'<i aria-hidden="true">✓</i>':''}${r.have}/${r.count}</b></span>`).join('')}</span><span class="reqFoot">${ready?`<strong class="reqDeliver">Deliver <em>+${o.coins}</em>${COIN}</strong>`:`<span class="requestReward">${COIN}${o.coins}</span>`}${bonusArt(o)}</span></button>`;
  }).join(''));
  renderOrderTools();
 }
@@ -353,12 +371,18 @@ function renderBoard(){
   else if(x?.type==='jar')badge=`<span class="sealBadge">+${x.energy}ϟ</span>`;
   else if(x?.type==='cargo'&&(x.find?.type==='source'||x.find?.type==='cog'||x.find?.type==='token'))badge=`<span class="cargoGleam ${x.find.type!=='source'?'cogGleam':''}" aria-hidden="true"></span>`;
   const deep=x?.type==='cargo'&&!reachable(state,i),ready=x?.type==='cargo'&&!deep&&state.board.some(y=>matches(y,x.key));
+  // First Session 2.0: a crate's look is the game's rule. "later" (muted, no key) unless act() could open it now or
+  // soon: it touches open ground and its key part is in hand or its generator is on the board ("reachable": the key
+  // shows what to make). "ready" (keyReady) when the key part is already on the board.
+  const later=x?.type==='cargo'&&(deep||!ready&&!sourceOpen(state,CHAINS[x.key.family].gen)),openable=x?.type==='cargo'&&!later;
   // Build 45g: cargo shows the part that opens it only when that matters now (the part is on the
   // board, the cargo or its key is selected); the tapped order also marks cargo holding a
   // generator it still needs. The panel under the board tells the rest.
   const holdsGen=x?.type==='cargo'&&x.find?.type==='source'&&focusGens.has(x.find.id);
   const ice=x?.type==='glass'?`ice${Math.min(2,x.cracks??0)}`:'';
-  return `<button class="tile ${x?.type??'empty'} ${i===located?'located':''} ${ice} ${x?.cracks?'cracked':''} ${ready?'keyReady':''} ${deep?'deep':''} ${locked?'locked':''} ${selected===i?'selected':''} ${twin?'match':''} ${focused?'nextAction':''} ${x?.type==='source'&&focusGens.has(x.id)||holdsGen?'orderSource':''} ${(r+c)%2?'odd':''}" data-index="${i}" style="grid-row:${r+1};grid-column:${c+1}" ${x?.family||x?.id?`data-family="${x.family??x.id}"`:''} ${x?.type==='cargo'?`data-key="${x.key.family}"`:''} aria-label="${nameOf(x)}${x?.type==='glass'?` · ${GLASS_HITS-(x.cracks??0)} hit${GLASS_HITS-(x.cracks??0)>1?'s':''} left`:''}${iceNeed(x)?` · cracked by a level ${iceNeed(x)} or better merge beside it`:''}${locked?' · locked':''}${x?.type==='source'&&!locked?' · tap to make a part for 1 energy':''}. Space ${i+1}" aria-pressed="${selected===i}">${draw(deep?{...x,deep:true}:x)}${badge}</button>`;
+  // Tideglass shows how far it is from breaking: three pips, one hollow per crack (no level is written on it)
+  if(x?.type==='glass')badge+=`<span class="icePips" aria-hidden="true">${[0,1,2].map(k=>`<i class="${k<(x.cracks??0)?'off':''}"></i>`).join('')}</span>`;
+  return `<button class="tile ${x?.type??'empty'} ${i===located?'located':''} ${ice} ${x?.cracks?'cracked':''} ${ready?'keyReady':''} ${deep?'deep':''} ${later?'later':''} ${openable?'reachable':''} ${CAMP.includes(i)?'camp':''} ${locked?'locked':''} ${selected===i?'selected':''} ${twin?'match':''} ${focused?'nextAction':''} ${x?.type==='source'&&focusGens.has(x.id)||holdsGen?'orderSource':''} ${(r+c)%2?'odd':''}" data-index="${i}" style="grid-row:${r+1};grid-column:${c+1}" ${x?.family||x?.id?`data-family="${x.family??x.id}"`:''} ${x?.type==='cargo'?`data-key="${x.key.family}"`:''} aria-label="${nameOf(x)}${x?.type==='glass'?` · ${GLASS_HITS-(x.cracks??0)} hit${GLASS_HITS-(x.cracks??0)>1?'s':''} left`:''}${iceNeed(x)?` · cracked by a level ${iceNeed(x)} or better merge beside it`:''}${locked?' · locked':''}${x?.type==='source'&&!locked?' · tap to make a part for 1 energy':''}. Space ${i+1}" aria-pressed="${selected===i}">${draw(deep?{...x,deep:true}:x)}${badge}</button>`;
  }).join(''));
  // The free-space count shows only when space is getting short.
  // Build 47a: rewards waiting for space say so here until they land.
@@ -482,9 +506,12 @@ function clearCoach(){for(const el of document.querySelectorAll('.coachTarget,.c
 const HAND_SVG='<svg viewBox="0 0 48 56" aria-hidden="true"><path d="M20 4c-2.8 0-5 2.2-5 5v21l-3.2-3.1c-2-2-5.2-2-7.1 0-1.9 1.9-1.9 5 0 7l11.3 11.6c2.6 2.6 6 4.5 9.7 4.5h6.3c6.9 0 12-5.6 12-12.5V24c0-2.5-2-4.5-4.5-4.5-1 0-1.9.3-2.6.8-.6-2-2.4-3.3-4.4-3.3-1.2 0-2.3.4-3.1 1.1-.7-1.7-2.4-2.9-4.4-2.9-.9 0-1.7.2-2.4.6V9c0-2.8-2.2-5-5-5z"/></svg>';
 let handFor=null,handLow=false;
 // low: the fingertip on the target's bottom row (an order card's Deliver line), so the parts stay visible
+let handRest=0;
 function coachHand(el,label,drag,low=false){
- let h=document.getElementById('coachHand');
+ let h=document.getElementById('coachHand');clearTimeout(handRest);
  if(!el){handFor=null;if(h)h.hidden=true;return;}
+ // First Session 2.0: the hand shows a few times, then rests (the highlight stays)
+ handRest=setTimeout(()=>{if(handFor===el)coachHand(null);},6500);
  if(!h){h=document.createElement('div');h.id='coachHand';h.setAttribute('aria-hidden','true');h.innerHTML=HAND_SVG+'<span class="handLabel"></span>';document.body.append(h);}
  handFor=el;handLow=low;h.querySelector('.handLabel').textContent=label;h.classList.toggle('drag',!!drag);
  h.style.setProperty('--dx',`${drag?.dx??0}px`);h.style.setProperty('--dy',`${drag?.dy??0}px`);placeHand();
@@ -493,30 +520,72 @@ function placeHand(){
  const h=document.getElementById('coachHand');if(!h)return;
  const r=handFor?.isConnected&&!homeOpen&&!document.querySelector('#story:not([hidden])')?handFor.getBoundingClientRect():null;
  if(!r?.width){h.hidden=true;return;}
- h.hidden=false;h.style.left=`${r.left+r.width/2}px`;h.style.top=`${handLow?r.bottom-14:r.top+r.height/2}px`;
+ // an order card (handLow): the hand points into the card's middle, so it never hangs over the Coast strip below
+ h.hidden=false;h.style.left=`${r.left+r.width/2}px`;h.style.top=`${handLow?r.top+r.height*.42:r.top+r.height/2}px`;
  // the label stays on screen near the edges
  const l=h.querySelector('.handLabel'),w=l.offsetWidth,cx=r.left+r.width/2;h.style.setProperty('--lx',`${Math.max(8-cx+w/2,Math.min(0,innerWidth-8-cx-w/2))}px`);
 }
 addEventListener('resize',placeHand);addEventListener('scroll',placeHand,true);
-function showCoachTarget(t){
+// First Session 2.0 (Adaptive tutorial 2.0, tutor.mjs): the same line and targets, one actionable step at a
+// time: what (bold), why (one short line), where (gold = the next action, green = the matching pair, the hand
+// only while that skill is new, after Hint or after an idle reminder). Every target is accepted by act().
+function showCoachTarget(t,{hand=true}={}){
  clearCoach();if(!t)return;
- if(t.kind==='cell'){const el=board.querySelector(`[data-index="${t.index}"]`);el?.classList.add('coachTarget');coachHand(el,'Tap here');}
+ if(t.kind==='cell'){const el=board.querySelector(`[data-index="${t.index}"]`);el?.classList.add('coachTarget');if(hand)coachHand(el,'Tap here');}
  else if(t.kind==='pair'){const a=board.querySelector(`[data-index="${t.cells[0]}"]`),b=board.querySelector(`[data-index="${t.cells[1]}"]`);if(!a||!b)return;
-  const ra=a.getBoundingClientRect(),rb=b.getBoundingClientRect(),dx=rb.left-ra.left,dy=rb.top-ra.top;a.style.setProperty('--dx',`${dx}px`);a.style.setProperty('--dy',`${dy}px`);a.classList.add('coachFrom');b.classList.add('coachTo');
-  coachHand(a,'Drag onto its twin',{dx,dy});}
- else if(t.kind==='order'){const el=$(`[data-order="${t.id}"]`);el?.classList.add('coachTarget');coachHand(el,'Tap to deliver',null,true);}
- else if(t.kind==='strip'){const el=$('#mapButton');el?.classList.add('coachTarget');coachHand(el,'Tap to open the coast');}
+  const ra=a.getBoundingClientRect(),rb=b.getBoundingClientRect(),dx=rb.left-ra.left,dy=rb.top-ra.top;a.style.setProperty('--dx',`${dx}px`);a.style.setProperty('--dy',`${dy}px`);a.classList.add('coachFrom','coachPair');b.classList.add('coachTo','coachPair');
+  if(hand)coachHand(a,'Drag onto its twin',{dx,dy});}
+ else if(t.kind==='order'){const el=$(`[data-order="${t.id}"]`);el?.classList.add('coachTarget');if(hand)coachHand(el,'Tap to deliver',null,true);}
+ else if(t.kind==='strip'){const el=$('#mapButton');el?.classList.add('coachTarget');if(hand)coachHand(el,'Tap to open the coast');}
  else if(t.kind==='coins')$('#coinPill')?.classList.add('coachTarget');
 }
+// The tutorial's current step and how much it shows. A Hint or the idle reminder raises one step to full until
+// the player acts or the step changes (session only: nothing is saved).
+const tutorG={hints:0,reminders:0};let tutor=null,tutorBoost=null,tutorSig='',tutorActs=-1,tutorIdle=0;const tutorReminded=new Set();
+const actsDone=()=>{const k=skills(state);return k.tap+k.merge+k.deliver+k.gold+k.build+(state.moves??0);};
+function tutorView(coast=$('#coastMap').open?'open':null){
+ const st=tutorStep(state,{coast}),sig=signature(st),n=actsDone();
+ if(sig!==tutorSig||n!==tutorActs){tutorBoost=null;tutorSig=sig;tutorActs=n;}
+ return {st,sig,lv:tutorBoost===sig?'full':guideLevel(state,st)};
+}
+globalThis.VWGuide={get step(){return tutor&&{...tutor.st,level:tutor.lv};},get hints(){return tutorG.hints;},get reminders(){return tutorG.reminders;}};
 function renderCoach(){
  const on=coachActive(state);$('#coachSkip').hidden=!on;
- if(coachNote&&coachNote.until>performance.now())coach={id:'note',text:coachNote.text,target:coachNote.target};
- else{coachNote=null;coach=coachStep(state)??laterTip(state);}
+ const b=$('#hint');
+ if(coachNote&&coachNote.until>performance.now()){coach={id:'note',text:coachNote.text,target:coachNote.target};tutor=null;b.textContent=coach.text;b.dataset.kind='coach';b.dataset.step='note';delete b.dataset.level;requestAnimationFrame(()=>showCoachTarget(coach.target));return true;}
+ coachNote=null;
+ // the guided span (the game's coach span and the next objective), or a step a Hint / reminder raised
+ const v=tutorView();
+ if(tutorActive(state)||v.lv==='full'){tutor=v;const {st,lv}=v;coach={id:st.kind,text:st.what,target:st.target};
+  b.innerHTML=`<b class="gWhat">${st.what}</b>${lv!=='quiet'&&st.why?`<small class="gWhy">${st.why}</small>`:''}`;b.dataset.kind='coach';b.dataset.step=st.kind;b.dataset.level=lv;
+  requestAnimationFrame(()=>{if(lv==='quiet'||!st.target)clearCoach();else showCoachTarget(st.target,{hand:lv==='full'});});
+  armTutorIdle();return true;}
+ tutor=null;delete b.dataset.level;
+ coach=laterTip(state);
  if(!coach){clearCoach();return false;}
- const b=$('#hint');b.textContent=coach.text;b.dataset.kind='coach';b.dataset.step=coach.id;
+ b.textContent=coach.text;b.dataset.kind='coach';b.dataset.step=coach.id;
  requestAnimationFrame(()=>showCoachTarget(coach.target));
  return true;
 }
+// One gentle reminder after about 8 s without input, once per step, during the guided span; never an action.
+function armTutorIdle(){clearTimeout(tutorIdle);tutorIdle=setTimeout(tutorRemind,8000);}
+function tutorRemind(){
+ if(!tutor||!tutorActive(state))return;
+ if(homeOpen||drag||adBusy||document.querySelector('dialog[open]:not(#coastMap)')||!document.querySelector('#story')?.hidden&&document.querySelector('#story')){armTutorIdle();return;}
+ if(tutorReminded.has(tutor.sig))return;tutorReminded.add(tutor.sig);tutorG.reminders++;nudgeHint();
+ if(tutor.st.target){tutorBoost=tutor.sig;renderHint();if($('#coastMap').open)showMap();}
+}
+function nudgeHint(){const h=$('#hint');h.classList.remove('nudge');void h.offsetWidth;h.classList.add('nudge');}
+addEventListener('pointerdown',()=>{if(tutor)armTutorIdle();},{capture:true});
+// back on the board from the coast screen: the line speaks about the board again
+$('#coastMap').addEventListener('close',()=>{if(tutor||tutorActive(state))renderHint();});
+// a short Skip on the guide's line (the line's room goes to what and why); its name stays "Skip guide"
+$('#coachSkip').textContent='Skip';$('#coachSkip').setAttribute('aria-label','Skip guide');
+// The voluntary Hint: the current step, in full (the hand), until the player acts.
+{const hb=document.createElement('button');hb.id='guideHint';hb.type='button';hb.className='guideHint';hb.setAttribute('aria-label','Hint: show me the next step');hb.innerHTML='<span aria-hidden="true">💡</span>';
+ $('#hint').after(hb);
+ hb.onclick=()=>{const v=tutorView();tutorG.hints++;tutorReminded.add(v.sig);tutorBoost=v.sig;tutorSig=v.sig;sfx('tap');nudgeHint();renderHint();if($('#coastMap').open)showMap();
+  if(!v.st.target)$('#message').textContent=`${v.st.what}. ${v.st.why}`;};}
 function renderHint(){
  // While a delivery's coins fly, the guidance waits too (it may be about to say "Upgrade").
  if(holdPlace>performance.now())return;
@@ -528,6 +597,14 @@ function renderHint(){
  if(guide.kind==='merge'&&!state.merges)for(const i of guide.cells)board.querySelector(`[data-index="${i}"]`)?.classList.add('hintPair');
 }
 $('#hint').onclick=()=>{
+ // the tutorial's line: a tap on it does what it shows (the player's own tap), or for a drag shows the hand
+ if(tutor){const t=tutor.st.target;
+  if(tutor.st.kind==='tap'&&t)run({type:'produce',id:state.board[t.index]?.id,index:t.index});
+  else if((tutor.st.kind==='deliver'||tutor.st.kind==='gold')&&t)run({type:'deliver',id:t.id});
+  else if(t?.kind==='strip'){mapFocus=nextPlace()?.u.id??null;showMap();}
+  else if(t?.kind==='pair'){tutorBoost=tutor.sig;renderHint();$('#message').textContent=tutor.st.kind==='unseal'?'Drag the marked part onto its crate.':'Drag one marked part onto the other.';}
+  else $('#message').textContent=`${tutor.st.what}. ${tutor.st.why}`;
+  return;}
  // a goal line (no highlight) still works like the normal hint line when tapped: its advice, on request
  if(coach&&coach.id!=='goal'){const t=coach.target;
   if(coach.id==='tap'&&t)run({type:'produce',id:state.board[t.index]?.id,index:t.index});
@@ -576,6 +653,8 @@ function run(a,{adCompletion=false}={}){
   if(a.type==='produce'&&state.energy<1)playlog.event('blockedEnergy');else if(/board is full|Make space/i.test(r.message))playlog.event('blockedFull',{type:a.type});
   return r;}
  logResult(a,r,before);
+ // First Session 2.0: a new player's camp is saved from their first action on (never the untouched default)
+ if(waitFirstAction&&!damaged){waitFirstAction=false;holdSave=false;foldRibbon();}
  $('#message').textContent=r.message;
  if(r.event==='merge'||r.event==='move'||r.event==='producerUp'||r.event==='unseal')selected=r.event==='producerUp'||r.event==='unseal'?null:r.index;
  if(r.event==='deliver'||r.event==='store'||r.event==='swapOrder'){focusOrder=null;selected=null;}
@@ -583,7 +662,7 @@ function run(a,{adCompletion=false}={}){
  // Build 51c: the guide's own feedback. The first crew order's coins are named (the coin count pulses);
  // the first restoration ends the guide (the message line names the next objective once).
  if(coachBefore&&r.event==='deliver'&&order&&!order.story&&state.ordersDone===1){coachNote={text:`+${order.coins} coins from ${CREW[order.who]?.name??'the crew'}'s order: crew orders pay coins.`,until:performance.now()+3800,target:{kind:'coins'}};setTimeout(renderHint,3900);}
- if(coachBefore&&r.event==='restore'){markSeen(COACH_DONE);coachNote=null;const next=TASKS[FIRST_PLACE].stages[stageOf(state,FIRST_PLACE)];
+ if(coachBefore&&r.event==='restore'){markSeen(COACH_DONE);markSeen(COACH_NEXT);coachNote=null;const next=TASKS[FIRST_PLACE].stages[stageOf(state,FIRST_PLACE)];
   $('#message').textContent=`Guide complete. Next: ${next?next.name+': its gold order brings the materials and coins, crew orders add more coins.':'the coast\'s next place.'}`;}
  // the guide is this camp's from its first action on (a seen flag is an action too, so not before: a new
  // camp stays untouched until the player acts)
@@ -598,7 +677,10 @@ function run(a,{adCompletion=false}={}){
    if(!reduced()){t.insertAdjacentHTML('beforeend',`<span class="iceBurst" aria-hidden="true">${Array.from({length:8},(_,k)=>`<i style="--a:${k*45+12}deg;--d:${24+(k%3)*8}px"></i>`).join('')}</span>`);setTimeout(()=>t.querySelector('.iceBurst')?.remove(),800);}}
   sfx('shatter');haptics.pulse('ice');}
  if(r.event==='swap'){tile?.classList.add('merge-pop');burst(tile?.getBoundingClientRect(),'gold');sfx('rare');}
- if(r.event==='merge'){const m=state.board[r.index],first=m?.type==='item'&&r.found?.includes(m.family+m.tier);tile?.classList.add('merge-pop');burst(tile?.getBoundingClientRect(),m?.family,first||m?.tier>=4);
+ if(r.event==='merge'){const m=state.board[r.index],first=m?.type==='item'&&r.found?.includes(m.family+m.tier),fb=mergeTier(m,first),rect=tile?.getBoundingClientRect();
+  tile?.classList.add('merge-pop','merge-'+fb);burst(rect,m?.family,fb!=='micro');
+  if(fb!=='micro')mergeTag(rect,`${CHAINS[m.family]?.secondary?'Rare · ':''}${nameOf(m)} · Lv${m.tier+1}`,!!CHAINS[m.family]?.secondary);
+  if(fb==='major'){mergeRays(rect);haptics.pulse('restore');}
   // a triple merge (the level path) makes its second part where the third stood
   if(r.triple!=null){const t3=board.querySelector(`[data-index="${r.triple}"]`);t3?.classList.add('merge-pop');burst(t3?.getBoundingClientRect(),m?.family,true);}
   if(!r.broken?.length){sfx(first&&m.tier>=2||m?.tier>=4?'discovery':'merge',m?.tier??0);haptics.pulse('merge');}for(const d of r.dug??[])board.querySelector(`[data-index="${d.index}"]`)?.classList.add('unlocked');
@@ -612,7 +694,7 @@ function run(a,{adCompletion=false}={}){
  // Secondary chains (pilot): the rare extra lands beside the tap's part with the board's arrival
  // pop (no new badge or panel), and the first one of a chain gets one short moment saying where it
  // comes from. A tap's extra with no space waits with the other rewards (r.secondary.index -1).
- if(r.event==='produce'&&r.secondary){const t2=r.secondary.index>=0?board.querySelector(`[data-index="${r.secondary.index}"]`):null;t2?.classList.add('unsealed');burst(t2?.getBoundingClientRect(),r.secondary.family,true);sfx('rare');
+ if(r.event==='produce'&&r.secondary){const t2=r.secondary.index>=0?board.querySelector(`[data-index="${r.secondary.index}"]`):null;t2?.classList.add('unsealed','merge-major');burst(t2?.getBoundingClientRect(),r.secondary.family,true);mergeRays(t2?.getBoundingClientRect());if(t2)mergeTag(t2.getBoundingClientRect(),'Rare · '+CHAINS[r.secondary.family].names[0],true);sfx('rare');
   if(r.found?.includes(r.secondary.family+'0'))setTimeout(()=>moment('New: '+CHAINS[r.secondary.family].names[0],sourceNote(r.secondary.family)+` Crew orders ask for them · merge two for a ${CHAINS[r.secondary.family].names[1]}.`,item(r.secondary.family,0)),reduced()?0:500);
   else if(r.secondary.index<0)$('#message').textContent+=' · no space: it waits for one';}
  if(r.unlocks?.length&&r.event!=='producerUp')extrasNews();
@@ -628,6 +710,10 @@ function run(a,{adCompletion=false}={}){
   // Build 48b: one clear step after the gold order: the materials are secured, the strip shows it at
   // once, and it says either "Build · cost" or how many coins are still short (crew orders pay them)
   if(r.materials){const t=TASKS[r.materials.id],u=t.stages[r.materials.stage-1],ok=state.coins>=u.cost;holdPlace=0;renderNextPlace();
+   // First Session 2.0: the materials fly from the gold card to the strip's picture, which then pulses
+   if(orderRect&&!reduced()){const to=$('#mapButton .rsThumb').getBoundingClientRect(),el=document.createElement('div');el.className='matFlight';el.innerHTML='<img src="assets/premium/coast/icons/driftwood-crate.webp" alt="">';
+    el.style.cssText=`left:${orderRect.x+orderRect.width/2-20}px;top:${orderRect.y+orderRect.height/2-20}px;--dx:${to.x+to.width/2-orderRect.x-orderRect.width/2}px;--dy:${to.y+to.height/2-orderRect.y-orderRect.height/2}px`;
+    document.body.append(el);setTimeout(()=>{el.remove();const s=$('#mapButton');s.classList.remove('progressed');void s.offsetWidth;s.classList.add('progressed');},760);}
    setTimeout(()=>moment(`Materials secured · +${r.coins} coins`,`The gold order paid ${r.coins} coins and brought the materials for ${u.name}. `+(ok?`Build · ${u.cost} coins: tap the strip under the orders.`:`${u.cost-state.coins} more coins to build it: deliver crew orders.`)),reduced()?0:950);}}
  if(r.event==='producerUp'){const src=state.board[r.index],next=nextKind(src.id),waiting=next&&src.level<UNLOCK_LEVEL&&!state.board.some(y=>y?.type==='source'&&y.id===next);
   if(r.unlocks?.length)extrasNews();else moment(SOURCES[src.id].name+' · level '+src.level,LEVEL_GAIN[src.level]+(waiting?` Level ${UNLOCK_LEVEL} brings out the ${SOURCES[next].name}.`:''),src);tile?.classList.add('merge-pop');burst(tile?.getBoundingClientRect(),'gold',true);sfx('milestone');}
@@ -909,7 +995,8 @@ async function watchAd(action){
 }
 // The gift opens by itself once a session is under way, never over another screen or a drag.
 // Build 51c: not offered by itself while a new camp's first-loop guide runs (its button still shows the gift).
-function offerGift(){if(!homeOpen&&!adBusy&&giftReady()&&giftShown!==today()&&state.moves>=3&&!coachActive(state)&&!drag&&!document.querySelector('dialog[open]'))showDaily();}
+// First Session 2.0: not while the guide is teaching (the first build's next objective stays in view); the gift button stays.
+function offerGift(){if(!homeOpen&&!adBusy&&giftReady()&&giftShown!==today()&&state.moves>=3&&!tutorActive(state)&&!drag&&!document.querySelector('dialog[open]'))showDaily();}
 $('#soundButton').onclick=()=>{sounds.toggle();render();sfx('tap');};
 $('#hapticsButton').onclick=()=>{haptics.toggle();render();haptics.pulse('merge');};
 $('#helpButton').onclick=()=>$('#help').showModal();
@@ -1066,7 +1153,7 @@ function showMap(){
  content.classList.toggle('entering',opening);if(opening){clearTimeout(content._enter);content._enter=setTimeout(()=>content.classList.remove('entering'),1400);}
  if(!opening&&shownCard!==mapFocus)$('#mapCard')?.classList.add('swapIn');shownCard=mapFocus;
  // Build 51c: the guide's build step points at the build button on the coast screen too
- let coachBuild=null;{const st=coachActive(state)?coachStep(state):null;if(st?.id==='build'){coachBuild=$(`#coastMap [data-restore="${FIRST_PLACE}"]`);coachBuild?.classList.add('coachTarget');coachBuild?.insertAdjacentHTML('beforeend',`<span class="coachHand" aria-hidden="true">${HAND_SVG}<span class="handLabel">Tap to build</span></span>`);$('#mapCard')?.insertAdjacentHTML('beforebegin','<p class="coachLine">Coins and materials are ready: build it here.</p>');}}
+ let coachBuild=null;{const v=tutorView('open');if((tutorActive(state)||v.lv==='full')&&v.st.kind==='coastBuild'&&v.lv!=='quiet'){tutor=v;coachBuild=$(`#coastMap [data-restore="${v.st.target.id}"]`);coachBuild?.classList.add('coachTarget');if(v.lv==='full')coachBuild?.insertAdjacentHTML('beforeend',`<span class="coachHand" aria-hidden="true">${HAND_SVG}<span class="handLabel">Tap to build</span></span>`);$('#mapCard')?.insertAdjacentHTML('beforebegin',`<p class="coachLine"><b>${v.st.what}</b> · ${v.st.why}</p>`);armTutorIdle();}}
  if(opening)$('#coastMap').showModal();
  // A closed dialog has no layout: center only after showModal gives the strip
  // its real width and chapter positions. Scroll the strip, never the page.
@@ -1079,6 +1166,7 @@ function showMap(){
  if(opening&&focusOnOpen&&!reduced()){const sc=$('#coastMap .beachScene');if(sc){sc.style.setProperty('--fx',focus.at[0]+'%');sc.style.setProperty('--fy',focus.at[1]+'%');sc.classList.add('focusIn');setTimeout(()=>sc.classList.remove('focusIn'),1200);}}
  focusOnOpen=false;
  if(!$('#beat').open)growScene();
+ keepRestoredCard();
 }
 let shownCard=null;
 // Effects on the coast screen are drawn inside it: the screen is a modal dialog, so anything on
@@ -1108,7 +1196,7 @@ $('#mapContent').addEventListener('click',e=>{
  const sel=e.target.closest('[data-select]');if(sel){mapFocus=sel.dataset.select;sfx('tap');showMap();return;}
  const make=e.target.closest('[data-make]');if(make){$('#coastMap').close();focusOrder=make.dataset.make;render();$('#message').textContent='The gold order is marked: make its parts and deliver it for the materials.';return;}
  const p=e.target.closest('[data-replay]');if(p){showBeat(p.dataset.replay,{},STAGES);return;}
- if(e.target.closest('[data-back],[data-go]'))$('#coastMap').close();
+ if(e.target.closest('[data-back],[data-go],[data-done]'))$('#coastMap').close();
 });
 function rewardText(e={}){
  const out=[],wait=' (waits for a free space)';
@@ -1135,19 +1223,40 @@ function showBeat(id,effects,stage=stageOf(state,id)){
  else if(effects?.areaDone&&!effects.nextArea)extra.push(['bram',`${area.name} is complete!${next?` The ${bare(next)} is still to come.`:''}`]);
  // Build 49a: Chapter 4 keeps its four story cards for the big moments; a stage's own line is a short
  // caption with its rewards, never a dialog to tap through (the pack's interaction notes).
- const caption=!!area.overview,say=caption?(title,lines,cb)=>{receipt=null;cb();}:playLines;
+ const caption=!!area.overview;
+ // First Session 2.0: on the coast screen a stage's lines, its real reward and the next objective are a card under
+ // the picture, never a dialog over the restored place. Area completions and reveals keep their story cards.
+ const inline=$('#coastMap').open&&!effects?.nextArea&&!effects?.areaDone&&!revealNext&&!!effects&&Object.keys(effects).length>0;
+ const spent=receipt,say=caption||inline?(title,lines,cb)=>{receipt=null;cb();}:playLines;
  say(st.name,st.lines.concat(extra),()=>{const fresh=caption||effects&&Object.keys(effects).length,nxt=fresh?nextPlace():null;if(nxt&&!effects.nextArea)mapFocus=nxt.u.id;if(effects?.nextArea){render();if(!nextReveal()){showMap();showIntro();}}else if($('#coastMap').open)showMap();const icon=$(`#coastMap .restoredIcon[data-task="${id}"]`)??$(`.restoredIcon[data-task="${id}"]`);icon?.classList.add('upgraded');
   // The stage's rewards, said once the story has been told (build 22: every stage gives one).
   // One clear next step after the story: the next place to build, said with its rewards.
   const next=nxt&&!effects?.nextArea?` · Next: ${nxt.u.name}${nxt.ready?' (ready)':''}`:'';
   const said=caption?st.lines.map(([w,l])=>`${who$(w)}: “${l}” `).join(''):'';
-  if(caption||effects&&Object.keys(effects).length)moment(`${st.name} · stage ${stage} of ${STAGES}`,said+(effects&&Object.keys(effects).length?rewardText(effects):'')+next,null);burst(($('#coastMap').open?$('#coastMap .beachScene'):board).getBoundingClientRect(),'gold',true);
+  if(inline)restoredCard(t,st,stage,effects,nxt,spent);
+  else if(caption||effects&&Object.keys(effects).length)moment(`${st.name} · stage ${stage} of ${STAGES}`,said+(effects&&Object.keys(effects).length?rewardText(effects):'')+next,null);burst(($('#coastMap').open?$('#coastMap .beachScene'):board).getBoundingClientRect(),'gold',true);
   for(const i of [effects?.kit,effects?.copy,effects?.token,effects?.cog])if(i>=0)board.querySelector(`[data-index="${i}"]`)?.classList.add('unsealed');
   // Build 47e (from PR #80): a first generator of its kind from a stage (the Lens Bench) shows its chain.
   if(effects?.copyId&&[...state.board,...state.shed,...state.pending].filter(y=>y?.type==='source'&&y.id===effects.copyId).length===1)setTimeout(()=>newGeneratorMoment(effects.copyId),1400);
   if(pendingReveals().some(v=>v.live(state)))setTimeout(()=>nextReveal(()=>{if(allDone(state))setTimeout(showEnd,600);}),900);
   else if(effects?.areaDone&&allDone(state))setTimeout(showEnd,900);});
  sfx('milestone');
+}
+// First Session 2.0: the restored place's card on the coast screen, under the picture: the stage, its lines (the
+// story stays readable here and in the place's Replay), the real rewards (act()'s effects) and the next objective.
+// It stays on the coast screen through any redraw (another tap there, a Hint) until the screen is closed.
+let restoredHtml=null;
+function keepRestoredCard(){if(!restoredHtml||!$('#coastMap').open)return;const wrap=$('#coastMap .sceneWrap');if(wrap&&!$('#coastMap .restoredCard'))wrap.insertAdjacentHTML('afterend',restoredHtml);}
+$('#coastMap').addEventListener('close',()=>{restoredHtml=null;});
+function restoredCard(t,st,stage,effects,nxt,spent=null){
+ $('#coastMap .restoredCard')?.remove();const wrap=$('#coastMap .sceneWrap');if(!wrap)return;
+ const chips=rewardText(effects).replace(/^Rewards: /,'').split(' · ').map(x=>`<span>${x}</span>`).join('');
+ const next=nxt?`<p class="rcNext"><b>Next:</b> ${nxt.u.name}${nxt.ready?' · ready to build':''}</p>`:'';
+ wrap.insertAdjacentHTML('afterend',`<section class="restoredCard" role="status" aria-label="${st.name} restored"><small>${(AREAS.find(a=>a.tasks.includes(t))??currentArea(state)).name} · stage ${stage} of ${STAGES}</small><b class="rcTitle">${st.name}</b>${spent?`<b class="beatReceipt">−${spent} coins</b>`:''}
+  ${st.lines.map(([w,l])=>`<p class="rcLine">${face(w)}<span><b>${who$(w)}</b>: “${l}”</span></p>`).join('')}<div class="rcRewards">${chips}</div>${next}<button class="primary rcBack" type="button" data-done>Back to the board</button></section>`);
+ restoredHtml=$('#coastMap .restoredCard').outerHTML;
+ // the restored place stays in view: the picture at the top of the screen, its card right under it
+ requestAnimationFrame(()=>wrap.scrollIntoView({block:'start',behavior:reduced()?'auto':'smooth'}));
 }
 // The coins a bought stage cost, said on its story card (Build 41 M3, from PR #77's receipt).
 let receipt=null;
@@ -1159,6 +1268,17 @@ function playLines(title,lines,done,{last='Continue'}={}){
 }
 // A generator level that opens a chain shows the whole new chain.
 // A generator found in cargo shows its whole chain.
+// First Session 2.0: merge feedback in three tiers. Micro (an everyday merge): a quick pop and a few chips.
+// Medium (a part at Lv4–5, or a first find from Lv3): a lift-and-settle and its name for a moment. Major (Lv6 and
+// up, or a rare part): a short burst of light and its name. Nothing blocks a tap; reduced motion keeps it still.
+let lastTag=null;
+function mergeTag(rect,text,rare=false){
+ if(!rect)return;lastTag?.remove();const el=document.createElement('span');el.className='mergeTag'+(rare?' rare':'');el.textContent=text;
+ el.style.left=`${rect.x+rect.width/2}px`;el.style.top=`${rect.y+rect.height+2}px`;document.body.append(el);lastTag=el;setTimeout(()=>{el.remove();if(lastTag===el)lastTag=null;},1450);
+}
+function mergeRays(rect){if(!rect||reduced())return;const el=document.createElement('i');el.className='mergeRays';const w=rect.width*2.4;
+ el.style.cssText=`left:${rect.x+rect.width/2-w/2}px;top:${rect.y+rect.height/2-w/2}px;width:${w}px;height:${w}px`;document.body.append(el);setTimeout(()=>el.remove(),950);}
+function mergeTier(m,first){if(m?.type!=='item')return 'micro';if(CHAINS[m.family]?.secondary||m.tier>=5)return 'major';if(m.tier>=3||first&&m.tier>=2)return 'medium';return 'micro';}
 function newGeneratorMoment(gen){const c=CHAINS[GENERATOR_CHAINS[gen][0][0]];moment(`New generator: ${SOURCES[gen].name}!`,c.names.join(' → '),{type:'source',id:gen});}
 function showIntro(){const a=currentArea(state);if(a.intro)playLines(a.name,a.intro);}
 // ---------- reveals (Build 47b, from PR #80) ----------
@@ -1403,19 +1523,34 @@ $('#playlogButton').onclick=()=>{$('#menu').close();showPlaylog();};
 // an affordable upgrade, energy from an ad when low, the daily gift, parts waiting in the book.
 function calmBadges(){let n=0;for(const el of [$('#mapReady'),$('#adEnergyButton'),$('#dailyButton'),$('#bookCount')]){if(el.hidden)continue;if(n>=2){el.hidden=true;if(el.id==='bookCount')$('#bookButton').classList.remove('ready');}else n++;}}
 render();header();setInterval(()=>{header();placeHand();if(state.energy<1)renderHint();offerGift();$('#dailyButton').hidden=!giftReady();calmBadges();syncPlaying();},1000);
+// First Session 2.0: a new player meets the story as one caption line over the bottom of the screen (Ivo and
+// the beach's own intro line), not three pages before the board. It never blocks the board's middle, folds at
+// the first action (or a tap on it), and a tap on its "Story" replays the illustrated opening. The menu's
+// Story button replays it any time. Watching it again saves nothing.
+function storyRibbon(){
+ const a=currentArea(state),[who,line]=a.intro?.[0]??['ivo','First, let\'s clear a landing.'];
+ let r=$('#storyRibbon');if(!r){r=document.createElement('div');r.id='storyRibbon';r.className='storyRibbon';r.setAttribute('role','status');document.body.append(r);}
+ r.innerHTML=`${face(who)}<p><b>${who$(who)} · ${a.name}</b>${line}</p><button type="button" class="ribbonStory" aria-label="Watch the story">Story</button><button type="button" class="ribbonClose" aria-label="Close the story line">×</button>`;
+ r.hidden=false;r.classList.remove('folded');
+ r.querySelector('.ribbonStory').onclick=()=>{foldRibbon();replayStory();};r.querySelector('.ribbonClose').onclick=foldRibbon;
+}
+function foldRibbon(){const r=$('#storyRibbon');if(!r||r.hidden)return;r.classList.add('folded');setTimeout(()=>{r.hidden=true;},reduced()?0:320);}
+function replayStory(){$('#menu').open&&$('#menu').close();playScenes({scenes:INTRO.map(x=>({...x,src:`assets/premium/coast/story/${x.art}.webp`,id:x.art})),face:who=>`assets/premium/coast/ui/${FACES[who]}.webp`,reduced,last:'Back to the camp'}).then(()=>render());}
+{const sb=document.createElement('button');sb.id='storyButton';sb.type='button';sb.className='menuButton';sb.textContent='Story: the letter';sb.onclick=replayStory;$('#homeButton').after(sb);}
 // What happens on arriving at the board: once at the start without Home, and each time from Home.
 let storyJustPlayed=false;
 function arrive(fromHome=true){
- if(holdSave&&!damaged){holdSave=false;persist();}
+ if(holdSave&&!damaged&&!waitFirstAction){holdSave=false;persist();}
  syncPlaying();if(fromHome)$('#hint').focus({preventScroll:true});
  // Build 51c: a story played to its end already says what to do first, so no second introduction follows
  // it; a skipped story is followed by the beach's one line (the same words)
- if(!state.moves){if(!storyJustPlayed)showIntro();}
+ if(!state.moves){if(waitFirstAction)storyRibbon();else if(!storyJustPlayed)showIntro();}
  else{extrasNews();nextReveal(()=>{if(allDone(state)&&!state.seenEnd)setTimeout(showEnd,600);});}
  storyJustPlayed=false;
 }
 // Home and Loading (Build 46p): the board above is set up once; Home only covers and uncovers it.
 if(document.getElementById('home')){
+ newPlayer=isNewPlayer({rawSave,readStatus:read.status,startNew,keptCount:kept().length,onCrazyGames:onCrazyGamesHost(),storeKind:storage.status.kind});waitFirstAction=newPlayer;
  const stagesBuilt=()=>{const a=currentArea(state);return a.tasks.reduce((n,t)=>n+stageOf(state,t.id),0);};
  home=createHome({boot:window.VWBoot??null,hasSave:!!rawSave&&!damaged,damaged,newer,kept:()=>kept().length,onKept:showKept,
   chapter:()=>{const a=currentArea(state);return a?.tasks?.length?`${a.name} · ${stagesBuilt()} of ${a.tasks.length*STAGES} stages built`:a?.name??'';},
@@ -1423,6 +1558,7 @@ if(document.getElementById('home')){
   onNewCamp:()=>{if(!confirm('Start a new camp? The save that could not be read stays in this browser as a backup.'))return false;return newCamp();},
   onOpenChange:v=>{homeOpen=v;syncPlaying?.();placeHand();},
   // The first-play story (Build 46q): once, on the first new camp's Play, never on Continue.
-  beforeEnter:reason=>reason==='play'&&!rawSave&&!storySeen(storage)?playIntro({storage,reduced,face:who=>`assets/premium/coast/ui/${FACES[who]}.webp`}).then(how=>{storyJustPlayed=how==='done';return how;}):null});
- home.ready.then(()=>{if(!rawSave&&!storySeen(storage))preloadIntro();});
+  autoEnter:newPlayer,
+  beforeEnter:reason=>reason==='play'&&!rawSave&&!newPlayer&&!storySeen(storage)?playIntro({storage,reduced,face:who=>`assets/premium/coast/ui/${FACES[who]}.webp`}).then(how=>{storyJustPlayed=how==='done';return how;}):null});
+ home.ready.then(()=>{if(!rawSave&&!newPlayer&&!storySeen(storage))preloadIntro();});
 }else{homeOpen=false;arrive(false);}

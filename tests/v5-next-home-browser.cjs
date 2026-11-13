@@ -39,30 +39,44 @@ async function drag(page,a,z){const A=await page.locator(`#board [data-index="${
     const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());await page.addInitScript(COUNT);return {context,page,errors};};
    const tag=s=>`${engine}: ${s}`;
 
-   // 1. Fresh save: Loading, then Home with Play; nothing is saved until Play; Play → the board.
+   // 1. Fresh save: Loading, then (First Session 2.0) the board by itself, no Play press; nothing is saved
+   //    until the player's first action. Loading performance (2026-11-13): a new player never sees Home, so the
+   //    board never waits for Home's pictures (about 580 KB): they are not even asked for before the board is in.
    {const {context,page,errors}=await fresh();
-    const release=await hold(page,/home\/(logo|home-bg)\.webp/);
+    const asked=[];page.on('request',r=>{if(/home\/(logo|home-bg|button)\.webp/.test(r.url()))asked.push(r.url());});
+    const release=await hold(page,/home\/(logo|home-bg|button)\.webp/);
     await page.goto(BASE+'play.html',{waitUntil:'commit'});
-    await page.waitForFunction(()=>/of 3 pictures/.test(document.querySelector('#homeStatus')?.textContent||''),null,{timeout:20000});
     assert.ok(await page.locator('#home.isLoading').count(),tag('loading first'));
-    assert.match(await page.textContent('#homeStatus'),/Loading the camp · 1 of 3 pictures/,tag('real picture count'));
-    assert.equal(await page.getAttribute('#homeBar','aria-valuenow'),'33',tag('measured progress'));
     assert.equal(await page.locator('#homePlay').isVisible(),false,tag('no Play while loading'));
-    await release();await homeUsable(page);
-    assert.equal((await page.textContent('#homePlay')).trim(),'Play');assert.equal(await page.locator('#homeChapter').isVisible(),false,tag('no place for a new camp'));
-    assert.equal(await save(page),null,tag('nothing saved before Play'));
-    // the board behind Home cannot be reached
-    assert.equal(await page.evaluate(()=>document.querySelector('main.game').inert),true,tag('board inert under Home'));
-    await play(page);await skipBeats(page);
-    assert.ok(await save(page),tag('saved once in the camp'));
-    // a playable board: tap the Rover for a part, drag a twin onto a twin
+    await page.waitForSelector('#home',{state:'hidden',timeout:20000});
+    assert.deepEqual(asked,[],tag('the board did not wait for (or ask for) Home\'s pictures'));
+    await page.waitForFunction(()=>document.querySelector('#home .homeArt').getAttribute('src'),null,{timeout:15000});
+    assert.ok(asked.length>0,tag('Home\'s pictures load once the board is in (for the menu\'s Home)'));await release();
+    assert.equal(await page.evaluate(()=>document.querySelector('main.game').inert),false,tag('the board is playable'));
+    assert.equal(await save(page),null,tag('nothing saved before the first action'));
+    // a playable board: tap the Rover for a part (the first action saves the camp), drag a twin onto a twin
     const rover=await page.evaluate(()=>[...document.querySelectorAll('#board .tile.source')].map(t=>t.dataset.index)[0]);
-    const before=JSON.parse(await save(page)).energy;await page.locator(`#board [data-index="${rover}"]`).click();await page.waitForTimeout(250);
-    assert.equal(JSON.parse(await save(page)).energy,before-1,tag('generator tap spends energy'));
+    await page.locator(`#board [data-index="${rover}"]`).click();await page.waitForTimeout(250);
+    assert.equal(JSON.parse(await save(page)).energy,99,tag('generator tap spends energy, and the camp is saved'));
     await page.evaluate(k=>{const s=JSON.parse(localStorage.getItem(k));s.board[30]={type:'item',family:'rig',tier:0};s.board[31]={type:'item',family:'rig',tier:0};s.daily={day:9e6,count:1};localStorage.setItem(k,JSON.stringify(s));},KEY);
     await page.reload();await homeUsable(page);assert.equal((await page.textContent('#homePlay')).trim(),'Continue',tag('reload from the board: Continue'));
     await play(page);await skipBeats(page);await drag(page,30,31);
     const s=JSON.parse(await save(page));assert.deepEqual([s.board[30],s.board[31]],[null,{type:'item',family:'rig',tier:1}],tag('drag merge after entering through Home'));
+    assert.deepEqual(errors,[]);await context.close();}
+
+   // 1b. A returning player (a camp in this browser) sees Home: its pictures start at once, with a real count,
+   //     and Continue waits for them (loading performance, 2026-11-13: only the new player's board skips them).
+   {const {context,page,errors}=await fresh();
+    const g=await import(require('node:path').join(__dirname,'..','v5','next','game.mjs')),camp=g.fresh(Date.now());camp.seen={'coach-on':true,'coach-done':true};camp.moves=12;camp.daily={day:9e6,count:1};
+    await page.addInitScript(([k,v])=>{if(!sessionStorage.getItem('seeded')){localStorage.setItem(k,v);sessionStorage.setItem('seeded','1');}},[KEY,JSON.stringify(camp)]);
+    const release=await hold(page,/home\/(logo|home-bg)\.webp/);
+    await page.goto(BASE+'play.html',{waitUntil:'commit'});
+    await page.waitForFunction(()=>/of 3 pictures/.test(document.querySelector('#homeStatus')?.textContent||''),null,{timeout:20000});
+    assert.match(await page.textContent('#homeStatus'),/Loading the camp · 1 of 3 pictures/,tag('real picture count'));
+    assert.equal(await page.getAttribute('#homeBar','aria-valuenow'),'33',tag('measured progress'));
+    assert.equal(await page.locator('#homePlay').isVisible(),false,tag('no Continue while Home\'s pictures load'));
+    await release();await homeUsable(page);assert.equal((await page.textContent('#homePlay')).trim(),'Continue',tag('then Continue'));
+    assert.ok(await page.evaluate(()=>{const i=document.querySelector('#home .homeArt');return i.complete&&i.naturalWidth>0;}),tag('Home shows its picture'));
     assert.deepEqual(errors,[]);await context.close();}
 
    // 2. Existing save → Continue → the same board, coins, energy and level; Home and back from the
@@ -140,21 +154,30 @@ async function drag(page,a,z){const A=await page.locator(`#board [data-index="${
     assert.match(await page.textContent('#homeStatus'),/Some pictures could not be loaded/);assert.ok(await page.locator('#homeRetry').isVisible());
     await page.locator('#homeSkip').click();await homeUsable(page);assert.equal((await page.textContent('#homePlay')).trim(),'Continue');
     await page.unroute(/home\/logo\.webp/);
-    await page.route(/next\/home\.mjs/,r=>r.abort());await page.reload({waitUntil:'commit'});
-    await page.waitForSelector('#homeRetry:not([hidden])',{timeout:20000});
-    assert.match(await page.textContent('#homeStatus'),/A game file could not be loaded/,tag('module failure shown'));
-    assert.equal(await page.locator('#homePlay').isVisible(),false);assert.equal(await camp(),kept,tag('failure keeps the save'));
-    await page.unroute(/next\/home\.mjs/);await page.locator('#homeRetry').click();await homeUsable(page);
-    assert.equal((await page.textContent('#homePlay')).trim(),'Continue');assert.equal(await camp(),kept);
-    await context.close();}
+    // a game module that fails: checked in a fresh context (nothing cached), since WebKit can serve a module the page
+    // preloaded before from its memory cache on reload, which no network failure reaches
+    const raw=await save(page);await context.close();
+    {const {context,page}=await fresh();
+     const camp=async()=>{const x=JSON.parse(await save(page));return JSON.stringify([x.board,x.coins,x.moves,x.orders,x.level,x.built]);};
+     await page.addInitScript(([k,v])=>{if(!sessionStorage.getItem('seeded')){localStorage.setItem(k,v);sessionStorage.setItem('seeded','1');}},[KEY,raw]);
+     const failed=[];page.on('requestfailed',r=>failed.push(`${new URL(r.url()).pathname} (${r.failure()?.errorText})`));
+     await page.route(/next\/home\.mjs/,r=>r.abort());await page.goto(BASE+'play.html',{waitUntil:'commit'});
+     await page.waitForSelector('#homeRetry:not([hidden])',{timeout:20000});
+     assert.match(await page.textContent('#homeStatus'),/A game file could not be loaded/,tag('module failure shown'));
+     assert.equal(await page.locator('#homePlay').isVisible(),false);assert.equal(await camp(),kept,tag('failure keeps the save'));
+     await page.unroute(/next\/home\.mjs/);const n=failed.length;await page.locator('#homeRetry').click();
+     // Retry must recover once the file loads again (diagnostics: what the screen says and what failed after Retry)
+     try{await homeUsable(page);}catch(e){console.error(tag(`after Retry: "${await page.textContent('#homeStatus').catch(()=>'?')}"; failed after Retry: ${failed.slice(n).join(', ')||'none'}`));throw e;}
+     assert.equal((await page.textContent('#homePlay')).trim(),'Continue');assert.equal(await camp(),kept);
+     await context.close();}}
 
    // 5. Play waits only for board pictures still loading, with a real count, then goes in.
    {const {context,page}=await fresh();
     const release=await hold(page,/icons\/gen-rig-pilot\.webp/);
+    // (a new player goes in by itself: the same wait applies)
     await page.goto(BASE+'play.html',{waitUntil:'commit'});await homeUsable(page);
-    await page.locator('#homePlay').click();
     await page.waitForFunction(()=>/Getting the board ready · \d+ of \d+ pictures/.test(document.querySelector('#homeStatus')?.textContent||''));
-    assert.ok(await page.locator('#home').isVisible(),tag('Play waits for the missing board picture'));
+    assert.ok(await page.locator('#home').isVisible(),tag('the board waits for the missing board picture'));
     assert.equal(await page.locator('#homePlay').isDisabled(),true);
     await release();await skipStory(page);await page.waitForSelector('#home',{state:'hidden'});
     await context.close();}
@@ -164,16 +187,22 @@ async function drag(page,a,z){const A=await page.locator(`#board [data-index="${
     const release=await hold(page,/home\/logo\.webp/);
     await page.goto(BASE+'play.html',{waitUntil:'commit'});await page.waitForSelector('#homeBar');
     assert.equal(await page.evaluate(()=>getComputedStyle(document.querySelector('#homeBar>i')).animationName),'none',tag('bar still'));
-    await release();await homeUsable(page);await page.locator('#homePlay').click();await skipStory(page);
+    await release();await page.waitForSelector('#home',{state:'hidden',timeout:20000});
     assert.equal(await page.locator('#home.leaving').count(),0);assert.equal(await page.locator('#home').isVisible(),false,tag('no fade with reduced motion'));
     await context.close();}
 
-   // 7. CrazyGames: loading ends when Home is usable; gameplay starts only on the board.
+   // 7. CrazyGames: loading ends when Home is usable; gameplay starts only on the board, once. A new player is on
+   //    the board by itself; a returning player only after Continue.
    {const {context,page}=await fresh();
     await page.route('https://sdk.crazygames.com/**',r=>r.fulfill({contentType:'application/javascript',body:STUB}));
-    await page.goto(BASE+'coast-crazygames.html');await homeUsable(page);await page.waitForTimeout(1500);
+    await page.goto(BASE+'coast-crazygames.html');await page.waitForSelector('#home',{state:'hidden',timeout:20000});await page.waitForTimeout(1500);
     const calls=await page.evaluate(()=>window.__cg);
-    assert.deepEqual(calls,['init','loadingStart','loadingStop'],tag(`no gameplay on Home (${calls})`));
+    assert.deepEqual(calls,['init','loadingStart','loadingStop','gameplayStart'],tag(`a new player: loading, then gameplay once on the board (${calls})`));
+    // a returning player: Home first, no gameplay there
+    await page.locator('#board .tile.source').first().click();await page.waitForTimeout(300);
+    await page.reload();await homeUsable(page);await page.waitForTimeout(1500);
+    const again=await page.evaluate(()=>window.__cg);
+    assert.deepEqual(again,['init','loadingStart','loadingStop'],tag(`no gameplay on Home (${again})`));
     await play(page);await page.waitForFunction(()=>window.__cg.includes('gameplayStart'));
     await context.close();}
 

@@ -18,7 +18,7 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast';
    const context=await browser.newContext({viewport:{width:W,height:H},isMobile:W<700&&engine==='chromium',hasTouch:W<700,reducedMotion:'reduce'});
    const page=await context.newPage(),errors=[];throughHome(page);page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
    const tag=s=>`${engine} ${W}×${H}: ${s}`;const save=()=>page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
-   const beats=async()=>{const lines=[];for(let n=0;n<10&&await page.locator('#beat[open]').count();n++){lines.push(await page.locator('#beatContent').textContent());await page.locator('#beatNext').click();await page.waitForTimeout(80);}return lines.join(' | ');};
+   const beats=async()=>{const lines=[];/* First Session 2.0: a stage's lines are a card under the coast picture (read once) */{if(await page.locator('#coastMap[open]').count()&&!await page.locator('#coastMap .restoredCard[data-read]').count())await page.waitForSelector('#beat[open], #coastMap .restoredCard',{timeout:2500}).catch(()=>{});const rc=page.locator('#coastMap .restoredCard:not([data-read])');if(await rc.count()){lines.push(await rc.textContent());await rc.evaluate(e=>e.dataset.read='1');}}for(let n=0;n<10&&await page.locator('#beat[open]').count();n++){lines.push(await page.locator('#beatContent').textContent());await page.locator('#beatNext').click();await page.waitForTimeout(80);}return lines.join(' | ');};
    await page.goto(URL+'?new=1');await page.waitForSelector('#board .tile');await beats();
    // a Build 46 camp at the end of Chapter 1 that saw the old "for now" ending
    await page.evaluate(([k,b])=>{const s=JSON.parse(localStorage.getItem(k));s.area=1;s.built=b;s.materials={...b};s.coins=2000;s.moves=900;s.ordersDone=80;s.seenEnd=true;s.daily={day:9e6,count:1};
@@ -120,7 +120,8 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast';
    assert.equal(await page.locator('#coastMap .beachScene[data-area="vault"] .restoredIcon').count(),0,tag('no duplicate furnishings'));
    // the array wakes: Tamsin's signal card (where it comes from, not who sends it)
    await page.locator('#coastMap [data-restore="obs-array"]').click();await page.waitForTimeout(300);
-   for(let n=0;n<4&&!await page.locator('#beat[open] .vaultReveal').count();n++){await beats();await page.waitForTimeout(500);}
+   // click through the stage's lines up to the signal card, never past it (beats() would click the card itself when it opens mid-loop)
+   for(let n=0;n<30&&!await page.locator('#beat[open] .vaultReveal').count();n++){if(await page.locator('#beat[open]').count()){await page.locator('#beatNext').click();await page.waitForTimeout(80);}else await page.waitForTimeout(250);}
    assert.match(await page.textContent('#beatContent'),/A signal on one bearing.*Not who sends it/s,tag('the signal card'));
    assert.equal(await page.textContent('#beatNext'),'View sea gate');
    await page.locator('#beatNext').click();s=await save();assert.equal(s.seen['obs-signal'],true);

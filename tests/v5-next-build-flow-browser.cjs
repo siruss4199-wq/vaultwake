@@ -84,7 +84,9 @@ const settle=async page=>{for(let k=0;k<10;k++){await page.waitForTimeout(150);
    assert.ok(!(s.materials[PLACE]>s.built[PLACE]),tag('the materials were used'));
    const again=page.locator(`#coastMap [data-restore="${PLACE}"]`);if(await again.count()){const bb=await again.boundingBox();if(bb)await page.touchscreen.tap(bb.x+bb.width/2,bb.y+bb.height/2);}
    await page.waitForTimeout(400);s=await saved(page);assert.equal(s.built[PLACE],2,tag('no second build'));assert.equal(s.coins,5,tag('nothing spent twice'));
-   await page.waitForSelector('#beat[open]',{timeout:4000});assert.match(await page.locator('#beatContent').innerText(),/forge|Workshop|workshop/i,tag('the forge\'s story beat'));await shot('4-built');
+   // First Session 2.0: the stage's lines, rewards and next objective are a card under the coast picture (no dialog over it)
+   await page.waitForSelector('#coastMap .restoredCard',{timeout:4000});assert.equal(await page.locator('#beat[open]').count(),0,tag('no story dialog over the restored place'));
+   assert.match(await page.locator('#coastMap .restoredCard').innerText(),/forge|Workshop|workshop/i,tag('the forge\'s story line'));await shot('4-built');
    await settle(page);if(await page.locator('#coastMap[open]').count())await page.locator('#coastMap .close').tap();await page.waitForTimeout(300);
    assert.doesNotMatch(await strip(),/Fire up the forge/,tag('the strip moved on from the built stage'));
    assert.ok(s.orders.some(o=>o?.story),tag('a gold order for the next objective'));
