@@ -34,11 +34,13 @@ export function boardPictures(){
 export function createHome({boot,hasSave,damaged,newer=false,kept=()=>0,onKept,chapter,onEnter,onSettings,onBook,onNewCamp,onOpenChange,beforeEnter,autoEnter=false}){
  const home=$('home'),main=document.querySelector('main.game'),play=$('homePlay'),label=play.querySelector('span');
  let open=true,usable=false,boardDone=false,boardBad=[],boardCount=[0,0],waiting=false,leaving=0,gating=false;
+ // A new player going in by themselves never sees the Play button (nor loads its picture) on the way.
+ let auto=autoEnter&&!damaged&&!hasSave;
  const setOpen=v=>{open=v;document.body.classList.toggle('homeOpen',v);if(main)main.inert=v;onOpenChange?.(v);};
  setOpen(true);
  const loadVisible=v=>{$('homeLoad').hidden=!v;};
  function controls(){
-  play.hidden=damaged;label.textContent=hasSave?'Continue':'Play';
+  play.hidden=damaged||auto;label.textContent=hasSave?'Continue':'Play';
   play.setAttribute('aria-label',hasSave?'Continue your camp':'Play: start a new camp');
   const c=damaged||!hasSave?'':chapter();$('homeChapter').textContent=c;$('homeChapter').hidden=!c;
   $('homeBook').hidden=!hasSave||damaged||!onBook;
@@ -83,7 +85,7 @@ export function createHome({boot,hasSave,damaged,newer=false,kept=()=>0,onKept,c
   leave(false);
  }
  function leave(instant){
-  setOpen(false);clearTimeout(leaving);
+  setOpen(false);clearTimeout(leaving);auto=false;
   const done=()=>{home.hidden=true;home.classList.remove('leaving');};
   if(instant||reduced())done();else{home.classList.add('leaving');leaving=setTimeout(done,240);}
   onEnter?.();
@@ -94,10 +96,16 @@ export function createHome({boot,hasSave,damaged,newer=false,kept=()=>0,onKept,c
   controls();loadVisible(false);play.focus({preventScroll:true,focusVisible:false});
  }
  // The Home pictures: real progress while they load; a failure offers Retry or going on without.
- if(boot){
+ // A genuinely new player never sees Home: the board does not wait for Home's pictures (about 580 KB), and
+ // they load once the board's pictures are in, for the menu's Home later (loading performance, 2026-11-13).
+ if(boot&&auto){
+  becomeUsable();
+  boardP.then(()=>setTimeout(()=>boot.homeArt.load?.(),1500));
+ }else if(boot){
   const a=boot.homeArt,step=(n,t)=>boot.setStatus(`Loading the camp · ${n} of ${t} pictures`,n/t);
+  const loaded=a.load?a.load():a.promise;
   if(a.done<a.total){step(a.done,a.total);a.listeners.add(step);}
-  a.promise.then(bad=>{a.listeners.delete(step);
+  loaded.then(bad=>{a.listeners.delete(step);
    if(bad.length)boot.fail('Some pictures could not be loaded.',becomeUsable);else becomeUsable();});
  }else becomeUsable();
  return {ready,enter,show,boardReady:boardP,get isOpen(){return open;}};

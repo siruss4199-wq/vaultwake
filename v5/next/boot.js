@@ -37,10 +37,23 @@
     im.onload=()=>end(true);im.onerror=()=>end(false);im.src=u;}
   });
  }
- // The Home pictures start loading at once; the game module reads their progress when it runs.
+ // The Home pictures (about 580 KB, the largest files on the way in). A returning player sees Home first, so
+ // they start at once when this browser holds a camp. Otherwise the player most likely goes straight to the
+ // board (First Session 2.0), where the bandwidth is better spent on the game and the board: they start when
+ // the game asks (homeArt.load(): Home is shown, or the board is in). This is only a download order: who is new
+ // is decided by the game, after the save store (and on CrazyGames the cloud) has settled.
  const art=[...home.querySelectorAll('[data-home-art]')].map(e=>e.dataset.homeArt);
- const homeArt={done:0,total:new Set(art).size,listeners:new Set()};
- homeArt.promise=track(art,(n,t)=>{homeArt.done=n;homeArt.total=t;for(const f of homeArt.listeners)f(n,t);});
+ const homeArt={done:0,total:new Set(art).size,listeners:new Set(),promise:null};
+ homeArt.load=()=>{
+  if(!homeArt.promise){
+   for(const im of home.querySelectorAll('img[data-src]'))if(!im.getAttribute('src'))im.src=im.dataset.src;
+   homeArt.promise=track(art,(n,t)=>{homeArt.done=n;homeArt.total=t;for(const f of homeArt.listeners)f(n,t);});
+  }
+  return homeArt.promise;
+ };
+ const hasCamp=(()=>{try{if(/[?&]new=1(&|$)/.test(location.search))return false;
+  for(let i=0;i<localStorage.length;i++)if(/^vaultwake-v5-coast/.test(localStorage.key(i)||''))return true;return false;}catch{return true;}})();
+ if(hasCamp)homeArt.load();
  // A game file (this site's scripts and styles) that fails to load, or the game failing while it
  // starts, stops the loading screen. Pictures are counted by track(); other sites' scripts (the
  // CrazyGames SDK) are the platform's business and never block the game.
@@ -52,6 +65,12 @@
   }else if(e instanceof ErrorEvent)fail('The game could not start. Try again.');
  },true);
  addEventListener('unhandledrejection',()=>{if(!finished)fail('The game could not start. Try again.');});
+ // Every module the game imports, asked for at once (tools/coast-modules.mjs keeps the list in the page). This
+ // script runs only once the page's styles are in, so the modules never delay the first paint, and they no
+ // longer arrive one import level (one round trip) at a time.
+ for(const href of (document.querySelector('meta[name="vw-modules"]')?.content||'').split(' ').filter(Boolean)){
+  const l=document.createElement('link');l.rel='modulepreload';l.href=href;document.head.append(l);
+ }
  setStatus('Loading the camp');
  window.VWBoot={setStatus,fail,reset,track,homeArt,finish(){finished=true;clearTimeout(stall);},get failed(){return failed;}};
 })();

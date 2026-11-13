@@ -9,6 +9,12 @@
 body.homeOpen{overflow:hidden}
 .homeArt,.homeBlur{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:47% 37%;z-index:-1;pointer-events:none;user-select:none;-webkit-user-select:none}
 .homeBlur{display:none}
+/* A Home picture not asked for yet (v5/next/boot.js loads them when Home is shown) shows nothing, not a broken image. */
+.home img:not([src]){visibility:hidden}
+/* Until the logo is asked for, the loading screen names the game in text. */
+.homeLogo:has(img:not([src])){line-height:1.1;text-align:center}
+.homeLogo:has(img:not([src]))::before{content:'Vaultwake Merge';display:block;font:800 clamp(28px,8vw,40px)/1.1 system-ui,-apple-system,'Segoe UI',sans-serif;color:#fff;letter-spacing:.01em;text-shadow:0 2px 0 #0d3a4a59,0 3px 10px #0d3a4a66}
+.homeLogo:has(img:not([src])) img{position:absolute;width:1px;height:1px}
 .homeTop{width:100%;display:flex;justify-content:space-between;align-items:center;min-height:48px}
 .homeIcon{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:#ffffffe6;color:#0f6b7d;box-shadow:0 0 0 2px #ffffff,0 3px 0 #0d5a6a59,0 4px 12px #0d3a4a40}
 .homeIcon svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}

@@ -40,16 +40,18 @@ async function drag(page,a,z){const A=await page.locator(`#board [data-index="${
    const tag=s=>`${engine}: ${s}`;
 
    // 1. Fresh save: Loading, then (First Session 2.0) the board by itself, no Play press; nothing is saved
-   //    until the player's first action.
+   //    until the player's first action. Loading performance (2026-11-13): a new player never sees Home, so the
+   //    board never waits for Home's pictures (about 580 KB): they are not even asked for before the board is in.
    {const {context,page,errors}=await fresh();
-    const release=await hold(page,/home\/(logo|home-bg)\.webp/);
+    const asked=[];page.on('request',r=>{if(/home\/(logo|home-bg|button)\.webp/.test(r.url()))asked.push(r.url());});
+    const release=await hold(page,/home\/(logo|home-bg|button)\.webp/);
     await page.goto(BASE+'play.html',{waitUntil:'commit'});
-    await page.waitForFunction(()=>/of 3 pictures/.test(document.querySelector('#homeStatus')?.textContent||''),null,{timeout:20000});
     assert.ok(await page.locator('#home.isLoading').count(),tag('loading first'));
-    assert.match(await page.textContent('#homeStatus'),/Loading the camp · 1 of 3 pictures/,tag('real picture count'));
-    assert.equal(await page.getAttribute('#homeBar','aria-valuenow'),'33',tag('measured progress'));
     assert.equal(await page.locator('#homePlay').isVisible(),false,tag('no Play while loading'));
-    await release();await page.waitForSelector('#home',{state:'hidden',timeout:20000});
+    await page.waitForSelector('#home',{state:'hidden',timeout:20000});
+    assert.deepEqual(asked,[],tag('the board did not wait for (or ask for) Home\'s pictures'));
+    await page.waitForFunction(()=>document.querySelector('#home .homeArt').getAttribute('src'),null,{timeout:15000});
+    assert.ok(asked.length>0,tag('Home\'s pictures load once the board is in (for the menu\'s Home)'));await release();
     assert.equal(await page.evaluate(()=>document.querySelector('main.game').inert),false,tag('the board is playable'));
     assert.equal(await save(page),null,tag('nothing saved before the first action'));
     // a playable board: tap the Rover for a part (the first action saves the camp), drag a twin onto a twin
@@ -60,6 +62,21 @@ async function drag(page,a,z){const A=await page.locator(`#board [data-index="${
     await page.reload();await homeUsable(page);assert.equal((await page.textContent('#homePlay')).trim(),'Continue',tag('reload from the board: Continue'));
     await play(page);await skipBeats(page);await drag(page,30,31);
     const s=JSON.parse(await save(page));assert.deepEqual([s.board[30],s.board[31]],[null,{type:'item',family:'rig',tier:1}],tag('drag merge after entering through Home'));
+    assert.deepEqual(errors,[]);await context.close();}
+
+   // 1b. A returning player (a camp in this browser) sees Home: its pictures start at once, with a real count,
+   //     and Continue waits for them (loading performance, 2026-11-13: only the new player's board skips them).
+   {const {context,page,errors}=await fresh();
+    const g=await import(require('node:path').join(__dirname,'..','v5','next','game.mjs')),camp=g.fresh(Date.now());camp.seen={'coach-on':true,'coach-done':true};camp.moves=12;camp.daily={day:9e6,count:1};
+    await page.addInitScript(([k,v])=>{if(!sessionStorage.getItem('seeded')){localStorage.setItem(k,v);sessionStorage.setItem('seeded','1');}},[KEY,JSON.stringify(camp)]);
+    const release=await hold(page,/home\/(logo|home-bg)\.webp/);
+    await page.goto(BASE+'play.html',{waitUntil:'commit'});
+    await page.waitForFunction(()=>/of 3 pictures/.test(document.querySelector('#homeStatus')?.textContent||''),null,{timeout:20000});
+    assert.match(await page.textContent('#homeStatus'),/Loading the camp · 1 of 3 pictures/,tag('real picture count'));
+    assert.equal(await page.getAttribute('#homeBar','aria-valuenow'),'33',tag('measured progress'));
+    assert.equal(await page.locator('#homePlay').isVisible(),false,tag('no Continue while Home\'s pictures load'));
+    await release();await homeUsable(page);assert.equal((await page.textContent('#homePlay')).trim(),'Continue',tag('then Continue'));
+    assert.ok(await page.evaluate(()=>{const i=document.querySelector('#home .homeArt');return i.complete&&i.naturalWidth>0;}),tag('Home shows its picture'));
     assert.deepEqual(errors,[]);await context.close();}
 
    // 2. Existing save → Continue → the same board, coins, energy and level; Home and back from the
