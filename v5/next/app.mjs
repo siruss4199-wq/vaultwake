@@ -7,7 +7,7 @@ import {coachStep,coachActive,laterTip,nextRareUse,COACH_ON,COACH_DONE,FIRST_PLA
 import {tutorStep,guideLevel,tutorActive,signature,skills,COACH_NEXT} from './tutor.mjs';
 import {isNewPlayer} from './newcomer.mjs';
 import {needsOf,missingOf,levelOf} from './needs.mjs';
-import {LEVEL_PATH,BONUS_NAMES,CHEST_ENERGY,EARLY_LEVELS,EARLY_LEVEL_ENERGY,ONBOARDING,goldChase} from './game.mjs';
+import {LEVEL_PATH,BONUS_NAMES,CHEST_ENERGY,EARLY_LEVELS,EARLY_LEVEL_ENERGY,ONBOARDING,goldChase,CAMP} from './game.mjs';
 import {kit} from '../kits.mjs';
 import {iceNeed,weakIceBeside} from './ice.mjs';
 import {purposeOf} from './purposes.mjs';
@@ -363,12 +363,18 @@ function renderBoard(){
   else if(x?.type==='jar')badge=`<span class="sealBadge">+${x.energy}ϟ</span>`;
   else if(x?.type==='cargo'&&(x.find?.type==='source'||x.find?.type==='cog'||x.find?.type==='token'))badge=`<span class="cargoGleam ${x.find.type!=='source'?'cogGleam':''}" aria-hidden="true"></span>`;
   const deep=x?.type==='cargo'&&!reachable(state,i),ready=x?.type==='cargo'&&!deep&&state.board.some(y=>matches(y,x.key));
+  // First Session 2.0: a crate's look is the game's rule. "later" (muted, no key) unless act() could open it now or
+  // soon: it touches open ground and its key part is in hand or its generator is on the board ("reachable": the key
+  // shows what to make). "ready" (keyReady) when the key part is already on the board.
+  const later=x?.type==='cargo'&&(deep||!ready&&!sourceOpen(state,CHAINS[x.key.family].gen)),openable=x?.type==='cargo'&&!later;
   // Build 45g: cargo shows the part that opens it only when that matters now (the part is on the
   // board, the cargo or its key is selected); the tapped order also marks cargo holding a
   // generator it still needs. The panel under the board tells the rest.
   const holdsGen=x?.type==='cargo'&&x.find?.type==='source'&&focusGens.has(x.find.id);
   const ice=x?.type==='glass'?`ice${Math.min(2,x.cracks??0)}`:'';
-  return `<button class="tile ${x?.type??'empty'} ${i===located?'located':''} ${ice} ${x?.cracks?'cracked':''} ${ready?'keyReady':''} ${deep?'deep':''} ${locked?'locked':''} ${selected===i?'selected':''} ${twin?'match':''} ${focused?'nextAction':''} ${x?.type==='source'&&focusGens.has(x.id)||holdsGen?'orderSource':''} ${(r+c)%2?'odd':''}" data-index="${i}" style="grid-row:${r+1};grid-column:${c+1}" ${x?.family||x?.id?`data-family="${x.family??x.id}"`:''} ${x?.type==='cargo'?`data-key="${x.key.family}"`:''} aria-label="${nameOf(x)}${x?.type==='glass'?` · ${GLASS_HITS-(x.cracks??0)} hit${GLASS_HITS-(x.cracks??0)>1?'s':''} left`:''}${iceNeed(x)?` · cracked by a level ${iceNeed(x)} or better merge beside it`:''}${locked?' · locked':''}${x?.type==='source'&&!locked?' · tap to make a part for 1 energy':''}. Space ${i+1}" aria-pressed="${selected===i}">${draw(deep?{...x,deep:true}:x)}${badge}</button>`;
+  // Tideglass shows how far it is from breaking: three pips, one hollow per crack (no level is written on it)
+  if(x?.type==='glass')badge+=`<span class="icePips" aria-hidden="true">${[0,1,2].map(k=>`<i class="${k<(x.cracks??0)?'off':''}"></i>`).join('')}</span>`;
+  return `<button class="tile ${x?.type??'empty'} ${i===located?'located':''} ${ice} ${x?.cracks?'cracked':''} ${ready?'keyReady':''} ${deep?'deep':''} ${later?'later':''} ${openable?'reachable':''} ${CAMP.includes(i)?'camp':''} ${locked?'locked':''} ${selected===i?'selected':''} ${twin?'match':''} ${focused?'nextAction':''} ${x?.type==='source'&&focusGens.has(x.id)||holdsGen?'orderSource':''} ${(r+c)%2?'odd':''}" data-index="${i}" style="grid-row:${r+1};grid-column:${c+1}" ${x?.family||x?.id?`data-family="${x.family??x.id}"`:''} ${x?.type==='cargo'?`data-key="${x.key.family}"`:''} aria-label="${nameOf(x)}${x?.type==='glass'?` · ${GLASS_HITS-(x.cracks??0)} hit${GLASS_HITS-(x.cracks??0)>1?'s':''} left`:''}${iceNeed(x)?` · cracked by a level ${iceNeed(x)} or better merge beside it`:''}${locked?' · locked':''}${x?.type==='source'&&!locked?' · tap to make a part for 1 energy':''}. Space ${i+1}" aria-pressed="${selected===i}">${draw(deep?{...x,deep:true}:x)}${badge}</button>`;
  }).join(''));
  // The free-space count shows only when space is getting short.
  // Build 47a: rewards waiting for space say so here until they land.
@@ -662,7 +668,10 @@ function run(a,{adCompletion=false}={}){
    if(!reduced()){t.insertAdjacentHTML('beforeend',`<span class="iceBurst" aria-hidden="true">${Array.from({length:8},(_,k)=>`<i style="--a:${k*45+12}deg;--d:${24+(k%3)*8}px"></i>`).join('')}</span>`);setTimeout(()=>t.querySelector('.iceBurst')?.remove(),800);}}
   sfx('shatter');haptics.pulse('ice');}
  if(r.event==='swap'){tile?.classList.add('merge-pop');burst(tile?.getBoundingClientRect(),'gold');sfx('rare');}
- if(r.event==='merge'){const m=state.board[r.index],first=m?.type==='item'&&r.found?.includes(m.family+m.tier);tile?.classList.add('merge-pop');burst(tile?.getBoundingClientRect(),m?.family,first||m?.tier>=4);
+ if(r.event==='merge'){const m=state.board[r.index],first=m?.type==='item'&&r.found?.includes(m.family+m.tier),fb=mergeTier(m,first),rect=tile?.getBoundingClientRect();
+  tile?.classList.add('merge-pop','merge-'+fb);burst(rect,m?.family,fb!=='micro');
+  if(fb!=='micro')mergeTag(rect,`${CHAINS[m.family]?.secondary?'Rare · ':''}${nameOf(m)} · Lv${m.tier+1}`,!!CHAINS[m.family]?.secondary);
+  if(fb==='major'){mergeRays(rect);haptics.pulse('restore');}
   // a triple merge (the level path) makes its second part where the third stood
   if(r.triple!=null){const t3=board.querySelector(`[data-index="${r.triple}"]`);t3?.classList.add('merge-pop');burst(t3?.getBoundingClientRect(),m?.family,true);}
   if(!r.broken?.length){sfx(first&&m.tier>=2||m?.tier>=4?'discovery':'merge',m?.tier??0);haptics.pulse('merge');}for(const d of r.dug??[])board.querySelector(`[data-index="${d.index}"]`)?.classList.add('unlocked');
@@ -676,7 +685,7 @@ function run(a,{adCompletion=false}={}){
  // Secondary chains (pilot): the rare extra lands beside the tap's part with the board's arrival
  // pop (no new badge or panel), and the first one of a chain gets one short moment saying where it
  // comes from. A tap's extra with no space waits with the other rewards (r.secondary.index -1).
- if(r.event==='produce'&&r.secondary){const t2=r.secondary.index>=0?board.querySelector(`[data-index="${r.secondary.index}"]`):null;t2?.classList.add('unsealed');burst(t2?.getBoundingClientRect(),r.secondary.family,true);sfx('rare');
+ if(r.event==='produce'&&r.secondary){const t2=r.secondary.index>=0?board.querySelector(`[data-index="${r.secondary.index}"]`):null;t2?.classList.add('unsealed','merge-major');burst(t2?.getBoundingClientRect(),r.secondary.family,true);mergeRays(t2?.getBoundingClientRect());if(t2)mergeTag(t2.getBoundingClientRect(),'Rare · '+CHAINS[r.secondary.family].names[0],true);sfx('rare');
   if(r.found?.includes(r.secondary.family+'0'))setTimeout(()=>moment('New: '+CHAINS[r.secondary.family].names[0],sourceNote(r.secondary.family)+` Crew orders ask for them · merge two for a ${CHAINS[r.secondary.family].names[1]}.`,item(r.secondary.family,0)),reduced()?0:500);
   else if(r.secondary.index<0)$('#message').textContent+=' · no space: it waits for one';}
  if(r.unlocks?.length&&r.event!=='producerUp')extrasNews();
@@ -1223,6 +1232,17 @@ function playLines(title,lines,done,{last='Continue'}={}){
 }
 // A generator level that opens a chain shows the whole new chain.
 // A generator found in cargo shows its whole chain.
+// First Session 2.0: merge feedback in three tiers. Micro (an everyday merge): a quick pop and a few chips.
+// Medium (a part at Lv4–5, or a first find from Lv3): a lift-and-settle and its name for a moment. Major (Lv6 and
+// up, or a rare part): a short burst of light and its name. Nothing blocks a tap; reduced motion keeps it still.
+let lastTag=null;
+function mergeTag(rect,text,rare=false){
+ if(!rect)return;lastTag?.remove();const el=document.createElement('span');el.className='mergeTag'+(rare?' rare':'');el.textContent=text;
+ el.style.left=`${rect.x+rect.width/2}px`;el.style.top=`${rect.y+rect.height+2}px`;document.body.append(el);lastTag=el;setTimeout(()=>{el.remove();if(lastTag===el)lastTag=null;},1450);
+}
+function mergeRays(rect){if(!rect||reduced())return;const el=document.createElement('i');el.className='mergeRays';const w=rect.width*2.4;
+ el.style.cssText=`left:${rect.x+rect.width/2-w/2}px;top:${rect.y+rect.height/2-w/2}px;width:${w}px;height:${w}px`;document.body.append(el);setTimeout(()=>el.remove(),950);}
+function mergeTier(m,first){if(m?.type!=='item')return 'micro';if(CHAINS[m.family]?.secondary||m.tier>=5)return 'major';if(m.tier>=3||first&&m.tier>=2)return 'medium';return 'micro';}
 function newGeneratorMoment(gen){const c=CHAINS[GENERATOR_CHAINS[gen][0][0]];moment(`New generator: ${SOURCES[gen].name}!`,c.names.join(' → '),{type:'source',id:gen});}
 function showIntro(){const a=currentArea(state);if(a.intro)playLines(a.name,a.intro);}
 // ---------- reveals (Build 47b, from PR #80) ----------

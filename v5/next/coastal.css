@@ -591,3 +591,30 @@ body.nextMode .boardHeading #hint.primaryAction[data-kind="coach"] .gWhy{font-si
 body.nextMode .boardHeading .coachSkip{min-width:44px;padding:0 8px}
 body[data-art].nextMode .boardHeading #hint.primaryAction[data-kind="coach"]{padding-left:12px;padding-right:8px}
 body[data-art].nextMode .boardHeading #hint.primaryAction[data-kind="coach"]::before{display:none}
+
+/* ---------- First Session 2.0 (2026-11-13): board clarity and merge feedback ----------
+   Crates look like what the rules allow: "later" (buried, or its generator is not here) muted and smaller with no
+   key; "reachable" (it touches open ground and its key can be made) in full colour with its key showing; "ready"
+   (keyReady: the key part is on the board) with a green key ring (green = a match; gold is the guide's next step).
+   Tideglass: three crack pips. The camp's 3×3 is a touch warmer. Same 27 crates, 17 tideglass and art. */
+body.nextMode[data-art] #board.board .tile.tile.cargo.later>.cargoArt{filter:saturate(.5) sepia(.22) brightness(1.03) contrast(.9);opacity:.86;transform:scale(.88)}
+body.nextMode #board .tile.cargo.later:not(.selected):not(.match) .cargoKey{visibility:hidden}
+body.nextMode #board .tile.cargo.reachable .cargoKey{visibility:visible}
+body.nextMode #board .tile.cargo.keyReady .cargoKey{box-shadow:0 0 0 2px #1f9e66,0 0 6px #1f9e6677}
+body.nextMode #board .icePips{position:absolute;left:0;right:0;bottom:3px;display:flex;justify-content:center;gap:3px;pointer-events:none;z-index:1}
+body.nextMode #board .icePips i{width:5px;height:5px;border-radius:50%;background:#3d9db8;box-shadow:0 0 0 1px #ffffffcc}
+body.nextMode #board .icePips i.off{background:#ffffffd9;box-shadow:inset 0 0 0 1.2px #3d9db8}
+body.nextMode[data-art] #board.board .tile.tile.camp:is(.empty,.item,.source,.kit,.cog,.token,.jar){box-shadow:inset 0 0 0 999px #fff2cf2e}
+@media (prefers-reduced-motion:no-preference){
+ body.nextMode #board .tile.merge-medium>:is(.art,img){animation:fsMergeMed .45s cubic-bezier(.3,1.6,.5,1)!important}
+ body.nextMode #board .tile.merge-major>:is(.art,img){animation:fsMergeMaj .7s cubic-bezier(.3,1.6,.5,1)!important}
+}
+@keyframes fsMergeMed{0%{transform:scale(.6)}40%{transform:scale(1.24) translateY(-8%)}70%{transform:scale(.96)}100%{transform:none}}
+@keyframes fsMergeMaj{0%{transform:scale(.45) rotate(-8deg)}35%{transform:scale(1.34) translateY(-12%) rotate(4deg)}65%{transform:scale(.95)}100%{transform:none}}
+.mergeTag{position:fixed;z-index:41;pointer-events:none;transform:translate(-50%,0);padding:4px 9px;border-radius:999px;background:#1d3340e6;color:#fff;font:800 12.5px/1.15 system-ui,sans-serif;white-space:nowrap;animation:fsTag 1.4s ease forwards}
+.mergeTag.rare{background:linear-gradient(90deg,#5a4fd6,#8f7cff);box-shadow:0 0 0 2px #fff,0 6px 14px #5a4fd666}
+@keyframes fsTag{0%{opacity:0;transform:translate(-50%,6px)}15%{opacity:1;transform:translate(-50%,0)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-6px)}}
+.mergeRays{position:fixed;z-index:39;pointer-events:none;border-radius:50%;background:repeating-conic-gradient(#fff8 0 8deg,transparent 8deg 30deg);-webkit-mask:radial-gradient(circle,#000 30%,transparent 70%);mask:radial-gradient(circle,#000 30%,transparent 70%);animation:fsRays .9s ease-out forwards}
+@keyframes fsRays{0%{transform:scale(.4) rotate(0);opacity:0}30%{opacity:1}100%{transform:scale(1.5) rotate(40deg);opacity:0}}
+@media (prefers-reduced-motion:reduce){.mergeTag{animation:fsTagStill 1.4s steps(1,end) forwards}}
+@keyframes fsTagStill{0%,99%{opacity:1}100%{opacity:0}}
