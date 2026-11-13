@@ -56,17 +56,17 @@ The CrazyGames SDK and the cloud read add their own wait (§4). That wait is nee
 
 ## 4. Before and after
 
-Medians of 3 runs, Chromium 390×664. "Ready" is the board playable for a new player, or Continue for a returning player. Raw medians: `docs/evidence/v5-loading-2026-11-13/results-*.txt`.
+Medians of 3 runs, Chromium 390×664. "Ready" is the board playable for a new player, or Continue for a returning player. Raw medians: `docs/evidence/v5-loading-2026-11-13/results-*.txt`. The "after" figures are from `results-final*.txt`, measured on the finished code (`a840801` code, unchanged since).
 
 | Scenario | Ready: before → after | First paint: before → after | KB before ready: before → after |
 |---|---|---|---|
-| **New player, preview page, Slow 4G, cold** | **7.27 s → 4.41 s (−39%)** | 1.04 → 0.92 s | 1268 → 730 |
-| New player, CrazyGames page, Slow 4G, cold | 7.29 s → 5.76 s (−21%) | 1.05 → 0.94 s | 1269 → 789 |
-| New player, preview page, 4G, cold | 1.44 s → 1.11 s (−23%) | 0.33 → 0.35 s | 1268 → 730 |
-| New player, CrazyGames page, 4G, cold | 2.06 s → 1.81 s (−12%) | 0.33 → 0.32 s | 1409 → 789 |
-| Returning (camp in this browser), preview, Slow 4G, cold | 7.36 s → 7.14 s (−3%) | 1.03 → 0.94 s | 1268 → 1269 |
-| Returning, CrazyGames page, Slow 4G, cold | 7.13 s → 7.33 s (+3%, noise; the same bytes) | 1.05 → 0.94 s | 1269 → 1270 |
-| Returning, preview, Slow 4G, **warm** (every file revalidated) | 1.41 s → 1.15 s (−18%) | 0.50 → 0.46 s | 5 → 5 |
+| **New player, preview page, Slow 4G, cold** | **7.27 s → 4.28 s (−41%)** | 1.04 → 0.89 s | 1268 → 689 |
+| New player, CrazyGames page, Slow 4G, cold | 7.29 s → 5.40 s (−26%) | 1.05 → 0.96 s | 1269 → 789 |
+| New player, preview page, 4G, cold | 1.44 s → 1.12 s (−22%) | 0.33 → 0.31 s | 1268 → 689 |
+| New player, CrazyGames page, 4G, cold | 2.06 s → 1.82 s (−12%) | 0.33 → 0.32 s | 1409 → 789 |
+| Returning (camp in this browser), preview, Slow 4G, cold | 7.36 s → 7.37 s (unchanged) | 1.03 → 0.89 s | 1268 → 1269 |
+| Returning, CrazyGames page, Slow 4G, cold | 7.13 s → 7.29 s (+2%, noise; the same bytes) | 1.05 → 0.93 s | 1269 → 1270 |
+| Returning, preview, Slow 4G, **warm** (every file revalidated) | 1.41 s → 1.18 s (−16%) | 0.50 → 0.45 s | 5 → 5 |
 
 **Other measurements:**
 - **First action** (a real tap on the generator until the camp is saved): 0.17–0.24 s before and after, on every profile. The board takes input as soon as it is shown.
@@ -74,9 +74,9 @@ Medians of 3 runs, Chromium 390×664. "Ready" is the board playable for a new pl
 
 ![waterfall after](evidence/v5-loading-2026-11-13/waterfall-after.png)
 
-**Trade-off: reloading in the first seconds.** A new player who reloads within a few seconds of their first board, on Slow 4G, gets Home before its pictures have finished loading in the background. In the test that was 3.9 s, against 1.3 s before, because the 580 KB were not cached yet. From the second visit on, the pictures are cached: they load 1.5 s after the first board.
+**Trade-off: reloading in the first seconds.** A new player who reloads within a few seconds of their first board, on Slow 4G, gets Home before its pictures have finished loading in the background. In the test that was 4.1 s, against 1.3 s before, because the 580 KB were not cached yet. From the second visit on, the pictures are cached: they load 1.5 s after the first board.
 
-**CrazyGames numbers:** these rows were taken after the Play-button fix. The preview-page rows were taken just before it; that fix does not touch the preview path, where the button was never shown.
+
 
 ## 5. Calmer inactive crates (P1)
 
