@@ -990,7 +990,8 @@ async function watchAd(action){
 }
 // The gift opens by itself once a session is under way, never over another screen or a drag.
 // Build 51c: not offered by itself while a new camp's first-loop guide runs (its button still shows the gift).
-function offerGift(){if(!homeOpen&&!adBusy&&giftReady()&&giftShown!==today()&&state.moves>=3&&!coachActive(state)&&!drag&&!document.querySelector('dialog[open]'))showDaily();}
+// First Session 2.0: not while the guide is teaching (the first build's next objective stays in view); the gift button stays.
+function offerGift(){if(!homeOpen&&!adBusy&&giftReady()&&giftShown!==today()&&state.moves>=3&&!tutorActive(state)&&!drag&&!document.querySelector('dialog[open]'))showDaily();}
 $('#soundButton').onclick=()=>{sounds.toggle();render();sfx('tap');};
 $('#hapticsButton').onclick=()=>{haptics.toggle();render();haptics.pulse('merge');};
 $('#helpButton').onclick=()=>$('#help').showModal();

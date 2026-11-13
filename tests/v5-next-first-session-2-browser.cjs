@@ -124,6 +124,7 @@ const cgStub=(cloud,o={})=>`(()=>{const m=new Map(${JSON.stringify([...cloud])})
     const camp=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
     assert.equal(camp.built['beach-path'],1,tag('the landing path is built (act)'));assert.equal(camp.coins,40,tag('80 − 40 coins'));
     await settle(page);m=await look(page);assert.ok(m.st&&['tap','merge','unseal','deliver','gold'].includes(m.st.kind),tag('the next objective is guided after the build: '+JSON.stringify(m.st)+' line: '+m.line));assert.notEqual(m.st.level,'quiet',tag('and named'));await shot('8-next-objective');
+    await page.waitForTimeout(1500);assert.equal(await page.locator('#daily[open]').count(),0,tag('no Daily gift dialog over the next objective while guided'));assert.equal(await page.locator('#dailyButton').isVisible(),true,tag('the gift button stays'));
     // a reload: Home with Continue, the same camp, the same step
     const sig=JSON.stringify([m.st.kind,m.st.target]);
     await page.reload();await page.waitForSelector('#homePlay:not([hidden])',{timeout:30000});
