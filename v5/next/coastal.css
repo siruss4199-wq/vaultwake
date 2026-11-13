@@ -618,3 +618,27 @@ body.nextMode[data-art] #board.board .tile.tile.camp:is(.empty,.item,.source,.ki
 @keyframes fsRays{0%{transform:scale(.4) rotate(0);opacity:0}30%{opacity:1}100%{transform:scale(1.5) rotate(40deg);opacity:0}}
 @media (prefers-reduced-motion:reduce){.mergeTag{animation:fsTagStill 1.4s steps(1,end) forwards}}
 @keyframes fsTagStill{0%,99%{opacity:1}100%{opacity:0}}
+/* ---------- First Session 2.0 (2026-11-13): orders, rewards and the restoration ----------
+   During the guided span one order card: the one the guide is about, with its parts and have/need. The gold order's
+   materials fly to the strip; "Ready to build" glows gold with a breathing Build. After a build, the stage's lines,
+   its real rewards and the next objective sit under the picture, never over the restored place. */
+body.nextMode #requests.onboarding .requestCard:not(.primary){display:none}
+body.nextMode #requests.onboarding .requestCard.primary{flex:1 1 100%;max-width:none}
+.matFlight{position:fixed;z-index:42;width:40px;height:40px;pointer-events:none;filter:drop-shadow(0 4px 6px #0005);animation:fsMat .72s cubic-bezier(.4,0,.2,1) forwards}
+.matFlight img{width:100%;height:100%;object-fit:contain}
+@keyframes fsMat{0%{transform:translate(0,0) scale(1)}50%{transform:translate(calc(var(--dx)*.5),calc(var(--dy)*.5 - 50px)) scale(1.15)}100%{transform:translate(var(--dx),var(--dy)) scale(.55);opacity:.9}}
+body.nextMode .restoreStrip.ready{box-shadow:0 0 0 3px #f5c24e,0 6px 16px #e9a52155}
+@media (prefers-reduced-motion:no-preference){body.nextMode .restoreStrip.ready .rsAction{animation:fsBreathe 1.6s ease-in-out infinite}}
+@keyframes fsBreathe{50%{transform:scale(1.06)}}
+#coastMap .restoredCard{margin:10px 0 8px;padding:12px 12px 10px;border-radius:16px;background:linear-gradient(#fffaf0,#fdf0d8);box-shadow:0 0 0 2px #f5c24e,0 8px 20px #0f4c5c26;color:#1d3340}
+#coastMap .restoredCard>small{display:block;color:#4a6470;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;font-weight:800}
+#coastMap .restoredCard .rcTitle{display:block;font-size:18px;margin:2px 0 6px}
+#coastMap .restoredCard .rcLine{display:flex;gap:10px;align-items:flex-start;margin:6px 0;font-size:14px;line-height:1.35}
+#coastMap .restoredCard .rcLine .face{width:40px;height:40px;border-radius:50%;flex:none;box-shadow:0 0 0 2px #1f8a8f}
+#coastMap .restoredCard .rcLine b{display:block;color:#0f4c5c;font-size:12px}
+#coastMap .restoredCard .rcRewards{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+#coastMap .restoredCard .rcRewards span{padding:6px 9px;border-radius:999px;background:#e5f6ee;color:#16704a;font-size:12.5px;font-weight:800}
+#coastMap .restoredCard .rcNext{margin:4px 0 10px;font-size:14px}
+#coastMap .restoredCard .rcBack{width:100%;min-height:48px}
+@media (prefers-reduced-motion:no-preference){#coastMap .restoredCard{animation:fsCard .45s cubic-bezier(.2,.8,.3,1)}}
+@keyframes fsCard{from{transform:translateY(14px);opacity:0}}

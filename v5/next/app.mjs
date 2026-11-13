@@ -4,7 +4,7 @@ import {blockedStage,isStuck,allDone,swapsLeft,adSwapsLeft,SHOP,shopLeft,BOOK_CO
 import {AREAS,STAGES,TASKS,LABELS} from './areas.mjs';
 import {primaryAction} from './guide.mjs';
 import {coachStep,coachActive,laterTip,nextRareUse,COACH_ON,COACH_DONE,FIRST_PLACE} from './coach.mjs';
-import {tutorStep,guideLevel,tutorActive,signature,skills,COACH_NEXT} from './tutor.mjs';
+import {tutorStep,guideLevel,tutorActive,signature,skills,COACH_NEXT,focusOrder as tutorFocus} from './tutor.mjs';
 import {isNewPlayer} from './newcomer.mjs';
 import {needsOf,missingOf,levelOf} from './needs.mjs';
 import {LEVEL_PATH,BONUS_NAMES,CHEST_ENERGY,EARLY_LEVELS,EARLY_LEVEL_ENERGY,ONBOARDING,goldChase,CAMP} from './game.mjs';
@@ -244,6 +244,10 @@ const GUESTS={mara:'Mara'},who$=w=>CREW[w]?.name??GUESTS[w]??w;
 const face=who=>FACES[who]?`<img class="art face" src="assets/premium/coast/ui/${FACES[who]}.webp" alt="" draggable="false">`:GUESTS[who]?'':portrait(who);
 function renderOrders(){
  const held=state.board[selected],heldKey=held?.type==='item'?held.family+held.tier:null;
+ // First Session 2.0: during the guided span one order card is shown, the one the guide is about (a ready order it
+ // points at, else its focus order). Every order stays in the camp and comes back after the span.
+ let primary=null;if(tutorActive(state)){const st=tutorStep(state,{});primary=['deliver','gold'].includes(st.kind)?st.target?.id:st.focus??tutorFocus(state)?.id;if(!state.orders.some(o=>o?.id===primary))primary=null;}
+ $('#requests').classList.toggle('onboarding',!!primary);
  $('#requests').style.setProperty('--slots',state.orders.length);
  const shelf=$('#requests .requestShelf')??$('#requests').appendChild(Object.assign(document.createElement('div'),{className:'requestShelf'}));
  patch(shelf,state.orders.map(o=>{
@@ -261,7 +265,7 @@ function renderOrders(){
    :`<span class="reqFace">${face(o.who)}</span><span class="reqName"><b>${who.name}</b>${tag}</span>`;
   // A crew order taking long (Audit 2026-10-25) suggests a new one; the tapped card's panel has it.
   const stuck=isStuck(state,o);
-  return `<button class="requestCard ${ready?'ready':''} ${place?'storyOrder':''} ${stuck?'stuck':''} ${focusOrder===o.id?'active':''}" data-order="${o.id}" data-role="${role}" aria-label="${label}${stuck?'. Taking long: tap it for a new order.':''}"><span class="reqHead">${head}</span>${stuck?'<i class="reqStuck" aria-hidden="true">↻ New?</i>':''}<span class="requestItems">${p.map(r=>`<span class="${r.have>=r.count?'met':''} ${heldKey===r.family+r.tier?'held':''}" data-part="${r.family+r.tier}">${draw(item(r.family,r.tier))}${r.sibling?`<i class="reqLv" aria-hidden="true">Lv${levelOf(r)}</i>`:''}<b>${r.have>=r.count?'<i aria-hidden="true">✓</i>':''}${r.have}/${r.count}</b></span>`).join('')}</span><span class="reqFoot">${ready?`<strong class="reqDeliver">Deliver <em>+${o.coins}</em>${COIN}</strong>`:`<span class="requestReward">${COIN}${o.coins}</span>`}${bonusArt(o)}</span></button>`;
+  return `<button class="requestCard ${ready?'ready':''} ${place?'storyOrder':''} ${stuck?'stuck':''} ${focusOrder===o.id?'active':''} ${primary===o.id?'primary':''}" data-order="${o.id}" data-role="${role}" aria-label="${label}${stuck?'. Taking long: tap it for a new order.':''}"><span class="reqHead">${head}</span>${stuck?'<i class="reqStuck" aria-hidden="true">↻ New?</i>':''}<span class="requestItems">${p.map(r=>`<span class="${r.have>=r.count?'met':''} ${heldKey===r.family+r.tier?'held':''}" data-part="${r.family+r.tier}">${draw(item(r.family,r.tier))}${r.sibling?`<i class="reqLv" aria-hidden="true">Lv${levelOf(r)}</i>`:''}<b>${r.have>=r.count?'<i aria-hidden="true">✓</i>':''}${r.have}/${r.count}</b></span>`).join('')}</span><span class="reqFoot">${ready?`<strong class="reqDeliver">Deliver <em>+${o.coins}</em>${COIN}</strong>`:`<span class="requestReward">${COIN}${o.coins}</span>`}${bonusArt(o)}</span></button>`;
  }).join(''));
  renderOrderTools();
 }
@@ -701,6 +705,10 @@ function run(a,{adCompletion=false}={}){
   // Build 48b: one clear step after the gold order: the materials are secured, the strip shows it at
   // once, and it says either "Build · cost" or how many coins are still short (crew orders pay them)
   if(r.materials){const t=TASKS[r.materials.id],u=t.stages[r.materials.stage-1],ok=state.coins>=u.cost;holdPlace=0;renderNextPlace();
+   // First Session 2.0: the materials fly from the gold card to the strip's picture, which then pulses
+   if(orderRect&&!reduced()){const to=$('#mapButton .rsThumb').getBoundingClientRect(),el=document.createElement('div');el.className='matFlight';el.innerHTML='<img src="assets/premium/coast/icons/driftwood-crate.webp" alt="">';
+    el.style.cssText=`left:${orderRect.x+orderRect.width/2-20}px;top:${orderRect.y+orderRect.height/2-20}px;--dx:${to.x+to.width/2-orderRect.x-orderRect.width/2}px;--dy:${to.y+to.height/2-orderRect.y-orderRect.height/2}px`;
+    document.body.append(el);setTimeout(()=>{el.remove();const s=$('#mapButton');s.classList.remove('progressed');void s.offsetWidth;s.classList.add('progressed');},760);}
    setTimeout(()=>moment(`Materials secured · +${r.coins} coins`,`The gold order paid ${r.coins} coins and brought the materials for ${u.name}. `+(ok?`Build · ${u.cost} coins: tap the strip under the orders.`:`${u.cost-state.coins} more coins to build it: deliver crew orders.`)),reduced()?0:950);}}
  if(r.event==='producerUp'){const src=state.board[r.index],next=nextKind(src.id),waiting=next&&src.level<UNLOCK_LEVEL&&!state.board.some(y=>y?.type==='source'&&y.id===next);
   if(r.unlocks?.length)extrasNews();else moment(SOURCES[src.id].name+' · level '+src.level,LEVEL_GAIN[src.level]+(waiting?` Level ${UNLOCK_LEVEL} brings out the ${SOURCES[next].name}.`:''),src);tile?.classList.add('merge-pop');burst(tile?.getBoundingClientRect(),'gold',true);sfx('milestone');}
@@ -1208,19 +1216,35 @@ function showBeat(id,effects,stage=stageOf(state,id)){
  else if(effects?.areaDone&&!effects.nextArea)extra.push(['bram',`${area.name} is complete!${next?` The ${bare(next)} is still to come.`:''}`]);
  // Build 49a: Chapter 4 keeps its four story cards for the big moments; a stage's own line is a short
  // caption with its rewards, never a dialog to tap through (the pack's interaction notes).
- const caption=!!area.overview,say=caption?(title,lines,cb)=>{receipt=null;cb();}:playLines;
+ const caption=!!area.overview;
+ // First Session 2.0: on the coast screen a stage's lines, its real reward and the next objective are a card under
+ // the picture, never a dialog over the restored place. Area completions and reveals keep their story cards.
+ const inline=$('#coastMap').open&&!effects?.nextArea&&!effects?.areaDone&&!revealNext&&!!effects&&Object.keys(effects).length>0;
+ const say=caption||inline?(title,lines,cb)=>{receipt=null;cb();}:playLines;
  say(st.name,st.lines.concat(extra),()=>{const fresh=caption||effects&&Object.keys(effects).length,nxt=fresh?nextPlace():null;if(nxt&&!effects.nextArea)mapFocus=nxt.u.id;if(effects?.nextArea){render();if(!nextReveal()){showMap();showIntro();}}else if($('#coastMap').open)showMap();const icon=$(`#coastMap .restoredIcon[data-task="${id}"]`)??$(`.restoredIcon[data-task="${id}"]`);icon?.classList.add('upgraded');
   // The stage's rewards, said once the story has been told (build 22: every stage gives one).
   // One clear next step after the story: the next place to build, said with its rewards.
   const next=nxt&&!effects?.nextArea?` · Next: ${nxt.u.name}${nxt.ready?' (ready)':''}`:'';
   const said=caption?st.lines.map(([w,l])=>`${who$(w)}: “${l}” `).join(''):'';
-  if(caption||effects&&Object.keys(effects).length)moment(`${st.name} · stage ${stage} of ${STAGES}`,said+(effects&&Object.keys(effects).length?rewardText(effects):'')+next,null);burst(($('#coastMap').open?$('#coastMap .beachScene'):board).getBoundingClientRect(),'gold',true);
+  if(inline)restoredCard(t,st,stage,effects,nxt);
+  else if(caption||effects&&Object.keys(effects).length)moment(`${st.name} · stage ${stage} of ${STAGES}`,said+(effects&&Object.keys(effects).length?rewardText(effects):'')+next,null);burst(($('#coastMap').open?$('#coastMap .beachScene'):board).getBoundingClientRect(),'gold',true);
   for(const i of [effects?.kit,effects?.copy,effects?.token,effects?.cog])if(i>=0)board.querySelector(`[data-index="${i}"]`)?.classList.add('unsealed');
   // Build 47e (from PR #80): a first generator of its kind from a stage (the Lens Bench) shows its chain.
   if(effects?.copyId&&[...state.board,...state.shed,...state.pending].filter(y=>y?.type==='source'&&y.id===effects.copyId).length===1)setTimeout(()=>newGeneratorMoment(effects.copyId),1400);
   if(pendingReveals().some(v=>v.live(state)))setTimeout(()=>nextReveal(()=>{if(allDone(state))setTimeout(showEnd,600);}),900);
   else if(effects?.areaDone&&allDone(state))setTimeout(showEnd,900);});
  sfx('milestone');
+}
+// First Session 2.0: the restored place's card on the coast screen, under the picture: the stage, its lines (the
+// story stays readable here and in the place's Replay), the real rewards (act()'s effects) and the next objective.
+function restoredCard(t,st,stage,effects,nxt){
+ $('#coastMap .restoredCard')?.remove();const wrap=$('#coastMap .sceneWrap');if(!wrap)return;
+ const chips=rewardText(effects).replace(/^Rewards: /,'').split(' · ').map(x=>`<span>${x}</span>`).join('');
+ const next=nxt?`<p class="rcNext"><b>Next:</b> ${nxt.u.name}${nxt.ready?' · ready to build':''}</p>`:'';
+ wrap.insertAdjacentHTML('afterend',`<section class="restoredCard" role="status" aria-label="${st.name} restored"><small>${(AREAS.find(a=>a.tasks.includes(t))??currentArea(state)).name} · stage ${stage} of ${STAGES}</small><b class="rcTitle">${st.name}</b>
+  ${st.lines.map(([w,l])=>`<p class="rcLine">${face(w)}<span><b>${who$(w)}</b>${l}</span></p>`).join('')}<div class="rcRewards">${chips}</div>${next}<button class="primary rcBack" type="button" data-back>Back to the board</button></section>`);
+ // the restored place stays in view: the picture at the top of the screen, its card right under it
+ requestAnimationFrame(()=>wrap.scrollIntoView({block:'start',behavior:reduced()?'auto':'smooth'}));
 }
 // The coins a bought stage cost, said on its story card (Build 41 M3, from PR #77's receipt).
 let receipt=null;

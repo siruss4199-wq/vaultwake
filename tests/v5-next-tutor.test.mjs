@@ -92,7 +92,7 @@ test('a crate whose key part is in hand but which is buried is never pointed at'
 test('full board: the guide says why and points at nothing it cannot do',()=>{
  const s=camp(),fill=[['rig',4],['rig',5],['rig',6],['chart',1],['chart',2],['rope',1]];let k=0;
  s.board=s.board.map(x=>x===null?{type:'item',family:fill[k][0],tier:fill[k++][1]}:x);
- const st=tutorStep(s,{now:NOW});assert.equal(st.kind,'space');assert.equal(st.target,null);assert.match(st.why,/Merge two twins or deliver/);
+ const st=tutorStep(s,{now:NOW});assert.equal(st.kind,'space');assert.equal(st.target,null);assert.match(st.why,/Merge twins or deliver/);
  assert.equal(valid(s,{type:'produce',id:'rig',index:ROVER},NOW),false,'(a tap is refused: no space)');
  // with a twin pair on the full board, it points at the merge (which frees a space)
  const a=s.board.findIndex(x=>x?.type==='item'&&x.family==='rig'&&x.tier===4);s.board[s.board.findIndex(x=>x?.family==='rig'&&x.tier===5)]={type:'item',family:'rig',tier:4};

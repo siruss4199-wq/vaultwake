@@ -88,6 +88,9 @@ const cgStub=(cloud,o={})=>`(()=>{const m=new Map(${JSON.stringify([...cloud])})
      // the guide's short notes (the first crew order's coins) take the line for a few seconds
      await settle(page);await page.waitForFunction(()=>!!VWGuide.step,null,{timeout:8000});m=await look(page);const st=m.st;steps++;
      expectMarks(m,tag(`step ${n} ${st.kind}/${st.level}`));
+     // stage C: during the guided span one order card shows (the one the guide is about); the camp keeps them all
+     {const o=await page.evaluate(()=>({shown:[...document.querySelectorAll('#requests .requestCard')].filter(c=>c.getBoundingClientRect().width>0).map(c=>c.dataset.order),all:document.querySelectorAll('#requests .requestCard').length}));
+      assert.equal(o.shown.length,1,tag(`step ${n}: one order card while guided (${o.shown})`));if(st.target?.kind==='order')assert.deepEqual(o.shown,[st.target.id],tag('the shown card is the one to deliver'));assert.ok(o.all>=3,tag('every order is still there'));}
      const ok=await validOnCopy(page);if(st.action&&ok!=='unsaved')assert.equal(ok,true,tag(`step ${n}: act() accepts ${JSON.stringify(st.action)}`));
      if(st.level==='quiet')quiet++;
      if(!idled&&st.level==='quiet'&&st.kind==='tap'){idled=true;const before=m.moves;
@@ -98,13 +101,22 @@ const cgStub=(cloud,o={})=>`(()=>{const m=new Map(${JSON.stringify([...cloud])})
      const t=st.target;assert.ok(t,tag(`step ${n} has a target (${st.kind}: ${st.what} · ${st.why})`));
      if(t.kind==='cell'){const c=await center(page,`#board [data-index="${t.index}"]`);await page.touchscreen.tap(c.x,c.y);await page.waitForTimeout(350);}
      else if(t.kind==='pair'){await drag(page,...t.cells);await page.waitForTimeout(350);}
-     else if(t.kind==='order'){if(st.kind==='gold')await shot('4-gold-ready');const c=await center(page,`#requests [data-order="${t.id}"]`);await page.touchscreen.tap(c.x,c.y);await page.waitForTimeout(1500);}
+     else if(t.kind==='order'){if(st.kind==='gold')await shot('4-gold-ready');const c=await center(page,`#requests [data-order="${t.id}"]`);await page.touchscreen.tap(c.x,c.y);
+      // the gold order's materials fly to the coast strip (not with reduced motion)
+      if(st.kind==='gold'){await page.waitForSelector('.matFlight',{state:'attached',timeout:2500});await shot('4b-materials-flight');}await page.waitForTimeout(1500);}
      else if(t.kind==='strip'){await shot('5-build-strip');const c=await center(page,'#mapButton');await page.touchscreen.tap(c.x,c.y);await page.waitForSelector('#coastMap[open]');await page.waitForTimeout(900);
       const g=await page.evaluate(()=>VWGuide.step);assert.equal(g.kind,'coastBuild',tag('on the coast the guide points at Build'));
       assert.ok(await page.locator(`#coastMap [data-restore="${g.target.id}"].coachTarget`).count(),tag('Build is the gold target'));await shot('6-coast-build');
       await page.evaluate(id=>document.querySelector(`#coastMap [data-restore="${id}"]`).scrollIntoView({block:'center'}),g.target.id);await page.waitForTimeout(300);
       const b=await center(page,`#coastMap [data-restore="${g.target.id}"]`);assert.ok(b.h>=44,tag('Build ≥ 44 px'));await page.touchscreen.tap(b.x,b.y);
-      await page.waitForTimeout(2600);await settle(page);await shot('7-restored');
+      // stage C: no dialog over the restored place; its lines, the real rewards and the next objective in a card under it
+      await page.waitForSelector('#coastMap .restoredCard',{timeout:6000});await page.waitForTimeout(700);
+      const rc=await page.evaluate(()=>{const c=document.querySelector('#coastMap .restoredCard'),s=document.querySelector('#coastMap .sceneWrap').getBoundingClientRect();
+       return {beat:!!document.querySelector('#beat[open]'),text:c.innerText,sceneTop:s.top,sceneBottom:s.bottom,vh:innerHeight};});
+      assert.equal(rc.beat,false,tag('no story dialog over the restored place'));assert.match(rc.text,/A path from the boats to dry ground/,tag('the stage lines'));
+      assert.match(rc.text,/\+20 energy/,tag('the real reward'));assert.match(rc.text,/Driftwood crate/,tag('the real reward (crate)'));assert.match(rc.text,/Next: Lay a boardwalk/,tag('the next objective'));
+      assert.ok(rc.sceneTop>=-1&&rc.sceneTop<rc.vh*0.5,tag(`the restored place is in view (scene top ${rc.sceneTop})`));
+      await settle(page);await shot('7-restored');
       if(await page.locator('#coastMap[open]').count())await page.locator('#coastMap>.close').click();await page.waitForTimeout(500);built=true;}
     }
     assert.ok(built,tag('the guided player reached the first build'));assert.ok(idled&&hinted,tag('idle reminder and Hint exercised'));assert.ok(quiet>0,tag('guidance faded to quiet'));

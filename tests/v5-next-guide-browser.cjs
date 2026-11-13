@@ -115,7 +115,8 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
      // the Build button comes into view by itself (no scrolling by the player)
      await page.waitForTimeout(1200);{const r=await page.locator('#coastMap [data-restore="beach-path"]').boundingBox(),vh=await page.evaluate(()=>innerHeight);assert.ok(r&&r.y>=0&&r.y+r.height<=vh,tag(`the Build button in view: ${JSON.stringify(r)} of ${vh}`));}await shot('coast');
      await page.locator('#coastMap [data-restore="beach-path"]').click({force:true});await page.waitForTimeout(1300);
-     const lines=await beats();assert.match(lines,/A path from the boats to dry ground/);await page.locator('#coastMap .close').click().catch(()=>{});await page.waitForTimeout(300);actions++;break;}
+     await page.waitForSelector('#coastMap .restoredCard',{timeout:5000});const lines=(await beats())+await page.locator('#coastMap .restoredCard').innerText();assert.match(lines,/A path from the boats to dry ground/);
+     assert.equal(await page.locator('#beat[open]').count(),0,tag('no story dialog over the restored path'));await page.locator('#coastMap .close').click().catch(()=>{});await page.waitForTimeout(300);actions++;break;}
     else assert.fail(tag(`unexpected step ${id}/${lv}: ${await line()}`));
     actions++;await page.waitForTimeout(60);
     // a reload in the middle of the loop: Home with Continue, and the same step

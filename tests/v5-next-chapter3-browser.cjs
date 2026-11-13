@@ -28,7 +28,7 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
    const write=(src,arg)=>page.evaluate(([k,src,arg])=>{const s=JSON.parse(localStorage.getItem(k));new Function('s','arg',src)(s,arg);localStorage.setItem(k,JSON.stringify(s));},[KEY,src,arg]);
    const reload=async()=>{await page.reload();await page.waitForSelector('#board .tile');};
    // close every story card in turn, returning their text
-   const beats=async()=>{const t=[];for(let n=0;n<12&&await page.locator('#beat[open]').count();n++){t.push(await page.locator('#beatContent').textContent());
+   const beats=async()=>{const t=[];/* First Session 2.0: a stage's lines are a card under the coast picture */{const rc=page.locator('#coastMap .restoredCard');if(await rc.count()){t.push(await rc.textContent());await rc.evaluate(e=>e.remove());}}for(let n=0;n<12&&await page.locator('#beat[open]').count();n++){t.push(await page.locator('#beatContent').textContent());
     const b=await page.locator('#beatNext').boundingBox();assert.ok(b.height>=43.5,tag('story button 44 px'));await page.locator('#beatNext').click();await page.waitForTimeout(90);}return t.join(' | ');};
    const fits=async what=>{const o=await page.evaluate(()=>({doc:document.documentElement.scrollWidth,vw:innerWidth}));assert.ok(o.doc<=o.vw+1,tag(`${what}: no sideways scroll (${o.doc} > ${o.vw})`));};
    await page.goto(URL+'?new=1');await page.waitForSelector('#board .tile');await beats();
