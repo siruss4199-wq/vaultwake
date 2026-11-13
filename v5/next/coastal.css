@@ -729,7 +729,8 @@ body.nextMode[data-art] #board.board .tile.tile.coachTarget{box-shadow:0 0 0 3px
 body.nextMode #requests .requestShelf .requestCard.lead .reqName{flex-direction:column;align-items:flex-start;gap:1px;top:6px}
 body.nextMode #requests .requestShelf .requestCard.lead .requestItems{left:36px;right:8px;top:38px;justify-content:center}
 body.nextMode .restoreStrip .rsAction{left:calc(100% - 9px);top:7px;width:66px;height:30px}
-body.nextMode .restoreStrip.restoreStrip.ready{box-shadow:none;filter:drop-shadow(0 0 1.5px #f2c23a) drop-shadow(0 0 1.5px #f2c23a)}
+/* (an outline that follows the strip's rounded shape: cheap to paint, unlike a filter over its breathing Build pill) */
+body.nextMode .restoreStrip.restoreStrip.ready{box-shadow:none;filter:none;border-radius:999px;outline:2px solid #f2c23a;outline-offset:-1px}
 body.nextMode .boardHeading #hint.primaryAction[data-kind="coach"]{outline:0}
 body.nextMode .boardHeading #hint.primaryAction[data-kind="coach"]:focus-visible{outline:2px solid var(--pp-teal);outline-offset:2px}
 body.nextMode #requests .requestShelf .requestCard.lead .requestItems{left:8px;right:8px;gap:10px}

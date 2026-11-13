@@ -48,7 +48,11 @@ function expectMarks(m,tag){
 }
 const validOnCopy=page=>page.evaluate(async()=>{const st=VWGuide.step;if(!st?.action)return null;const g=await import(new URL('next/game.mjs',document.baseURI).href);
  const raw=localStorage.getItem('vaultwake-v5-coast');if(!raw)return 'unsaved';return g.act(g.load(raw),st.action,Date.now()).ok;});
-async function settle(page){await page.waitForFunction(()=>!!window.VWGuide,null,{timeout:8000});await page.waitForFunction(()=>!document.querySelector('.deliveryPart,.coinFlight,.flight'),null,{timeout:6000}).catch(()=>{});await page.waitForTimeout(250);
+async function settle(page){
+ // when the guide is not reachable, say why: another page, or a page that no longer answers (WebKit CI, 1ae0a9e)
+ await page.waitForFunction(()=>!!window.VWGuide,null,{timeout:8000}).catch(async e=>{
+  const probe=await Promise.race([page.evaluate(()=>({url:location.href,ready:document.readyState,home:!document.querySelector('#home')?.hidden,coast:!!document.querySelector('#coastMap[open]')})).catch(x=>'evaluate failed: '+x.message),new Promise(r=>setTimeout(()=>r('no answer in 3 s (page busy)'),3000))]);
+  throw new Error(`the guide was not reachable for 8 s: ${JSON.stringify(probe)} (${page.url()})`);});await page.waitForFunction(()=>!document.querySelector('.deliveryPart,.coinFlight,.flight'),null,{timeout:6000}).catch(()=>{});await page.waitForTimeout(250);
  for(let k=0;k<12;k++){if(await page.locator('#beat[open]').count()){await page.locator('#beatNext').click();await page.waitForTimeout(200);continue;}break;}}
 const center=(page,sel)=>page.evaluate(sel=>{const e=document.querySelector(sel);if(!e)return null;const r=e.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2,w:r.width,h:r.height};},sel);
 async function drag(page,a,b){const p=await center(page,`#board [data-index="${a}"]`),q=await center(page,`#board [data-index="${b}"]`);
