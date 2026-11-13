@@ -597,7 +597,12 @@ body[data-art].nextMode .boardHeading #hint.primaryAction[data-kind="coach"]::be
    key; "reachable" (it touches open ground and its key can be made) in full colour with its key showing; "ready"
    (keyReady: the key part is on the board) with a green key ring (green = a match; gold is the guide's next step).
    Tideglass: three crack pips. The camp's 3×3 is a touch warmer. Same 27 crates, 17 tideglass and art. */
-body.nextMode[data-art] #board.board .tile.tile.cargo.later>.cargoArt{filter:saturate(.5) sepia(.22) brightness(1.03) contrast(.9);opacity:.86;transform:scale(.88)}
+/* Board calm (2026-11-13, owner: inactive crates and barrels still too colourful). A crate the player cannot work
+   on yet ("later") recedes into a soft warm neutral: about a third of its colour, lower contrast, 70% opacity, no
+   glow or motion. Only "later" crates: generators, items, reachable crates (its key showing) and tideglass keep
+   their colour, and a later crate that is selected, matched or a guide target is shown in full. */
+body.nextMode[data-art] #board.board .tile.tile.cargo.later:not(.selected,.match,.coachTarget,.coachFrom,.coachTo,.nextAction)>.cargoArt{filter:saturate(.3) sepia(.3) brightness(1.05) contrast(.78);opacity:.7;transform:scale(.86)}
+body.nextMode[data-art] #board.board .tile.tile.cargo.later:is(.selected,.match,.coachTarget,.coachFrom,.coachTo,.nextAction)>.cargoArt{filter:none;opacity:1;transform:none}
 body.nextMode #board .tile.cargo.later:not(.selected):not(.match) .cargoKey{visibility:hidden}
 body.nextMode #board .tile.cargo.reachable .cargoKey{visibility:visible}
 body.nextMode #board .tile.cargo.keyReady .cargoKey{box-shadow:0 0 0 2px #1f9e66,0 0 6px #1f9e6677}
