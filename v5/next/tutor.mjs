@@ -101,10 +101,10 @@ export function guideLevel(s,st){
  if(!st)return 'quiet';
  // blockers always say why (light: no finger, nothing to point at)
  if(!st.target)return 'light';
- // the coast screen's Build and × are one-off screen steps: shown while the first restoration is new
- if(['coastBuild','close'].includes(st.kind))return totalBuilt(s)<=1?'full':'light';
  // after the guide's span (the first restoration and the next objective) only Hint and the idle reminder guide
  if(!tutorActive(s))return 'quiet';
+ // the coast screen's Build and × are one-off screen steps: shown while the first restoration is new
+ if(['coastBuild','close'].includes(st.kind))return totalBuilt(s)<=1?'full':'light';
  const n=skills(s)[st.skill]??0,[full,light]=LEARN[st.skill]??[1,2],lv=n<full?'full':n<light?'light':'quiet';
  // the next objective after the first build is always named once (light), even for a skilled player
  return lv==='quiet'&&!coachActive(s)?'light':lv;

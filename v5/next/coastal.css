@@ -623,7 +623,7 @@ body.nextMode[data-art] #board.board .tile.tile.camp:is(.empty,.item,.source,.ki
    others stay in their lanes, dimmed but tappable (free exploration). The gold order's
    materials fly to the strip; "Ready to build" glows gold with a breathing Build. After a build, the stage's lines,
    its real rewards and the next objective sit under the picture, never over the restored place. */
-body.nextMode #requests.onboarding .requestCard:not(.primary){opacity:.5;filter:saturate(.55);transform:scale(.94)}
+body.nextMode #requests.onboarding .requestCard:not(.primary){opacity:.55;filter:saturate(.55)}
 body.nextMode #requests.onboarding .requestCard.primary{box-shadow:0 0 0 2px #f5c24e,0 4px 10px #e9a52133}
 .matFlight{position:fixed;z-index:42;width:40px;height:40px;pointer-events:none;filter:drop-shadow(0 4px 6px #0005);animation:fsMat .72s cubic-bezier(.4,0,.2,1) forwards}
 .matFlight img{width:100%;height:100%;object-fit:contain}

@@ -1160,6 +1160,7 @@ function showMap(){
  if(opening&&focusOnOpen&&!reduced()){const sc=$('#coastMap .beachScene');if(sc){sc.style.setProperty('--fx',focus.at[0]+'%');sc.style.setProperty('--fy',focus.at[1]+'%');sc.classList.add('focusIn');setTimeout(()=>sc.classList.remove('focusIn'),1200);}}
  focusOnOpen=false;
  if(!$('#beat').open)growScene();
+ keepRestoredCard();
 }
 let shownCard=null;
 // Effects on the coast screen are drawn inside it: the screen is a modal dialog, so anything on
@@ -1189,7 +1190,7 @@ $('#mapContent').addEventListener('click',e=>{
  const sel=e.target.closest('[data-select]');if(sel){mapFocus=sel.dataset.select;sfx('tap');showMap();return;}
  const make=e.target.closest('[data-make]');if(make){$('#coastMap').close();focusOrder=make.dataset.make;render();$('#message').textContent='The gold order is marked: make its parts and deliver it for the materials.';return;}
  const p=e.target.closest('[data-replay]');if(p){showBeat(p.dataset.replay,{},STAGES);return;}
- if(e.target.closest('[data-back],[data-go]'))$('#coastMap').close();
+ if(e.target.closest('[data-back],[data-go],[data-done]'))$('#coastMap').close();
 });
 function rewardText(e={}){
  const out=[],wait=' (waits for a free space)';
@@ -1237,12 +1238,17 @@ function showBeat(id,effects,stage=stageOf(state,id)){
 }
 // First Session 2.0: the restored place's card on the coast screen, under the picture: the stage, its lines (the
 // story stays readable here and in the place's Replay), the real rewards (act()'s effects) and the next objective.
+// It stays on the coast screen through any redraw (another tap there, a Hint) until the screen is closed.
+let restoredHtml=null;
+function keepRestoredCard(){if(!restoredHtml||!$('#coastMap').open)return;const wrap=$('#coastMap .sceneWrap');if(wrap&&!$('#coastMap .restoredCard'))wrap.insertAdjacentHTML('afterend',restoredHtml);}
+$('#coastMap').addEventListener('close',()=>{restoredHtml=null;});
 function restoredCard(t,st,stage,effects,nxt,spent=null){
  $('#coastMap .restoredCard')?.remove();const wrap=$('#coastMap .sceneWrap');if(!wrap)return;
  const chips=rewardText(effects).replace(/^Rewards: /,'').split(' · ').map(x=>`<span>${x}</span>`).join('');
  const next=nxt?`<p class="rcNext"><b>Next:</b> ${nxt.u.name}${nxt.ready?' · ready to build':''}</p>`:'';
  wrap.insertAdjacentHTML('afterend',`<section class="restoredCard" role="status" aria-label="${st.name} restored"><small>${(AREAS.find(a=>a.tasks.includes(t))??currentArea(state)).name} · stage ${stage} of ${STAGES}</small><b class="rcTitle">${st.name}</b>${spent?`<b class="beatReceipt">−${spent} coins</b>`:''}
-  ${st.lines.map(([w,l])=>`<p class="rcLine">${face(w)}<span><b>${who$(w)}</b>: “${l}”</span></p>`).join('')}<div class="rcRewards">${chips}</div>${next}<button class="primary rcBack" type="button" data-back>Back to the board</button></section>`);
+  ${st.lines.map(([w,l])=>`<p class="rcLine">${face(w)}<span><b>${who$(w)}</b>: “${l}”</span></p>`).join('')}<div class="rcRewards">${chips}</div>${next}<button class="primary rcBack" type="button" data-done>Back to the board</button></section>`);
+ restoredHtml=$('#coastMap .restoredCard').outerHTML;
  // the restored place stays in view: the picture at the top of the screen, its card right under it
  requestAnimationFrame(()=>wrap.scrollIntoView({block:'start',behavior:reduced()?'auto':'smooth'}));
 }

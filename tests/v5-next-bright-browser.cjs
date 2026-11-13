@@ -124,7 +124,8 @@ async function run(engine,W,H,motion){
   else assert.equal(await page.locator('#coastMap .beachScene.focusIn').count(),0);
   await page.locator('#coastMap [data-restore="beach-path"]').click({force:true});
   if(motion==='no-preference')await page.waitForSelector('#coastMap .mapFx.stageOld',{state:'attached',timeout:2500});// the old stage fades out
-  await page.waitForSelector('#beat[open]',{timeout:4000});await closeBeats(page);
+  // First Session 2.0: the stage's lines are a card under the picture (no dialog over the place)
+  await page.waitForSelector('#beat[open], #coastMap .restoredCard',{timeout:4000});await closeBeats(page);
   await page.waitForFunction(()=>document.querySelector('#mapCard h3')?.textContent==='Lay a boardwalk',null,{timeout:4000});
   assert.equal((await read(page)).built['beach-path'],1);assert.equal((await read(page)).coins,5);
   // Build 45h (user: "item dutaj baigaa ni sain anzaaragdahgui"): the card names what the next
