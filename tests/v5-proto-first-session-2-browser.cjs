@@ -1,7 +1,7 @@
 // First Session 2.0 DESIGN PROTOTYPE (prototype/first-session-2/index.html), refinement 2026-11-13. Not the live game:
 // the page plays the game's real rules (v5/next/game.mjs fresh() + act(), v5/next/coach.mjs), imported unchanged.
 // With finger taps, at 360×640, 390×664 and 390×844, in Chromium and WebKit (iPhone Safari's engine):
-//  1. layout: no sideways scroll; the whole 7×7 board, the HUD, the order card, the coast strip and the hint are on
+//  1. layout: no sideways scroll; the whole 7×7 board, the HUD, the order card, the coast strip and the guide bar are on
 //     screen at once (story caption folded); HUD numbers ≥ 17 px, card counts ≥ 15 px, hint ≥ 14 px; every visible
 //     button is at least 44×44 and the finger at its centre lands on it; every button has a name;
 //  2. crates: the look of every crate is the real rule: "ready"/"reachable" only when game.mjs reachable() and
@@ -23,8 +23,8 @@ const layout=page=>page.evaluate(()=>{const vis=e=>{const r=e.getBoundingClientR
  const buttons=[...document.querySelectorAll('button')].filter(vis).filter(b=>document.querySelector('#coast.open')?!!b.closest('#coast'):!b.closest('#coast')).map(b=>{const r=b.getBoundingClientRect(),h=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
   return {id:b.id||b.className,w:Math.round(r.width),h:Math.round(r.height),hit:!!h&&(h===b||b.contains(h)),name:(b.getAttribute('aria-label')||b.textContent).trim()};});
  const px=sel=>parseFloat(getComputedStyle(document.querySelector(sel)).fontSize);
- return {sideways:document.scrollingElement.scrollWidth>innerWidth,W:innerWidth,H:innerHeight,board:box('.boardWrap'),hud:box('.hud'),card:box('#objective'),strip:box('#strip'),hint:box('#hint'),
-  buttons,font:{hud:px('#energy'),cnt:document.querySelector('.card .cnt')?px('.card .cnt'):99,hint:px('#hint')}};});
+ return {sideways:document.scrollingElement.scrollWidth>innerWidth,W:innerWidth,H:innerHeight,board:box('.boardWrap'),hud:box('.hud'),card:box('#objective'),strip:box('#strip'),hint:box('#guide'),
+  buttons,font:{hud:px('#energy'),cnt:document.querySelector('.card .cnt')?px('.card .cnt'):99,hint:px('#gWhat')}};});
 const crateCheck=page=>page.evaluate(async()=>{const g=await import(new URL('next/game.mjs',document.baseURI).href),{CHAINS}=await import(new URL('next/chains.mjs',document.baseURI).href),s=__proto.s,out=[];
  for(const [i,x] of s.board.entries()){if(x?.type!=='cargo')continue;const cell=document.querySelector(`#board [data-i="${i}"] .piece.crate`),shown=['ready','reachable','later'].find(k=>cell.classList.contains(k));
   const can=g.reachable(s,i)&&g.sourceOpen(s,CHAINS[x.key.family].gen);

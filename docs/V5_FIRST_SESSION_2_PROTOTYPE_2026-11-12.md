@@ -6,6 +6,8 @@
 
 **Where it lives:** one isolated page, `prototype/first-session-2/index.html`, on the branch `claude/v5-first-session-prototype`. Nothing in `v5/` links to it and no release includes it.
 
+**Tutorial 2.0 (2026-11-13):** the adaptive guided tutorial is specified in `docs/V5_TUTORIAL_2_PROTOTYPE_2026-11-13.md` (guide bar, gold/green highlights, finger, Hint, idle reminder; `prototype/first-session-2/tutor.mjs`).
+
 **Refinement 2 (2026-11-13): the prototype now plays the real game.**
 - The camp is `fresh()` from `v5/next/game.mjs`; every tap, merge, crate, tideglass crack, delivery and build is the game's own reducer `act()`; the hint line is the game's first-player guide `coachStep()` (`v5/next/coach.mjs`); pieces are drawn with `draw()` (`v5/next/chains.mjs`); the "LvN+" tideglass chip is `iceNeed()` (`v5/next/ice.mjs`). All four files are imported read-only and are unchanged.
 - So the orders, coin amounts, energy, crate contents and the restoration's costs and rewards on screen are the real ones. The earlier stand-ins (a one-part gold order, scripted merges, ice cracking on any merge) are gone.
@@ -54,7 +56,7 @@ The videos are WebM, 390×664. They play in Chrome, Firefox, Android and recent 
 |---|---|---|
 | **Movable part** | Full colour, 92% of the cell, soft drop shadow (`0 2px 1.5px #0003`) | The only full-saturation objects in normal play: "these are yours". |
 | **Generator** | Gold plate (`#fff1c2 → #f6d77d`, 2 px `#e6b84f` rim). Slow breathing gold ring until the first tap (1.6 s cycle), then still. | Always findable; never flashing. |
-| **Crate, ready** (it can open now AND its key part is already on the board) | Full colour, 84% size, key badge with a **gold ring and glow**, a soft gold pulse inside the cell | "Drop that part here." |
+| **Crate, ready** (it can open now AND its key part is already on the board) | Full colour, 84% size, key badge with a **green ring** (green = a matching item; gold is kept for the guide's next action, see the Tutorial 2.0 doc) | "Drop that part here." |
 | **Crate, reachable** (it can open now; its key is makeable) | Full colour, 84% size, **key badge** (a white disc showing the part that opens it) | It says what to make. |
 | **Crate, later** (buried, or its key needs a generator you do not have) | Same art, 74% size, `saturate(.5) sepia(.22) brightness(1.03) contrast(.9)`, opacity .86, **no key** | Calm, warm and still Vaultwake. It recedes without turning grey. Nothing is removed. |
 | **Tideglass** | Cool frosted cell (`#eefaff → #cdeef8`, `#8fd3e8` rim). The part inside is desaturated (`saturate(.45)`, opacity .82, 0.3 px blur) under the existing `ice-N.webp` art. **Three crack pips** (one goes hollow per crack). A **"Lv3+"** chip when the glass needs a merge of at least that level beside it (`iceNeed`). | Clearly "locked part"; says how to free it and how far along it is. |

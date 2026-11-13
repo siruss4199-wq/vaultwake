@@ -3,11 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="proto-build" content="first-session-2 · refine-2b · 2026-11-13">
+<meta name="proto-build" content="first-session-2 · tutor-2.0 · 2026-11-13">
 <title>Vaultwake Merge · First Session 2.0 prototype</title>
 <!-- DESIGN PROTOTYPE ONLY. Not the live game: no save, no SDK, no ads. Refinement 2 (2026-11-13): the prototype now plays on
      the game's REAL rules — v5/next/game.mjs fresh() for the camp and act() for every tap, merge, crate, ice crack, delivery
      and build, and v5/next/coach.mjs for the guide line — all imported read-only and unchanged. Only presentation is new.
+     Tutorial 2.0 (2026-11-13): the guide is prototype/first-session-2/tutor.mjs: one next action at a time from the real
+     board and orders, every target dry-run through act() first; gold = next action, green = matching items, a small
+     finger for tap/drag; it fades as the player shows each skill; Hint button; one reminder after 8 s idle. It never acts.
      Modes: ?autoplay=1 (scripted pacing) · ?lab=1 (merge tiers) · ?restore=2 (stage 2, real before/after art) ·
      ?skin=current (today's board look) · ?w=360&h=640 (frame size on desktop). -->
 <base href="../../v5/">
@@ -93,10 +96,28 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;-webki
 .strip.ready::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,#fff9 50%,transparent 70%);transform:translateX(-120%);animation:sweep 2.4s 1 .2s;pointer-events:none}
 @keyframes sweep{to{transform:translateX(120%)}}
 @keyframes breathe{50%{transform:scale(1.05)}}
-.hint{min-height:22px;display:flex;align-items:center;gap:7px;padding:0 4px;font-size:14px;line-height:1.25;color:var(--sea-deep);font-weight:800;transition:opacity .2s}
-.hint::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 3px #f2b33d40}
+.guide{display:flex;align-items:center;gap:8px;min-height:48px;padding:2px 2px 2px 10px;border-radius:14px;background:#fffaf0e8;box-shadow:var(--shadow)}
+.guide .gDot{flex:none;width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 3px #f2b33d40}
+.guide[data-level=quiet] .gDot{background:#c9b48a;box-shadow:none}
+.guide[data-kind=space] .gDot,.guide[data-kind=energy] .gDot,.guide[data-kind=locked] .gDot,.guide[data-kind=refused] .gDot{background:var(--coral);box-shadow:0 0 0 3px #f2663e33}
+.guide .gText{flex:1;min-width:0}
+.guide .gWhat{display:block;font-size:15px;font-weight:900;color:var(--sea-deep);line-height:1.2}
+.guide .gWhy{display:block;font-size:13px;color:var(--ink-soft);font-weight:700;line-height:1.25}
+.guide .gWhy:empty{display:none}
+.guide[data-level=quiet] .gWhat{font-size:14px;font-weight:800;color:var(--ink-soft)}
+.guide.nudge{animation:nudge .7s var(--ease-pop)}
+@keyframes nudge{35%{transform:scale(1.03);background:#fff1c8}}
+.hintBtn{flex:none;display:flex;align-items:center;justify-content:center;gap:4px;min-width:66px;height:44px;padding:0 10px;border-radius:12px;background:#fff1cf;color:#7a4f00;font-weight:900;font-size:14px}
+/* guidance language: gold = the next action, green = the matching items, the finger = how */
+.cell.gNext::after{content:"";position:absolute;inset:-2px;border-radius:11px;box-shadow:0 0 0 3px var(--gold),0 0 12px #f2b33d88;animation:cue 1.6s ease-in-out infinite;pointer-events:none}
+.cell.gMatch::after{content:"";position:absolute;inset:-2px;border-radius:11px;box-shadow:0 0 0 3px var(--green),0 0 10px #1f9e6677;animation:cueG 1.6s ease-in-out infinite;pointer-events:none}
+@keyframes cueG{50%{box-shadow:0 0 0 5px #1f9e6655}}
+.card.gNext,.strip.gNext,.build.gNext,.next.gNext,.iconBtn.gNext{box-shadow:0 0 0 3px var(--gold),0 0 16px #f2b33d99!important}
+.finger{position:absolute;z-index:45;left:0;top:0;width:46px;height:46px;pointer-events:none;opacity:0;transition:opacity .25s;filter:drop-shadow(0 3px 4px #0006)}
+.finger.show{opacity:1}
+.finger svg{width:100%;height:100%;display:block}
 /* ---------- board ---------- */
-.boardWrap{position:relative;padding:5px;border-radius:20px;background:linear-gradient(#2a8d93,#1b6c74);box-shadow:0 10px 24px #0f4c5c55,inset 0 1px 0 #ffffff55;width:min(100%,calc(var(--fh,664px) - 290px))}
+.boardWrap{position:relative;padding:5px;border-radius:20px;background:linear-gradient(#2a8d93,#1b6c74);box-shadow:0 10px 24px #0f4c5c55,inset 0 1px 0 #ffffff55;width:min(100%,calc(var(--fh,664px) - 270px))}
 .board{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;border-radius:14px;padding:3px;background:#d9cba9;aspect-ratio:1}
 .cell{position:relative;border-radius:9px;background:var(--sand-cool);box-shadow:inset 0 -2px 0 #0000000f;touch-action:none}
 .cell.alt{background:var(--sand-cool-2)}
@@ -118,9 +139,10 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;-webki
 .piece.crate.later .cargoKey{display:none}
 .piece.crate .cargoKey{position:absolute;right:1px;bottom:1px;width:46%;height:46%;border-radius:50%;background:#fffdf5;box-shadow:0 0 0 2px #c9b48a,0 2px 4px #0003;display:grid;place-items:center}
 .piece.crate .cargoKey img.art{width:84%;height:84%;filter:saturate(.7);translate:none}
-.piece.crate.ready .cargoKey{box-shadow:0 0 0 2.5px var(--gold),0 0 10px #f2b33d99}
+/* ready: the matching key part is on the board, so the key ring is green (green = matching items; gold is kept
+   for the guide's next action only) */
+.piece.crate.ready .cargoKey{box-shadow:0 0 0 2.5px var(--green),0 0 8px #1f9e6677}
 .piece.crate.ready .cargoKey img.art{filter:none}
-.piece.crate.ready::before{content:"";position:absolute;inset:6%;border-radius:10px;box-shadow:inset 0 0 0 2px #f2b33daa;animation:cue 1.8s ease-in-out infinite}
 /* tideglass: frosted cell, crack pips, and the merge level it needs when it needs one */
 .cell.iceCell{background:linear-gradient(160deg,#eefaff,#cdeef8);box-shadow:inset 0 0 0 1.5px var(--ice-rim),inset 0 -2px 0 #9fd6e6}
 .piece.ice img.inGlass{filter:saturate(.45) brightness(1.08) contrast(.85) blur(.3px);opacity:.82;width:calc(76% * var(--fit,1));height:calc(76% * var(--fit,1))}
@@ -229,7 +251,11 @@ body.current .piece.ice .pips,body.current .piece.ice .need,body.current .piece.
 <body>
 <nav class="deskbar" aria-label="Prototype views">
  <b>Vaultwake Merge · First Session 2.0 — design prototype on the real game rules (not the live game; no save, no SDK)</b>
- <a href="../prototype/first-session-2/index.html">Play</a>
+ <a href="../prototype/first-session-2/index.html">Play (resumes)</a>
+ <a href="../prototype/first-session-2/index.html?fresh=1">New camp</a>
+ <a href="../prototype/first-session-2/index.html?case=full">Case: full board</a>
+ <a href="../prototype/first-session-2/index.html?case=energy">Case: no energy</a>
+ <a href="../prototype/first-session-2/index.html?case=locked">Case: locked generator</a>
  <a href="../prototype/first-session-2/index.html?autoplay=1">Autoplay</a>
  <a href="../prototype/first-session-2/index.html?restore=2">Restoration · stage 2</a>
  <a href="../prototype/first-session-2/index.html?lab=1&autoplay=1">Merge lab</a>
@@ -251,7 +277,7 @@ body.current .piece.ice .pips,body.current .piece.ice .need,body.current .piece.
   <section class="objective" id="objective" aria-live="polite"></section>
   <button class="strip" id="strip" type="button"><span class="thumb"><img id="stripImg" src="assets/premium/coast/place-path-1.webp" alt=""><span class="mats" id="mats" aria-hidden="true">◆</span></span>
    <span class="txt"><b id="stripTitle">Clear the landing path</b><small id="stripSmall">From the gold order · ● 0/40</small></span><span class="go" id="stripGo">View</span></button>
-  <p class="hint" id="hint" aria-live="polite"></p>
+  <div class="guide" id="guide" data-level="full"><span class="gDot" aria-hidden="true"></span><span class="gText" aria-live="polite"><b class="gWhat" id="gWhat"></b><span class="gWhy" id="gWhy"></span></span><button class="hintBtn" id="hintBtn" type="button" aria-label="Hint: show me the next step">💡 Hint</button></div>
   <div class="boardWrap"><div class="board" id="board" role="grid" aria-label="Merge board, 7 by 7"></div></div>
  </div>
  <section class="coast" id="coast" aria-label="Landing Beach" aria-hidden="true">
@@ -274,14 +300,20 @@ body.current .piece.ice .pips,body.current .piece.ice .need,body.current .piece.
    <button class="next" id="nextBtn" type="button">Next: Lay a boardwalk →</button>
   </div>
  </section>
+ <div class="finger" id="finger" aria-hidden="true"><svg viewBox="0 0 46 46"><g transform="rotate(-24 9 5)"><rect x="5" y="17" width="27" height="24" rx="10" fill="#fff" stroke="#1d3340" stroke-width="2.4"/><rect x="5" y="2" width="10.5" height="27" rx="5.25" fill="#fff" stroke="#1d3340" stroke-width="2.4"/><path d="M15.5 21v6M22 20v7" stroke="#1d3340" stroke-width="2" stroke-linecap="round"/></g></svg></div>
 </main>
 <script type="module">
-import {fresh,act,cellIndex,CAMP,ROVER,reachable,sourceOpen,matches,orderItems,count} from './next/game.mjs';
+import {fresh,act,load,cellIndex,CAMP,ROVER,reachable,sourceOpen,matches,orderItems,count} from './next/game.mjs';
+import {tutorStep,guideLevel,signature,focusOrder as tutorFocus,skills} from '../prototype/first-session-2/tutor.mjs';
 import {coachStep} from './next/coach.mjs';
 import {draw,CHAINS} from './next/chains.mjs';
 import {iceNeed} from './next/ice.mjs';
 const $=s=>document.querySelector(s),wait=ms=>new Promise(r=>setTimeout(r,ms));
-const Q=new URLSearchParams(location.search),LAB=Q.has('lab'),AUTO=Q.has('autoplay'),CURRENT=Q.get('skin')==='current',R2=Q.get('restore')==='2';
+const Q=new URLSearchParams(location.search),LAB=Q.has('lab'),AUTO=Q.has('autoplay'),CURRENT=Q.get('skin')==='current',R2=Q.get('restore')==='2',CASE=Q.get('case');
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+// resume: the prototype keeps its camp for this tab only (sessionStorage, its own key; never a game save key)
+const PKEY='vaultwake-proto-first-session-2',PLAIN=!LAB&&!R2&&!AUTO&&!CASE;
+if(Q.has('fresh'))try{sessionStorage.removeItem(PKEY);}catch{}
 if(Q.get('w'))document.documentElement.style.setProperty('--fw',Q.get('w')+'px');
 if(Q.get('h'))document.documentElement.style.setProperty('--fh',Q.get('h')+'px');
 if(CURRENT)document.body.classList.add('current');
@@ -291,6 +323,12 @@ const nm=(f,t)=>CHAINS[f].names[t],GEN=f=>CHAINS[f].gen;
 let s=fresh(Date.now());s.seen={...s.seen,'coach-on':true};// the app sets this flag on the first action; set here so the real guide runs
 if(LAB){s.board=s.board.map((x,i)=>i===ROVER?x:null);const put=(r,c,x)=>s.board[cellIndex(r,c)]=x,it=(f,t)=>({type:'item',family:f,tier:t});
  put(1,1,it('rig',0));put(1,2,it('rig',0));put(1,4,it('rig',3));put(1,5,it('rig',3));put(4,1,it('rig',4));put(5,1,it('rig',4));put(4,5,it('mech',0));put(5,5,it('mech',0));s.orders=[];}
+if(PLAIN){try{const raw=sessionStorage.getItem(PKEY);if(raw)s=load(raw);}catch{}}
+// test cases (prototype set-ups of the real camp): a full board, no energy, orders only a missing generator makes
+if(CASE==='full'){const fill=[['rig',4],['rig',5],['rig',6],['chart',1],['chart',2],['rope',1],['rope',2],['shell',1]];let k=0;s.board=s.board.map(x=>x===null?{type:'item',family:fill[k][0],tier:fill[k++][1]}:x);}
+if(CASE==='energy'){s.energy=0;s.energyAt=Date.now();}
+if(CASE==='locked')s.orders=s.orders.map(o=>o&&{...o,needs:[{family:'chart',tier:1,count:1}]});
+const persist=()=>{if(PLAIN)try{sessionStorage.setItem(PKEY,JSON.stringify(s));}catch{}};
 if(R2){s.built={'beach-path':1};s.materials={'beach-path':2};s.coins=70;s.boost={...s.boost,order:true,stage:true};s.seen['coach-done']=true;}// stage 2 demo: path built once, boardwalk materials secured (prototype set-up)
 const boardEl=$('#board');
 // crate state from the real rules
@@ -305,11 +343,11 @@ function pieceHtml(i){const x=s.board[i];if(!x)return '';
  if(x.type==='cargo'){const st=crateState(i);return `<div class="piece crate ${st}">${draw({...x,deep:st==='later'})}</div>`;}
  if(x.type==='glass'){const n=iceNeed(x),c=x.cracks??0;return `<div class="piece ice">${draw(x)}<span class="pips">${[0,1,2].map(k=>`<i class="${k<c?'off':''}"></i>`).join('')}</span>${n?`<span class="need">Lv${n}+</span>`:''}</div>`;}
  return `<div class="piece item">${draw(x)}</div>`;}// kit (driftwood crate), cog, token: draggable; a crate opens with a tap
-let target=null;
+let marksMap=new Map();
 // patch, never rebuild: a cell's picture is replaced only when that cell changed (no flicker, no image reload)
 const drawn=[];
 function render(){if(!boardEl.children.length)boardEl.innerHTML=s.board.map((x,i)=>{const [r,c]=rc(i);return `<div data-i="${i}" role="gridcell" style="grid-row:${r+1};grid-column:${c+1}"></div>`;}).join('');
- s.board.forEach((x,i)=>{const e=cellEl(i),h=pieceHtml(i),k=cellClass(i)+(target?.includes(i)?' target':'');if(drawn[i]!==h){e.innerHTML=h;drawn[i]=h;}if(e.className!==k)e.className=k;const l=label(i);if(e.getAttribute('aria-label')!==l)e.setAttribute('aria-label',l);});}
+ s.board.forEach((x,i)=>{const e=cellEl(i),h=pieceHtml(i),k=cellClass(i)+(marksMap.has(i)?' '+marksMap.get(i):'');if(drawn[i]!==h){e.innerHTML=h;drawn[i]=h;}if(e.className!==k)e.className=k;const l=label(i);if(e.getAttribute('aria-label')!==l)e.setAttribute('aria-label',l);});}
 const cellEl=i=>boardEl.querySelector(`[data-i="${i}"]`),rect=i=>cellEl(i).getBoundingClientRect();
 // ---------- sound concept + haptics ----------
 let ac=null,soundOn=true;const SCALE=[523,587,659,784,880,1047,1175,1319];
@@ -339,7 +377,8 @@ function countTo(el,to,ms=520){const from=+el.textContent,t0=performance.now();c
 const COIN='<i class="coin"></i>';
 // ---------- the one objective card (the real order the guide is about) ----------
 let busy=false,stage=R2?'build':'play',shownId=null;
-const focusOrder=()=>{const gold=s.orders.find(o=>o?.story);if(gold&&(s.ordersDone>0||!s.orders.some(o=>o&&!o.story)))return gold;return s.ordersDone===0?s.orders.find(o=>o&&!o.story):gold??s.orders.find(Boolean);};
+// the card shows the order the guide is about (a ready one it points at, else its focus order)
+const focusOrder=()=>{const st=tutorStep(s,{});const id=['deliver','gold'].includes(st.kind)?st.target.id:st.focus;return s.orders.find(o=>o?.id===id)??tutorFocus(s);};
 function needsOf(o){const m=new Map();for(const r of o.needs){const k=r.family+r.tier;m.set(k,{...r,count:(m.get(k)?.count??0)+r.count});}return [...m.values()].map(r=>({...r,have:Math.min(r.count,count(s,r))}));}
 function cardHtml(o,cls=''){const ready=!!orderItems(s,o),gold=!!o.story,who=gold?'Gold order':({ivo:'Ivo',bram:'Bram',neri:'Neri',tamsin:'Tamsin'})[o.who]??o.who;
  const face=gold?'assets/premium/coast/place-path-1.webp':`assets/premium/coast/ui/crew-${({ivo:'ivo',bram:'bram',neri:'nara',tamsin:'sela'})[o.who]??'ivo'}.webp`;
@@ -350,20 +389,58 @@ function cardHtml(o,cls=''){const ready=!!orderItems(s,o),gold=!!o.story,who=gol
   <span class="pay">${ready?'<small>TAP TO</small>Deliver':`<small>PAYS</small>● ${o.coins}`}</span></button>`;}
 function renderOrder(cls=''){const o=stage==='play'?focusOrder():null;shownId=o?.id??null;if(!o){if(stage!=='build')$('#objective').innerHTML='';return;}$('#objective').innerHTML=cardHtml(o,cls);$('#card').onclick=()=>deliver(o.id);}
 function header(){$('#energy').textContent=s.energy;$('#coins').textContent=s.coins;$('#level').textContent=s.level.level;}
-function hint(){const c=coachStep(s);target=null;let t;
- if(LAB)t='Merge lab: drag twins together, each pair shows one feedback tier.';
- else if(stage==='build')t='Materials secured: tap the coast strip to build.';
- else if(c){t=c.text;const tg=c.target;target=tg?.kind==='cell'?[tg.index]:tg?.kind==='pair'?tg.cells:null;}
- else t=s.built['beach-path']>=1?'Next: the boardwalk. Its gold order is up.':'Make the parts the order shows.';
- const h=$('#hint');if(h.textContent!==t){h.style.opacity=0;setTimeout(()=>{h.textContent=t;h.style.opacity=1;},120);}
- boardEl.querySelectorAll('.target').forEach(e=>e.classList.remove('target'));target?.forEach(i=>cellEl(i)?.classList.add('target'));}
+// ---------- the guide: one next action, its place, its reason (tutor.mjs on the real rules) ----------
+let cur=null,boost=null,lastSig='',idleT=0,fingerAnim=null,fingerHide=0,fingerSig='',lastActs=-1;const reminded=new Set();
+const G={hints:0,reminders:0,fingers:0,log:[]};
+const actsDone=()=>{const k=skills(s);return k.tap+k.merge+k.deliver+k.gold+k.build;};
+function coastCtx(){if(!$('#coast').classList.contains('open'))return null;return stage==='next'?'done':'open';}
+function setGuide(what,why,lv,kind=''){const g=$('#guide');g.dataset.level=lv;g.dataset.kind=kind;$('#gWhat').textContent=what;$('#gWhy').textContent=lv==='quiet'?'':why;}
+function guide(){
+ persist();
+ if(LAB){setGuide('Merge lab: drag twins together.','Each pair shows one feedback tier.','light');return;}
+ if(busy&&coastCtx())return;// the build is playing: nothing to point at until it ends
+ const st=tutorStep(s,{coast:coastCtx()}),sig=signature(st),n=actsDone();
+ if(sig!==lastSig||n!==lastActs){boost=null;lastSig=sig;lastActs=n;}// a Hint or reminder lasts until the player acts or the step changes
+ const lv=boost===sig?'full':guideLevel(s,st);cur={st,lv,sig};
+ setGuide(st.what,st.why,lv,st.kind);
+ marksMap=new Map();document.querySelectorAll('.gNext:not(.cell)').forEach(e=>e.classList.remove('gNext'));
+ const t=lv==='quiet'?null:st.target;
+ if(t?.kind==='cell')marksMap.set(t.index,'gNext');
+ if(t?.kind==='pair')t.cells.forEach(i=>marksMap.set(i,'gMatch'));
+ if(t?.kind==='order')$('#card')?.classList.add('gNext');
+ if(t?.kind==='strip')$('#strip').classList.add('gNext');
+ if(t?.kind==='button')$('#'+t.id)?.classList.add('gNext');
+ render();showFinger(lv==='full'?st:null,sig);armIdle();}
+// the finger: a small hand that taps the target, or drags from one twin to the other (3 times, then rests)
+const at=(r,k=.66)=>({x:r.x+r.width*k,y:r.y+r.height*k});
+function pointOf(t,end=false){if(t.kind==='cell')return at(rect(t.index));if(t.kind==='pair')return at(rect(t.cells[end?1:0]));
+ // buttons: the fingertip rests on the lower-right edge, so the label stays readable
+ const el=t.kind==='order'?$('#card .pay'):t.kind==='strip'?$('#stripGo'):$('#'+t.id);if(!el)return null;const r=el.getBoundingClientRect();return {x:r.x+r.width*.86,y:r.y+r.height*.8};}
+function showFinger(st,sig=''){const f=$('#finger');
+ if(st&&sig===fingerSig&&(fingerAnim||f.classList.contains('show')))return;
+ fingerAnim?.cancel();fingerAnim=null;clearTimeout(fingerHide);f.classList.remove('show');fingerSig='';
+ if(!st?.target)return;const p0=pointOf(st.target);if(!p0)return;G.fingers++;fingerSig=sig;
+ const ph=$('#phone').getBoundingClientRect(),pos=p=>`translate(${p.x-ph.x-8}px,${p.y-ph.y-3}px)`;
+ f.style.transform=pos(p0);f.classList.add('show');
+ if(RM){fingerHide=setTimeout(()=>{f.classList.remove('show');},6000);return;}
+ if(st.target.kind==='pair'){const p1=pointOf(st.target,true);
+  fingerAnim=f.animate([{transform:pos(p0),opacity:0},{transform:pos(p0),opacity:1,offset:.12},{transform:pos(p0)+' scale(.86)',opacity:1,offset:.26},{transform:pos(p1)+' scale(.86)',opacity:1,offset:.72},{transform:pos(p1),opacity:1,offset:.84},{transform:pos(p1),opacity:0}],{duration:1900,iterations:3,easing:'ease-in-out'});}
+ else fingerAnim=f.animate([{transform:pos(p0)+' translate(7px,9px)',opacity:0},{transform:pos(p0),opacity:1,offset:.25},{transform:pos(p0)+' scale(.84)',opacity:1,offset:.42},{transform:pos(p0),opacity:1,offset:.58},{transform:pos(p0),opacity:1,offset:.86},{transform:pos(p0),opacity:0}],{duration:1400,iterations:3});
+ fingerAnim.onfinish=()=>{f.classList.remove('show');fingerAnim=null;};}
+// one gentle reminder after ~8 s without input, once per step; never repeated, never an action
+function armIdle(){clearTimeout(idleT);idleT=setTimeout(remind,8000);}
+function nudge(){const g=$('#guide');g.classList.remove('nudge');void g.offsetWidth;g.classList.add('nudge');}
+function remind(){if(!cur)return;if(busy||drag){armIdle();return;}if(reminded.has(cur.sig))return;reminded.add(cur.sig);G.reminders++;G.log.push({t:'remind',sig:cur.sig,at:Date.now()});nudge();
+ if(cur.st.target){boost=cur.sig;guide();}}
+addEventListener('pointerdown',()=>armIdle(),{capture:true});
+$('#hintBtn').onclick=()=>{if(!cur)return;G.hints++;G.log.push({t:'hint',sig:cur.sig,at:Date.now()});reminded.add(cur.sig);boost=cur.sig;fingerSig='';nudge();guide();};
 function strip(){const built=s.built['beach-path']??0,ready=(s.materials['beach-path']??0)>built;const cost=built?70:40;
  $('#strip').classList.toggle('ready',ready&&s.coins>=cost);$('#stripImg').src=`assets/premium/coast/place-path-${Math.max(1,built+(ready?1:0))}.webp`;
  $('#stripTitle').textContent=built?'Lay a boardwalk':'Clear the landing path';
  $('#stripSmall').textContent=ready?(s.coins>=cost?`Materials ✓ · ● ${cost} · ready`:`Materials ✓ · ${cost-s.coins} more ●`):`From the gold order · ● ${Math.min(s.coins,cost)}/${cost}`;
  $('#stripGo').textContent=ready&&s.coins>=cost?'Build':'View';if(ready&&s.coins>=cost&&stage==='play')stage='build';}
 function refresh(cls=''){header();strip();const was=shownId,o=stage==='play'?focusOrder():null;if(o?.id!==was||cls)renderOrder(cls);else if(o){const ready=!!orderItems(s,o);$('#objective').innerHTML=cardHtml(o);$('#card').onclick=()=>deliver(o.id);if(ready&&!$('#card').dataset.pulsed){$('#card').animate([{transform:'scale(1)'},{transform:'scale(1.04)'},{transform:'scale(1)'}],{duration:360});}}
- if(stage==='build'&&!R2&&!$('#objective .card.msg'))$('#objective').innerHTML='<div class="card msg" style="justify-content:center;color:var(--sea-deep);font-size:15px"><b>Materials secured · the landing path can be built</b></div>';hint();}
+ if(stage==='build'&&!R2&&!$('#objective .card.msg'))$('#objective').innerHTML='<div class="card msg" style="justify-content:center;color:var(--sea-deep);font-size:15px"><b>Materials secured · the landing path can be built</b></div>';guide();}
 // ---------- input: tap the generator, drag twins or a key onto its crate (all through act()) ----------
 let drag=null;
 boardEl.addEventListener('pointerdown',e=>{const c=e.target.closest('.cell');if(!c||busy)return;const i=+c.dataset.i,x=s.board[i];
@@ -387,7 +464,7 @@ async function produce(i){if(busy)return;const g=cellEl(i).querySelector('.piece
  SFX.produce();render();const to=r.index;if(to!=null&&to>=0){cellEl(to).querySelector('.piece').style.opacity=0;await fly(draw(s.board[to]),rect(i),rect(to),{ms:300,arc:-26});const p=cellEl(to)?.querySelector('.piece');if(p){p.style.opacity='';p.classList.add('landT1');}}
  if(r.secondary?.index>=0){const e=cellEl(r.secondary.index);e?.classList.add('rareGlow');tagAt(rect(r.secondary.index),'RARE · '+nm(r.secondary.family,0),true);SFX.rare();}
  refresh();}
-function flashHint(t){const h=$('#hint');h.textContent=t;}
+function flashHint(t){setGuide(t,'',"light",'refused');}
 async function merge(a,b){const x=s.board[a],y=s.board[b],toCrate=y?.type==='cargo',rA=rect(a),rB=rect(b);
  const r=act(s,{type:'merge',from:a,to:b},Date.now());if(!r.ok){flashHint(r.message);render();return;}
  // the source flies into the target, then the result lands with feedback by tier
@@ -421,11 +498,11 @@ function openCoast(){$('#coins2').textContent=s.coins;const c=$('#coast');c.clas
  $('#buildBtn').disabled=!(ready&&s.coins>=cost);$('#buildBtn').textContent=`Build · ● ${cost}`;$('#costChip').textContent='● '+cost;
  if(built){$('#site').classList.add('stage2');$('#beforeImg').src='assets/premium/coast/place-path-1.webp';$('#afterImg').src='assets/premium/coast/place-path-2.webp';$('#siteSmall').textContent='Stage 2 of 3';$('#siteName').textContent='Lay a boardwalk';
   $('#foot').style.display='none';$('#mapColor').style.webkitMaskImage=$('#mapColor').style.maskImage='radial-gradient(circle at 27% 86%,#000 34%,transparent 46%)';}
- setTimeout(()=>$('#coastClose').focus({preventScroll:true}),560);}
-function closeCoast(){const c=$('#coast');c.classList.remove('open');c.setAttribute('aria-hidden','true');$('#strip').focus({preventScroll:true});}
+ showFinger(null);setTimeout(()=>{$('#coastClose').focus({preventScroll:true});guide();},600);}
+function closeCoast(){const c=$('#coast');c.classList.remove('open');c.setAttribute('aria-hidden','true');$('#strip').focus({preventScroll:true});showFinger(null);setTimeout(guide,600);}
 $('#buildBtn').onclick=build;
 async function build(){if(busy)return;const built=s.built['beach-path']??0;const r=act(s,{type:'restore',id:'beach-path'},Date.now());if(!r.ok){$('#siteSmall').textContent=r.message;return;}
- busy=true;const site=$('#site'),sr=site.getBoundingClientRect(),cr=document.querySelector('#coast .chip').getBoundingClientRect(),btn=$('#buildBtn');btn.style.visibility='hidden';
+ busy=true;showFinger(null);document.querySelectorAll('.gNext:not(.cell)').forEach(e=>e.classList.remove('gNext'));const site=$('#site'),sr=site.getBoundingClientRect(),cr=document.querySelector('#coast .chip').getBoundingClientRect(),btn=$('#buildBtn');btn.style.visibility='hidden';
  for(let k=0;k<6;k++)fly(COIN,cr,sr,{ms:520,size:14,arc:-40,delay:k*60});countTo($('#coins2'),s.coins,600);header();await wait(600);
  site.classList.add('dust','hammer');SFX.build();buzz([12,250,12,250,16]);await wait(1000);
  const f=document.createElement('i');f.className='flash';f.style.left='27%';f.style.top='86%';$('#mapInner').append(f);setTimeout(()=>f.remove(),850);
@@ -440,7 +517,7 @@ async function build(){if(busy)return;const built=s.built['beach-path']??0;const
  $('#rewards').innerHTML=chips.map(c=>`<span>${c}</span>`).join('')+'<div class="seg" id="seg" role="group" aria-label="Compare"><button type="button" id="segBefore" aria-pressed="false">Before</button><button type="button" id="segAfter" aria-pressed="true">After</button></div>';
  $('#rewards').classList.add('show');$('#seg').classList.add('show');$('#baLabel').classList.add('show');
  $('#segBefore').onclick=()=>compare(true);$('#segAfter').onclick=()=>compare(false);
- $('#nextBtn').textContent=built?'Next: Pitch the camp tent →':'Next: Lay a boardwalk →';await wait(500);$('#nextBtn').classList.add('show');busy=false;stage='next';}
+ $('#nextBtn').textContent=built?'Next: Pitch the camp tent →':'Next: Lay a boardwalk →';await wait(500);$('#nextBtn').classList.add('show');busy=false;stage='next';guide();}
 function compare(before){$('#site').classList.toggle('showBefore',before);$('#segBefore').setAttribute('aria-pressed',before);$('#segAfter').setAttribute('aria-pressed',!before);$('#baLabel').textContent=before?'Before':'After';}
 function bloom(from,to,ms){const m=$('#mapColor'),t0=performance.now();const step=t=>{const k=Math.min(1,(t-t0)/ms),e=1-Math.pow(1-k,3),v=from+(to-from)*e;m.style.webkitMaskImage=m.style.maskImage=`radial-gradient(circle at 27% 86%,#000 ${v}%,transparent ${v+12}%)`;if(k<1)requestAnimationFrame(step);};requestAnimationFrame(step);}
 $('#nextBtn').onclick=async()=>{closeCoast();await wait(560);stage='play';render();
@@ -449,10 +526,11 @@ $('#nextBtn').onclick=async()=>{closeCoast();await wait(560);stage='play';render
 let prevKits=new Set();
 $('#storyBtn').onclick=()=>{const f=$('#ribbon').classList.toggle('folded');$('#storyBtn').setAttribute('aria-expanded',!f);};
 // ---------- start ----------
-render();header();strip();renderOrder();hint();
+if(s.moves>0||CASE)$('#ribbon').classList.add('folded');
+render();header();strip();renderOrder();guide();
 if(LAB){$('#ribbon').classList.add('folded');$('.objective').style.display='none';$('#strip').style.display='none';}
 if(R2){$('#ribbon').classList.add('folded');stage='build';strip();refresh();setTimeout(()=>openCoast(),500);}
-window.__proto={get s(){return s;},get stage(){return stage;},crateState,produce,merge,deliver,openCoast,build,coachStep:()=>coachStep(s)};
+window.__proto={get s(){return s;},get stage(){return stage;},get busy(){return busy;},get guide(){return cur&&{...cur.st,level:cur.lv,sig:cur.sig};},G,crateState,produce,merge,deliver,openCoast,build,coachStep:()=>coachStep(s)};
 // ---------- autoplay: the real guide's next action, paced for a video (NOT gameplay timing) ----------
 async function dragTo(a,b){const ra=rect(a),rb=rect(b),c=cellEl(a),g=document.createElement('div');g.className='ghost';g.innerHTML=c.querySelector('.piece').innerHTML;g.style.cssText=`left:${ra.x}px;top:${ra.y}px;width:${ra.width}px;height:${ra.height}px;transform:scale(1.12)`;document.body.append(g);c.classList.add('dragFrom');marks(a,true);
  for(let k=1;k<=10;k++){g.style.left=(ra.x+(rb.x-ra.x)*k/12)+'px';g.style.top=(ra.y+(rb.y-ra.y)*k/12-Math.sin(k/10*Math.PI)*14)+'px';await wait(24);}
@@ -460,12 +538,15 @@ async function dragTo(a,b){const ra=rect(a),rb=rect(b),c=cellEl(a),g=document.cr
 window.__autoplay=async(pace=+(Q.get('pace')||480))=>{
  if(LAB){for(const [a,b] of [[cellIndex(1,1),cellIndex(1,2)],[cellIndex(1,4),cellIndex(1,5)],[cellIndex(4,1),cellIndex(5,1)],[cellIndex(4,5),cellIndex(5,5)]]){await wait(pace*1.6);await dragTo(a,b);await wait(pace*2.4);}return;}
  if(R2){await wait(pace*3);await build();await wait(pace*4);compare(true);await wait(pace*3);compare(false);return;}
- await wait(pace*3);for(let n=0;n<120&&stage==='play';n++){const c=coachStep(s);if(!c)break;const t=c.target,a=c.advice;
-  if(t?.kind==='order'||a?.kind==='deliver'){await wait(pace);await deliver(t?.id??a.id);await wait(pace*1.4);continue;}
-  if(t?.kind==='strip')break;
-  if(t?.kind==='pair'||a?.kind==='merge'||a?.kind==='unseal'){const [x,y]=t?.cells??a.cells;await dragTo(x,y);await wait(pace);continue;}
-  if(t?.kind==='cell'||a?.kind==='tap'){await produce(t?.index??a.index);await wait(pace*.8);continue;}break;}
- await wait(pace*1.5);prevKits=new Set(s.board.flatMap((x,i)=>['kit','source'].includes(x?.type)?[i]:[]));openCoast();await wait(pace*3);await build();await wait(pace*5);$('#nextBtn').click();await wait(pace*4);};
+ // a scripted player that does what the guide shows (the guide itself never acts)
+ await wait(pace*3);for(let n=0;n<160;n++){const st=tutorStep(s,{coast:coastCtx()}),t=st.target;
+  if(st.kind==='tap'){await produce(t.index);await wait(pace*.8);continue;}
+  if(st.kind==='merge'||st.kind==='unseal'){await dragTo(...t.cells);await wait(pace);continue;}
+  if(st.kind==='deliver'||st.kind==='gold'){await wait(pace);await deliver(t.id);await wait(pace*1.4);continue;}
+  if(st.kind==='build'){await wait(pace*1.5);prevKits=new Set(s.board.flatMap((x,i)=>['kit','source'].includes(x?.type)?[i]:[]));openCoast();await wait(pace*3);continue;}
+  if(st.kind==='coastBuild'){await build();await wait(pace*5);continue;}
+  if(st.kind==='next'){$('#nextBtn').click();await wait(pace*4);break;}
+  break;}};
 $('#buildBtn').addEventListener('click',()=>{prevKits=new Set(s.board.flatMap((x,i)=>['kit','source'].includes(x?.type)?[i]:[]));},{capture:true});
 if(AUTO)setTimeout(()=>window.__autoplay(),400);
 </script>

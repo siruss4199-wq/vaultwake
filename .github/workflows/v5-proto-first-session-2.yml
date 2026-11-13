@@ -1,4 +1,4 @@
-name: First Session 2.0 prototype (design only) — Chromium + WebKit, 360×640 · 390×664 · 390×844
+name: First Session 2.0 + Tutorial 2.0 prototype (design only) — Chromium + WebKit, 360×640 · 390×664 · 390×844
 # Design prototype QA (2026-11-13). prototype/first-session-2/index.html is NOT the live game and ships in no release;
 # it imports v5/next/game.mjs and coach.mjs unchanged and plays the real rules. This runs its browser test against the
 # branch checkout, then against this commit's Cloudflare Pages branch preview (the link given to the reviewer), so the
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
   push:
     branches: [claude/v5-first-session-prototype]
-    paths: ['prototype/first-session-2/**', 'tests/v5-proto-first-session-2-browser.cjs', '.github/workflows/v5-proto-first-session-2.yml']
+    paths: ['prototype/first-session-2/**', 'tests/v5-proto-first-session-2-browser.cjs', 'tests/v5-proto-tutor.test.mjs', 'tests/v5-proto-tutor-browser.cjs', '.github/workflows/v5-proto-first-session-2.yml']
 permissions:
   contents: read
 concurrency:
@@ -16,7 +16,7 @@ concurrency:
 jobs:
   prototype:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     container:
       image: mcr.microsoft.com/playwright:v1.62.1-noble
       options: --ipc=host
@@ -31,13 +31,17 @@ jobs:
         timeout-minutes: 4
         run: |
           npm install --no-save --no-audit --no-fund playwright@1.62.1
-          node --check tests/v5-proto-first-session-2-browser.cjs
+          node --check tests/v5-proto-first-session-2-browser.cjs && node --check tests/v5-proto-tutor-browser.cjs
+      - name: Tutorial 2.0 rules (node:test on the real reducer)
+        timeout-minutes: 3
+        run: node --test tests/v5-proto-tutor.test.mjs
       - name: The prototype from this checkout, Chromium and WebKit, three sizes
-        timeout-minutes: 12
+        timeout-minutes: 25
         run: |
           (node tools/ci-static-server.mjs . 8080 > /tmp/http.log 2>&1 &)
           for i in $(seq 1 30); do node -e "fetch('http://127.0.0.1:8080/prototype/first-session-2/index.html').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))" && break; sleep 1; done
           node tests/v5-proto-first-session-2-browser.cjs
+          node tests/v5-proto-tutor-browser.cjs
       - name: The Cloudflare preview link serves this commit's prototype (waits up to 10 min for the deploy)
         id: preview
         timeout-minutes: 12
@@ -53,12 +57,14 @@ jobs:
           node -e "fetch(process.env.PREVIEW.replace('prototype/first-session-2/index.html','v5/next/game.mjs')).then(r=>{console.log('game.mjs',r.status,r.headers.get('content-type'));process.exit(r.ok?0:1)})"
       - name: The same test on the Cloudflare preview link
         if: ${{ steps.preview.outcome == 'success' }}
-        timeout-minutes: 12
+        timeout-minutes: 25
         env:
           PROTO_URL: ${{ env.PREVIEW }}
         run: |
           mv test-artifacts/v5/proto-first-session-2 test-artifacts/v5/proto-first-session-2-local
+          mv test-artifacts/v5/proto-tutor test-artifacts/v5/proto-tutor-local
           node tests/v5-proto-first-session-2-browser.cjs
+          node tests/v5-proto-tutor-browser.cjs
       - name: Screenshots
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
