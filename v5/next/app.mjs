@@ -1220,13 +1220,13 @@ function showBeat(id,effects,stage=stageOf(state,id)){
  // First Session 2.0: on the coast screen a stage's lines, its real reward and the next objective are a card under
  // the picture, never a dialog over the restored place. Area completions and reveals keep their story cards.
  const inline=$('#coastMap').open&&!effects?.nextArea&&!effects?.areaDone&&!revealNext&&!!effects&&Object.keys(effects).length>0;
- const say=caption||inline?(title,lines,cb)=>{receipt=null;cb();}:playLines;
+ const spent=receipt,say=caption||inline?(title,lines,cb)=>{receipt=null;cb();}:playLines;
  say(st.name,st.lines.concat(extra),()=>{const fresh=caption||effects&&Object.keys(effects).length,nxt=fresh?nextPlace():null;if(nxt&&!effects.nextArea)mapFocus=nxt.u.id;if(effects?.nextArea){render();if(!nextReveal()){showMap();showIntro();}}else if($('#coastMap').open)showMap();const icon=$(`#coastMap .restoredIcon[data-task="${id}"]`)??$(`.restoredIcon[data-task="${id}"]`);icon?.classList.add('upgraded');
   // The stage's rewards, said once the story has been told (build 22: every stage gives one).
   // One clear next step after the story: the next place to build, said with its rewards.
   const next=nxt&&!effects?.nextArea?` · Next: ${nxt.u.name}${nxt.ready?' (ready)':''}`:'';
   const said=caption?st.lines.map(([w,l])=>`${who$(w)}: “${l}” `).join(''):'';
-  if(inline)restoredCard(t,st,stage,effects,nxt);
+  if(inline)restoredCard(t,st,stage,effects,nxt,spent);
   else if(caption||effects&&Object.keys(effects).length)moment(`${st.name} · stage ${stage} of ${STAGES}`,said+(effects&&Object.keys(effects).length?rewardText(effects):'')+next,null);burst(($('#coastMap').open?$('#coastMap .beachScene'):board).getBoundingClientRect(),'gold',true);
   for(const i of [effects?.kit,effects?.copy,effects?.token,effects?.cog])if(i>=0)board.querySelector(`[data-index="${i}"]`)?.classList.add('unsealed');
   // Build 47e (from PR #80): a first generator of its kind from a stage (the Lens Bench) shows its chain.
@@ -1237,12 +1237,12 @@ function showBeat(id,effects,stage=stageOf(state,id)){
 }
 // First Session 2.0: the restored place's card on the coast screen, under the picture: the stage, its lines (the
 // story stays readable here and in the place's Replay), the real rewards (act()'s effects) and the next objective.
-function restoredCard(t,st,stage,effects,nxt){
+function restoredCard(t,st,stage,effects,nxt,spent=null){
  $('#coastMap .restoredCard')?.remove();const wrap=$('#coastMap .sceneWrap');if(!wrap)return;
  const chips=rewardText(effects).replace(/^Rewards: /,'').split(' · ').map(x=>`<span>${x}</span>`).join('');
  const next=nxt?`<p class="rcNext"><b>Next:</b> ${nxt.u.name}${nxt.ready?' · ready to build':''}</p>`:'';
- wrap.insertAdjacentHTML('afterend',`<section class="restoredCard" role="status" aria-label="${st.name} restored"><small>${(AREAS.find(a=>a.tasks.includes(t))??currentArea(state)).name} · stage ${stage} of ${STAGES}</small><b class="rcTitle">${st.name}</b>
-  ${st.lines.map(([w,l])=>`<p class="rcLine">${face(w)}<span><b>${who$(w)}</b>${l}</span></p>`).join('')}<div class="rcRewards">${chips}</div>${next}<button class="primary rcBack" type="button" data-back>Back to the board</button></section>`);
+ wrap.insertAdjacentHTML('afterend',`<section class="restoredCard" role="status" aria-label="${st.name} restored"><small>${(AREAS.find(a=>a.tasks.includes(t))??currentArea(state)).name} · stage ${stage} of ${STAGES}</small><b class="rcTitle">${st.name}</b>${spent?`<b class="beatReceipt">−${spent} coins</b>`:''}
+  ${st.lines.map(([w,l])=>`<p class="rcLine">${face(w)}<span><b>${who$(w)}</b>: “${l}”</span></p>`).join('')}<div class="rcRewards">${chips}</div>${next}<button class="primary rcBack" type="button" data-back>Back to the board</button></section>`);
  // the restored place stays in view: the picture at the top of the screen, its card right under it
  requestAnimationFrame(()=>wrap.scrollIntoView({block:'start',behavior:reduced()?'auto':'smooth'}));
 }

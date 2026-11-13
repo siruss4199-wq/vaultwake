@@ -89,8 +89,9 @@ const cgStub=(cloud,o={})=>`(()=>{const m=new Map(${JSON.stringify([...cloud])})
      await settle(page);await page.waitForFunction(()=>!!VWGuide.step,null,{timeout:8000});m=await look(page);const st=m.st;steps++;
      expectMarks(m,tag(`step ${n} ${st.kind}/${st.level}`));
      // stage C: during the guided span one order card shows (the one the guide is about); the camp keeps them all
-     {const o=await page.evaluate(()=>({shown:[...document.querySelectorAll('#requests .requestCard')].filter(c=>c.getBoundingClientRect().width>0).map(c=>c.dataset.order),all:document.querySelectorAll('#requests .requestCard').length}));
-      assert.equal(o.shown.length,1,tag(`step ${n}: one order card while guided (${o.shown})`));if(st.target?.kind==='order')assert.deepEqual(o.shown,[st.target.id],tag('the shown card is the one to deliver'));assert.ok(o.all>=3,tag('every order is still there'));}
+     {const o=await page.evaluate(()=>({primary:[...document.querySelectorAll('#requests.onboarding .requestCard.primary')].map(c=>c.dataset.order),shown:[...document.querySelectorAll('#requests .requestCard')].filter(c=>c.getBoundingClientRect().width>0).length,all:document.querySelectorAll('#requests .requestCard').length}));
+      assert.equal(o.primary.length,1,tag(`step ${n}: one primary order card while guided (${o.primary})`));if(st.target?.kind==='order')assert.deepEqual(o.primary,[st.target.id],tag('the primary card is the one to deliver'));
+      assert.ok(o.all>=3&&o.shown===o.all,tag('every order is still there and tappable (free exploration)'));}
      const ok=await validOnCopy(page);if(st.action&&ok!=='unsaved')assert.equal(ok,true,tag(`step ${n}: act() accepts ${JSON.stringify(st.action)}`));
      if(st.level==='quiet')quiet++;
      if(!idled&&st.level==='quiet'&&st.kind==='tap'){idled=true;const before=m.moves;

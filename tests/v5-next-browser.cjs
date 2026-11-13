@@ -228,7 +228,7 @@ async function perform(page,a){
    await page.evaluate(()=>{const s=JSON.parse(localStorage.getItem('vaultwake-v5-coast'));s.coins=40;localStorage.setItem('vaultwake-v5-coast',JSON.stringify(s));});
    await page.reload();await page.waitForSelector('#board .tile');await closeBeats(page);
    await page.locator('#mapButton').tap();await page.locator('#coastMap [data-restore="beach-path"]').tap();
-   assert.match(await page.locator('#beat .beatReceipt').textContent(),/−40 coins/);await closeBeats(page);await page.locator('#coastMap [data-back]').tap();
+   assert.match(await page.locator('#beat .beatReceipt, #coastMap .restoredCard .beatReceipt').textContent(),/−40 coins/);await closeBeats(page);await page.locator('#coastMap [data-back]').tap();
    // A full board with no twins and a full shed still has a way out.
    await page.evaluate(()=>{const s=JSON.parse(localStorage.getItem('vaultwake-v5-coast'));let k=0;const fam=['rig','chart','rope','shell','lamp'];
     s.board=s.board.map(x=>x===null?{type:'item',family:fam[k%5],tier:Math.floor(k++/5)}:x);s.shed=s.shed.map((_,i)=>({type:'item',family:'rig',tier:i+1}));localStorage.setItem('vaultwake-v5-coast',JSON.stringify(s));});
