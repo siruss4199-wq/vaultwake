@@ -68,7 +68,11 @@
  // Every module the game imports, asked for at once (tools/coast-modules.mjs keeps the list in the page). This
  // script runs only once the page's styles are in, so the modules never delay the first paint, and they no
  // longer arrive one import level (one round trip) at a time.
- for(const href of (document.querySelector('meta[name="vw-modules"]')?.content||'').split(' ').filter(Boolean)){
+ // Chromium-based browsers only: WebKit (Safari, and every browser on iOS) kept a failed preload across a reload,
+ // so after a network failure Retry showed the same error again without asking the network (CI, c87eac7). There
+ // (and in Firefox, untested) the modules load as before, one import level at a time, and Retry recovers.
+ const preload=/Chrom(e|ium)\//.test(navigator.userAgent);
+ if(preload)for(const href of (document.querySelector('meta[name="vw-modules"]')?.content||'').split(' ').filter(Boolean)){
   const l=document.createElement('link');l.rel='modulepreload';l.href=href;document.head.append(l);
  }
  setStatus('Loading the camp');

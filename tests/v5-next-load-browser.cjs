@@ -1,6 +1,7 @@
 // Loading performance (2026-11-13; docs/V5_LOADING_AND_BOARD_CALM_2026-11-13.md), Chromium and WebKit, 390×664:
-//  1. Every module the game imports is asked for at once (one <link rel="modulepreload"> each, added by
-//     v5/next/boot.js once the styles are in) and fetched once: no module twice, none missing.
+//  1. In Chromium every module the game imports is asked for at once (one <link rel="modulepreload"> each, added by
+//     v5/next/boot.js once the styles are in); WebKit gets none (a failed preload outlived Retry there). Either way
+//     each module is fetched once: no module twice, none missing.
 //  2. A genuinely new player: the loading screen names the game in text while the logo is not asked for; the board
 //     comes up and takes a tap without waiting for (or asking for) Home's pictures; they load afterwards, so the
 //     menu's Home has them.
@@ -32,13 +33,14 @@ const cgStub=cloud=>`(()=>{const m=new Map(${JSON.stringify([...cloud])});window
    {const {context,page,errors,log}=await open();
     // hold the game's entry module a moment, to see the loading screen as it is before the game runs
     let go;const gate=new Promise(r=>go=r);await page.route(/next\/app\.mjs/,async r=>{await gate;await r.continue();});
-    await page.goto(BASE+'play.html',{waitUntil:'commit'});await page.waitForSelector('link[rel="modulepreload"]',{state:'attached',timeout:20000});
+    await page.goto(BASE+'play.html',{waitUntil:'commit'});await page.waitForFunction(()=>window.VWBoot,null,{timeout:20000});
     const title=await page.evaluate(()=>getComputedStyle(document.querySelector('.homeLogo'),'::before').content);
     assert.match(title,/Vaultwake Merge/,tag('the loading screen names the game while the logo is not asked for'));
     assert.equal(await page.evaluate(()=>document.querySelector('.homeLogo img').hasAttribute('src')),false,tag('the logo is not asked for yet'));
     const preloads=await page.evaluate(()=>[...document.querySelectorAll('link[rel="modulepreload"]')].map(l=>l.getAttribute('href')));
     const graph=moduleGraph(await page.evaluate(()=>document.querySelector('script[type="module"]').getAttribute('src')));
-    assert.deepEqual(preloads,graph.slice(1),tag('one preload for each module the game imports'));
+    // Chromium-based browsers only (WebKit kept a failed preload across Retry; v5/next/boot.js)
+    assert.deepEqual(preloads,engine==='chromium'?graph.slice(1):[],tag(engine==='chromium'?'one preload for each module the game imports':'no module preloads in WebKit'));
     go();await page.waitForSelector('#home',{state:'hidden',timeout:30000});const boardAt=Date.now();
     assert.deepEqual(log.filter(x=>HOMEART.test(x.url)&&x.t<=boardAt).map(x=>x.url),[],tag('the board came up without asking for Home\'s pictures'));
     // the board takes a tap at once (the first action saves the camp)
