@@ -120,7 +120,8 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast';
    assert.equal(await page.locator('#coastMap .beachScene[data-area="vault"] .restoredIcon').count(),0,tag('no duplicate furnishings'));
    // the array wakes: Tamsin's signal card (where it comes from, not who sends it)
    await page.locator('#coastMap [data-restore="obs-array"]').click();await page.waitForTimeout(300);
-   for(let n=0;n<4&&!await page.locator('#beat[open] .vaultReveal').count();n++){await beats();await page.waitForTimeout(500);}
+   // click through the stage's lines up to the signal card, never past it (beats() would click the card itself when it opens mid-loop)
+   for(let n=0;n<30&&!await page.locator('#beat[open] .vaultReveal').count();n++){if(await page.locator('#beat[open]').count()){await page.locator('#beatNext').click();await page.waitForTimeout(80);}else await page.waitForTimeout(250);}
    assert.match(await page.textContent('#beatContent'),/A signal on one bearing.*Not who sends it/s,tag('the signal card'));
    assert.equal(await page.textContent('#beatNext'),'View sea gate');
    await page.locator('#beatNext').click();s=await save();assert.equal(s.seen['obs-signal'],true);
