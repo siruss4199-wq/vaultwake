@@ -56,6 +56,8 @@ async function drag(page,a,b){const p=await center(page,`#board [data-index="${a
 async function newContext(browser,engine,W,H,opts={}){
  const context=await browser.newContext({viewport:{width:W,height:H},isMobile:engine==='chromium'&&W<700,hasTouch:true,...opts});
  const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(String(e?.message??e)));page.on('console',m=>{if(m.type()==='error'&&!/Failed to load resource/.test(m.text()))errors.push(m.text());});
+ // a renderer crash (seen once in WebKit CI at 430×932 after the first restoration, 7d2674e) is named as such
+ page.on('crash',()=>console.error(`${engine} ${W}×${H}: the page process crashed (${page.url()}); last guide step: ${JSON.stringify(page.__lastStep??null)}`));
  await context.route(u=>!u.href.startsWith(ORIGIN)&&!u.href.startsWith('http://qa.crazygames.com/'),r=>r.abort());
  // every #story scene shown is noted (a new player must never get the three pages)
  await page.addInitScript(()=>{addEventListener('DOMContentLoaded',()=>{const s=document.querySelector('#story');if(!s)return;new MutationObserver(()=>{if(!s.hidden)sessionStorage.setItem('storyShown','1');}).observe(s,{attributes:true});});});
