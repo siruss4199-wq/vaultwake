@@ -160,11 +160,14 @@ async function drag(page,a,z){const A=await page.locator(`#board [data-index="${
     {const {context,page}=await fresh();
      const camp=async()=>{const x=JSON.parse(await save(page));return JSON.stringify([x.board,x.coins,x.moves,x.orders,x.level,x.built]);};
      await page.addInitScript(([k,v])=>{if(!sessionStorage.getItem('seeded')){localStorage.setItem(k,v);sessionStorage.setItem('seeded','1');}},[KEY,raw]);
+     const failed=[];page.on('requestfailed',r=>failed.push(`${new URL(r.url()).pathname} (${r.failure()?.errorText})`));
      await page.route(/next\/home\.mjs/,r=>r.abort());await page.goto(BASE+'play.html',{waitUntil:'commit'});
      await page.waitForSelector('#homeRetry:not([hidden])',{timeout:20000});
      assert.match(await page.textContent('#homeStatus'),/A game file could not be loaded/,tag('module failure shown'));
      assert.equal(await page.locator('#homePlay').isVisible(),false);assert.equal(await camp(),kept,tag('failure keeps the save'));
-     await page.unroute(/next\/home\.mjs/);await page.locator('#homeRetry').click();await homeUsable(page);
+     await page.unroute(/next\/home\.mjs/);const n=failed.length;await page.locator('#homeRetry').click();
+     // Retry must recover once the file loads again (diagnostics: what the screen says and what failed after Retry)
+     try{await homeUsable(page);}catch(e){console.error(tag(`after Retry: "${await page.textContent('#homeStatus').catch(()=>'?')}"; failed after Retry: ${failed.slice(n).join(', ')||'none'}`));throw e;}
      assert.equal((await page.textContent('#homePlay')).trim(),'Continue');assert.equal(await camp(),kept);
      await context.close();}}
 
