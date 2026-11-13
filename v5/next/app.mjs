@@ -248,6 +248,10 @@ function renderOrders(){
  // points at, else its focus order). Every order stays in the camp and comes back after the span.
  let primary=null;if(tutorActive(state)){const st=tutorStep(state,{});primary=['deliver','gold'].includes(st.kind)?st.target?.id:st.focus??tutorFocus(state)?.id;if(!state.orders.some(o=>o?.id===primary))primary=null;}
  $('#requests').classList.toggle('onboarding',!!primary);
+ // Premium polish (2026-11-13): one lead card, the order the player's next step serves: one that can be delivered
+ // now, else the one the player picked, else the guide's focus (a crew order when coins are short, so the gold
+ // order is not always first). The others are compact cards in the same rail: all stay tappable and deliverable.
+ const live=state.orders.filter(Boolean),lead=primary??live.find(o=>orderItems(state,o))?.id??(live.some(o=>o.id===focusOrder)?focusOrder:null)??tutorFocus(state)?.id??live[0]?.id??null;
  $('#requests').style.setProperty('--slots',state.orders.length);
  const shelf=$('#requests .requestShelf')??$('#requests').appendChild(Object.assign(document.createElement('div'),{className:'requestShelf'}));
  patch(shelf,state.orders.map(o=>{
@@ -265,7 +269,7 @@ function renderOrders(){
    :`<span class="reqFace">${face(o.who)}</span><span class="reqName"><b>${who.name}</b>${tag}</span>`;
   // A crew order taking long (Audit 2026-10-25) suggests a new one; the tapped card's panel has it.
   const stuck=isStuck(state,o);
-  return `<button class="requestCard ${ready?'ready':''} ${place?'storyOrder':''} ${stuck?'stuck':''} ${focusOrder===o.id?'active':''} ${primary===o.id?'primary':''}" data-order="${o.id}" data-role="${role}" aria-label="${label}${stuck?'. Taking long: tap it for a new order.':''}"><span class="reqHead">${head}</span>${stuck?'<i class="reqStuck" aria-hidden="true">↻ New?</i>':''}<span class="requestItems">${p.map(r=>`<span class="${r.have>=r.count?'met':''} ${heldKey===r.family+r.tier?'held':''}" data-part="${r.family+r.tier}">${draw(item(r.family,r.tier))}${r.sibling?`<i class="reqLv" aria-hidden="true">Lv${levelOf(r)}</i>`:''}<b>${r.have>=r.count?'<i aria-hidden="true">✓</i>':''}${r.have}/${r.count}</b></span>`).join('')}</span><span class="reqFoot">${ready?`<strong class="reqDeliver">Deliver <em>+${o.coins}</em>${COIN}</strong>`:`<span class="requestReward">${COIN}${o.coins}</span>`}${bonusArt(o)}</span></button>`;
+  return `<button class="requestCard ${ready?'ready':''} ${place?'storyOrder':''} ${stuck?'stuck':''} ${focusOrder===o.id?'active':''} ${primary===o.id?'primary':''} ${lead===o.id?'lead':''}" data-order="${o.id}" data-role="${role}" aria-label="${label}${stuck?'. Taking long: tap it for a new order.':''}"><span class="reqHead">${head}</span>${stuck?'<i class="reqStuck" aria-hidden="true">↻ New?</i>':''}<span class="requestItems">${p.map(r=>`<span class="${r.have>=r.count?'met':''} ${heldKey===r.family+r.tier?'held':''}" data-part="${r.family+r.tier}">${draw(item(r.family,r.tier))}${r.sibling?`<i class="reqLv" aria-hidden="true">Lv${levelOf(r)}</i>`:''}<b>${r.have>=r.count?'<i aria-hidden="true">✓</i>':''}${r.have}/${r.count}</b></span>`).join('')}</span><span class="reqFoot">${ready?`<strong class="reqDeliver">Deliver <em>+${o.coins}</em>${COIN}</strong>`:`<span class="requestReward">${COIN}${o.coins}</span>`}${bonusArt(o)}</span></button>`;
  }).join(''));
  renderOrderTools();
 }
@@ -516,7 +520,8 @@ function placeHand(){
  const h=document.getElementById('coachHand');if(!h)return;
  const r=handFor?.isConnected&&!homeOpen&&!document.querySelector('#story:not([hidden])')?handFor.getBoundingClientRect():null;
  if(!r?.width){h.hidden=true;return;}
- h.hidden=false;h.style.left=`${r.left+r.width/2}px`;h.style.top=`${handLow?r.bottom-14:r.top+r.height/2}px`;
+ // an order card (handLow): the hand points into the card's middle, so it never hangs over the Coast strip below
+ h.hidden=false;h.style.left=`${r.left+r.width/2}px`;h.style.top=`${handLow?r.top+r.height*.42:r.top+r.height/2}px`;
  // the label stays on screen near the edges
  const l=h.querySelector('.handLabel'),w=l.offsetWidth,cx=r.left+r.width/2;h.style.setProperty('--lx',`${Math.max(8-cx+w/2,Math.min(0,innerWidth-8-cx-w/2))}px`);
 }

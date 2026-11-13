@@ -54,8 +54,15 @@ async function run(engine,W,H,motion){
    await page.locator(`[data-order="${id}"]`).click();}
   // Build 45 (coastal board design): a sideways rail of painted cards (112 × 118 since 45c) in their
   // lanes; no progress bars or clipped subtitles; painted faces for Ivo and Bram; the HUD about
-  // 52 px; the restoration strip 52–56 px, saying View until it is truly ready.
-  {const card=await page.locator('#requests .requestCard').first().boundingBox();assert.ok(card.width>=104&&card.width<=120&&card.height>=110&&card.height<=124,`${tag}: card ${card.width}×${card.height}`);
+  // 52 px; the restoration strip 46 px since the premium polish (44 px or more: still a full tap target), saying
+  // View until it is truly ready.
+  // Premium polish (2026-11-13): one lead card (the order the next step serves, first in the rail, about 178 × 76)
+  // and compact cards (about 84 × 76) beside it; every card is in the same rail and stays tappable.
+  {const cards=await page.locator('#requests .requestCard').evaluateAll(cs=>cs.map(c=>{const r=c.getBoundingClientRect();return {w:r.width,h:r.height,x:r.left,lead:c.classList.contains('lead')};}));
+   const lead=cards.filter(c=>c.lead);assert.equal(lead.length,1,`${tag}: one lead card`);
+   assert.ok(lead[0].w>=170&&lead[0].w<=186&&lead[0].h>=70&&lead[0].h<=82,`${tag}: lead card ${lead[0].w}×${lead[0].h}`);
+   assert.ok(lead[0].x<=Math.min(...cards.map(c=>c.x))+1,`${tag}: the lead card comes first`);
+   for(const c of cards.filter(c=>!c.lead))assert.ok(c.w>=80&&c.w<=90&&c.h>=70&&c.h<=82,`${tag}: compact card ${c.w}×${c.h}`);
    // one row that scrolls sideways when the cards do not all fit (three fit at 390 px since 45c)
    assert.ok(await page.locator('#requests .requestShelf').evaluate(e=>getComputedStyle(e).overflowX==='auto'&&new Set([...e.children].map(c=>Math.round(c.getBoundingClientRect().top))).size===1),`${tag}: the cards are one sideways rail`);
    assert.equal(await page.locator('#requests .reqBar:visible, #requests .reqName small:visible').count(),0,`${tag}: no progress bars or subtitles on cards`);
@@ -66,7 +73,7 @@ async function run(engine,W,H,motion){
     await setState(page,s=>{const crew=s.orders.filter(o=>!o.story);crew[0].who='neri';crew[1].who='tamsin';});
     const src=await page.locator('#requests img.face').evaluateAll(f=>f.map(x=>x.getAttribute('src')).join(' '));assert.match(src,/crew-nara\.webp/);assert.match(src,/crew-sela\.webp/);
     await page.evaluate(([k,v])=>localStorage.setItem(k,v),[KEY,before]);await page.reload();await page.waitForSelector('#board .tile');await closeBeats(page);}
-   const strip=await page.locator('#mapButton').boundingBox();assert.ok(strip.height>=52&&strip.height<=56&&strip.x>=0&&strip.x+strip.width<=W+1,`${tag}: strip ${strip.height}px`);
+   const strip=await page.locator('#mapButton').boundingBox();assert.ok(strip.height>=44&&strip.height<=48&&strip.x>=0&&strip.x+strip.width<=W+1,`${tag}: strip ${strip.height}px`);
    assert.match(await page.locator('#mapButton .rsAction').textContent(),/^View$/);
    const hud=await page.locator('header').boundingBox();assert.ok(hud.height<=64,`${tag}: HUD ${hud.height}px`);
    // the supplied painted energy and coin pills; the pale slot fills towards the next +1
@@ -92,10 +99,10 @@ async function run(engine,W,H,motion){
   // The gold order's card says what it is for; merging next to the last-hit tideglass breaks it.
   await setState(page,ready);
   {const gold=page.locator('[data-order="o90"]');assert.match(await gold.textContent(),/Gold order\s*Stage 1/);assert.match(await gold.getAttribute('aria-label'),/Clear the landing path/);
-   // 45e: the gold card keeps the painted frame, its place picture fits the face circle, and its
-   // state ring follows the painted card (no rectangle)
+   // 45e: the gold card's place picture fits the face circle; no extra frame drawn after it
    const g=await gold.evaluate(c=>{const f=c.querySelector('.reqFace').getBoundingClientRect(),i=c.querySelector('.reqFace img').getBoundingClientRect();return {frame:getComputedStyle(c,'::before').content!=='none'&&getComputedStyle(c,'::before').borderImageSource,after:getComputedStyle(c,'::after').content,fit:i.width<=f.width*1.2&&Math.abs(i.left-f.left)<=f.width*.15}});
-   assert.ok(/order-card\.webp/.test(g.frame)&&g.after==='none'&&g.fit,`${tag}: gold card ${JSON.stringify(g)}`);
+   // premium polish: a plain warm card (no painted frame); its ring is the card's own rounded edge
+   assert.ok(g.after==='none'&&g.fit,`${tag}: gold card ${JSON.stringify(g)}`);
    const lanes=await page.locator('#requests .requestCard').evaluateAll(c=>c.map(x=>x.dataset.order));
    await drag(page,20,'#board [data-index="15"]');
    await page.waitForFunction(k=>JSON.parse(localStorage.getItem(k)).board[16]?.type==='item',KEY,{timeout:4000});
