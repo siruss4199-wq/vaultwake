@@ -4,6 +4,8 @@ import {blockedStage,isStuck,allDone,swapsLeft,adSwapsLeft,SHOP,shopLeft,BOOK_CO
 import {AREAS,STAGES,TASKS,LABELS} from './areas.mjs';
 import {primaryAction} from './guide.mjs';
 import {coachStep,coachActive,laterTip,nextRareUse,COACH_ON,COACH_DONE,FIRST_PLACE} from './coach.mjs';
+import {tutorStep,guideLevel,tutorActive,signature,skills,COACH_NEXT} from './tutor.mjs';
+import {isNewPlayer} from './newcomer.mjs';
 import {needsOf,missingOf,levelOf} from './needs.mjs';
 import {LEVEL_PATH,BONUS_NAMES,CHEST_ENERGY,EARLY_LEVELS,EARLY_LEVEL_ENERGY,ONBOARDING,goldChase} from './game.mjs';
 import {kit} from '../kits.mjs';
@@ -25,7 +27,7 @@ import {sfx as sounds} from './sfx.mjs';
 import {createHome} from './home.mjs';
 import {readSave,keptCamps,freeKey,isKeptKey} from './saves.mjs?build=releaseqa54';
 import {openSaveStore,saveLine} from './save-store.mjs';
-import {playIntro,preloadIntro,storySeen,playScenes} from './story-intro.mjs';
+import {playIntro,preloadIntro,storySeen,playScenes,INTRO} from './story-intro.mjs';
 import {haptics} from './haptics.mjs';
 import {createEnergyReceipts} from './energy-receipts.mjs';
 // The shared moment draws its icon with the Classic art; new chains need draw().
@@ -75,6 +77,14 @@ if(startNew){const q=new URLSearchParams(location.search);q.delete('new');histor
 const bootNow=Date.now(),stored=storage.get(SAVE_KEY)||null,rawSave=startNew?null:stored,read=readSave(rawSave,bootNow);
 let state=startNew?fresh(bootNow):read.state,selected=null,focusOrder=null,drag=null,suppressClick=false;
 let damaged=read.status==='damaged'||read.status==='newer',newer=read.status==='newer',holdSave=!rawSave||damaged,homeOpen=!!document.getElementById('home');
+// First Session 2.0 (2026-11-13): a genuinely new player goes straight to the playable board (no Home click,
+// no three story pages). "New" is decided only here, after openSaveStore has settled: the SDK initialised and
+// the CrazyGames cloud data read (or, off CrazyGames, this browser's storage). Never new: any save under the
+// key (even an unreadable one), any kept camp, ?new=1 (the playtest link keeps Home), or a CrazyGames page
+// whose cloud data could not be read (the SDK timed out or refused: that player may have a cloud save, so
+// Home stays as before). Nothing is written until the player's first action: an untouched default camp never
+// reaches the save.
+let newPlayer=false,waitFirstAction=false;
 // Round 2: ?new=1 (the playtest page's "start from the beginning" link) no longer writes over the
 // camp it replaces: that camp is kept (SAVE_KEY-kept…) before the new one is first saved.
 let replaced=startNew?stored:null;
@@ -482,9 +492,12 @@ function clearCoach(){for(const el of document.querySelectorAll('.coachTarget,.c
 const HAND_SVG='<svg viewBox="0 0 48 56" aria-hidden="true"><path d="M20 4c-2.8 0-5 2.2-5 5v21l-3.2-3.1c-2-2-5.2-2-7.1 0-1.9 1.9-1.9 5 0 7l11.3 11.6c2.6 2.6 6 4.5 9.7 4.5h6.3c6.9 0 12-5.6 12-12.5V24c0-2.5-2-4.5-4.5-4.5-1 0-1.9.3-2.6.8-.6-2-2.4-3.3-4.4-3.3-1.2 0-2.3.4-3.1 1.1-.7-1.7-2.4-2.9-4.4-2.9-.9 0-1.7.2-2.4.6V9c0-2.8-2.2-5-5-5z"/></svg>';
 let handFor=null,handLow=false;
 // low: the fingertip on the target's bottom row (an order card's Deliver line), so the parts stay visible
+let handRest=0;
 function coachHand(el,label,drag,low=false){
- let h=document.getElementById('coachHand');
+ let h=document.getElementById('coachHand');clearTimeout(handRest);
  if(!el){handFor=null;if(h)h.hidden=true;return;}
+ // First Session 2.0: the hand shows a few times, then rests (the highlight stays)
+ handRest=setTimeout(()=>{if(handFor===el)coachHand(null);},6500);
  if(!h){h=document.createElement('div');h.id='coachHand';h.setAttribute('aria-hidden','true');h.innerHTML=HAND_SVG+'<span class="handLabel"></span>';document.body.append(h);}
  handFor=el;handLow=low;h.querySelector('.handLabel').textContent=label;h.classList.toggle('drag',!!drag);
  h.style.setProperty('--dx',`${drag?.dx??0}px`);h.style.setProperty('--dy',`${drag?.dy??0}px`);placeHand();
@@ -498,25 +511,66 @@ function placeHand(){
  const l=h.querySelector('.handLabel'),w=l.offsetWidth,cx=r.left+r.width/2;h.style.setProperty('--lx',`${Math.max(8-cx+w/2,Math.min(0,innerWidth-8-cx-w/2))}px`);
 }
 addEventListener('resize',placeHand);addEventListener('scroll',placeHand,true);
-function showCoachTarget(t){
+// First Session 2.0 (Adaptive tutorial 2.0, tutor.mjs): the same line and targets, one actionable step at a
+// time: what (bold), why (one short line), where (gold = the next action, green = the matching pair, the hand
+// only while that skill is new, after Hint or after an idle reminder). Every target is accepted by act().
+function showCoachTarget(t,{hand=true}={}){
  clearCoach();if(!t)return;
- if(t.kind==='cell'){const el=board.querySelector(`[data-index="${t.index}"]`);el?.classList.add('coachTarget');coachHand(el,'Tap here');}
+ if(t.kind==='cell'){const el=board.querySelector(`[data-index="${t.index}"]`);el?.classList.add('coachTarget');if(hand)coachHand(el,'Tap here');}
  else if(t.kind==='pair'){const a=board.querySelector(`[data-index="${t.cells[0]}"]`),b=board.querySelector(`[data-index="${t.cells[1]}"]`);if(!a||!b)return;
-  const ra=a.getBoundingClientRect(),rb=b.getBoundingClientRect(),dx=rb.left-ra.left,dy=rb.top-ra.top;a.style.setProperty('--dx',`${dx}px`);a.style.setProperty('--dy',`${dy}px`);a.classList.add('coachFrom');b.classList.add('coachTo');
-  coachHand(a,'Drag onto its twin',{dx,dy});}
- else if(t.kind==='order'){const el=$(`[data-order="${t.id}"]`);el?.classList.add('coachTarget');coachHand(el,'Tap to deliver',null,true);}
- else if(t.kind==='strip'){const el=$('#mapButton');el?.classList.add('coachTarget');coachHand(el,'Tap to open the coast');}
+  const ra=a.getBoundingClientRect(),rb=b.getBoundingClientRect(),dx=rb.left-ra.left,dy=rb.top-ra.top;a.style.setProperty('--dx',`${dx}px`);a.style.setProperty('--dy',`${dy}px`);a.classList.add('coachFrom','coachPair');b.classList.add('coachTo','coachPair');
+  if(hand)coachHand(a,'Drag onto its twin',{dx,dy});}
+ else if(t.kind==='order'){const el=$(`[data-order="${t.id}"]`);el?.classList.add('coachTarget');if(hand)coachHand(el,'Tap to deliver',null,true);}
+ else if(t.kind==='strip'){const el=$('#mapButton');el?.classList.add('coachTarget');if(hand)coachHand(el,'Tap to open the coast');}
  else if(t.kind==='coins')$('#coinPill')?.classList.add('coachTarget');
 }
+// The tutorial's current step and how much it shows. A Hint or the idle reminder raises one step to full until
+// the player acts or the step changes (session only: nothing is saved).
+const tutorG={hints:0,reminders:0};let tutor=null,tutorBoost=null,tutorSig='',tutorActs=-1,tutorIdle=0;const tutorReminded=new Set();
+const actsDone=()=>{const k=skills(state);return k.tap+k.merge+k.deliver+k.gold+k.build+(state.moves??0);};
+function tutorView(coast=$('#coastMap').open?'open':null){
+ const st=tutorStep(state,{coast}),sig=signature(st),n=actsDone();
+ if(sig!==tutorSig||n!==tutorActs){tutorBoost=null;tutorSig=sig;tutorActs=n;}
+ return {st,sig,lv:tutorBoost===sig?'full':guideLevel(state,st)};
+}
+globalThis.VWGuide={get step(){return tutor&&{...tutor.st,level:tutor.lv};},get hints(){return tutorG.hints;},get reminders(){return tutorG.reminders;}};
 function renderCoach(){
  const on=coachActive(state);$('#coachSkip').hidden=!on;
- if(coachNote&&coachNote.until>performance.now())coach={id:'note',text:coachNote.text,target:coachNote.target};
- else{coachNote=null;coach=coachStep(state)??laterTip(state);}
+ const b=$('#hint');
+ if(coachNote&&coachNote.until>performance.now()){coach={id:'note',text:coachNote.text,target:coachNote.target};tutor=null;b.textContent=coach.text;b.dataset.kind='coach';b.dataset.step='note';delete b.dataset.level;requestAnimationFrame(()=>showCoachTarget(coach.target));return true;}
+ coachNote=null;
+ // the guided span (the game's coach span and the next objective), or a step a Hint / reminder raised
+ const v=tutorView();
+ if(tutorActive(state)||v.lv==='full'){tutor=v;const {st,lv}=v;coach={id:st.kind,text:st.what,target:st.target};
+  b.innerHTML=`<b class="gWhat">${st.what}</b>${lv!=='quiet'&&st.why?`<small class="gWhy">${st.why}</small>`:''}`;b.dataset.kind='coach';b.dataset.step=st.kind;b.dataset.level=lv;
+  requestAnimationFrame(()=>{if(lv==='quiet'||!st.target)clearCoach();else showCoachTarget(st.target,{hand:lv==='full'});});
+  armTutorIdle();return true;}
+ tutor=null;delete b.dataset.level;
+ coach=laterTip(state);
  if(!coach){clearCoach();return false;}
- const b=$('#hint');b.textContent=coach.text;b.dataset.kind='coach';b.dataset.step=coach.id;
+ b.textContent=coach.text;b.dataset.kind='coach';b.dataset.step=coach.id;
  requestAnimationFrame(()=>showCoachTarget(coach.target));
  return true;
 }
+// One gentle reminder after about 8 s without input, once per step, during the guided span; never an action.
+function armTutorIdle(){clearTimeout(tutorIdle);tutorIdle=setTimeout(tutorRemind,8000);}
+function tutorRemind(){
+ if(!tutor||!tutorActive(state))return;
+ if(homeOpen||drag||adBusy||document.querySelector('dialog[open]:not(#coastMap)')||!document.querySelector('#story')?.hidden&&document.querySelector('#story')){armTutorIdle();return;}
+ if(tutorReminded.has(tutor.sig))return;tutorReminded.add(tutor.sig);tutorG.reminders++;nudgeHint();
+ if(tutor.st.target){tutorBoost=tutor.sig;renderHint();if($('#coastMap').open)showMap();}
+}
+function nudgeHint(){const h=$('#hint');h.classList.remove('nudge');void h.offsetWidth;h.classList.add('nudge');}
+addEventListener('pointerdown',()=>{if(tutor)armTutorIdle();},{capture:true});
+// back on the board from the coast screen: the line speaks about the board again
+$('#coastMap').addEventListener('close',()=>{if(tutor||tutorActive(state))renderHint();});
+// a short Skip on the guide's line (the line's room goes to what and why); its name stays "Skip guide"
+$('#coachSkip').textContent='Skip';$('#coachSkip').setAttribute('aria-label','Skip guide');
+// The voluntary Hint: the current step, in full (the hand), until the player acts.
+{const hb=document.createElement('button');hb.id='guideHint';hb.type='button';hb.className='guideHint';hb.setAttribute('aria-label','Hint: show me the next step');hb.innerHTML='<span aria-hidden="true">💡</span>';
+ $('#hint').after(hb);
+ hb.onclick=()=>{const v=tutorView();tutorG.hints++;tutorReminded.add(v.sig);tutorBoost=v.sig;tutorSig=v.sig;sfx('tap');nudgeHint();renderHint();if($('#coastMap').open)showMap();
+  if(!v.st.target)$('#message').textContent=`${v.st.what}. ${v.st.why}`;};}
 function renderHint(){
  // While a delivery's coins fly, the guidance waits too (it may be about to say "Upgrade").
  if(holdPlace>performance.now())return;
@@ -528,6 +582,14 @@ function renderHint(){
  if(guide.kind==='merge'&&!state.merges)for(const i of guide.cells)board.querySelector(`[data-index="${i}"]`)?.classList.add('hintPair');
 }
 $('#hint').onclick=()=>{
+ // the tutorial's line: a tap on it does what it shows (the player's own tap), or for a drag shows the hand
+ if(tutor){const t=tutor.st.target;
+  if(tutor.st.kind==='tap'&&t)run({type:'produce',id:state.board[t.index]?.id,index:t.index});
+  else if((tutor.st.kind==='deliver'||tutor.st.kind==='gold')&&t)run({type:'deliver',id:t.id});
+  else if(t?.kind==='strip'){mapFocus=nextPlace()?.u.id??null;showMap();}
+  else if(t?.kind==='pair'){tutorBoost=tutor.sig;renderHint();$('#message').textContent=tutor.st.kind==='unseal'?'Drag the marked part onto its crate.':'Drag one marked part onto the other.';}
+  else $('#message').textContent=`${tutor.st.what}. ${tutor.st.why}`;
+  return;}
  // a goal line (no highlight) still works like the normal hint line when tapped: its advice, on request
  if(coach&&coach.id!=='goal'){const t=coach.target;
   if(coach.id==='tap'&&t)run({type:'produce',id:state.board[t.index]?.id,index:t.index});
@@ -576,6 +638,8 @@ function run(a,{adCompletion=false}={}){
   if(a.type==='produce'&&state.energy<1)playlog.event('blockedEnergy');else if(/board is full|Make space/i.test(r.message))playlog.event('blockedFull',{type:a.type});
   return r;}
  logResult(a,r,before);
+ // First Session 2.0: a new player's camp is saved from their first action on (never the untouched default)
+ if(waitFirstAction&&!damaged){waitFirstAction=false;holdSave=false;foldRibbon();}
  $('#message').textContent=r.message;
  if(r.event==='merge'||r.event==='move'||r.event==='producerUp'||r.event==='unseal')selected=r.event==='producerUp'||r.event==='unseal'?null:r.index;
  if(r.event==='deliver'||r.event==='store'||r.event==='swapOrder'){focusOrder=null;selected=null;}
@@ -583,7 +647,7 @@ function run(a,{adCompletion=false}={}){
  // Build 51c: the guide's own feedback. The first crew order's coins are named (the coin count pulses);
  // the first restoration ends the guide (the message line names the next objective once).
  if(coachBefore&&r.event==='deliver'&&order&&!order.story&&state.ordersDone===1){coachNote={text:`+${order.coins} coins from ${CREW[order.who]?.name??'the crew'}'s order: crew orders pay coins.`,until:performance.now()+3800,target:{kind:'coins'}};setTimeout(renderHint,3900);}
- if(coachBefore&&r.event==='restore'){markSeen(COACH_DONE);coachNote=null;const next=TASKS[FIRST_PLACE].stages[stageOf(state,FIRST_PLACE)];
+ if(coachBefore&&r.event==='restore'){markSeen(COACH_DONE);markSeen(COACH_NEXT);coachNote=null;const next=TASKS[FIRST_PLACE].stages[stageOf(state,FIRST_PLACE)];
   $('#message').textContent=`Guide complete. Next: ${next?next.name+': its gold order brings the materials and coins, crew orders add more coins.':'the coast\'s next place.'}`;}
  // the guide is this camp's from its first action on (a seen flag is an action too, so not before: a new
  // camp stays untouched until the player acts)
@@ -1066,7 +1130,7 @@ function showMap(){
  content.classList.toggle('entering',opening);if(opening){clearTimeout(content._enter);content._enter=setTimeout(()=>content.classList.remove('entering'),1400);}
  if(!opening&&shownCard!==mapFocus)$('#mapCard')?.classList.add('swapIn');shownCard=mapFocus;
  // Build 51c: the guide's build step points at the build button on the coast screen too
- let coachBuild=null;{const st=coachActive(state)?coachStep(state):null;if(st?.id==='build'){coachBuild=$(`#coastMap [data-restore="${FIRST_PLACE}"]`);coachBuild?.classList.add('coachTarget');coachBuild?.insertAdjacentHTML('beforeend',`<span class="coachHand" aria-hidden="true">${HAND_SVG}<span class="handLabel">Tap to build</span></span>`);$('#mapCard')?.insertAdjacentHTML('beforebegin','<p class="coachLine">Coins and materials are ready: build it here.</p>');}}
+ let coachBuild=null;{const v=tutorView('open');if((tutorActive(state)||v.lv==='full')&&v.st.kind==='coastBuild'&&v.lv!=='quiet'){tutor=v;coachBuild=$(`#coastMap [data-restore="${v.st.target.id}"]`);coachBuild?.classList.add('coachTarget');if(v.lv==='full')coachBuild?.insertAdjacentHTML('beforeend',`<span class="coachHand" aria-hidden="true">${HAND_SVG}<span class="handLabel">Tap to build</span></span>`);$('#mapCard')?.insertAdjacentHTML('beforebegin',`<p class="coachLine"><b>${v.st.what}</b> · ${v.st.why}</p>`);armTutorIdle();}}
  if(opening)$('#coastMap').showModal();
  // A closed dialog has no layout: center only after showModal gives the strip
  // its real width and chapter positions. Scroll the strip, never the page.
@@ -1403,19 +1467,34 @@ $('#playlogButton').onclick=()=>{$('#menu').close();showPlaylog();};
 // an affordable upgrade, energy from an ad when low, the daily gift, parts waiting in the book.
 function calmBadges(){let n=0;for(const el of [$('#mapReady'),$('#adEnergyButton'),$('#dailyButton'),$('#bookCount')]){if(el.hidden)continue;if(n>=2){el.hidden=true;if(el.id==='bookCount')$('#bookButton').classList.remove('ready');}else n++;}}
 render();header();setInterval(()=>{header();placeHand();if(state.energy<1)renderHint();offerGift();$('#dailyButton').hidden=!giftReady();calmBadges();syncPlaying();},1000);
+// First Session 2.0: a new player meets the story as one caption line over the bottom of the screen (Ivo and
+// the beach's own intro line), not three pages before the board. It never blocks the board's middle, folds at
+// the first action (or a tap on it), and a tap on its "Story" replays the illustrated opening. The menu's
+// Story button replays it any time. Watching it again saves nothing.
+function storyRibbon(){
+ const a=currentArea(state),[who,line]=a.intro?.[0]??['ivo','First, let\'s clear a landing.'];
+ let r=$('#storyRibbon');if(!r){r=document.createElement('div');r.id='storyRibbon';r.className='storyRibbon';r.setAttribute('role','status');document.body.append(r);}
+ r.innerHTML=`${face(who)}<p><b>${who$(who)} · ${a.name}</b>${line}</p><button type="button" class="ribbonStory" aria-label="Watch the story">Story</button><button type="button" class="ribbonClose" aria-label="Close the story line">×</button>`;
+ r.hidden=false;r.classList.remove('folded');
+ r.querySelector('.ribbonStory').onclick=()=>{foldRibbon();replayStory();};r.querySelector('.ribbonClose').onclick=foldRibbon;
+}
+function foldRibbon(){const r=$('#storyRibbon');if(!r||r.hidden)return;r.classList.add('folded');setTimeout(()=>{r.hidden=true;},reduced()?0:320);}
+function replayStory(){$('#menu').open&&$('#menu').close();playScenes({scenes:INTRO.map(x=>({...x,src:`assets/premium/coast/story/${x.art}.webp`,id:x.art})),face:who=>`assets/premium/coast/ui/${FACES[who]}.webp`,reduced,last:'Back to the camp'}).then(()=>render());}
+{const sb=document.createElement('button');sb.id='storyButton';sb.type='button';sb.className='menuButton';sb.textContent='Story: the letter';sb.onclick=replayStory;$('#homeButton').after(sb);}
 // What happens on arriving at the board: once at the start without Home, and each time from Home.
 let storyJustPlayed=false;
 function arrive(fromHome=true){
- if(holdSave&&!damaged){holdSave=false;persist();}
+ if(holdSave&&!damaged&&!waitFirstAction){holdSave=false;persist();}
  syncPlaying();if(fromHome)$('#hint').focus({preventScroll:true});
  // Build 51c: a story played to its end already says what to do first, so no second introduction follows
  // it; a skipped story is followed by the beach's one line (the same words)
- if(!state.moves){if(!storyJustPlayed)showIntro();}
+ if(!state.moves){if(waitFirstAction)storyRibbon();else if(!storyJustPlayed)showIntro();}
  else{extrasNews();nextReveal(()=>{if(allDone(state)&&!state.seenEnd)setTimeout(showEnd,600);});}
  storyJustPlayed=false;
 }
 // Home and Loading (Build 46p): the board above is set up once; Home only covers and uncovers it.
 if(document.getElementById('home')){
+ newPlayer=isNewPlayer({rawSave,readStatus:read.status,startNew,keptCount:kept().length,onCrazyGames:onCrazyGamesHost(),storeKind:storage.status.kind});waitFirstAction=newPlayer;
  const stagesBuilt=()=>{const a=currentArea(state);return a.tasks.reduce((n,t)=>n+stageOf(state,t.id),0);};
  home=createHome({boot:window.VWBoot??null,hasSave:!!rawSave&&!damaged,damaged,newer,kept:()=>kept().length,onKept:showKept,
   chapter:()=>{const a=currentArea(state);return a?.tasks?.length?`${a.name} · ${stagesBuilt()} of ${a.tasks.length*STAGES} stages built`:a?.name??'';},
@@ -1423,6 +1502,7 @@ if(document.getElementById('home')){
   onNewCamp:()=>{if(!confirm('Start a new camp? The save that could not be read stays in this browser as a backup.'))return false;return newCamp();},
   onOpenChange:v=>{homeOpen=v;syncPlaying?.();placeHand();},
   // The first-play story (Build 46q): once, on the first new camp's Play, never on Continue.
-  beforeEnter:reason=>reason==='play'&&!rawSave&&!storySeen(storage)?playIntro({storage,reduced,face:who=>`assets/premium/coast/ui/${FACES[who]}.webp`}).then(how=>{storyJustPlayed=how==='done';return how;}):null});
- home.ready.then(()=>{if(!rawSave&&!storySeen(storage))preloadIntro();});
+  autoEnter:newPlayer,
+  beforeEnter:reason=>reason==='play'&&!rawSave&&!newPlayer&&!storySeen(storage)?playIntro({storage,reduced,face:who=>`assets/premium/coast/ui/${FACES[who]}.webp`}).then(how=>{storyJustPlayed=how==='done';return how;}):null});
+ home.ready.then(()=>{if(!rawSave&&!newPlayer&&!storySeen(storage))preloadIntro();});
 }else{homeOpen=false;arrive(false);}

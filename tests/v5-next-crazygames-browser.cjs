@@ -28,6 +28,8 @@ const STUB=`window.__cg=[];window.CrazyGames={SDK:{environment:'crazygames',init
    const calls=await page.evaluate(()=>window.__cg);
    assert.deepEqual(calls.slice(0,3),['init','loadingStart','loadingStop'],`${tag}: SDK lifecycle ${calls}`);
    assert.equal(await page.evaluate(()=>document.documentElement.dataset.ads),'off');
+   // First Session 2.0: a new player's camp is saved from the first action on: one tap on the Rover first.
+   await page.locator('#board .tile.source').first().click();await page.waitForFunction(k=>!!localStorage.getItem(k),KEY,{timeout:4000});
    // No ad or rewarded-ad offer anywhere: low energy, the shop, an order with its free changes used.
    await page.evaluate(k=>{const s=JSON.parse(localStorage.getItem(k));s.energy=1;s.daily={day:9e6,count:1};s.swaps={day:9e6,n:3,ads:0};localStorage.setItem(k,JSON.stringify(s));},KEY);
    await page.reload();await page.waitForSelector('#board .tile');

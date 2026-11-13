@@ -1,3 +1,7 @@
+// First Session 2.0 (2026-11-13): a genuinely new player goes straight to the board (no Play, no three pages; a
+// story caption line instead) and the menu's "Story: the letter" replays the three scenes, writing nothing. The
+// three-page story still plays on Play where Home is still shown for a camp without a save: here a browser that
+// keeps a kept camp (round 2), so every check below is made with one. Before First Session 2.0 (all players):
 // Coast Camp first-play story (Build 46q) in a real browser: the first new camp's Play shows the
 // three scenes with the exact lines (Next → Next → Clear a landing); Skip from every scene goes to
 // the same board; the story gives nothing (the camp is exactly a new one); a reload mid-story
@@ -11,6 +15,7 @@ const LINES=[[null,'An unsigned letter led you to this forgotten coast.','Next']
  ['Ivo','The letter brought us to that Vault. First, let’s clear a landing.','Clear a landing']];// build 51c
 const COUNT=`window.__n={iv:0};{const si=window.setInterval;window.setInterval=function(...a){__n.iv++;return si.apply(this,a);};}`;
 const get=(page,k)=>page.evaluate(k=>localStorage.getItem(k),k);
+let KEPT=null;
 const usable=page=>page.waitForSelector('#homePlay:not([hidden])',{timeout:20000});
 async function skipBeats(page){for(let n=0;n<10&&await page.locator('#beat[open]').count();n++){await page.locator('#beatNext').click();await page.waitForTimeout(60);}}
 async function line(page){return page.evaluate(()=>[document.querySelector('#storyWho').hidden?null:document.querySelector('#storyWho').textContent,document.querySelector('#storyText').textContent,document.querySelector('#storyNext').textContent,document.querySelector('#story').dataset.scene]);}
@@ -25,8 +30,24 @@ async function drag(page,a,z){const A=await page.locator(`#board [data-index="${
   let browser;try{browser=await type.launch();}catch(e){if(engine!=='chromium'&&/Executable doesn't exist/.test(e.message)){console.log(`${engine}: not installed here, skipped`);continue;}throw e;}
   const tag=s=>`${engine}: ${s}`;
   const open=async(opts={})=>{const context=await browser.newContext({viewport:{width:390,height:844},isMobile:engine==='chromium',hasTouch:true,...opts});
-   const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});page.on('dialog',d=>d.accept());await page.addInitScript(COUNT);return {context,page,errors};};
+   const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});page.on('dialog',d=>d.accept());await page.addInitScript(COUNT);
+   // a kept camp in this browser (a camp kept when another was started): Home stays for a camp without a save
+   if(!opts.newPlayer)await page.addInitScript(v=>{if(!localStorage.getItem('vaultwake-v5-coast-kept'))localStorage.setItem('vaultwake-v5-coast-kept',v);},KEPT);
+   delete opts.newPlayer;return {context,page,errors};};
   try{
+   // a camp played a little, kept in the browser (made by the real reducer)
+   {const g=await import(require('node:path').join(__dirname,'..','v5','next','game.mjs'));const k=g.fresh(Date.now());g.act(k,{type:'produce',id:'rig',index:k.board.findIndex(x=>x?.type==='source')});KEPT=JSON.stringify(k);}
+   // 0. First Session 2.0: a genuinely new player: the board, no pages; the menu's Story replays them, saving nothing.
+   {const context=await browser.newContext({viewport:{width:390,height:844},isMobile:engine==='chromium',hasTouch:true});const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
+    await page.addInitScript(()=>{addEventListener('DOMContentLoaded',()=>{const s=document.querySelector('#story');new MutationObserver(()=>{if(!s.hidden)window.__storyShown=(window.__storyShown||0)+1;}).observe(s,{attributes:true});});});
+    await page.goto(BASE);await page.waitForSelector('#home',{state:'hidden',timeout:20000});await page.waitForTimeout(500);
+    assert.equal(await page.evaluate(()=>window.__storyShown??0),0,tag('a new player gets no story pages'));
+    assert.match(await page.locator('#storyRibbon').innerText(),/First, let.s clear a landing/,tag('one caption line instead'));
+    await page.locator('#menuButton').click();await page.locator('#storyButton').click();await page.waitForSelector('#story:not([hidden])');
+    for(const [k,[who,text]] of LINES.entries()){const [w,t2]=await line(page);assert.deepEqual([w,t2],[who,text],tag(`replayed scene ${k+1}`));await page.locator('#storyNext').click();}
+    await page.waitForSelector('#story',{state:'hidden'});
+    assert.deepEqual([await get(page,KEY),await get(page,STORY)],[null,null],tag('watching the story writes nothing'));
+    assert.deepEqual(errors,[]);console.log(tag('new player: board, no pages; Story replay from the menu'));await context.close();}
    // 1. Play → the three scenes with the exact lines → Clear a landing → the board.
    {const {context,page,errors}=await open();
     await page.goto(BASE);await usable(page);await page.locator('#homePlay').click();await page.waitForSelector('#story:not([hidden])');
@@ -41,7 +62,7 @@ async function drag(page,a,z){const A=await page.locator(`#board [data-index="${
     assert.equal(JSON.parse(await get(page,STORY)).intro,'done');isNew(JSON.parse(await get(page,KEY)),tag('the story gives nothing'));
     // build 51c: no second introduction after the story (its last line says what to do); the guide's first line
     assert.equal(await page.locator('#beat[open]').count(),0,tag('no second introduction'));
-    assert.match(await page.textContent('#hint'),/Tap the Rivet Rover for a part/,tag('guidance for an available action'));
+    assert.match(await page.textContent('#hint'),/Tap the Rivet Rover/,tag('guidance for an available action'));
     const rover=await page.evaluate(()=>document.querySelector('#board .tile.source').dataset.index);
     await page.locator(`#board [data-index="${rover}"]`).click();await page.waitForTimeout(250);assert.equal(JSON.parse(await get(page,KEY)).energy,99,tag('generator tap'));
     await page.evaluate(k=>{const s=JSON.parse(localStorage.getItem(k));s.board[30]={type:'item',family:'rig',tier:0};s.board[31]={type:'item',family:'rig',tier:0};s.daily={day:9e6,count:1};localStorage.setItem(k,JSON.stringify(s));},KEY);

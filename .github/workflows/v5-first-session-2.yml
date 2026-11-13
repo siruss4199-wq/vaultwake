@@ -1,0 +1,108 @@
+name: Vaultwake Merge First Session 2.0 (Coast Camp) — Chromium + WebKit
+# First Session 2.0 production branch (2026-11-13; docs/V5_FIRST_SESSION_2_PRODUCTION_2026-11-13.md). Release
+# gate: the whole V5 unit suite, every Coast Camp browser suite (the Build 57y P0 set included: build flow, core
+# actions, SDK not ready, tap flicker, sticky coast ×, strip tap, CrazyGames save) and the First Session 2.0 suite
+# at 360×640, 390×664, 390×844, 430×932 and 1280×720, in Chromium and WebKit. Nothing is packaged or uploaded;
+# release/crazygames-basic/ is not touched. Browsers come with the pinned Playwright image (no apt, no download).
+on:
+  push:
+    branches: [claude/v5-first-session-2-production]
+  pull_request:
+    paths: ['v5/next/**', 'v5/*.html', 'tests/v5-next-*', 'tests/v5-*.test.mjs', '.github/workflows/v5-first-session-2.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  unit:
+    name: V5 unit and simulation tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Unit and simulation tests (V5, Coast Camp, tutorial, new-player rule, lifecycle)
+        run: node --test tests/v5-*.test.mjs
+      - name: Modules and the CrazyGames page
+        run: |
+          node --check v5/next/app.mjs && node --check v5/next/tutor.mjs && node --check v5/next/home.mjs
+          node --check v5/app.mjs && node --check v5/core.mjs && node --check v5/art.mjs
+          node tools/coast-crazygames.mjs --check
+  browser:
+    name: Coast Camp browser suites (${{ matrix.engine }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, webkit]
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      options: --ipc=host
+    env:
+      HOME: /root
+      ENGINES: ${{ matrix.engine }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - name: Playwright 1.62.1 package (browsers come with the image)
+        timeout-minutes: 4
+        run: npm install --no-save --no-audit --no-fund playwright@1.62.1
+      - name: Static server
+        run: |
+          (node tools/ci-static-server.mjs . 8080 > /tmp/http.log 2>&1 &)
+          for i in $(seq 1 30); do node -e "fetch('http://127.0.0.1:8080/v5/play.html').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))" && break; sleep 1; done
+      - name: First Session 2.0 (new player, tutorial to the first restoration, saves, CrazyGames cloud, 5 viewports)
+        timeout-minutes: 40
+        run: node tests/v5-next-first-session-2-browser.cjs
+      - name: Build 57y P0 set (build flow, core actions, SDK not ready, tap flicker, coast ×, strip tap)
+        if: ${{ !cancelled() }}
+        timeout-minutes: 30
+        run: |
+          node tests/v5-next-build-flow-browser.cjs
+          node tests/v5-next-core-actions-browser.cjs
+          node tests/v5-next-sdk-not-ready-browser.cjs
+          node tests/v5-next-tap-flicker-browser.cjs
+          node tests/v5-next-coast-back-browser.cjs
+          node tests/v5-next-strip-tap-browser.cjs
+      - name: Home, story, guide, saves and CrazyGames
+        if: ${{ !cancelled() }}
+        timeout-minutes: 30
+        run: |
+          node tests/v5-next-home-browser.cjs
+          node tests/v5-next-story-browser.cjs
+          node tests/v5-next-guide-browser.cjs
+          node tests/v5-next-saves-browser.cjs
+          node tests/v5-next-crazygames-browser.cjs
+          node tests/v5-next-crazygames-save-browser.cjs
+      - name: Coast Camp suites and chapters 1–6
+        if: ${{ !cancelled() }}
+        timeout-minutes: 60
+        run: |
+          node tests/v5-next-browser.cjs
+          node tests/v5-next-playtest-browser.cjs
+          node tests/v5-next-bright-browser.cjs
+          node tests/v5-next-rewards-browser.cjs
+          node tests/v5-next-extras-browser.cjs
+          node tests/v5-next-energy-browser.cjs
+          node tests/v5-next-rare-merges-browser.cjs
+          node tests/v5-next-ch1-rare-browser.cjs
+          node tests/v5-next-chapter2-browser.cjs
+          node tests/v5-next-chapter3-browser.cjs
+          node tests/v5-next-chapter4-browser.cjs
+          node tests/v5-next-chapter5-browser.cjs
+          node tests/v5-next-chapter6-browser.cjs
+      - name: Screenshots
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: first-session-2-${{ matrix.engine }}
+          path: test-artifacts/v5/
+          retention-days: 30
+          if-no-files-found: ignore

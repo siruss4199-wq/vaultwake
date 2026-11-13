@@ -5,7 +5,7 @@
 // SDK.game.gameplayStart/gameplayStop, SDK.game.happytime, SDK.ad.requestAd('rewarded',
 // {adStarted,adFinished,adError}), SDK.game.settings.muteAudio and addSettingsChangeListener.
 const sdk=()=>globalThis.CrazyGames?.SDK??null;
-let ready=null,playing=false,loading=false;
+let ready=null,playing=false,loading=false,want=false,queue=Promise.resolve();
 const call=f=>{try{f(sdk());}catch{}};
 // Resolves true once the SDK is up on CrazyGames; false without it, when it is disabled outside
 // CrazyGames, when it fails, or when it does not answer within timeout. The SDK's own init is
@@ -33,7 +33,10 @@ export const platform={
  async loadingStop(){if(await on()&&loading){loading=false;call(s=>s.game.loadingStop());}},
  // Gameplay is on while the player is on the board (or the coast screen) with no menu, ad or
  // hidden tab; the app reports its state and only changes are passed on.
- async setPlaying(v){v=!!v;if(v===playing||!await on())return;playing=v;call(s=>v?s.game.gameplayStart():s.game.gameplayStop());},
+ // First Session 2.0 (2026-11-13, the audit's double gameplayStart): the check used to run before the await,
+ // so two calls in the same moment (arriving on the board and the 1 s sync) both passed it and both sent
+ // gameplayStart. Calls now queue: each sends only when the wanted state still differs from the last one sent.
+ setPlaying(v){want=!!v;return queue=queue.then(async()=>{if(want===playing||!await on())return;playing=want;const w=want;call(s=>w?s.game.gameplayStart():s.game.gameplayStop());});},
  async happytime(){if(await on())call(s=>s.game.happytime?.());},
  // Build 57y (P0, owner's iPhone on the Cloudflare preview): the real SDK's SDK.game is a getter that THROWS
  // while the SDK is not initialised ("sdkNotInitialized") and on a domain that is not CrazyGames
@@ -78,4 +81,4 @@ export async function rewardedAd({onStart=()=>{},onEnd=()=>{},standIn,allowStand
  }finally{adInFlight=false;if(was&&!signal?.aborted)await platform.setPlaying(true);}
 }
 // For tests: forget the SDK state between cases.
-export function resetPlatform(){ready=null;playing=false;loading=false;adInFlight=false;}
+export function resetPlatform(){ready=null;playing=false;loading=false;want=false;queue=Promise.resolve();adInFlight=false;}

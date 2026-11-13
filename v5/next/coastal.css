@@ -557,3 +557,37 @@ body.nextMode .orderTools .sheetClose,body.nextMode .boardHeading .orderDetails,
 body.nextMode #coastMap>.close{position:fixed;top:calc(7px + env(safe-area-inset-top));right:calc(9px + env(safe-area-inset-right));z-index:6;width:44px;height:44px;min-width:44px;min-height:44px}
 body.nextMode #coastMap{scroll-padding-top:calc(64px + env(safe-area-inset-top))}
 body.nextMode #coastMap .beachTop{position:sticky;top:0;z-index:5;padding-top:calc(12px + env(safe-area-inset-top));padding-right:calc(64px + env(safe-area-inset-right));background:#bfeafc;box-shadow:0 1px 0 #1f5b6a1f}
+/* ---------- First Session 2.0 (2026-11-13): Adaptive tutorial 2.0 ----------
+   One line: what (bold) and why (one short line); gold = the next action, green = the matching pair, the hand
+   only while a skill is new (or after Hint / the idle reminder). A 44 px Hint button beside the line. Quiet steps
+   are a plain goal line with no highlight. Nothing covers the board; reduced motion keeps every state still. */
+body.nextMode .boardHeading #hint.primaryAction[data-kind="coach"] .gWhat{display:block;font-size:15px;line-height:1.2}
+body.nextMode .boardHeading #hint.primaryAction[data-kind="coach"] .gWhy{display:block;margin-top:2px;font-size:12.5px;font-weight:700;color:#6b5320;line-height:1.25}
+body.nextMode .boardHeading #hint.primaryAction[data-level="quiet"]{background:#ffffffd9!important;box-shadow:0 1px 3px #0d5a6a33!important;color:#2a5a62!important}
+body.nextMode .boardHeading #hint.primaryAction[data-level="quiet"] .gWhat{font-size:14px}
+body.nextMode .boardHeading .guideHint{flex:none;display:grid;place-items:center;width:44px;height:44px;min-height:44px;padding:0;border:0;border-radius:999px;background:#fff1cf;box-shadow:0 0 0 1.5px #f5c24e,0 2px 5px #e9a52133;font-size:19px;line-height:1;cursor:pointer}
+body.nextMode .boardHeading:not(:has(#hint[data-kind="coach"])) .guideHint{background:#ffffffd9;box-shadow:0 1px 3px #0d5a6a33}
+body.nextMode #board .tile.coachPair{outline-color:#1f9e66;box-shadow:0 0 0 3px #1f9e66,0 0 12px #1f9e6677}
+@media (prefers-reduced-motion:no-preference){
+ body.nextMode .boardHeading #hint.nudge{animation:hintNudge .7s cubic-bezier(.3,1.6,.5,1)}
+ body.nextMode #board .tile.coachPair{animation:coachPulseG 1.4s ease-in-out infinite}
+ body.nextMode #board .tile.coachFrom.coachPair::after{box-shadow:0 0 0 2px #1f9e66}
+}
+@keyframes hintNudge{35%{transform:scale(1.03)}}
+@keyframes coachPulseG{0%,100%{outline-color:#1f9e66}50%{outline-color:#1f9e6633}}
+/* First Session 2.0: the opening story as one caption line (a new player), folding at the first action */
+.storyRibbon{position:fixed;z-index:30;left:calc(10px + env(safe-area-inset-left,0px));right:calc(10px + env(safe-area-inset-right,0px));bottom:calc(10px + env(safe-area-inset-bottom,0px));max-width:520px;margin:0 auto;display:flex;align-items:center;gap:10px;padding:8px 6px 8px 8px;border-radius:16px;background:linear-gradient(#fffaf0,#fdf0d8);box-shadow:0 10px 26px #0f4c5c40;color:#1d3340}
+.storyRibbon[hidden]{display:none}
+.storyRibbon .face{width:44px;height:44px;border-radius:50%;box-shadow:0 0 0 2px #1f8a8f;flex:none}
+.storyRibbon p{flex:1;min-width:0;margin:0;font-size:14px;line-height:1.3}.storyRibbon p b{display:block;color:#0f4c5c;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase}
+.storyRibbon button{flex:none;min-width:44px;min-height:44px;border:0;border-radius:12px;background:#fff1cf;color:#5a3c06;font:800 13px/1 system-ui,sans-serif;cursor:pointer}
+.storyRibbon .ribbonClose{background:transparent;font-size:20px;color:#4a6470}
+@media (prefers-reduced-motion:no-preference){.storyRibbon{animation:ribbonUp .45s cubic-bezier(.2,.8,.3,1) .2s both;transition:transform .3s,opacity .3s}.storyRibbon.folded{transform:translateY(16px);opacity:0}}
+@keyframes ribbonUp{from{transform:translateY(18px);opacity:0}}
+/* compact: the guide line stays two short lines (what, why) so the board keeps its place */
+body.nextMode .boardHeading #hint.primaryAction[data-kind="coach"]{padding-top:4px;padding-bottom:4px;line-height:1.18}
+body.nextMode .boardHeading #hint.primaryAction[data-kind="coach"] .gWhat{font-size:14.5px}
+body.nextMode .boardHeading #hint.primaryAction[data-kind="coach"] .gWhy{font-size:12px;margin-top:1px;line-height:1.2}
+body.nextMode .boardHeading .coachSkip{min-width:44px;padding:0 8px}
+body[data-art].nextMode .boardHeading #hint.primaryAction[data-kind="coach"]{padding-left:12px;padding-right:8px}
+body[data-art].nextMode .boardHeading #hint.primaryAction[data-kind="coach"]::before{display:none}

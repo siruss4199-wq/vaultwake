@@ -29,7 +29,9 @@ export function boardPictures(){
 // reason is 'play' (a new camp's Play), 'continue' or 'new' (a new camp chosen after a bad save).
 // newer: the save that could not be read was made by a newer build (round 2 of the secondary-chain
 // pilot: said so, never started over silently); kept() counts the kept camps onKept lists to restore.
-export function createHome({boot,hasSave,damaged,newer=false,kept=()=>0,onKept,chapter,onEnter,onSettings,onBook,onNewCamp,onOpenChange,beforeEnter}){
+// autoEnter (First Session 2.0): a genuinely new player (the app decides, after the save store has settled)
+// goes to the board by itself once Home is usable and the board's pictures are in, as if Play were pressed.
+export function createHome({boot,hasSave,damaged,newer=false,kept=()=>0,onKept,chapter,onEnter,onSettings,onBook,onNewCamp,onOpenChange,beforeEnter,autoEnter=false}){
  const home=$('home'),main=document.querySelector('main.game'),play=$('homePlay'),label=play.querySelector('span');
  let open=true,usable=false,boardDone=false,boardBad=[],boardCount=[0,0],waiting=false,leaving=0,gating=false;
  const setOpen=v=>{open=v;document.body.classList.toggle('homeOpen',v);if(main)main.inert=v;onOpenChange?.(v);};
@@ -49,6 +51,7 @@ export function createHome({boot,hasSave,damaged,newer=false,kept=()=>0,onKept,c
   home.classList.remove('isLoading');loadVisible(damaged);$('homeSettings').hidden=false;controls();
   if(damaged){$('homeBar').hidden=true;$('homeStatus').hidden=true;}
   resolveReady();
+  if(autoEnter&&!damaged&&!hasSave)go();
  }
  let resolveReady;const ready=new Promise(r=>resolveReady=r);
  // The board's pictures load behind Home; Play waits only for what is still missing.
@@ -59,12 +62,13 @@ export function createHome({boot,hasSave,damaged,newer=false,kept=()=>0,onKept,c
   if(boardBad.length){home.classList.add('isWaiting');boot?.fail(`${boardBad.length} board picture${boardBad.length>1?'s':''} could not be loaded.`,()=>{home.classList.remove('isWaiting');loadVisible(false);enter(why());});return;}
   home.classList.remove('isWaiting');loadVisible(false);enter(why());
  }
- play.addEventListener('click',()=>{
+ function go(){
   if(!open||!usable||waiting||damaged)return;
   if(boardDone&&!boardBad.length){enter(why());return;}
   waiting=true;play.disabled=true;home.classList.add('isWaiting');loadVisible(true);boot?.reset();
   if(boardDone)afterBoard();else boardProgress(...boardCount);
- });
+ }
+ play.addEventListener('click',go);
  $('homeSettings').addEventListener('click',()=>onSettings?.());
  $('homeBook').addEventListener('click',()=>onBook?.());
  $('homeKept').addEventListener('click',()=>onKept?.());
