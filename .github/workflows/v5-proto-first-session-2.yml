@@ -1,0 +1,69 @@
+name: First Session 2.0 prototype (design only) — Chromium + WebKit, 360×640 · 390×664 · 390×844
+# Design prototype QA (2026-11-13). prototype/first-session-2/index.html is NOT the live game and ships in no release;
+# it imports v5/next/game.mjs and coach.mjs unchanged and plays the real rules. This runs its browser test against the
+# branch checkout, then against this commit's Cloudflare Pages branch preview (the link given to the reviewer), so the
+# link is proven to serve this exact build. Runs in the Playwright image for the pinned version (no apt, no download).
+on:
+  workflow_dispatch:
+  push:
+    branches: [claude/v5-first-session-prototype]
+    paths: ['prototype/first-session-2/**', 'tests/v5-proto-first-session-2-browser.cjs', '.github/workflows/v5-proto-first-session-2.yml']
+permissions:
+  contents: read
+concurrency:
+  group: v5-proto-first-session-2-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  prototype:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      options: --ipc=host
+    defaults:
+      run:
+        shell: bash
+    env:
+      PREVIEW: https://claude-v5-first-session-prot.wispwood-game.pages.dev/prototype/first-session-2/index.html
+    steps:
+      - uses: actions/checkout@v4
+      - name: Playwright 1.62.1 package (browsers come with the image)
+        timeout-minutes: 4
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.62.1
+          node --check tests/v5-proto-first-session-2-browser.cjs
+      - name: The prototype from this checkout, Chromium and WebKit, three sizes
+        timeout-minutes: 12
+        run: |
+          (node tools/ci-static-server.mjs . 8080 > /tmp/http.log 2>&1 &)
+          for i in $(seq 1 30); do node -e "fetch('http://127.0.0.1:8080/prototype/first-session-2/index.html').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))" && break; sleep 1; done
+          node tests/v5-proto-first-session-2-browser.cjs
+      - name: The Cloudflare preview link serves this commit's prototype (waits up to 10 min for the deploy)
+        id: preview
+        timeout-minutes: 12
+        continue-on-error: true
+        run: |
+          want="$(grep -o 'proto-build" content="[^"]*' prototype/first-session-2/index.html | cut -d'"' -f3)"
+          echo "expect build: $want"
+          for i in $(seq 1 40); do
+            got="$(node -e "fetch(process.env.PREVIEW,{cache:'no-store'}).then(r=>r.ok?r.text():'').then(t=>{const m=t.match(/proto-build\" content=\"([^\"]*)/);console.log(m?m[1]:'')},()=>console.log(''))")"
+            echo "try $i: '${got}'"; if [ "$got" = "$want" ]; then break; fi; sleep 15
+          done
+          test "$got" = "$want"
+          node -e "fetch(process.env.PREVIEW.replace('prototype/first-session-2/index.html','v5/next/game.mjs')).then(r=>{console.log('game.mjs',r.status,r.headers.get('content-type'));process.exit(r.ok?0:1)})"
+      - name: The same test on the Cloudflare preview link
+        if: ${{ steps.preview.outcome == 'success' }}
+        timeout-minutes: 12
+        env:
+          PROTO_URL: ${{ env.PREVIEW }}
+        run: |
+          mv test-artifacts/v5/proto-first-session-2 test-artifacts/v5/proto-first-session-2-local
+          node tests/v5-proto-first-session-2-browser.cjs
+      - name: Screenshots
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: proto-first-session-2-screenshots
+          path: test-artifacts/v5/
+          retention-days: 30
+          if-no-files-found: ignore
