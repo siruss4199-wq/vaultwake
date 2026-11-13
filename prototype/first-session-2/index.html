@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Vaultwake Merge · First Session 2.0 prototype</title>
+<!-- DESIGN PROTOTYPE ONLY (2026-11-12). Not the game: no save, no SDK, no rules. It reads the real fresh-camp board
+     (v5/next/game.mjs fresh()) and draws pieces with the game's own art (v5/next/chains.mjs draw()), both unchanged.
+     Every number in the flow is a prototype stand-in taken from the audited first session
+     (docs/V5_COMMERCIAL_AUDIT_2026-11-12.md). Modes: ?lab=1 merge tiers · ?autoplay=1 scripted demo · ?skin=current. -->
+<base href="../../v5/">
+<style>
+:root{
+ --sea-deep:#0f4c5c;--sea:#1f8a8f;--sea-soft:#cfeff2;--sky:#bfeafc;
+ --sand-warm:#fff4dd;--sand-warm-2:#fbe7bf;--sand-cool:#f0e2c4;--sand-cool-2:#e7d6b4;
+ --ink:#1d3340;--ink-soft:#56707c;--gold:#f2b33d;--gold-deep:#c9861c;--coral:#f2663e;--green:#2fae74;--rare:#7b6cf6;
+ --ice:#d7f3fb;--ice-rim:#8fd3e8;--card:#fffaf0;--shadow:0 2px 0 #0000000d,0 6px 16px #1f5b6a26;
+ --t-micro:260ms;--t-medium:900ms;--t-major:3200ms;--ease-pop:cubic-bezier(.3,1.6,.5,1);--ease-out:cubic-bezier(.2,.8,.3,1);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font:600 14px/1.25 ui-rounded,'SF Pro Rounded',system-ui,-apple-system,'Segoe UI',sans-serif;color:var(--ink);
+ background:#0e2b36 radial-gradient(120% 80% at 50% 0%,#1e5e6c 0,#0e2b36 70%);display:flex;flex-direction:column;align-items:center;min-height:100%}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.deskbar{width:min(100%,780px);display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:10px 12px 6px;color:#d8f3f6}
+.deskbar b{width:100%;text-align:center;font-size:15px;letter-spacing:.02em}
+.deskbar a,.deskbar button{color:#0e2b36;background:#d8f3f6;border-radius:999px;padding:6px 11px;font-size:12px;text-decoration:none}
+.deskbar a[aria-current]{background:var(--gold)}
+@media(max-width:430px){.deskbar{display:none}}
+/* ---------- phone ---------- */
+.phone{position:relative;width:390px;height:664px;max-width:100vw;overflow:hidden;border-radius:26px;margin:6px 0 18px;
+ background:url(assets/premium/coast/ui/coast-bg.webp) center/cover,var(--sky);box-shadow:0 20px 60px #0008;isolation:isolate}
+@media(max-width:430px){.phone{width:100vw;height:100dvh;border-radius:0;margin:0}}
+.screen{position:absolute;inset:0;padding:8px 10px 0;display:flex;flex-direction:column;gap:7px}
+/* HUD: numbers only; energy is calm (no capacity/bonus text in the first session) */
+.hud{display:flex;align-items:center;gap:7px;height:38px}
+.chip{display:flex;align-items:center;gap:5px;height:32px;padding:0 11px 0 4px;border-radius:999px;background:#fffdf7f2;box-shadow:var(--shadow);font-weight:800;font-size:15px}
+.chip i{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:15px}
+.chip.energy i{background:#ffe9a8;color:#c98612}.chip.coins i{background:radial-gradient(circle at 35% 30%,#fff3b5,#f2b33d 60%,#c9861c);color:#8a5b0c;font-size:12px}
+.chip.level i{background:var(--sea);color:#fff;font-size:13px}
+.chip.bump{animation:bump .42s var(--ease-pop)}
+@keyframes bump{40%{transform:scale(1.14)}}
+.hud .grow{flex:1}.hud .menu{width:36px;height:36px;border-radius:12px;background:#fffdf7f2;box-shadow:var(--shadow);font-size:18px}
+/* the story ribbon replaces Home + 3 pages: one line, readable, then it folds into the 📜 button */
+.ribbon{position:absolute;left:10px;right:10px;bottom:14px;z-index:8;display:flex;gap:10px;align-items:center;padding:9px 12px 9px 9px;border-radius:16px;
+ background:linear-gradient(#fffaf0,#fdf0d8);box-shadow:0 10px 26px #0f4c5c40;transform-origin:top right;animation:up .5s var(--ease-out) .3s both;transition:transform .5s var(--ease-out),opacity .4s}
+.ribbon img{width:44px;height:44px;border-radius:50%;box-shadow:0 0 0 2px var(--sea)}
+.ribbon p{margin:0;font-size:13.5px;line-height:1.3}.ribbon p b{display:block;color:var(--sea-deep);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.ribbon.folded{transform:translate(0,10px) scale(.2);opacity:0;pointer-events:none}
+/* objective: ONE card at a time */
+.objective{position:relative;height:84px}
+.card{position:absolute;inset:0;display:flex;align-items:center;gap:10px;padding:8px 12px 8px 8px;border-radius:18px;background:var(--card);box-shadow:var(--shadow);
+ border:2px solid #f2dfb8;transition:transform .45s var(--ease-out),opacity .35s,border-color .25s,box-shadow .25s}
+.card .face{width:54px;height:54px;border-radius:14px;overflow:hidden;background:#e3f4f5;flex:none}
+.card .face img{width:100%;height:100%;object-fit:cover}
+.card .face.place{background:#f6e5c4;display:grid;place-items:center}.card .face.place img{object-fit:contain;transform:scale(1.3)}
+.card .what{flex:1;min-width:0}
+.card .who{font-size:12px;color:var(--ink-soft);letter-spacing:.03em}.card .who b{color:var(--ink);font-size:14px}
+.card .needs{display:flex;align-items:center;gap:8px;margin-top:3px;font-size:13px}
+.card .need{position:relative;width:46px;height:46px;border-radius:12px;background:#f4ecdc;display:grid;place-items:center}
+.card .need img{width:42px;height:42px;object-fit:contain}
+.card .need .lv{position:absolute;left:-5px;top:-6px;font:900 9px/13px system-ui;padding:0 4px;border-radius:6px;background:#fff;box-shadow:0 0 0 1.5px var(--sea);color:var(--sea-deep)}
+.card .count{font-weight:900;font-size:15px}
+.card .pay{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:58px;padding:6px 8px;border-radius:12px;background:#fff3d6;font-weight:900}
+.card .pay small{font-size:10px;color:var(--ink-soft);font-weight:800;letter-spacing:.05em}
+.card.ready{border-color:var(--green);box-shadow:0 0 0 3px #2fae7433,var(--shadow);cursor:pointer}
+.card.ready .pay{background:var(--green);color:#fff}.card.ready .pay small{color:#e8fff2}
+.card.ready .need::after{content:"✓";position:absolute;right:-6px;bottom:-6px;width:20px;height:20px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;font-size:12px}
+.card.gold{border-color:#efc66a;background:linear-gradient(#fffaf0,#fff2d2)}
+.card.done{transform:translateX(-110%) rotate(-4deg);opacity:0}
+.card.enter{transform:translateX(110%);opacity:0}
+.stamp{position:absolute;right:76px;top:16px;font:900 15px/1 system-ui;color:var(--green);border:2.5px solid var(--green);border-radius:9px;padding:6px 8px;transform:rotate(-10deg) scale(1.6);opacity:0;animation:stamp .4s var(--ease-pop) forwards}
+@keyframes stamp{to{transform:rotate(-10deg) scale(1);opacity:1}}
+/* coast strip: the restoration, always in view */
+.strip{display:flex;align-items:center;gap:10px;height:50px;padding:0 6px 0 5px;border-radius:16px;background:#fffaf0e8;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.strip .thumb{width:42px;height:42px;border-radius:12px;background:#f3e1bf;display:grid;place-items:center;position:relative}
+.strip .thumb img{width:120%;height:120%;object-fit:contain;filter:grayscale(.8) brightness(1.05);opacity:.75;transition:filter .6s,opacity .6s}
+.strip .txt{flex:1;min-width:0}.strip .txt b{display:block;font-size:14px}.strip .txt small{color:var(--ink-soft);font-size:12px}
+.strip .go{padding:9px 14px;border-radius:12px;background:var(--sea);color:#fff;font-weight:800}
+.strip .mats{position:absolute;left:34px;top:4px;width:18px;height:18px;border-radius:50%;background:#ddd;color:#999;display:grid;place-items:center;font-size:10px}
+.strip.ready{background:linear-gradient(90deg,#fff6dc,#ffe7a6)}
+.strip.ready .thumb img{filter:none;opacity:1}.strip.ready .mats{background:var(--green);color:#fff}
+.strip.ready .go{background:var(--coral);animation:breathe 1.6s ease-in-out infinite}
+.strip.ready::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,#fff9 50%,transparent 70%);transform:translateX(-120%);animation:sweep 2.4s 1 .2s}
+@keyframes sweep{to{transform:translateX(120%)}}
+@keyframes breathe{50%{transform:scale(1.05)}}
+.hint{height:24px;display:flex;align-items:center;gap:6px;padding:0 4px;font-size:13px;color:var(--sea-deep);font-weight:800;transition:opacity .25s}
+.hint::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 3px #f2b33d40}
+/* ---------- board ---------- */
+.boardWrap{position:relative;padding:6px;border-radius:20px;background:linear-gradient(#2a8d93,#1b6c74);box-shadow:0 10px 24px #0f4c5c55,inset 0 1px 0 #ffffff55}
+.board{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;border-radius:14px;padding:3px;background:#d9cba9;aspect-ratio:1}
+.cell{position:relative;border-radius:9px;background:var(--sand-cool);box-shadow:inset 0 -2px 0 #0000000f;touch-action:none}
+.cell.camp{background:var(--sand-warm);box-shadow:inset 0 -2px 0 #e9cf97,inset 0 0 0 1px #fff8}
+.cell.camp.alt{background:#fff8e8}
+.cell.alt{background:var(--sand-cool-2)}
+.cell.drop{box-shadow:inset 0 0 0 2.5px #fff,inset 0 0 0 5px #2a8d9355}
+.cell.twin{box-shadow:inset 0 0 0 2.5px var(--green),inset 0 0 10px #2fae7466}
+.cell.twinHot{box-shadow:inset 0 0 0 3px var(--green),0 0 0 3px #2fae7455;transform:scale(1.05);transition:transform .12s}
+.piece{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
+.piece img.art{width:calc(92% * var(--fit,1));height:calc(92% * var(--fit,1));object-fit:contain;translate:calc(var(--dx,0) * 100%) calc(var(--dy,0) * 100%);filter:drop-shadow(0 2px 1.5px #00000033)}
+.piece.item,.piece.gen{pointer-events:auto;cursor:grab}
+/* locked crates: the generator for their key is not open yet → muted, smaller, no key */
+.piece.crate img.cargoArt{width:calc(84% * var(--fit,1));height:calc(84% * var(--fit,1))}
+.piece.crate.locked img.cargoArt{filter:saturate(.5) sepia(.22) brightness(1.03) contrast(.9) drop-shadow(0 1px 0 #00000014);opacity:.88;width:calc(74% * var(--fit,1));height:calc(74% * var(--fit,1))}
+.piece.crate.locked .cargoQ,.piece.crate.locked .cargoKey{display:none}
+.piece.crate .cargoQ{display:none}
+.piece.crate.open .cargoKey{position:absolute;right:2px;bottom:2px;width:46%;height:46%;border-radius:50%;background:#fffdf5;box-shadow:0 0 0 2px var(--gold),0 2px 4px #0003;display:grid;place-items:center}
+.piece.crate.open .cargoKey img.art{width:84%;height:84%;filter:none;translate:none}
+/* tideglass: frosted, cool rim, crack pips; the part inside is visibly NOT ready */
+.cell.iceCell{background:linear-gradient(160deg,#eefaff,#cdeef8);box-shadow:inset 0 0 0 1.5px var(--ice-rim),inset 0 -2px 0 #9fd6e6}
+.piece.ice img.inGlass{filter:saturate(.45) brightness(1.08) contrast(.85) blur(.3px);opacity:.82;width:calc(76% * var(--fit,1));height:calc(76% * var(--fit,1))}
+.piece.ice img.iceArt{position:absolute;inset:6%;width:88%;height:88%;opacity:.55;mix-blend-mode:screen}
+.piece.ice .pips{position:absolute;bottom:3px;left:0;right:0;display:flex;justify-content:center;gap:3px}
+.piece.ice .pips i{width:5px;height:5px;border-radius:50%;background:#5fb7cf}.piece.ice .pips i.off{background:#ffffffaa;box-shadow:inset 0 0 0 1px #5fb7cf}
+.piece.ice.shake{animation:shake .3s}
+@keyframes shake{25%{translate:-2px 0}75%{translate:2px 0}}
+/* generator: gold plate, slow breathing (never flashing) */
+.cell.genCell{background:radial-gradient(circle at 50% 55%,#fff1c2,#f6d77d 70%);box-shadow:inset 0 0 0 2px #e6b84f}
+.piece.gen img.art{width:96%;height:96%}
+.piece.gen.cue::after{content:"";position:absolute;inset:-3px;border-radius:12px;box-shadow:0 0 0 2px var(--gold);animation:cue 1.6s ease-in-out infinite}
+@keyframes cue{50%{box-shadow:0 0 0 5px #f2b33d55}}
+.piece.gen.tapped{animation:genTap .22s var(--ease-pop)}
+@keyframes genTap{40%{transform:scale(.88)}}
+/* ---------- merge feedback ---------- */
+.ghost{position:fixed;z-index:50;pointer-events:none;display:grid;place-items:center;filter:drop-shadow(0 8px 8px #0004);transition:transform .09s linear}
+.ghost img{width:100%;height:100%;object-fit:contain}
+.ghost.snap{transition:left .11s var(--ease-out),top .11s var(--ease-out),transform .11s}
+.cell.dragFrom .piece{opacity:.25}
+.fly{position:fixed;z-index:60;pointer-events:none;display:grid;place-items:center}
+.fly img{width:100%;height:100%;object-fit:contain}
+.piece.landT1{animation:landT1 var(--t-micro) var(--ease-pop)}
+@keyframes landT1{0%{transform:scale(.7,.6)}55%{transform:scale(1.14,1.1)}100%{transform:none}}
+.piece.landT2{animation:landT2 .48s var(--ease-pop)}
+@keyframes landT2{0%{transform:scale(.6)}40%{transform:scale(1.28) translateY(-8%)}70%{transform:scale(.96)}100%{transform:none}}
+.piece.landT3{animation:landT3 .7s var(--ease-pop)}
+@keyframes landT3{0%{transform:scale(.4) rotate(-8deg)}35%{transform:scale(1.42) translateY(-14%) rotate(4deg)}65%{transform:scale(.94)}100%{transform:none}}
+.ring{position:fixed;z-index:55;pointer-events:none;border-radius:50%;border:3px solid #fff;animation:ring .55s var(--ease-out) forwards}
+@keyframes ring{0%{transform:scale(.3);opacity:.95}100%{transform:scale(1.6);opacity:0}}
+.rays{position:fixed;z-index:54;pointer-events:none;border-radius:50%;background:repeating-conic-gradient(#fff6 0 8deg,transparent 8deg 30deg);animation:rays .9s ease-out forwards;mask:radial-gradient(circle,#000 30%,transparent 70%)}
+@keyframes rays{0%{transform:scale(.4) rotate(0);opacity:0}30%{opacity:1}100%{transform:scale(1.5) rotate(40deg);opacity:0}}
+.spark{position:fixed;z-index:56;pointer-events:none;width:7px;height:7px;border-radius:50%;animation:spark var(--d,.5s) var(--ease-out) forwards}
+@keyframes spark{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--x),var(--y)) scale(.2);opacity:0}}
+.tag{position:fixed;z-index:57;pointer-events:none;transform:translate(-50%,0);padding:4px 9px;border-radius:999px;background:#1d3340e6;color:#fff;font-size:12px;font-weight:800;white-space:nowrap;animation:tag 1.5s ease forwards}
+.tag.rare{background:linear-gradient(90deg,#5a4fd6,#8f7cff);box-shadow:0 0 0 2px #fff,0 6px 14px #5a4fd666}
+@keyframes tag{0%{opacity:0;transform:translate(-50%,6px)}15%{opacity:1;transform:translate(-50%,0)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-6px)}}
+.plus{position:fixed;z-index:58;pointer-events:none;font:900 15px/1 system-ui;color:#fff;text-shadow:0 1px 2px #0006;animation:plus .9s ease-out forwards}
+@keyframes plus{to{transform:translateY(-26px);opacity:0}}
+.cell.rareGlow::before{content:"";position:absolute;inset:-2px;border-radius:11px;box-shadow:0 0 0 2.5px var(--rare),0 0 14px #7b6cf699;animation:rareGlow 1.8s ease-out forwards}
+@keyframes rareGlow{70%{opacity:1}100%{opacity:0}}
+/* ---------- coast screen (a panel, not a modal) ---------- */
+.coast{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;background:#0e2b36;transform:translateY(102%);transition:transform .55s var(--ease-out)}
+.coast.open{transform:none}
+.coast .top{display:flex;align-items:center;gap:8px;height:52px;padding:0 10px;background:var(--sky)}
+.coast .top b{flex:1;font-size:19px}.coast .top .close{width:40px;height:40px;border-radius:50%;background:#fff;box-shadow:var(--shadow);font-size:20px}
+.map{position:relative;width:100%;height:396px;overflow:hidden;container-type:inline-size;background:#cfe9d8}
+.mapInner{position:absolute;left:0;top:-20px;width:100%;aspect-ratio:1;transform-origin:27% 86%;transition:transform 1.2s var(--ease-out)}
+.coast.open .mapInner{transform:scale(1.65)}
+.foot{position:absolute;left:27%;top:86%;width:24cqw;height:9cqw;translate:-50% -95%;border-radius:50%;border:2px dashed #ffffffcc;background:#ffffff22}
+.site.revealed~.foot,.revealed .foot{display:none}
+.map img.base,.map img.color{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.map img.base{filter:saturate(.62) brightness(.97) contrast(.95)}
+.map img.color{-webkit-mask-image:radial-gradient(circle at 27% 86%,#000 var(--bloom,0%),transparent calc(var(--bloom,0%) + 12%));mask-image:radial-gradient(circle at 27% 86%,#000 var(--bloom,0%),transparent calc(var(--bloom,0%) + 12%));transition:--bloom 1.6s}
+.site{position:absolute;width:30cqw;aspect-ratio:1;translate:-50% -88%}
+.site img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.site .before{filter:grayscale(1) brightness(.72) contrast(.85) sepia(.3);opacity:.5}
+.site .after{opacity:0;transform:scale(.7);transform-origin:50% 88%}
+.site .pin{position:absolute;left:50%;top:22%;translate:-50% 0;width:34px;height:34px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px var(--coral),0 4px 10px #0005;display:grid;place-items:center;font-size:16px;animation:breathe 1.6s infinite}
+.site.dust::after{content:"";position:absolute;left:10%;right:10%;bottom:6%;height:40%;border-radius:50%;background:radial-gradient(#f3e3c3dd,#f3e3c300 70%);animation:dust 1s ease-out forwards}
+@keyframes dust{0%{transform:scale(.3);opacity:0}30%{opacity:1}100%{transform:scale(1.6);opacity:0}}
+.site.hammer .before{animation:hammer .32s 3}
+@keyframes hammer{50%{transform:translateY(-4%) scale(1.03)}}
+.site.revealed .before{opacity:0;transition:opacity .4s}
+.site.revealed .after{opacity:1;transform:none;transition:opacity .35s,transform .7s var(--ease-pop)}
+.site.revealed .pin{display:none}
+.flash{position:absolute;pointer-events:none;width:40cqw;aspect-ratio:1;translate:-50% -60%;border-radius:50%;background:radial-gradient(#fffbe8,#fff1b800 70%);animation:flash .8s ease-out forwards}
+@keyframes flash{0%{transform:scale(.2);opacity:0}25%{opacity:1}100%{transform:scale(1.4);opacity:0}}
+.otherSite{position:absolute;translate:-50% -50%;width:22px;height:22px;border-radius:50%;background:#ffffffb0;box-shadow:0 0 0 2px #ffffff60;display:grid;place-items:center;font-size:11px;color:#56707c}
+.mapTitle{position:absolute;left:50%;top:14px;translate:-50% 0;padding:7px 14px;border-radius:999px;background:#fffaf0;box-shadow:var(--shadow);font-weight:900;opacity:0;transform:translateY(-12px);transition:.45s var(--ease-pop)}
+.mapTitle.show{opacity:1;transform:none}.mapTitle .dots{color:var(--gold);margin-left:6px;letter-spacing:2px}
+.sheet{flex:1;z-index:2;background:linear-gradient(#fffaf0,#f8ecd2);border-radius:20px 20px 0 0;margin-top:-16px;position:relative;padding:14px 14px 18px;display:flex;flex-direction:column;gap:10px}
+.sheet .row{display:flex;align-items:center;gap:10px}
+.sheet .row .t{flex:1}.sheet .row .t small{display:block;color:var(--ink-soft);font-size:11px;letter-spacing:.06em;text-transform:uppercase}.sheet .row .t b{font-size:17px}
+.sheet .chips{display:flex;gap:6px}.sheet .chips span{padding:5px 9px;border-radius:999px;background:#e5f6ee;color:#1b7a50;font-size:12px;font-weight:800}
+.build{height:52px;border-radius:16px;background:linear-gradient(#ff9a4d,var(--coral));color:#fff;font-size:18px;font-weight:900;box-shadow:0 4px 0 #c7461f,0 10px 20px #f2663e55}
+.build:active{transform:translateY(3px);box-shadow:0 1px 0 #c7461f}
+.caption{display:none;gap:10px;align-items:flex-start}
+.caption.show{display:flex;animation:up .45s var(--ease-out)}
+@keyframes up{from{transform:translateY(16px);opacity:0}}
+.caption img{width:48px;height:48px;border-radius:50%;box-shadow:0 0 0 2px var(--sea);flex:none}
+.caption p{margin:0;font-size:14px;line-height:1.35}.caption p b{display:block;color:var(--sea-deep);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.caption .more{color:var(--sea);font-size:12px;font-weight:800;margin-top:4px}
+.rewards{display:none;gap:8px}.rewards.show{display:flex}
+.rewards span{display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:12px;background:#fff;box-shadow:var(--shadow);font-weight:900;animation:up .4s var(--ease-pop) both}
+.rewards span img{width:24px;height:24px;object-fit:contain}
+.next{display:none;height:50px;border-radius:16px;background:var(--sea);color:#fff;font-weight:900;font-size:16px;box-shadow:0 4px 0 #11585e}
+.next.show{display:block;animation:up .4s var(--ease-pop)}
+/* ---------- "current" skin (for the comparison only): today's look, no fog/frost ---------- */
+body.current .piece.crate.locked img.cargoArt,body.current .piece.ice img.inGlass{filter:drop-shadow(0 2px 1.5px #0003);opacity:1;width:calc(92% * var(--fit,1));height:calc(92% * var(--fit,1))}
+body.current .cell,body.current .cell.camp,body.current .cell.iceCell{background:#fbe2b4;box-shadow:inset 0 -2px 0 #0000000f}
+body.current .cell.alt{background:#f6d79f}
+body.current .piece.ice img.iceArt{opacity:1;mix-blend-mode:normal}
+body.current .piece.ice .pips{display:none}
+body.current .piece.crate.open .cargoKey{display:none}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.label{display:none;position:absolute;left:10px;top:52px;z-index:30;padding:4px 9px;border-radius:999px;background:#1d3340cc;color:#fff;font-size:11px;font-weight:800;pointer-events:none}
+</style>
+</head>
+<body>
+<div class="deskbar">
+ <b>Vaultwake Merge · First Session 2.0 — design prototype (not the game; no save, no SDK)</b>
+ <a href="../prototype/first-session-2/index.html">Play the first 90 s</a>
+ <a href="../prototype/first-session-2/index.html?autoplay=1">Autoplay</a>
+ <a href="../prototype/first-session-2/index.html?lab=1">Merge lab</a>
+ <a href="../prototype/first-session-2/index.html?lab=1&autoplay=1">Merge lab autoplay</a>
+ <a href="../prototype/first-session-2/index.html?skin=current">Board: current look</a>
+ <button id="soundBtn" type="button">Sound: on</button>
+</div>
+<div class="phone" id="phone">
+ <div class="screen" id="screen">
+  <div class="hud">
+   <span class="chip energy" id="energyChip"><i>⚡</i><span id="energy">100</span></span>
+   <span class="chip coins" id="coinChip"><i>●</i><span id="coins">0</span></span>
+   <span class="chip level"><i>1</i>Lv</span>
+   <span class="grow"></span><button class="menu" title="Story and menu" id="storyBtn">📜</button>
+  </div>
+  <div class="ribbon" id="ribbon"><img src="assets/premium/coast/ui/crew-ivo.webp" alt=""><p><b>Ivo · Landing Beach</b>An unsigned letter led us to this coast. First, let's clear a landing for the crew.</p></div>
+  <div class="objective" id="objective"></div>
+  <div class="strip" id="strip"><span class="thumb"><img src="assets/premium/coast/place-path-1.webp" alt=""></span><span class="mats" id="mats">◆</span>
+   <span class="txt"><b>Clear the landing path</b><small id="stripSmall">Materials from the gold order · ● 0/40</small></span><button class="go" id="stripGo">View</button></div>
+  <div class="hint" id="hint">Tap the Rivet Rover to make a part.</div>
+  <div class="boardWrap"><div class="board" id="board"></div></div>
+ </div>
+ <section class="coast" id="coast" aria-label="Landing Beach">
+  <div class="top"><b>Landing Beach</b><span class="chip coins"><i>●</i><span id="coins2">0</span></span><button class="close" id="coastClose" aria-label="Back to the board">×</button></div>
+  <div class="map" id="map">
+   <div class="mapInner" id="mapInner"><img class="base" src="assets/premium/landing-map-vault.webp" alt=""><img class="color" id="mapColor" src="assets/premium/landing-map-vault.webp" alt=""><span class="foot" id="foot"></span>
+   <span class="otherSite" style="left:52%;top:62%">◆</span><span class="otherSite" style="left:50%;top:34%">◆</span><span class="otherSite" style="left:21%;top:47%">◆</span><span class="otherSite" style="left:66%;top:80%">◆</span><span class="otherSite" style="left:76%;top:40%">◆</span>
+   <div class="site" id="site" style="left:27%;top:86%"><img class="before" src="assets/premium/coast/place-path-1.webp" alt="The landing path, unbuilt"><img class="after" src="assets/premium/coast/place-path-1.webp" alt="The landing path, cleared"><span class="pin">🔨</span></div></div>
+   <div class="mapTitle" id="mapTitle">Landing path cleared<span class="dots">●○○</span></div>
+  </div>
+  <div class="sheet">
+   <div class="row" id="siteRow"><div class="t"><small>New place · stage 1 of 3</small><b>Clear the landing path</b></div><div class="chips"><span>✓ Materials</span><span>● 40</span></div></div>
+   <button class="build" id="buildBtn">Build · ● 40</button>
+   <div class="caption" id="caption"><img src="assets/premium/coast/ui/crew-ivo.webp" alt=""><div><p><b>Ivo</b>A path from the boats to dry ground. Now the crew can carry real loads.</p><div class="more" id="more">Somebody left a driftwood crate on it: it's ours now.</div></div></div>
+   <div class="rewards" id="rewards"><span>⚡ +20</span><span><img src="assets/premium/coast/icons/driftwood-crate.webp" alt="">Driftwood crate</span></div>
+   <button class="next" id="nextBtn">Next: Lay a boardwalk →</button>
+  </div>
+ </section>
+ <span class="label" id="label">Proposed</span>
+</div>
+<script type="module">
+import {fresh,cellIndex,CAMP,ROVER} from './next/game.mjs';
+import {draw,CHAINS} from './next/chains.mjs';
+const Q=new URLSearchParams(location.search),LAB=Q.has('lab'),AUTO=Q.has('autoplay'),CURRENT=Q.get('skin')==='current';
+if(CURRENT){document.body.classList.add('current');$('#label').textContent='Current look (for comparison)';$('#label').style.display='block';}
+function $(s){return document.querySelector(s);}
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+const rc=i=>i<36?[Math.floor(i/6),i%6]:i<43?[i-36,6]:[6,i-43];
+const NAMES=f=>CHAINS[f].names;
+// ---------- the board: the real fresh camp (27 crates, 17 tideglass, the Rivet Rover, 4 empty) ----------
+let board=fresh(Date.now()).board.map(x=>x?.type==='glass'?{...x,cracks:0}:x);
+const OPEN_FAMILIES=new Set(['rig']);// only the Rivet Rover is open in the first session: crates keyed to it are actionable
+if(LAB){board=board.map((x,i)=>i===ROVER?x:null);const put=(r,c,x)=>board[cellIndex(r,c)]=x,it=(f,t)=>({type:'item',family:f,tier:t});
+ put(1,1,it('rig',0));put(1,2,it('rig',0));put(1,4,it('rig',2));put(1,5,it('rig',2));put(4,1,it('rig',4));put(5,1,it('rig',4));put(4,5,it('mech',0));put(5,5,it('mech',0));
+ put(0,0,{type:'glass',family:'rig',tier:1,cracks:0});put(0,6,{type:'cargo',key:{family:'chart',tier:3},find:{type:'coins',coins:5}});put(6,6,{type:'cargo',key:{family:'rig',tier:2},find:{type:'coins',coins:5}});}
+const boardEl=$('#board');
+function cellClass(i){const [r,c]=rc(i),x=board[i];let k='cell'+((r+c)%2?' alt':'')+(CAMP.includes(i)?' camp':'');if(x?.type==='glass')k+=' iceCell';if(x?.type==='source')k+=' genCell';return k;}
+function pieceHtml(x){
+ if(!x)return '';
+ if(x.type==='item')return `<div class="piece item">${draw(x)}</div>`;
+ if(x.type==='source')return `<div class="piece gen ${genCue?'cue':''}">${draw(x)}</div>`;
+ if(x.type==='cargo'){const open=OPEN_FAMILIES.has(x.key.family);return `<div class="piece crate ${open?'open':'locked'}" title="${open?`Opens with a ${NAMES(x.key.family)[x.key.tier]}`:'Opens later (another generator)'}">${draw({...x,deep:!open})}</div>`;}
+ if(x.type==='glass')return `<div class="piece ice">${draw({type:'glass',family:x.family,tier:x.tier,cracks:x.cracks})}<span class="pips">${[0,1,2].map(k=>`<i class="${k<x.cracks?'off':''}"></i>`).join('')}</span></div>`;
+ return '';
+}
+let genCue=true;
+function render(){boardEl.innerHTML=board.map((x,i)=>{const [r,c]=rc(i);return `<div class="${cellClass(i)}" data-i="${i}" style="grid-row:${r+1};grid-column:${c+1}">${pieceHtml(x)}</div>`;}).join('');}
+function renderCell(i){const el=boardEl.querySelector(`[data-i="${i}"]`);el.className=cellClass(i);el.innerHTML=pieceHtml(board[i]);return el;}
+const cellEl=i=>boardEl.querySelector(`[data-i="${i}"]`),rect=i=>cellEl(i).getBoundingClientRect();
+// ---------- sound (concept: layered, short, tuned for phone speakers) & haptics ----------
+let ac=null,soundOn=true;const SCALE=[523,587,659,784,880,1047,1175,1319];
+function audio(){if(!soundOn)return null;try{ac??=new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();return ac;}catch{return null;}}
+function tone(f,{t=0,d=.12,type='sine',peak=.12,to=null}={}){const a=audio();if(!a)return;const o=a.createOscillator(),g=a.createGain(),s=a.currentTime+t;o.type=type;o.frequency.setValueAtTime(f,s);if(to)o.frequency.exponentialRampToValueAtTime(to,s+d);g.gain.setValueAtTime(0,s);g.gain.linearRampToValueAtTime(peak,s+.006);g.gain.exponentialRampToValueAtTime(.0001,s+d);o.connect(g).connect(a.destination);o.start(s);o.stop(s+d+.02);}
+function knock(t=0,f=520,peak=.22){const a=audio();if(!a)return;const n=a.createBufferSource(),b=a.createBuffer(1,a.sampleRate*.05,a.sampleRate),d=b.getChannelData(0);for(let k=0;k<d.length;k++)d[k]=(Math.random()*2-1)*Math.pow(1-k/d.length,3);
+ const bp=a.createBiquadFilter(),g=a.createGain(),s=a.currentTime+t;bp.type='bandpass';bp.frequency.value=f;bp.Q.value=2.2;g.gain.value=peak;n.buffer=b;n.connect(bp).connect(g).connect(a.destination);n.start(s);}
+const SFX={
+ produce(){knock(0,1800,.12);tone(340,{d:.07,to:240,peak:.12});},
+ snap(){knock(0,2600,.08);},
+ merge(t){knock(0,520,.26);tone(SCALE[Math.min(7,t)]*(t>=3?1:.5),{t:.02,d:.14,peak:.14});if(t>=3){tone(SCALE[Math.min(7,t)],{t:.09,d:.25,peak:.08,type:'triangle'});}if(t>=5){[0,1,2].forEach(k=>tone(SCALE[Math.min(7,t)]*[1.5,2,2.5][k],{t:.16+k*.06,d:.3,peak:.05}));}},
+ rare(){[1568,2093,2637,3136].forEach((f,k)=>tone(f,{t:k*.06,d:.35,peak:.06,type:'triangle'}));knock(0,700,.18);},
+ crack(){knock(0,3600,.14);},
+ coin(k){tone(1976+k*40,{t:k*.05,d:.06,peak:.05,type:'triangle'});},
+ deliver(){tone(988,{d:.12,peak:.18,type:'triangle'});tone(1319,{t:.08,d:.22,peak:.18,type:'triangle'});},
+ build(){[0,1,2].forEach(k=>knock(k*.32,420,.3));},
+ reveal(){[523,659,784,1047].forEach((f,k)=>tone(f,{t:k*.08,d:k===3?.7:.3,peak:.13,type:'triangle'}));tone(262,{d:1.1,peak:.08});}};
+const buzz=p=>{try{navigator.vibrate?.(p);}catch{}};
+$('#soundBtn').onclick=e=>{soundOn=!soundOn;e.target.textContent='Sound: '+(soundOn?'on':'off');};
+// ---------- effects ----------
+function sparks(r,n,colors,spread=34,d=.5){const cx=r.x+r.width/2,cy=r.y+r.height/2;for(let k=0;k<n;k++){const a=2*Math.PI*k/n+Math.random()*.4,s=document.createElement('i');s.className='spark';
+ s.style.cssText=`left:${cx-3}px;top:${cy-3}px;background:${colors[k%colors.length]};--x:${Math.cos(a)*spread*(0.7+Math.random()*.5)}px;--y:${Math.sin(a)*spread*(0.7+Math.random()*.5)}px;--d:${d}s`;document.body.append(s);setTimeout(()=>s.remove(),d*1000+60);}}
+function ringAt(r,color='#fff',size=1){const e=document.createElement('i');e.className='ring';const w=r.width*size;e.style.cssText=`left:${r.x+r.width/2-w/2}px;top:${r.y+r.height/2-w/2}px;width:${w}px;height:${w}px;border-color:${color}`;document.body.append(e);setTimeout(()=>e.remove(),600);}
+function raysAt(r){const e=document.createElement('i');e.className='rays';const w=r.width*2.6;e.style.cssText=`left:${r.x+r.width/2-w/2}px;top:${r.y+r.height/2-w/2}px;width:${w}px;height:${w}px`;document.body.append(e);setTimeout(()=>e.remove(),950);}
+function tagAt(r,text,rare=false){const e=document.createElement('span');e.className='tag'+(rare?' rare':'');e.textContent=text;e.style.left=(r.x+r.width/2)+'px';e.style.top=(r.y+r.height+4)+'px';document.body.append(e);setTimeout(()=>e.remove(),1550);}
+function plusAt(r,text){const e=document.createElement('span');e.className='plus';e.textContent=text;e.style.left=(r.x+r.width/2-10)+'px';e.style.top=(r.y-4)+'px';document.body.append(e);setTimeout(()=>e.remove(),950);}
+function fly(html,from,to,{ms=520,size=null,arc=-40,delay=0}={}){return new Promise(res=>setTimeout(()=>{const e=document.createElement('div');e.className='fly';const w=size??from.width;e.innerHTML=html;
+ e.style.cssText=`left:${from.x+from.width/2-w/2}px;top:${from.y+from.height/2-w/2}px;width:${w}px;height:${w}px`;document.body.append(e);
+ const dx=to.x+to.width/2-from.x-from.width/2,dy=to.y+to.height/2-from.y-from.height/2;
+ e.animate([{transform:'translate(0,0) scale(1)'},{transform:`translate(${dx*.5}px,${dy*.5+arc}px) scale(1.1)`},{transform:`translate(${dx}px,${dy}px) scale(.55)`,opacity:.9}],{duration:ms,easing:'cubic-bezier(.4,0,.2,1)'}).onfinish=()=>{e.remove();res();};},delay));}
+const bump=id=>{const e=$(id);e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump');};
+function countTo(id,to,ms=520){const e=$(id),from=+e.textContent,t0=performance.now();const step=t=>{const k=Math.min(1,(t-t0)/ms);e.textContent=Math.round(from+(to-from)*k);if(k<1)requestAnimationFrame(step);};requestAnimationFrame(step);}
+// ---------- state of the scripted first session (prototype stand-ins from the audit) ----------
+let energy=100,coins=0,stage='crew',busy=false;
+const ORDERS={crew:{kind:'crew',who:'Ivo',face:'assets/premium/coast/ui/crew-ivo.webp',need:{family:'rig',tier:2},coins:10,role:'needs a part for the landing'},
+ gold:{kind:'gold',who:'Gold order',face:'assets/premium/coast/place-path-1.webp',need:{family:'rig',tier:3},coins:70,role:'Materials for the landing path'}};
+let order=LAB?null:ORDERS.crew;
+function cardHtml(o,cls=''){const n=board.some(x=>x?.type==='item'&&x.family===o.need.family&&x.tier===o.need.tier)?1:0,ready=n>=1;
+ return `<div class="card ${o.kind==='gold'?'gold':''} ${ready?'ready':''} ${cls}" id="card"><span class="face ${o.kind==='gold'?'place':''}"><img src="${o.face}" alt=""></span>
+  <span class="what"><span class="who"><b>${o.who}</b> · ${o.role}</span><span class="needs"><span class="need">${draw({type:'item',...o.need})}<span class="lv">Lv${o.need.tier+1}</span></span><span><span class="count">${n}/1</span><br><small>${NAMES(o.need.family)[o.need.tier]}</small></span></span></span>
+  <span class="pay">${ready?'<small>TAP TO</small>Deliver':`<small>${o.kind==='gold'?'PAYS':'REWARD'}</small>● ${o.coins}`}</span></div>`;}
+function renderOrder(cls=''){if(!order){$('#objective').innerHTML='';return;}$('#objective').innerHTML=cardHtml(order,cls);$('#card').onclick=deliver;}
+const hint=t=>{const h=$('#hint');h.style.opacity=0;setTimeout(()=>{h.textContent=t;h.style.opacity=1;},150);};
+function nextHint(){if(LAB){hint('Merge lab: drag twins together. Try each tier and the rare Bolt.');return;}
+ if(stage==='build'){hint('Materials secured. Tap the coast strip to build.');return;}
+ if(order&&$('#card')?.classList.contains('ready')){hint(`Ready: tap ${order.kind==='gold'?'the gold order':order.who+"'s order"} to deliver.`);return;}
+ const twins=findTwins(order?.need.tier??9);if(twins)hint('Drag a part onto its twin to merge.');else hint(`Tap the Rivet Rover · make a ${NAMES('rig')[order?.need.tier??2]}.`);}
+// ---------- input: tap the generator, drag twins ----------
+let drag=null;
+boardEl.addEventListener('pointerdown',e=>{const c=e.target.closest('.cell');if(!c||busy&&!AUTO)return;const i=+c.dataset.i,x=board[i];
+ if(x?.type==='source'){produce(i);return;}
+ if(x?.type!=='item')return;
+ const r=c.getBoundingClientRect(),g=document.createElement('div');g.className='ghost';g.innerHTML=c.querySelector('.piece').innerHTML;g.style.cssText=`left:${r.x}px;top:${r.y}px;width:${r.width}px;height:${r.height}px;transform:scale(1.12)`;
+ document.body.append(g);c.classList.add('dragFrom');drag={i,g,r,id:e.pointerId,over:null};markTwins(i,true);try{c.setPointerCapture(e.pointerId);}catch{}});
+addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;moveGhost(e.clientX,e.clientY);});
+addEventListener('pointerup',e=>{if(!drag||e.pointerId!==drag.id)return;dropAt(e.clientX,e.clientY);});
+function moveGhost(x,y){const d=drag,t=document.elementFromPoint(x,y)?.closest('.cell'),j=t?+t.dataset.i:null;
+ boardEl.querySelector('.twinHot')?.classList.remove('twinHot');boardEl.querySelector('.drop')?.classList.remove('drop');
+ if(j!=null&&j!==d.i&&isTwin(d.i,j)){const r=t.getBoundingClientRect();d.g.classList.add('snap');d.g.style.left=r.x+'px';d.g.style.top=r.y+'px';t.classList.add('twinHot');if(d.over!==j){SFX.snap();buzz(4);}d.over=j;return;}
+ d.g.classList.remove('snap');d.g.style.left=(x-d.r.width/2)+'px';d.g.style.top=(y-d.r.height*.65)+'px';d.over=null;if(j!=null&&!board[j])t.classList.add('drop');}
+async function dropAt(x,y){const d=drag;drag=null;markTwins(d.i,false);boardEl.querySelector('.twinHot')?.classList.remove('twinHot');boardEl.querySelector('.drop')?.classList.remove('drop');
+ const t=document.elementFromPoint(x,y)?.closest('.cell')??(d.over!=null?cellEl(d.over):null),j=d.over??(t?+t.dataset.i:null);
+ if(j!=null&&j!==d.i&&isTwin(d.i,j)){d.g.remove();cellEl(d.i).classList.remove('dragFrom');await merge(d.i,j);return;}
+ if(j!=null&&!board[j]){board[j]=board[d.i];board[d.i]=null;d.g.remove();renderCell(d.i);renderCell(j);return;}
+ d.g.animate([{left:d.g.style.left,top:d.g.style.top},{left:d.r.x+'px',top:d.r.y+'px'}],{duration:180,easing:'ease-out'}).onfinish=()=>{d.g.remove();cellEl(d.i).classList.remove('dragFrom');};}
+const isTwin=(a,b)=>board[a]?.type==='item'&&board[b]?.type==='item'&&board[a].family===board[b].family&&board[a].tier===board[b].tier&&board[a].tier<CHAINS[board[a].family].names.length-1;
+function markTwins(i,on){board.forEach((x,j)=>{if(j!==i&&isTwin(i,j))cellEl(j).classList.toggle('twin',on);});}
+function nearestEmpty(from){const [r0,c0]=rc(from);let best=-1,bd=99;board.forEach((x,i)=>{if(x)return;const [r,c]=rc(i),d=Math.abs(r-r0)+Math.abs(c-c0);if(d<bd){bd=d;best=i;}});return best;}
+async function produce(i){const to=nearestEmpty(i);const g=cellEl(i).querySelector('.piece');g.classList.remove('tapped');void g.offsetWidth;g.classList.add('tapped');
+ if(genCue){genCue=false;g.classList.remove('cue');$('#ribbon').classList.add('folded');}
+ if(to<0){hint('No space: merge twins or deliver to make room.');SFX.knock?.();return;}
+ const x={type:'item',family:'rig',tier:0};board[to]=x;energy--;$('#energy').textContent=energy;SFX.produce();
+ await fly(draw(x),rect(i),rect(to),{ms:300,arc:-26});const el=renderCell(to);el.querySelector('.piece').classList.add('landT1');refreshOrder();nextHint();}
+async function merge(a,b){const x=board[a],t=x.tier+1,rA=rect(a),rB=rect(b);
+ board[a]=null;renderCell(a);await fly(draw(x),rA,rB,{ms:110,arc:0});
+ board[b]={type:'item',family:x.family,tier:t};const el=renderCell(b),p=el.querySelector('.piece'),rare=CHAINS[x.family].secondary;
+ const tier=rare?'rare':t<=2?1:t<=4?2:3;p.classList.add('landT'+(tier==='rare'?2:tier));
+ if(tier===1){sparks(rB,6,['#ffe7a7','#ffffff','#f6c27a'],26,.45);SFX.merge(t);buzz(8);}
+ if(tier===2){ringAt(rB);sparks(rB,10,['#ffe7a7','#fff','#9bf1fa'],36,.6);tagAt(rB,`${NAMES(x.family)[t]} · Lv${t+1}`);SFX.merge(t);buzz(14);}
+ if(tier===3){raysAt(rB);ringAt(rB,'#ffe7a7',1.3);sparks(rB,14,['#ffe7a7','#fff','#f2b33d'],46,.8);tagAt(rB,`${NAMES(x.family)[t]} · Lv${t+1}`);SFX.merge(t);buzz([18,40,18]);}
+ if(tier==='rare'){el.classList.add('rareGlow');ringAt(rB,'#a99bff',1.2);sparks(rB,12,['#c9c1ff','#fff','#7b6cf6'],40,.7);tagAt(rB,`RARE · ${NAMES(x.family)[t]} · Lv${t+1}`,true);SFX.rare();buzz([10,30,10,30,20]);}
+ crackAround(b);refreshOrder();nextHint();}
+function crackAround(i){const [r,c]=rc(i);for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){const R=r+dr,C=c+dc;if(R<0||C<0||R>6||C>6)continue;const j=cellIndex(R,C),x=board[j];if(x?.type!=='glass')continue;
+  x.cracks++;SFX.crack();if(x.cracks>=3){board[j]={type:'item',family:x.family,tier:x.tier};const el=renderCell(j);el.querySelector('.piece').classList.add('landT1');sparks(rect(j),8,['#d7f3fb','#fff','#8fd3e8'],30,.5);}
+  else{const el=renderCell(j);el.querySelector('.piece').classList.add('shake');}}}
+const findTwins=maxTier=>{for(let a=0;a<49;a++)for(let b=a+1;b<49;b++)if(isTwin(a,b)&&board[a].tier<maxTier)return [a,b];return null;};
+function refreshOrder(){if(!order)return;const was=$('#card')?.classList.contains('ready');renderOrder();const now=$('#card').classList.contains('ready');if(now&&!was){$('#card').animate([{transform:'scale(1)'},{transform:'scale(1.04)'},{transform:'scale(1)'}],{duration:360,easing:'ease-out'});}}
+// ---------- order complete: no modal ----------
+async function deliver(){const o=order;if(!o||busy||!$('#card').classList.contains('ready'))return;busy=true;
+ const i=board.findIndex(x=>x?.type==='item'&&x.family===o.need.family&&x.tier===o.need.tier),card=$('#card'),cr=card.querySelector('.need').getBoundingClientRect();
+ const x=board[i];board[i]=null;renderCell(i);await fly(draw(x),rect(i),cr,{ms:420,arc:-50});
+ SFX.deliver();buzz(12);card.insertAdjacentHTML('beforeend','<span class="stamp">DONE ✓</span>');ringAt(card.getBoundingClientRect(),'#2fae74',.5);
+ const pay=card.querySelector('.pay').getBoundingClientRect(),coinR=$('#coinChip').getBoundingClientRect();
+ for(let k=0;k<6;k++)fly('<i style="display:block;width:100%;height:100%;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff3b5,#f2b33d 60%,#c9861c)"></i>',pay,coinR,{ms:560,size:16,arc:-30-k*6,delay:k*55}).then(()=>{SFX.coin(k);if(k===5){coins+=o.coins;countTo('#coins',coins);bump('#coinChip');plusAt(coinR,'+'+o.coins);}});
+ if(o.kind==='gold'){const thumb=$('#strip .thumb').getBoundingClientRect();await wait(380);await fly('<img src="assets/premium/coast/icons/driftwood-crate.webp" alt="">',card.querySelector('.face').getBoundingClientRect(),thumb,{ms:620,size:40,arc:-60});
+  $('#strip').classList.add('ready');$('#stripSmall').textContent='Materials ✓ · ● 40 — ready to build';$('#stripGo').textContent='Build';SFX.deliver();}
+ await wait(700);card.classList.add('done');await wait(420);
+ if(o.kind==='crew'){order=ORDERS.gold;renderOrder('enter');requestAnimationFrame(()=>requestAnimationFrame(()=>$('#card').classList.remove('enter')));$('#stripSmall').textContent='Materials from the gold order · ● '+coins+'/40';}
+ else{order=null;stage='build';$('#objective').innerHTML=`<div class="card" style="justify-content:center;color:var(--sea-deep)"><b>Materials secured · the landing path can be built</b></div>`;}
+ busy=false;nextHint();}
+// ---------- the coast: restoration celebration (the place change stays visible) ----------
+$('#stripGo').onclick=$('#strip').onclick=e=>{e.stopPropagation();openCoast();};
+$('#coastClose').onclick=()=>$('#coast').classList.remove('open');
+function openCoast(){$('#coins2').textContent=coins;$('#coast').classList.add('open');$('#buildBtn').disabled=stage!=='build';$('#buildBtn').style.opacity=stage==='build'?1:.5;}
+$('#buildBtn').onclick=build;
+async function build(){if(stage!=='build'||busy)return;busy=true;const btn=$('#buildBtn'),site=$('#site'),sr=site.getBoundingClientRect();
+ // 1. coins go to the place
+ const cr=document.querySelector('#coast .chip').getBoundingClientRect();btn.style.visibility='hidden';
+ for(let k=0;k<6;k++)fly('<i style="display:block;width:100%;height:100%;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff3b5,#f2b33d 60%,#c9861c)"></i>',cr,sr,{ms:520,size:14,arc:-40,delay:k*60});
+ coins-=40;countTo('#coins2',coins,600);$('#coins').textContent=coins;await wait(600);
+ // 2. construction: dust + three knocks
+ site.classList.add('dust','hammer');SFX.build();buzz([12,250,12,250,16]);await wait(1000);
+ // 3. transition: flash, before → after, colour blooms out from the place
+ const f=document.createElement('i');f.className='flash';f.style.cssText=site.style.cssText;$('#mapInner').append(f);setTimeout(()=>f.remove(),850);$('#foot').style.display='none';
+ site.classList.add('revealed');SFX.reveal();buzz([16,60,28]);sparks(sr,16,['#fff6c8','#ffffff','#f2b33d','#9bf1fa'],70,1);ringAt(sr,'#fff3b5',1.3);
+ animateBloom(0,46,1500);await wait(800);
+ // 4. after: the title and stage dots on the map, never over the place
+ $('#mapTitle').classList.add('show');await wait(500);
+ // 5. reward and next objective in the sheet below the map (one caption, no modal)
+ $('#siteRow').style.display='none';$('#caption').classList.add('show');await wait(500);$('#rewards').classList.add('show');await wait(600);$('#nextBtn').classList.add('show');busy=false;}
+function animateBloom(from,to,ms){const m=$('#mapColor'),t0=performance.now();const step=t=>{const k=Math.min(1,(t-t0)/ms),e=1-Math.pow(1-k,3),v=from+(to-from)*e;m.style.webkitMaskImage=m.style.maskImage=`radial-gradient(circle at 27% 86%,#000 ${v}%,transparent ${v+14}%)`;if(k<1)requestAnimationFrame(step);};requestAnimationFrame(step);}
+$('#nextBtn').onclick=async()=>{$('#coast').classList.remove('open');await wait(560);
+ const to=nearestEmpty(ROVER);if(to>=0){board[to]={type:'cargo',key:{family:'rig',tier:1},find:{type:'coins',coins:5}};await fly('<img src="assets/premium/coast/icons/driftwood-crate.webp" alt="">',$('#strip .thumb').getBoundingClientRect(),rect(to),{ms:600,arc:-60});renderCell(to).querySelector('.piece').classList.add('landT2');}
+ energy+=20;$('#energy').textContent=energy;bump('#energyChip');
+ $('#strip').classList.remove('ready');$('#strip .thumb img').src='assets/premium/coast/place-path-2.webp';$('#strip .txt b').textContent='Lay a boardwalk';$('#stripSmall').textContent='Next gold order brings the planks · ● '+coins+'/70';$('#stripGo').textContent='View';
+ $('#objective').innerHTML='';order={...ORDERS.gold,role:'Planks for the boardwalk',need:{family:'rig',tier:3},coins:40};renderOrder('enter');requestAnimationFrame(()=>requestAnimationFrame(()=>$('#card')?.classList.remove('enter')));stage='next';hint('Next: the boardwalk. Its gold order is up.');};
+$('#storyBtn').onclick=()=>$('#ribbon').classList.toggle('folded');
+// ---------- start ----------
+render();renderOrder();nextHint();window.__proto={get board(){return board;},get stage(){return stage;},merge,produce,deliver,openCoast,build,findTwins,isTwin};
+if(LAB){$('#ribbon').classList.add('folded');$('.objective').style.display='none';$('#strip').style.display='none';genCue=false;render();nextHint();}
+// ---------- autoplay: the same functions, paced for a video ----------
+async function dragMerge(a,b){const ra=rect(a),rb=rect(b);const c=cellEl(a);const g=document.createElement('div');g.className='ghost';g.innerHTML=c.querySelector('.piece').innerHTML;g.style.cssText=`left:${ra.x}px;top:${ra.y}px;width:${ra.width}px;height:${ra.height}px;transform:scale(1.12)`;document.body.append(g);c.classList.add('dragFrom');markTwins(a,true);
+ for(let k=1;k<=10;k++){g.style.left=(ra.x+(rb.x-ra.x)*k/12)+'px';g.style.top=(ra.y+(rb.y-ra.y)*k/12-Math.sin(k/10*Math.PI)*14)+'px';await wait(26);}
+ g.classList.add('snap');g.style.left=rb.x+'px';g.style.top=rb.y+'px';cellEl(b).classList.add('twinHot');SFX.snap();await wait(140);markTwins(a,false);cellEl(b).classList.remove('twinHot');g.remove();c.classList.remove('dragFrom');await merge(a,b);}
+window.__autoplay=async(pace=520)=>{busy=false;
+ if(LAB){for(const [a,b] of [[cellIndex(1,1),cellIndex(1,2)],[cellIndex(1,4),cellIndex(1,5)],[cellIndex(4,1),cellIndex(5,1)],[cellIndex(4,5),cellIndex(5,5)]]){await wait(pace*1.6);await dragMerge(a,b);await wait(pace*2.4);}return;}
+ await wait(pace*3);for(let n=0;n<80&&stage!=='build';n++){
+  if($('#card')?.classList.contains('ready')){await wait(pace);await deliver();await wait(pace*1.5);continue;}
+  const t=findTwins(order.need.tier);if(t){await dragMerge(t[0],t[1]);await wait(pace);continue;}
+  await produce(ROVER);await wait(pace*.8);}
+ await wait(pace*1.5);openCoast();await wait(pace*3);await build();await wait(pace*5);$('#more').scrollIntoView?.();await wait(pace*2);$('#nextBtn').click();await wait(pace*4);};
+if(AUTO)setTimeout(()=>window.__autoplay(),400);
+</script>
+</body>
+</html>
