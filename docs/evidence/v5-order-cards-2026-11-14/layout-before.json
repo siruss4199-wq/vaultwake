@@ -1,0 +1,86 @@
+[
+ {
+  "size": "360x640",
+  "state": "new",
+  "boardTop": 248,
+  "boardBottom": 588,
+  "cards": "o0[lead] 178x76@0 | o1 84x76@184 | o2 84x76@274"
+ },
+ {
+  "size": "360x640",
+  "state": "played",
+  "boardTop": 203,
+  "boardBottom": 543,
+  "cards": "o16(gold)[lead] 178x76@0 | o14 84x76@184 | o13 84x76@274 | o11 84x76@364"
+ },
+ {
+  "size": "360x640",
+  "state": "crew-ready",
+  "boardTop": 203,
+  "boardBottom": 543,
+  "cards": "o16(gold) 84x76@184 | o14 84x76@274 | o13[lead][ready] 178x76@0 | o11 84x76@364"
+ },
+ {
+  "size": "360x640",
+  "state": "gold-ready+selected",
+  "boardTop": 244,
+  "boardBottom": 584,
+  "cards": "o16(gold)[lead][ready] 178x76@0 | o14[sel] 84x76@184 | o13 84x76@274 | o11 84x76@364"
+ },
+ {
+  "size": "390x844",
+  "state": "new",
+  "boardTop": 248,
+  "boardBottom": 618,
+  "cards": "o0[lead] 178x76@10 | o1 84x76@194 | o2 84x76@284"
+ },
+ {
+  "size": "390x844",
+  "state": "played",
+  "boardTop": 203,
+  "boardBottom": 573,
+  "cards": "o16(gold)[lead] 178x76@0 | o14 84x76@184 | o13 84x76@274 | o11 84x76@364"
+ },
+ {
+  "size": "390x844",
+  "state": "crew-ready",
+  "boardTop": 203,
+  "boardBottom": 573,
+  "cards": "o16(gold) 84x76@184 | o14 84x76@274 | o13[lead][ready] 178x76@0 | o11 84x76@364"
+ },
+ {
+  "size": "390x844",
+  "state": "gold-ready+selected",
+  "boardTop": 244,
+  "boardBottom": 614,
+  "cards": "o16(gold)[lead][ready] 178x76@0 | o14[sel] 84x76@184 | o13 84x76@274 | o11 84x76@364"
+ },
+ {
+  "size": "430x932",
+  "state": "new",
+  "boardTop": 248,
+  "boardBottom": 658,
+  "cards": "o0[lead] 178x76@10 | o1 84x76@194 | o2 84x76@284"
+ },
+ {
+  "size": "430x932",
+  "state": "played",
+  "boardTop": 203,
+  "boardBottom": 613,
+  "cards": "o16(gold)[lead] 178x76@0 | o14 84x76@184 | o13 84x76@274 | o11 84x76@364"
+ },
+ {
+  "size": "430x932",
+  "state": "crew-ready",
+  "boardTop": 203,
+  "boardBottom": 613,
+  "cards": "o16(gold) 84x76@184 | o14 84x76@274 | o13[lead][ready] 178x76@0 | o11 84x76@364"
+ },
+ {
+  "size": "430x932",
+  "state": "gold-ready+selected",
+  "boardTop": 244,
+  "boardBottom": 654,
+  "cards": "o16(gold)[lead][ready] 178x76@0 | o14[sel] 84x76@184 | o13 84x76@274 | o11 84x76@364"
+ }
+]

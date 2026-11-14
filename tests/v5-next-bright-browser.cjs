@@ -58,11 +58,15 @@ async function run(engine,W,H,motion){
   // View until it is truly ready.
   // Premium polish (2026-11-13): one lead card (the order the next step serves, first in the rail, about 178 × 76)
   // and compact cards (about 84 × 76) beside it; every card is in the same rail and stays tappable.
-  {const cards=await page.locator('#requests .requestCard').evaluateAll(cs=>cs.map(c=>{const r=c.getBoundingClientRect();return {w:r.width,h:r.height,x:r.left,lead:c.classList.contains('lead')};}));
+  // Order cards v2 (2026-11-14): larger, so items and counts read without Details: lead 150 × 90, crew 96 × 90,
+  // gold 110 × 90 and next after the lead, with a crown and a GOLD label whether or not it leads.
+  {const cards=await page.locator('#requests .requestCard').evaluateAll(cs=>cs.map(c=>{const r=c.getBoundingClientRect();return {w:r.width,h:r.height,x:r.left,lead:c.classList.contains('lead'),gold:c.classList.contains('storyOrder'),crown:!!c.querySelector('.reqCrown')};}));
    const lead=cards.filter(c=>c.lead);assert.equal(lead.length,1,`${tag}: one lead card`);
-   assert.ok(lead[0].w>=170&&lead[0].w<=186&&lead[0].h>=70&&lead[0].h<=82,`${tag}: lead card ${lead[0].w}×${lead[0].h}`);
+   assert.ok(lead[0].w>=144&&lead[0].w<=156&&lead[0].h>=84&&lead[0].h<=96,`${tag}: lead card ${lead[0].w}×${lead[0].h}`);
    assert.ok(lead[0].x<=Math.min(...cards.map(c=>c.x))+1,`${tag}: the lead card comes first`);
-   for(const c of cards.filter(c=>!c.lead))assert.ok(c.w>=80&&c.w<=90&&c.h>=70&&c.h<=82,`${tag}: compact card ${c.w}×${c.h}`);
+   for(const c of cards.filter(c=>!c.lead))assert.ok((c.gold?c.w>=104&&c.w<=116:c.w>=90&&c.w<=102)&&c.h>=84&&c.h<=96,`${tag}: compact ${c.gold?'gold':'crew'} card ${c.w}×${c.h}`);
+   for(const c of cards.filter(c=>c.gold))assert.ok(c.crown,`${tag}: a gold card shows its crown`);
+   const xs=cards.filter(c=>!c.lead).sort((a,b)=>a.x-b.x);if(xs.some(c=>c.gold))assert.ok(xs[0].gold,`${tag}: the gold card comes right after the lead`);
    // one row that scrolls sideways when the cards do not all fit (three fit at 390 px since 45c)
    assert.ok(await page.locator('#requests .requestShelf').evaluate(e=>getComputedStyle(e).overflowX==='auto'&&new Set([...e.children].map(c=>Math.round(c.getBoundingClientRect().top))).size===1),`${tag}: the cards are one sideways rail`);
    assert.equal(await page.locator('#requests .reqBar:visible, #requests .reqName small:visible').count(),0,`${tag}: no progress bars or subtitles on cards`);

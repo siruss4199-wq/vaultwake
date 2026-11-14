@@ -265,7 +265,7 @@ function renderOrders(){
   // (✓ and green when there are enough), and the coins or, when ready, the one Deliver button.
   const tag=place?`<i class="reqTag gold">Stage ${stage}</i>`:'';
   // the gold order is named as such (a place's name does not fit a card; the strip and the label carry it)
-  const head=place?`<span class="reqFace place">${placeArt(place,stage)}</span><span class="reqName"><b>Gold order</b>${tag}</span>`
+  const head=place?`<span class="reqFace place">${placeArt(place,stage)}</span><span class="reqName"><b><i class="reqCrown" aria-hidden="true"></i>Gold<span class="reqWord"> order</span></b>${tag}</span>`
    :`<span class="reqFace">${face(o.who)}</span><span class="reqName"><b>${who.name}</b>${tag}</span>`;
   // A crew order taking long (Audit 2026-10-25) suggests a new one; the tapped card's panel has it.
   const stuck=isStuck(state,o);
