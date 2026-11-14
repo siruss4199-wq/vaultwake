@@ -1,0 +1,17 @@
+== play-new-slow4g
+MEDIAN {"fcp":924,"homeVisible":909,"module":2745,"board":4413,"ready":4414,"boardArt":4415,"load":4434,"firstActionMs":186,"reqsBeforeReady":87,"kbBeforeReady":730,"reqsTotal":90,"kbTotal":730}
+== play-ret-slow4g
+MEDIAN {"fcp":936,"homeVisible":920,"module":3225,"board":null,"ready":7136,"boardArt":null,"load":7124,"reqsBeforeReady":89,"kbBeforeReady":1269,"reqsTotal":89,"kbTotal":1269}
+== cg-new-slow4g
+MEDIAN {"fcp":920,"homeVisible":907,"module":3779,"board":6014,"ready":6014,"boardArt":6014,"load":2942,"firstActionMs":205,"reqsBeforeReady":92,"kbBeforeReady":830,"reqsTotal":98,"kbTotal":830}
+== cg-ret-slow4g
+MEDIAN {"fcp":924,"homeVisible":911,"module":4124,"board":null,"ready":7382,"boardArt":null,"load":7373,"reqsBeforeReady":90,"kbBeforeReady":1270,"reqsTotal":90,"kbTotal":1270}
+== play-new-4g
+MEDIAN {"fcp":348,"homeVisible":335,"module":772,"board":1110,"ready":1110,"boardArt":1110,"load":1114,"firstActionMs":111,"reqsBeforeReady":87,"kbBeforeReady":730,"reqsTotal":90,"kbTotal":730}
+== cg-new-4g
+MEDIAN {"fcp":320,"homeVisible":303,"module":1410,"board":1846,"ready":1846,"boardArt":1847,"load":703,"firstActionMs":101,"reqsBeforeReady":92,"kbBeforeReady":830,"reqsTotal":98,"kbTotal":871}
+== play-new-slow4g-warm
+MEDIAN {"fcp":496,"homeVisible":485,"module":1125,"board":null,"ready":3915,"boardArt":null,"load":3906,"reqsBeforeReady":91,"kbBeforeReady":545,"reqsTotal":91,"kbTotal":545}
+== play-ret-slow4g-warm
+MEDIAN {"fcp":456,"homeVisible":443,"module":1151,"board":null,"ready":1152,"boardArt":null,"load":1320,"reqsBeforeReady":92,"kbBeforeReady":5,"reqsTotal":92,"kbTotal":5}
+DONE

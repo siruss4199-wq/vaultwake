@@ -29,14 +29,18 @@ export function boardPictures(){
 // reason is 'play' (a new camp's Play), 'continue' or 'new' (a new camp chosen after a bad save).
 // newer: the save that could not be read was made by a newer build (round 2 of the secondary-chain
 // pilot: said so, never started over silently); kept() counts the kept camps onKept lists to restore.
-export function createHome({boot,hasSave,damaged,newer=false,kept=()=>0,onKept,chapter,onEnter,onSettings,onBook,onNewCamp,onOpenChange,beforeEnter}){
+// autoEnter (First Session 2.0): a genuinely new player (the app decides, after the save store has settled)
+// goes to the board by itself once Home is usable and the board's pictures are in, as if Play were pressed.
+export function createHome({boot,hasSave,damaged,newer=false,kept=()=>0,onKept,chapter,onEnter,onSettings,onBook,onNewCamp,onOpenChange,beforeEnter,autoEnter=false}){
  const home=$('home'),main=document.querySelector('main.game'),play=$('homePlay'),label=play.querySelector('span');
  let open=true,usable=false,boardDone=false,boardBad=[],boardCount=[0,0],waiting=false,leaving=0,gating=false;
+ // A new player going in by themselves never sees the Play button (nor loads its picture) on the way.
+ let auto=autoEnter&&!damaged&&!hasSave;
  const setOpen=v=>{open=v;document.body.classList.toggle('homeOpen',v);if(main)main.inert=v;onOpenChange?.(v);};
  setOpen(true);
  const loadVisible=v=>{$('homeLoad').hidden=!v;};
  function controls(){
-  play.hidden=damaged;label.textContent=hasSave?'Continue':'Play';
+  play.hidden=damaged||auto;label.textContent=hasSave?'Continue':'Play';
   play.setAttribute('aria-label',hasSave?'Continue your camp':'Play: start a new camp');
   const c=damaged||!hasSave?'':chapter();$('homeChapter').textContent=c;$('homeChapter').hidden=!c;
   $('homeBook').hidden=!hasSave||damaged||!onBook;
@@ -49,6 +53,7 @@ export function createHome({boot,hasSave,damaged,newer=false,kept=()=>0,onKept,c
   home.classList.remove('isLoading');loadVisible(damaged);$('homeSettings').hidden=false;controls();
   if(damaged){$('homeBar').hidden=true;$('homeStatus').hidden=true;}
   resolveReady();
+  if(autoEnter&&!damaged&&!hasSave)go();
  }
  let resolveReady;const ready=new Promise(r=>resolveReady=r);
  // The board's pictures load behind Home; Play waits only for what is still missing.
@@ -59,12 +64,13 @@ export function createHome({boot,hasSave,damaged,newer=false,kept=()=>0,onKept,c
   if(boardBad.length){home.classList.add('isWaiting');boot?.fail(`${boardBad.length} board picture${boardBad.length>1?'s':''} could not be loaded.`,()=>{home.classList.remove('isWaiting');loadVisible(false);enter(why());});return;}
   home.classList.remove('isWaiting');loadVisible(false);enter(why());
  }
- play.addEventListener('click',()=>{
+ function go(){
   if(!open||!usable||waiting||damaged)return;
   if(boardDone&&!boardBad.length){enter(why());return;}
   waiting=true;play.disabled=true;home.classList.add('isWaiting');loadVisible(true);boot?.reset();
   if(boardDone)afterBoard();else boardProgress(...boardCount);
- });
+ }
+ play.addEventListener('click',go);
  $('homeSettings').addEventListener('click',()=>onSettings?.());
  $('homeBook').addEventListener('click',()=>onBook?.());
  $('homeKept').addEventListener('click',()=>onKept?.());
@@ -79,7 +85,7 @@ export function createHome({boot,hasSave,damaged,newer=false,kept=()=>0,onKept,c
   leave(false);
  }
  function leave(instant){
-  setOpen(false);clearTimeout(leaving);
+  setOpen(false);clearTimeout(leaving);auto=false;
   const done=()=>{home.hidden=true;home.classList.remove('leaving');};
   if(instant||reduced())done();else{home.classList.add('leaving');leaving=setTimeout(done,240);}
   onEnter?.();
@@ -90,10 +96,16 @@ export function createHome({boot,hasSave,damaged,newer=false,kept=()=>0,onKept,c
   controls();loadVisible(false);play.focus({preventScroll:true,focusVisible:false});
  }
  // The Home pictures: real progress while they load; a failure offers Retry or going on without.
- if(boot){
+ // A genuinely new player never sees Home: the board does not wait for Home's pictures (about 580 KB), and
+ // they load once the board's pictures are in, for the menu's Home later (loading performance, 2026-11-13).
+ if(boot&&auto){
+  becomeUsable();
+  boardP.then(()=>setTimeout(()=>boot.homeArt.load?.(),1500));
+ }else if(boot){
   const a=boot.homeArt,step=(n,t)=>boot.setStatus(`Loading the camp · ${n} of ${t} pictures`,n/t);
+  const loaded=a.load?a.load():a.promise;
   if(a.done<a.total){step(a.done,a.total);a.listeners.add(step);}
-  a.promise.then(bad=>{a.listeners.delete(step);
+  loaded.then(bad=>{a.listeners.delete(step);
    if(bad.length)boot.fail('Some pictures could not be loaded.',becomeUsable);else becomeUsable();});
  }else becomeUsable();
  return {ready,enter,show,boardReady:boardP,get isOpen(){return open;}};

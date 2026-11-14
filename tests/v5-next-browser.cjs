@@ -44,12 +44,16 @@ async function perform(page,a){
    const classic=JSON.stringify({version:5,marker:'classic'});
    await page.evaluate(v=>{localStorage.clear();localStorage.setItem('vaultwake-v5',v);},classic);
    await page.reload();await page.waitForSelector('#board .tile');
-   assert.equal(await page.locator('#beat[open]').count(),1,'the area intro plays on a new camp');await closeBeats(page);
+   // First Session 2.0: a new player meets the beach's intro as one caption line, not a dialog
+   assert.equal(await page.locator('#storyRibbon:not([hidden])').count(),1,'the area intro shows on a new camp');assert.match(await page.locator('#storyRibbon').innerText(),/clear a landing/);await closeBeats(page);
    assert.equal(await page.locator('#board .tile').count(),49);
    assert.equal(await page.locator('#board .tile.cargo').count(),27,'sealed cargo covers most of the board');assert.equal(await page.locator('#board .tile.glass').count(),17,'half-buried parts ring the camp and fill its corners, more near each generator');assert.equal(await page.locator('#board .cargoKey').count(),2,'only the crates touching open ground show their keys');assert.equal(await page.locator('#board .tile.cargo.deep').count(),25,'the rest are buried deeper');assert.equal(await page.locator('#board .tile.source').count(),1,'one generator to start');assert.equal(await page.locator('#board [data-index="21"]').getAttribute('data-family'),'rig','Rivet Rover stands in the middle');
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,'no sideways scroll');
    for(const t of await page.locator('#board .tile').all()){const b=await t.boundingBox();assert.ok(b.width>=44&&b.height>=44,'44px touch targets');}
    for(const sel of ['#energyPill','#coinPill','#levelPill','#mapButton','#menuButton']){const b=await page.locator(sel).boundingBox();assert.ok(b&&b.x>=0&&b.x+b.width<=width,sel+' fits the header');}
+   // First Session 2.0: a new player's camp is saved from the first action on (never the untouched default)
+   assert.equal(await page.evaluate(()=>localStorage.getItem('vaultwake-v5-coast')),null,'nothing saved before the first action');
+   await page.locator('#board .tile.source').first().click();await page.waitForFunction(()=>!!localStorage.getItem('vaultwake-v5-coast'),null,{timeout:4000});
    // The daily gift is checked on its own below; here it is already open today so it never covers a tap.
    await page.evaluate(()=>{const s=JSON.parse(localStorage.getItem('vaultwake-v5-coast'));s.daily={day:9e6,count:1};localStorage.setItem('vaultwake-v5-coast',JSON.stringify(s));});
    await page.reload();await page.waitForSelector('#board .tile');await closeBeats(page);
@@ -224,7 +228,7 @@ async function perform(page,a){
    await page.evaluate(()=>{const s=JSON.parse(localStorage.getItem('vaultwake-v5-coast'));s.coins=40;localStorage.setItem('vaultwake-v5-coast',JSON.stringify(s));});
    await page.reload();await page.waitForSelector('#board .tile');await closeBeats(page);
    await page.locator('#mapButton').tap();await page.locator('#coastMap [data-restore="beach-path"]').tap();
-   assert.match(await page.locator('#beat .beatReceipt').textContent(),/−40 coins/);await closeBeats(page);await page.locator('#coastMap [data-back]').tap();
+   assert.match(await page.locator('#beat .beatReceipt, #coastMap .restoredCard .beatReceipt').textContent(),/−40 coins/);await closeBeats(page);await page.locator('#coastMap [data-back]').tap();
    // A full board with no twins and a full shed still has a way out.
    await page.evaluate(()=>{const s=JSON.parse(localStorage.getItem('vaultwake-v5-coast'));let k=0;const fam=['rig','chart','rope','shell','lamp'];
     s.board=s.board.map(x=>x===null?{type:'item',family:fam[k%5],tier:Math.floor(k++/5)}:x);s.shed=s.shed.map((_,i)=>({type:'item',family:'rig',tier:i+1}));localStorage.setItem('vaultwake-v5-coast',JSON.stringify(s));});

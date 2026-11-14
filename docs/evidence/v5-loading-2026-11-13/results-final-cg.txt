@@ -1,0 +1,7 @@
+== cg-new-slow4g
+MEDIAN {"fcp":956,"homeVisible":940,"module":3350,"board":5401,"ready":5401,"boardArt":5402,"load":2718,"firstActionMs":213,"reqsBeforeReady":91,"kbBeforeReady":789,"reqsTotal":97,"kbTotal":789}
+== cg-ret-slow4g
+MEDIAN {"fcp":928,"homeVisible":906,"module":3941,"board":null,"ready":7293,"boardArt":null,"load":7280,"reqsBeforeReady":90,"kbBeforeReady":1270,"reqsTotal":90,"kbTotal":1270}
+== cg-new-4g
+MEDIAN {"fcp":324,"homeVisible":312,"module":1393,"board":1819,"ready":1820,"boardArt":1820,"load":688,"firstActionMs":97,"reqsBeforeReady":91,"kbBeforeReady":789,"reqsTotal":97,"kbTotal":789}
+DONE

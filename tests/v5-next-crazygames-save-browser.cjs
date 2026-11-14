@@ -32,10 +32,13 @@ async function device(browser,cloud,o={},seed=null){
  if(seed)await context.addInitScript(s=>{if(!sessionStorage.getItem('seeded')){for(const [k,v] of Object.entries(s))localStorage.setItem(k,v);sessionStorage.setItem('seeded','1');}},seed);
  return {context,page,errors,o};
 }
-// Opens the game through Home; answers the main button's text (Play for a new camp, Continue for a save).
+// Opens the game through Home; answers the main button's text (Play for a new camp, Continue for a save), or
+// 'board' when a genuinely new player went straight to the board (First Session 2.0: no save in the cloud or here).
 async function enter(page,how='goto'){
  if(how==='goto')await page.goto(page.__url??URL);else await page.reload();
- await page.waitForSelector('#homePlay:not([hidden])',{timeout:20000});const label=(await page.locator('#homePlay').textContent()).trim();
+ await page.waitForFunction(()=>{const h=document.querySelector('#home'),p=document.querySelector('#homePlay');return h.hidden||!document.body.classList.contains('homeOpen')||!p.hidden&&!p.disabled&&!h.classList.contains('isWaiting');},null,{timeout:30000});
+ if(await page.evaluate(()=>document.querySelector('#home').hidden||!document.body.classList.contains('homeOpen'))){await page.waitForSelector('#home',{state:'hidden'});await page.waitForSelector('#board .tile');return 'board';}
+ const label=(await page.locator('#homePlay').textContent()).trim();
  await page.locator('#homePlay').click();
  await page.waitForFunction(()=>document.querySelector('#home').hidden||!document.querySelector('#story')?.hidden,null,{timeout:20000});
  if(await page.locator('#story:not([hidden])').count())await page.locator('#storySkip').click();
@@ -47,7 +50,8 @@ const until=async(f,what,ms=8000)=>{const t=Date.now();while(!f()){if(Date.now()
 async function produce(page,cloud){
  // The generator's space, from the save the game just wrote.
  const raw=cloud.get(KEY)??await page.evaluate(k=>localStorage.getItem(k),KEY);const s=JSON.parse(raw);
- const gen=s.board.findIndex(x=>x?.type==='source');await page.locator(`#board [data-index="${gen}"]`).click();await page.waitForTimeout(250);
+ // a new player's camp is not saved before the first action: the generator is found on the board then
+ const gen=s?s.board.findIndex(x=>x?.type==='source'):+(await page.locator('#board .tile.source').first().getAttribute('data-index'));await page.locator(`#board [data-index="${gen}"]`).click();await page.waitForTimeout(250);
  return s;
 }
 (async()=>{
@@ -57,10 +61,11 @@ async function produce(page,cloud){
   try{
    // 1. A new guest: the camp goes to the Data module, not to localStorage.
    const cloud=new Map(),a=await device(browser,cloud);
-   assert.equal(await enter(a.page),'Play',`${engine}: a new player starts with Play`);
-   await until(()=>cloud.has(KEY),'first save in the Data module');
-   const before=JSON.parse(cloud.get(KEY));await produce(a.page,cloud);
-   await until(()=>JSON.parse(cloud.get(KEY)).energy===before.energy-1,'the produce is saved');
+   // First Session 2.0: a new player (empty cloud) goes straight to the board; nothing is saved before the first action
+   assert.equal(await enter(a.page),'board',`${engine}: a new player goes straight to the board`);
+   await a.page.waitForTimeout(600);assert.equal(cloud.has(KEY),false,`${engine}: nothing saved before the first action`);
+   await produce(a.page,cloud);
+   await until(()=>cloud.has(KEY)&&JSON.parse(cloud.get(KEY)).energy===99,'the first action is saved to the Data module');
    assert.equal(await a.page.evaluate(k=>localStorage.getItem(k),KEY),null,`${engine}: the camp is not in localStorage`);
    const saved=cloud.get(KEY);
    // 2. Reload: Continue, the same camp.
@@ -109,9 +114,8 @@ async function produce(page,cloud){
 
    // 8. A Data module that refuses (e.g. dataModuleDisabled): the game plays on localStorage.
    const off=new Map(),e=await device(browser,off,{readFail:'dataModuleDisabled'});
-   assert.equal(await enter(e.page),'Play');
-   await e.page.waitForFunction(k=>!!localStorage.getItem(k),KEY);const s0=JSON.parse(await e.page.evaluate(k=>localStorage.getItem(k),KEY));
-   await produce(e.page,off);await e.page.waitForFunction(([k,n])=>JSON.parse(localStorage.getItem(k)).energy===n,[KEY,s0.energy-1]);
+   assert.equal(await enter(e.page),'board');
+   await produce(e.page,off);await e.page.waitForFunction(([k,n])=>JSON.parse(localStorage.getItem(k)??'{}').energy===n,[KEY,99]);
    assert.equal(off.size,0,`${engine}: nothing sent to a disabled Data module`);
    assert.equal(await enter(e.page,'reload'),'Continue');assert.deepEqual(e.errors,[],`${engine}: no page errors`);await e.context.close();
    console.log(`${engine}: refusing Data module falls back to localStorage passed`);
@@ -119,8 +123,9 @@ async function produce(page,cloud){
    // 9. Regression 2026-11-09: on a CrazyGames host the real SDK's init can take several seconds.
    // The save waits for it and uses the Data module; reload keeps the progress.
    const slowCloud=new Map(),f=await device(browser,slowCloud,{initDelay:6000,cgHost:true});f.page.__url='http://qa.crazygames.com'+new globalThis.URL(URL).pathname;
-   assert.equal(await enter(f.page),'Play');await until(()=>slowCloud.has(KEY),'first save in the Data module after a slow init',15000);
-   const fs0=JSON.parse(slowCloud.get(KEY));await produce(f.page,slowCloud);await until(()=>JSON.parse(slowCloud.get(KEY)).energy===fs0.energy-1,'saved');
+   // the cloud was read (after the slow init) and is empty: a new player, straight to the board
+   assert.equal(await enter(f.page),'board');const fs0={energy:100};
+   await produce(f.page,slowCloud);await until(()=>slowCloud.has(KEY)&&JSON.parse(slowCloud.get(KEY)).energy===fs0.energy-1,'saved',15000);
    assert.equal((await f.page.evaluate(()=>window.VWSave)).kind,'data');assert.ok((await f.page.evaluate(()=>window.VWSave)).initMs>=5500);
    assert.equal(await enter(f.page,'reload'),'Continue',`${engine}: progress survives a reload after a slow init`);
    assert.equal(await f.page.locator('#coins').textContent(),String(JSON.parse(slowCloud.get(KEY)).coins));

@@ -1,0 +1,86 @@
+[
+ {
+  "size": "360x640",
+  "state": "new",
+  "boardTop": 267,
+  "boardBottom": 607,
+  "cards": "o0[lead] 150x90@0 | o1 96x90@157 | o2 96x90@260"
+ },
+ {
+  "size": "360x640",
+  "state": "played",
+  "boardTop": 222,
+  "boardBottom": 562,
+  "cards": "o16(gold)[lead] 150x90@0 | o14 96x90@157 | o13 96x90@260 | o11 96x90@363"
+ },
+ {
+  "size": "360x640",
+  "state": "crew-ready",
+  "boardTop": 222,
+  "boardBottom": 562,
+  "cards": "o16(gold) 110x90@157 | o14 96x90@274 | o13[lead][ready] 150x90@0 | o11 96x90@377"
+ },
+ {
+  "size": "360x640",
+  "state": "gold-ready+selected",
+  "boardTop": 263,
+  "boardBottom": 603,
+  "cards": "o16(gold)[lead][ready] 150x90@0 | o14[sel] 96x90@157 | o13 96x90@260 | o11 96x90@363"
+ },
+ {
+  "size": "390x844",
+  "state": "new",
+  "boardTop": 267,
+  "boardBottom": 637,
+  "cards": "o0[lead] 150x90@10 | o1 96x90@167 | o2 96x90@270"
+ },
+ {
+  "size": "390x844",
+  "state": "played",
+  "boardTop": 222,
+  "boardBottom": 592,
+  "cards": "o16(gold)[lead] 150x90@0 | o14 96x90@157 | o13 96x90@260 | o11 96x90@363"
+ },
+ {
+  "size": "390x844",
+  "state": "crew-ready",
+  "boardTop": 222,
+  "boardBottom": 592,
+  "cards": "o16(gold) 110x90@157 | o14 96x90@274 | o13[lead][ready] 150x90@0 | o11 96x90@377"
+ },
+ {
+  "size": "390x844",
+  "state": "gold-ready+selected",
+  "boardTop": 263,
+  "boardBottom": 633,
+  "cards": "o16(gold)[lead][ready] 150x90@0 | o14[sel] 96x90@157 | o13 96x90@260 | o11 96x90@363"
+ },
+ {
+  "size": "430x932",
+  "state": "new",
+  "boardTop": 267,
+  "boardBottom": 677,
+  "cards": "o0[lead] 150x90@10 | o1 96x90@167 | o2 96x90@270"
+ },
+ {
+  "size": "430x932",
+  "state": "played",
+  "boardTop": 222,
+  "boardBottom": 632,
+  "cards": "o16(gold)[lead] 150x90@0 | o14 96x90@157 | o13 96x90@260 | o11 96x90@363"
+ },
+ {
+  "size": "430x932",
+  "state": "crew-ready",
+  "boardTop": 222,
+  "boardBottom": 632,
+  "cards": "o16(gold) 110x90@157 | o14 96x90@274 | o13[lead][ready] 150x90@0 | o11 96x90@377"
+ },
+ {
+  "size": "430x932",
+  "state": "gold-ready+selected",
+  "boardTop": 263,
+  "boardBottom": 673,
+  "cards": "o16(gold)[lead][ready] 150x90@0 | o14[sel] 96x90@157 | o13 96x90@260 | o11 96x90@363"
+ }
+]
