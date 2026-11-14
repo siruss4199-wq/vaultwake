@@ -40,7 +40,7 @@ export const AREAS=[
     {name:'Lay a boardwalk',cost:70,effect:{copy:'rig'},lines:[['ivo','Planks over the sand. The carts stop sinking.'],['ivo','A Rivet Rover was buried under the old planks! Merge it with yours.']]},
     {name:'Line the path with lanterns',cost:100,rare:['mech',1],effect:{copy:'rig'},lines:[['neri','Geared lanterns all the way to the boats. They wind themselves at dusk, and night shifts are safe now.'],['ivo','The first night shift dug up a Rivet Rover the storm had buried. Merge it with ours.']]}],'path'),
    place('beach-tent','crate-salvage',[52,62],[
-    {name:'Pitch the camp tent',cost:80,effect:{energy:8},lines:[['neri','Dry blankets and hot tea. Everyone works faster after a rest.'],['ivo','+8 energy for the crew.']]},
+    {name:'Pitch the camp tent',cost:80,effect:{copy:'chart'},lines:[['neri','Dry blankets, hot tea, and my Survey Kite is dry at last.'],['neri','Tap the Kite for charts and lenses. The crates the Rover cannot open take its parts.']]},
     {name:'Add bunks and a stove',cost:100,effect:{copy:'rig'},lines:[['neri','Bunks and a stove. Nobody sleeps on wet sand any more.'],['ivo','Under the old bunks: a rusted Rivet Rover. A little oil and it runs. Merge it with ours.']]},
     {name:'Raise the mess hall',cost:120,effect:{token:1},lines:[['bram','A real mess hall. The crew eats together and plans together.']]}],'tent'),
    place('beach-mast','source-chart',[50,34],[

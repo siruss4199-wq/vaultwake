@@ -786,3 +786,5 @@ body.nextMode #requests .requestShelf .requestCard.requestCard .reqCrown{display
 body.nextMode #requests .requestShelf .requestCard.requestCard .reqTag{font-size:9px;line-height:13px;padding:0 5px;letter-spacing:.02em}
 body.nextMode #requests .requestShelf .requestCard.requestCard .reqHead,body.nextMode #requests .requestShelf .requestCard.requestCard.lead .reqHead{position:absolute;inset:0;height:auto;pointer-events:none}
 body.nextMode #requests .requestShelf .requestCard.requestCard.lead .reqDeliver{background:linear-gradient(#34c486,#1f9e66);border-radius:999px;box-shadow:0 2px 0 #137a4c;padding:0 0 1px}
+/* First 10 minutes (2026-11-14): a stage that brings a new generator kind says so on its coast card */
+body.nextMode .mapCard .cardGift{margin:4px 0 0;font-size:12.5px;line-height:1.3;font-weight:800;color:#0b7c84}

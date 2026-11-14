@@ -4,7 +4,7 @@ import {blockedStage,isStuck,allDone,swapsLeft,adSwapsLeft,SHOP,shopLeft,BOOK_CO
 import {AREAS,STAGES,TASKS,LABELS} from './areas.mjs';
 import {primaryAction} from './guide.mjs';
 import {coachStep,coachActive,laterTip,nextRareUse,COACH_ON,COACH_DONE,FIRST_PLACE} from './coach.mjs';
-import {tutorStep,guideLevel,tutorActive,signature,skills,COACH_NEXT,focusOrder as tutorFocus} from './tutor.mjs';
+import {tutorStep,guideLevel,tutorActive,signature,skills,COACH_NEXT,focusOrder as tutorFocus,who as tutorWho} from './tutor.mjs';
 import {isNewPlayer} from './newcomer.mjs';
 import {needsOf,missingOf,levelOf} from './needs.mjs';
 import {LEVEL_PATH,BONUS_NAMES,CHEST_ENERGY,EARLY_LEVELS,EARLY_LEVEL_ENERGY,ONBOARDING,goldChase,CAMP} from './game.mjs';
@@ -548,6 +548,14 @@ function tutorView(coast=$('#coastMap').open?'open':null){
  if(sig!==tutorSig||n!==tutorActs){tutorBoost=null;tutorSig=sig;tutorActs=n;}
  return {st,sig,lv:tutorBoost===sig?'full':guideLevel(state,st)};
 }
+// First 10 minutes (2026-11-14): a quiet step (a skill already shown) still says what the action is for, in a few
+// words, so a run of taps and merges keeps its reason ("For the gold order: Clear the landing path"). Text only:
+// no highlight and no hand, as before.
+function stepPurpose(st){
+ if(!['tap','merge','unseal'].includes(st?.kind)||!st.focus)return '';const o=state.orders.find(o=>o?.id===st.focus);if(!o)return '';
+ if(o.story){const place=TASKS[o.story]?.stages[stageOf(state,o.story)]?.name;return `For the gold order${place?': '+place:''}`;}
+ return `For ${tutorWho(o)}'s order`;
+}
 globalThis.VWGuide={get step(){return tutor&&{...tutor.st,level:tutor.lv};},get hints(){return tutorG.hints;},get reminders(){return tutorG.reminders;}};
 function renderCoach(){
  const on=coachActive(state);$('#coachSkip').hidden=!on;
@@ -557,7 +565,7 @@ function renderCoach(){
  // the guided span (the game's coach span and the next objective), or a step a Hint / reminder raised
  const v=tutorView();
  if(tutorActive(state)||v.lv==='full'){tutor=v;const {st,lv}=v;coach={id:st.kind,text:st.what,target:st.target};
-  b.innerHTML=`<b class="gWhat">${st.what}</b>${lv!=='quiet'&&st.why?`<small class="gWhy">${st.why}</small>`:''}`;b.dataset.kind='coach';b.dataset.step=st.kind;b.dataset.level=lv;
+  b.innerHTML=`<b class="gWhat">${st.what}</b>${lv!=='quiet'&&st.why?`<small class="gWhy">${st.why}</small>`:lv==='quiet'&&stepPurpose(st)?`<small class="gWhy gFor">${stepPurpose(st)}</small>`:''}`;b.dataset.kind='coach';b.dataset.step=st.kind;b.dataset.level=lv;
   requestAnimationFrame(()=>{if(lv==='quiet'||!st.target)clearCoach();else showCoachTarget(st.target,{hand:lv==='full'});});
   armTutorIdle();return true;}
  tutor=null;delete b.dataset.level;
@@ -996,7 +1004,13 @@ async function watchAd(action){
 // The gift opens by itself once a session is under way, never over another screen or a drag.
 // Build 51c: not offered by itself while a new camp's first-loop guide runs (its button still shows the gift).
 // First Session 2.0: not while the guide is teaching (the first build's next objective stays in view); the gift button stays.
-function offerGift(){if(!homeOpen&&!adBusy&&giftReady()&&giftShown!==today()&&state.moves>=3&&!tutorActive(state)&&!drag&&!document.querySelector('dialog[open]'))showDaily();}
+// First 10 minutes (2026-11-14): the Daily gift opens by itself only for a camp that already had progress when this
+// session reached the board (a returning player: "a gift from the crew for coming back"). A camp started in this
+// session is never interrupted by it (measured: it opened about 2 minutes into a new player's first session, over the
+// next objective); its gift button stays, so the gift is one tap away. Rewards and saves are unchanged.
+let giftBase=null;
+function offerGift(){if(!homeOpen&&giftBase===null)giftBase=state.moves??0;
+ if(!homeOpen&&!adBusy&&giftReady()&&giftShown!==today()&&giftBase>=3&&state.moves>=3&&!tutorActive(state)&&!drag&&!document.querySelector('dialog[open]'))showDaily();}
 $('#soundButton').onclick=()=>{sounds.toggle();render();sfx('tap');};
 $('#hapticsButton').onclick=()=>{haptics.toggle();render();haptics.pulse('merge');};
 $('#helpButton').onclick=()=>$('#help').showModal();
@@ -1005,7 +1019,7 @@ $('#menuButton').onclick=()=>{$('#homeButton').hidden=homeOpen;{const n=kept().l
 $('#newGame').onclick=()=>{if(!confirm('Start a new game from the beginning? This camp is kept in this browser (Kept camps in this menu brings it back), and your Classic save is not affected.'))return;if(!newCamp())return;$('#menu').close();if(homeOpen&&home)home.enter();else showIntro();};
 // A new camp, chosen by the player (the menu, or Home after a save could not be read).
 // Round 2: the camp a new camp replaces is kept (SAVE_KEY-kept…), so starting again loses nothing.
-function newCamp(){const wasDamaged=damaged;if(!keepDamaged()){alert('Your old save could not be copied aside (this browser\'s storage is full), so nothing was replaced.');return false;}
+function newCamp(){giftBase=null;const wasDamaged=damaged;if(!keepDamaged()){alert('Your old save could not be copied aside (this browser\'s storage is full), so nothing was replaced.');return false;}
  if(!wasDamaged){persist();if(!keepCopy(storage.get(SAVE_KEY),'kept')){alert('Your camp could not be copied aside (this browser\'s storage is full), so nothing was replaced.');return false;}}
  holdSave=false;replaced=null;state=fresh(Date.now());selected=null;focusOrder=null;persist();render();return true;}
 $('#homeButton').onclick=()=>{$('#menu').close();persist();home?.show();};
@@ -1114,7 +1128,7 @@ function mapCard(area,t,u){
   :!u.materials&&state.orders.some(o=>o?.story)?`<button class="cardButton go" type="button" data-aim="${t.id}">Work on this next</button>`
   :!u.materials?`<button class="cardButton go" type="button" data-go>Deliver an order</button>`
   :`<button class="cardButton go" type="button" data-go>Earn ${u.cost-state.coins} more ${COIN}</button>`;
- return `<section id="mapCard" class="mapCard ${canBuild(u)?'ready':''}" data-card="${t.id}"><span class="cardArt next">${placeArt(t,u.stage)}<em>Stage ${u.stage}</em></span><div class="cardBody"><small class="cardPlace">${n?t.stages[n-1].name:'New place'}</small><h3>${u.name}</h3>${pips(n)}<div class="needs">${stuff}${coins}</div>${lack}</div>${button}</section>`;
+ return `<section id="mapCard" class="mapCard ${canBuild(u)?'ready':''}" data-card="${t.id}"><span class="cardArt next">${placeArt(t,u.stage)}<em>Stage ${u.stage}</em></span><div class="cardBody"><small class="cardPlace">${n?t.stages[n-1].name:'New place'}</small><h3>${u.name}</h3>${pips(n)}<div class="needs">${stuff}${coins}</div>${lack}${newKindOf(u)?`<p class="cardGift">Unlocks a new generator: the ${SOURCES[newKindOf(u)].name}</p>`:''}</div>${button}</section>`;
 }
 let focusOnOpen=false;
 function showMap(){
@@ -1198,11 +1212,16 @@ $('#mapContent').addEventListener('click',e=>{
  const p=e.target.closest('[data-replay]');if(p){showBeat(p.dataset.replay,{},STAGES);return;}
  if(e.target.closest('[data-back],[data-go],[data-done]'))$('#coastMap').close();
 });
+// A generator the camp has only one of (board, shed, waiting): a stage that gave it brought a new kind.
+const firstOfKind=id=>[...state.board,...state.shed,...state.pending].filter(y=>y?.type==='source'&&y.id===id).length===1;
+// First 10 minutes (2026-11-14): a stage that brings a generator kind the camp does not have yet says so before
+// it is built (the coast card, the next objective), so the next restoration has a visible pay-off.
+const newKindOf=u=>{const id=u?.effect?.copy;return id&&id!=='newest'&&SOURCES[id]&&![...state.board,...state.shed,...state.pending].some(y=>y?.type==='source'&&y.id===id)?id:null;};
 function rewardText(e={}){
  const out=[],wait=' (waits for a free space)';
  if(e.energy)out.push(`+${e.energy} energy`);
  if(e.boost)out.push(`${e.boost.milestone?'restoration '+e.boost.milestone:'first stage'}: +${e.boost.energy} energy`);
- if(e.copyId)out.push(`a ${SOURCES[e.copyId].name} to merge`+(e.copy>=0?'':wait));
+ if(e.copyId)out.push((firstOfKind(e.copyId)?`a new generator: the ${SOURCES[e.copyId].name}`:`a ${SOURCES[e.copyId].name} to merge`)+(e.copy>=0?'':wait));
  if(e.kit>=0&&state.board[e.kit]?.type==='kit')out.push(nameOf(state.board[e.kit]).replace(' · ',' for '));
  else if(e.kitFamily)out.push(`a crate for the ${SOURCES[e.kitFamily].name}`+wait);
  if(e.token!==undefined)out.push('a Tide token'+(e.token>=0?'':wait));
@@ -1251,7 +1270,7 @@ $('#coastMap').addEventListener('close',()=>{restoredHtml=null;});
 function restoredCard(t,st,stage,effects,nxt,spent=null){
  $('#coastMap .restoredCard')?.remove();const wrap=$('#coastMap .sceneWrap');if(!wrap)return;
  const chips=rewardText(effects).replace(/^Rewards: /,'').split(' · ').map(x=>`<span>${x}</span>`).join('');
- const next=nxt?`<p class="rcNext"><b>Next:</b> ${nxt.u.name}${nxt.ready?' · ready to build':''}</p>`:'';
+ const next=nxt?`<p class="rcNext"><b>Next:</b> ${nxt.u.name}${nxt.ready?' · ready to build':''}${newKindOf(nxt.u)?` · unlocks the ${SOURCES[newKindOf(nxt.u)].name}`:''}</p>`:'';
  wrap.insertAdjacentHTML('afterend',`<section class="restoredCard" role="status" aria-label="${st.name} restored"><small>${(AREAS.find(a=>a.tasks.includes(t))??currentArea(state)).name} · stage ${stage} of ${STAGES}</small><b class="rcTitle">${st.name}</b>${spent?`<b class="beatReceipt">−${spent} coins</b>`:''}
   ${st.lines.map(([w,l])=>`<p class="rcLine">${face(w)}<span><b>${who$(w)}</b>: “${l}”</span></p>`).join('')}<div class="rcRewards">${chips}</div>${next}<button class="primary rcBack" type="button" data-done>Back to the board</button></section>`);
  restoredHtml=$('#coastMap .restoredCard').outerHTML;

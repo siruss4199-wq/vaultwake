@@ -16,7 +16,7 @@
 // (s.taps, s.merges, s.ordersDone, s.materials, s.built): no new save data, and a reload resumes at the same
 // level. The Hint button and the 8 s idle reminder raise ONE step to 'full' (the app keeps that, per session).
 import {act,orderItems,nextTask,sourceOpen,SOURCES,totalBuilt,stageOf} from './game.mjs';
-import {primaryAction} from './guide.mjs';
+import {primaryAction,an} from './guide.mjs';
 import {missingOf} from './needs.mjs';
 import {coachActive} from './coach.mjs';
 import {CHAINS} from './chains.mjs';
@@ -80,7 +80,7 @@ export function tutorStep(s,ctx={}){
   if(valid(s,act1,now))return step('unseal','unseal',`Drop the ${partName(s.board[a])} on its crate`,`${note}Opens the crate: more room.`,{kind:'pair',cells:[a,b]},act1,'merge',o);}
  if(g.kind==='tap'){const act1={type:'produce',id:g.id,index:g.index};
   const r=missingOf(s,o).find(r=>CHAINS[r.family].gen===g.id);
-  if(valid(s,act1,now))return step('tap','tap',`Tap the ${SOURCES[g.id].name}`,`${note}Makes a ${CHAINS[g.id].names[0]}${r?` for ${tag}`:''}.`,{kind:'cell',index:g.index},act1,'tap',o);}
+  if(valid(s,act1,now))return step('tap','tap',`Tap the ${SOURCES[g.id].name}`,`${note}Makes ${an(CHAINS[g.id].names[0])}${r?` for ${tag}`:''}.`,{kind:'cell',index:g.index},act1,'tap',o);}
  if(g.kind==='space'||!s.board.includes(null))
   return step('space','space','The board is full','Merge twins or deliver to free a space.',null,null,null,o);
  if(g.kind==='energy'||s.energy<1){const t=refillTimes(s,now),sec=t?Math.ceil(t.next/1000):null;
