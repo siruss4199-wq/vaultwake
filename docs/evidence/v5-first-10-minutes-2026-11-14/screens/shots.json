@@ -1,0 +1,91 @@
+{
+ "engine": "chromium",
+ "report": [
+  {
+   "size": "360x640",
+   "quietLine": "Tap the Rivet Rover For Ivo's order"
+  },
+  {
+   "size": "360x640",
+   "card": "Unlocks a new generator: the Survey Kite"
+  },
+  {
+   "size": "360x640",
+   "rewards": "restoration 3: +10 energy\na new generator: the Survey Kite\n+8 XP"
+  },
+  {
+   "size": "360x640",
+   "kite": true,
+   "sideways": false
+  },
+  {
+   "size": "390x664",
+   "quietLine": "Tap the Rivet Rover For Ivo's order"
+  },
+  {
+   "size": "390x664",
+   "card": "Unlocks a new generator: the Survey Kite"
+  },
+  {
+   "size": "390x664",
+   "rewards": "restoration 3: +10 energy\na new generator: the Survey Kite\n+8 XP"
+  },
+  {
+   "size": "390x664",
+   "kite": true,
+   "sideways": false
+  },
+  {
+   "size": "390x844",
+   "quietLine": "Tap the Rivet Rover For Ivo's order"
+  },
+  {
+   "size": "390x844",
+   "card": "Unlocks a new generator: the Survey Kite"
+  },
+  {
+   "size": "390x844",
+   "rewards": "restoration 3: +10 energy\na new generator: the Survey Kite\n+8 XP"
+  },
+  {
+   "size": "390x844",
+   "kite": true,
+   "sideways": false
+  },
+  {
+   "size": "430x932",
+   "quietLine": "Tap the Rivet Rover For Ivo's order"
+  },
+  {
+   "size": "430x932",
+   "card": "Unlocks a new generator: the Survey Kite"
+  },
+  {
+   "size": "430x932",
+   "rewards": "restoration 3: +10 energy\na new generator: the Survey Kite\n+8 XP"
+  },
+  {
+   "size": "430x932",
+   "kite": true,
+   "sideways": false
+  },
+  {
+   "size": "907x510",
+   "quietLine": "Tap the Rivet Rover For Ivo's order"
+  },
+  {
+   "size": "907x510",
+   "card": "Unlocks a new generator: the Survey Kite"
+  },
+  {
+   "size": "907x510",
+   "rewards": "restoration 3: +10 energy\na new generator: the Survey Kite\n+8 XP"
+  },
+  {
+   "size": "907x510",
+   "kite": true,
+   "sideways": false
+  }
+ ],
+ "errors": []
+}
