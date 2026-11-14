@@ -40,7 +40,12 @@ test('rare demand: Level 1 is asked once per chain (its introduction), then Leve
   assert.ok(r.finished);
   assert.equal(r.l1AfterIntro,0,'no Level 1 rare ask after the introduction');
   assert.ok((r.rare.crew.L1??0)<=2,`two introductions at most: ${JSON.stringify(r.rare.crew)}`);
-  assert.ok((r.rare.crew.L2??0)>=30&&(r.rare.crew.L3??0)>=10,`crew merge goals: ${JSON.stringify(r.rare.crew)}`);
+  // First 10 minutes (2026-11-14, docs/V5_FIRST_10_MINUTES_2026-11-14.md): with the Survey Kite from the camp tent the
+  // notes chain is asked at Level 2 more often on the beach, which uses the drops a Level 3 ask needs later. Whole game,
+  // 12 seeds at 4/5/6 s: crew Level 3 asks 16 → median 11/7/14 (min 6), Level 2 42 → 53/45/53; Level 2 + 3 together
+  // 58 → 64/52/67; gold rare asks unchanged (29); total time within 1 %. The guard is on the merge goals together
+  // (was Level 2 ≥ 30 and Level 3 ≥ 10). Owner review: docs §6.
+  assert.ok((r.rare.crew.L2??0)>=30&&(r.rare.crew.L2??0)+(r.rare.crew.L3??0)>=45&&(r.rare.crew.L3??0)>=5,`crew merge goals: ${JSON.stringify(r.rare.crew)}`);
   assert.equal(r.rare.gold.L1??0,0,'gold orders never ask Level 1');assert.ok((r.rare.gold.L2??0)>=10&&(r.rare.gold.L3??0)>=6,`gold: ${JSON.stringify(r.rare.gold)}`);
   assert.ok(r.maxRareGoldRun<=1,`difficult rare gold orders in a row: ${r.maxRareGoldRun}`);}
 });
