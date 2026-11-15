@@ -1,0 +1,45 @@
+# Scratch diagnostic (not for merge): does the WebKit page loss in v5-next-build-flow-browser.cjs depend on
+# PR #105's game code? Runs the same suite (PR #105's test file, fresh browser per size) against the base
+# 6bbee67 (PR #104) and e4e8575 (PR #105) on the same runners at the same time, several times each.
+name: V5 WebKit soak (diagnostic)
+on:
+  push:
+    branches: [claude/v5-webkit-soak]
+permissions:
+  contents: read
+jobs:
+  soak:
+    name: build-flow webkit ${{ matrix.code }} shard ${{ matrix.shard }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        code: [base-6bbee67, pr-e4e8575]
+        shard: [1, 2]
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      options: --ipc=host
+    env:
+      HOME: /root
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: npm install --no-save --no-audit --no-fund playwright@1.62.1
+      - name: Serve the code under test on 8080
+        run: |
+          git config --global --add safe.directory "$PWD"
+          REF=${{ matrix.code == 'base-6bbee67' && '6bbee67' || 'e4e8575' }}
+          mkdir -p /tmp/site && git archive "$REF" v5 v4/platform.mjs tools | tar -x -C /tmp/site
+          git rev-parse "$REF"
+          (node tools/ci-static-server.mjs /tmp/site 8080 > /tmp/http.log 2>&1 &)
+          for i in $(seq 1 30); do node -e "fetch('http://127.0.0.1:8080/v5/coast-crazygames.html').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))" && break; sleep 1; done
+      - name: build-flow, WebKit, 6 runs
+        run: |
+          pass=0; fail=0
+          for n in 1 2 3 4 5 6; do
+            if ENGINES=webkit node tests/v5-next-build-flow-browser.cjs > /tmp/run.log 2>&1; then pass=$((pass+1)); echo "run $n: pass";
+            else fail=$((fail+1)); echo "run $n: FAIL"; grep -E "closed|crash|Error|assert|at .*build-flow" /tmp/run.log | head -6; fi
+          done
+          echo "RESULT ${{ matrix.code }} shard ${{ matrix.shard }}: $pass pass, $fail fail"
