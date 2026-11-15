@@ -594,6 +594,17 @@ $('#coachSkip').textContent='Skip';$('#coachSkip').setAttribute('aria-label','Sk
  $('#hint').after(hb);
  hb.onclick=()=>{const v=tutorView();tutorG.hints++;tutorReminded.add(v.sig);tutorBoost=v.sig;tutorSig=v.sig;sfx('tap');nudgeHint();renderHint();if($('#coastMap').open)showMap();
   if(!v.st.target)$('#message').textContent=`${v.st.what}. ${v.st.why}`;};}
+// Stable board (2026-11-15, owner): selecting or deselecting an order must not move the board. The row that holds
+// the Hint and Details buttons sits above the board only while it carries the tutorial's guide line (then it is
+// there all the time, and Details joins it without a jump); otherwise it sits just below the board, where showing
+// or hiding it moves only the shed. On a landscape screen the left column keeps its order (the board is in its own
+// column). It follows the guide line's kind, whatever changes it.
+function placeHeading(){
+ const h=$('.boardHeading'),b=$('#board'),f=$('#free');if(!h||!b)return;
+ if($('#hint')?.dataset.kind==='coach'){if(h.nextElementSibling!==b)b.before(h);}
+ else if(h.previousElementSibling!==(f??b))(f??b).after(h);
+}
+new MutationObserver(placeHeading).observe($('#hint'),{attributes:true,attributeFilter:['data-kind']});
 function renderHint(){
  // While a delivery's coins fly, the guidance waits too (it may be about to say "Upgrade").
  if(holdPlace>performance.now())return;
@@ -1548,7 +1559,7 @@ $('#playlogButton').onclick=()=>{$('#menu').close();showPlaylog();};
 // At most two things call for attention outside the board at once (Build 41 M3), in this order:
 // an affordable upgrade, energy from an ad when low, the daily gift, parts waiting in the book.
 function calmBadges(){let n=0;for(const el of [$('#mapReady'),$('#adEnergyButton'),$('#dailyButton'),$('#bookCount')]){if(el.hidden)continue;if(n>=2){el.hidden=true;if(el.id==='bookCount')$('#bookButton').classList.remove('ready');}else n++;}}
-render();header();setInterval(()=>{header();placeHand();if(state.energy<1)renderHint();offerGift();$('#dailyButton').hidden=!giftReady();calmBadges();syncPlaying();},1000);
+render();header();placeHeading();setInterval(()=>{header();placeHand();if(state.energy<1)renderHint();offerGift();$('#dailyButton').hidden=!giftReady();calmBadges();syncPlaying();},1000);
 // First Session 2.0: a new player meets the story as one caption line over the bottom of the screen (Ivo and
 // the beach's own intro line), not three pages before the board. It never blocks the board's middle, folds at
 // the first action (or a tap on it), and a tap on its "Story" replays the illustrated opening. The menu's
@@ -1559,8 +1570,20 @@ function storyRibbon(){
  r.innerHTML=`${face(who)}<p><b>${who$(who)} · ${a.name}</b>${line}</p><button type="button" class="ribbonStory" aria-label="Watch the story">Story</button><button type="button" class="ribbonClose" aria-label="Close the story line">×</button>`;
  r.hidden=false;r.classList.remove('folded');
  r.querySelector('.ribbonStory').onclick=()=>{foldRibbon();replayStory();};r.querySelector('.ribbonClose').onclick=foldRibbon;
+ placeRibbon();requestAnimationFrame(()=>requestAnimationFrame(placeRibbon));
 }
 function foldRibbon(){const r=$('#storyRibbon');if(!r||r.hidden)return;r.classList.add('folded');setTimeout(()=>{r.hidden=true;},reduced()?0:320);}
+// Stable board (2026-11-15, owner: the caption covered the board's bottom row). Pinned to the bottom of the screen
+// only where that leaves the board clear (a tall phone); otherwise it sits in the page just below the board, before
+// the shed: it never covers a cell or a control, and folding it moves only what is below. Same words, Story and ×.
+function placeRibbon(){
+ const r=$('#storyRibbon'),b=$('#board');if(!r||r.hidden||!b)return;
+ r.classList.remove('inline');if(r.parentNode!==document.body)document.body.append(r);
+ const box=b.getBoundingClientRect(),cs=getComputedStyle(r),bottom=parseFloat(cs.bottom)||0,top=innerHeight-bottom-r.offsetHeight;
+ const left=r.getBoundingClientRect().left,right=left+r.offsetWidth;
+ if(top<box.bottom+4&&left<box.right&&right>box.left){r.classList.add('inline');($('#shed')??b).before(r);}
+}
+addEventListener('resize',()=>placeRibbon());
 function replayStory(){$('#menu').open&&$('#menu').close();playScenes({scenes:INTRO.map(x=>({...x,src:`assets/premium/coast/story/${x.art}.webp`,id:x.art})),face:who=>`assets/premium/coast/ui/${FACES[who]}.webp`,reduced,last:'Back to the camp'}).then(()=>render());}
 {const sb=document.createElement('button');sb.id='storyButton';sb.type='button';sb.className='menuButton';sb.textContent='Story: the letter';sb.onclick=replayStory;$('#homeButton').after(sb);}
 // Initial screen (2026-11-15): each time play starts (a new camp's first board, Home → Play/Continue, the menu's

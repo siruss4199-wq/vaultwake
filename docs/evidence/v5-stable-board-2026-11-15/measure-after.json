@@ -1,0 +1,307 @@
+[
+ {
+  "vp": "360x640",
+  "case": "returning",
+  "y0": 206,
+  "cards3": true,
+  "y1": 206,
+  "details": {
+   "top": 554,
+   "bottom": 598,
+   "left": 170.6,
+   "right": 241.4
+  },
+  "detailsInView": true,
+  "strip": {
+   "top": 160,
+   "bottom": 204,
+   "left": 10,
+   "right": 350
+  },
+  "detailsOverStrip": false,
+  "detailsOverBoard": false,
+  "clipSel": [],
+  "tilesSel": 0,
+  "sheetOpen": true,
+  "y2": 206,
+  "y3": 206,
+  "maxJump": 0,
+  "errors": 0
+ },
+ {
+  "vp": "360x640",
+  "case": "new player",
+  "ribbon": {
+   "top": 606,
+   "bottom": 674,
+   "left": 10,
+   "right": 350
+  },
+  "ribbonInline": true,
+  "ribbonOverBoard": false,
+  "ribbonOverControls": [],
+  "tiles": [],
+  "tilesBlocked": 0,
+  "tilesOff": 0,
+  "clip": [],
+  "cards3": true,
+  "y0": 258,
+  "y1": 258,
+  "y2": 258,
+  "maxJump": 0,
+  "errors": 0
+ },
+ {
+  "vp": "375x667",
+  "case": "returning",
+  "y0": 206,
+  "cards3": true,
+  "y1": 206,
+  "details": {
+   "top": 569,
+   "bottom": 613,
+   "left": 178.1,
+   "right": 248.9
+  },
+  "detailsInView": true,
+  "strip": {
+   "top": 160,
+   "bottom": 204,
+   "left": 10,
+   "right": 365
+  },
+  "detailsOverStrip": false,
+  "detailsOverBoard": false,
+  "clipSel": [],
+  "tilesSel": 0,
+  "sheetOpen": true,
+  "y2": 206,
+  "y3": 206,
+  "maxJump": 0,
+  "errors": 0
+ },
+ {
+  "vp": "375x667",
+  "case": "new player",
+  "ribbon": {
+   "top": 621,
+   "bottom": 673.4,
+   "left": 10,
+   "right": 365
+  },
+  "ribbonInline": true,
+  "ribbonOverBoard": false,
+  "ribbonOverControls": [],
+  "tiles": [],
+  "tilesBlocked": 0,
+  "tilesOff": 0,
+  "clip": [],
+  "cards3": true,
+  "y0": 258,
+  "y1": 258,
+  "y2": 258,
+  "maxJump": 0,
+  "errors": 0
+ },
+ {
+  "vp": "390x664",
+  "case": "returning",
+  "y0": 206,
+  "cards3": true,
+  "y1": 206,
+  "details": {
+   "top": 584,
+   "bottom": 628,
+   "left": 185.6,
+   "right": 256.4
+  },
+  "detailsInView": true,
+  "strip": {
+   "top": 160,
+   "bottom": 204,
+   "left": 10,
+   "right": 380
+  },
+  "detailsOverStrip": false,
+  "detailsOverBoard": false,
+  "clipSel": [],
+  "tilesSel": 0,
+  "sheetOpen": true,
+  "y2": 206,
+  "y3": 206,
+  "maxJump": 0,
+  "errors": 0
+ },
+ {
+  "vp": "390x664",
+  "case": "new player",
+  "ribbon": {
+   "top": 636,
+   "bottom": 688.4,
+   "left": 10,
+   "right": 380
+  },
+  "ribbonInline": true,
+  "ribbonOverBoard": false,
+  "ribbonOverControls": [],
+  "tiles": [],
+  "tilesBlocked": 0,
+  "tilesOff": 0,
+  "clip": [],
+  "cards3": true,
+  "y0": 258,
+  "y1": 258,
+  "y2": 258,
+  "maxJump": 0,
+  "errors": 0
+ },
+ {
+  "vp": "390x844",
+  "case": "returning",
+  "y0": 206,
+  "cards3": true,
+  "y1": 206,
+  "details": {
+   "top": 584,
+   "bottom": 628,
+   "left": 185.6,
+   "right": 256.4
+  },
+  "detailsInView": true,
+  "strip": {
+   "top": 160,
+   "bottom": 204,
+   "left": 10,
+   "right": 380
+  },
+  "detailsOverStrip": false,
+  "detailsOverBoard": false,
+  "clipSel": [],
+  "tilesSel": 0,
+  "sheetOpen": true,
+  "y2": 206,
+  "y3": 206,
+  "maxJump": 0,
+  "errors": 0
+ },
+ {
+  "vp": "390x844",
+  "case": "new player",
+  "ribbon": {
+   "top": 781.6,
+   "bottom": 834,
+   "left": 10,
+   "right": 380
+  },
+  "ribbonInline": false,
+  "ribbonOverBoard": false,
+  "ribbonOverControls": [],
+  "tiles": [],
+  "tilesBlocked": 0,
+  "tilesOff": 0,
+  "clip": [],
+  "cards3": true,
+  "y0": 258,
+  "y1": 258,
+  "y2": 258,
+  "maxJump": 0,
+  "errors": 0
+ },
+ {
+  "vp": "430x932",
+  "case": "returning",
+  "y0": 208,
+  "cards3": true,
+  "y1": 208,
+  "details": {
+   "top": 626,
+   "bottom": 670,
+   "left": 205.6,
+   "right": 276.4
+  },
+  "detailsInView": true,
+  "strip": {
+   "top": 162,
+   "bottom": 206,
+   "left": 10,
+   "right": 420
+  },
+  "detailsOverStrip": false,
+  "detailsOverBoard": false,
+  "clipSel": [],
+  "tilesSel": 0,
+  "sheetOpen": true,
+  "y2": 208,
+  "y3": 208,
+  "maxJump": 0,
+  "errors": 0
+ },
+ {
+  "vp": "430x932",
+  "case": "new player",
+  "ribbon": {
+   "top": 869.6,
+   "bottom": 922,
+   "left": 10,
+   "right": 420
+  },
+  "ribbonInline": false,
+  "ribbonOverBoard": false,
+  "ribbonOverControls": [],
+  "tiles": [],
+  "tilesBlocked": 0,
+  "tilesOff": 0,
+  "clip": [],
+  "cards3": true,
+  "y0": 260,
+  "y1": 260,
+  "y2": 260,
+  "maxJump": 0,
+  "errors": 0
+ },
+ {
+  "vp": "907x510",
+  "case": "returning",
+  "y0": 10,
+  "cards3": true,
+  "y1": 10,
+  "details": null,
+  "detailsInView": false,
+  "strip": {
+   "top": 297.3,
+   "bottom": 341.3,
+   "left": 12.5,
+   "right": 392.5
+  },
+  "detailsOverStrip": null,
+  "detailsOverBoard": null,
+  "clipSel": [],
+  "tilesSel": 0,
+  "y3": 10,
+  "maxJump": 0,
+  "errors": 0
+ },
+ {
+  "vp": "907x510",
+  "case": "new player",
+  "ribbon": {
+   "top": 263.3,
+   "bottom": 315.7,
+   "left": 12.5,
+   "right": 392.5
+  },
+  "ribbonInline": true,
+  "ribbonOverBoard": false,
+  "ribbonOverControls": [],
+  "tiles": [],
+  "tilesBlocked": 0,
+  "tilesOff": 0,
+  "clip": [],
+  "cards3": true,
+  "y0": 12,
+  "y1": 12,
+  "y2": 12,
+  "maxJump": 0,
+  "errors": 0
+ }
+]

@@ -765,3 +765,12 @@ body.nextMode .boardHeading #hint.primaryAction[data-kind="coach"] .gWhat{font-s
 body.nextMode .boardHeading #hint.primaryAction[data-kind="coach"] .gWhy{font-size:11.5px;line-height:1.25;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 body.nextMode .boardHeading:has(#hint[data-kind="coach"])+#board.board{margin-top:4px}
 body.nextMode .boardHeading .guideHint,body.nextMode .boardHeading .coachSkip{box-shadow:0 1px 3px #0d5a6a26;background:#fffaf0}
+/* -- Stable board (2026-11-15): the Hint/Details row below the board outside the tutorial; the story caption
+   compact, pinned only where it leaves the board clear, otherwise in the page below the board (app.mjs). -- */
+body.nextMode #board~.boardHeading{margin-top:8px;justify-content:center}
+body.nextMode #board~.boardHeading:has(#orderDetails:not([hidden])){gap:8px}
+.storyRibbon{gap:8px;padding:4px 4px 4px 6px;border-radius:14px}
+.storyRibbon .face{width:32px;height:32px}
+.storyRibbon p{font-size:12.5px;line-height:1.25}
+.storyRibbon p b{font-size:10.5px}
+.storyRibbon.inline{position:relative;left:auto;right:auto;bottom:auto;z-index:1;max-width:none;margin:8px 0 0;animation:none}

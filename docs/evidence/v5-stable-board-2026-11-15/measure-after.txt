@@ -1,0 +1,12 @@
+360x640  returning : board 206 → sel 206 → details closed 206 → desel 206 | max jump 0 | Details 554-598 inView true overStrip false overBoard false sheet true | 3 cards true | tiles covered 0 | clip - err 0
+360x640  new player: ribbon 606-674 inline true overBoard false overControls - | tiles covered 0 offscreen 0 | board 258 → tutorial sel 258 → desel 258 max jump 0 | 3 cards true | clip - err 0
+375x667  returning : board 206 → sel 206 → details closed 206 → desel 206 | max jump 0 | Details 569-613 inView true overStrip false overBoard false sheet true | 3 cards true | tiles covered 0 | clip - err 0
+375x667  new player: ribbon 621-673.4 inline true overBoard false overControls - | tiles covered 0 offscreen 0 | board 258 → tutorial sel 258 → desel 258 max jump 0 | 3 cards true | clip - err 0
+390x664  returning : board 206 → sel 206 → details closed 206 → desel 206 | max jump 0 | Details 584-628 inView true overStrip false overBoard false sheet true | 3 cards true | tiles covered 0 | clip - err 0
+390x664  new player: ribbon 636-688.4 inline true overBoard false overControls - | tiles covered 0 offscreen 0 | board 258 → tutorial sel 258 → desel 258 max jump 0 | 3 cards true | clip - err 0
+390x844  returning : board 206 → sel 206 → details closed 206 → desel 206 | max jump 0 | Details 584-628 inView true overStrip false overBoard false sheet true | 3 cards true | tiles covered 0 | clip - err 0
+390x844  new player: ribbon 781.6-834 inline false overBoard false overControls - | tiles covered 0 offscreen 0 | board 258 → tutorial sel 258 → desel 258 max jump 0 | 3 cards true | clip - err 0
+430x932  returning : board 208 → sel 208 → details closed 208 → desel 208 | max jump 0 | Details 626-670 inView true overStrip false overBoard false sheet true | 3 cards true | tiles covered 0 | clip - err 0
+430x932  new player: ribbon 869.6-922 inline false overBoard false overControls - | tiles covered 0 offscreen 0 | board 260 → tutorial sel 260 → desel 260 max jump 0 | 3 cards true | clip - err 0
+907x510  returning : board 10 → sel 10 → details closed undefined → desel 10 | max jump 0 | Details none sheet undefined | 3 cards true | tiles covered 0 | clip - err 0
+907x510  new player: ribbon 263.3-315.7 inline true overBoard false overControls - | tiles covered 0 offscreen 0 | board 12 → tutorial sel 12 → desel 12 max jump 0 | 3 cards true | clip - err 0
