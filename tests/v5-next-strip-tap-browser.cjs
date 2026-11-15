@@ -52,8 +52,8 @@ async function tapStrip(page,sel,tag){
      else if(t?.kind==='pair')await drag(cell(t.cells[0]),cell(t.cells[1]));
      else if(t?.kind==='order'){await page.locator(`#requests [data-order="${t.id}"]`).tap();await page.waitForTimeout(1200);}
      await page.waitForTimeout(120);}
-    assert.ok(reached,`${tag}: the guide reaches "Tap the coast strip"`);
-    assert.match(await page.locator('#hint').innerText(),/Tap the coast strip/);
+    assert.ok(reached,`${tag}: the guide reaches "Tap Build" (the strip's button, 2026-11-15 action clarity)`);
+    assert.match(await page.locator('#hint').innerText(),/^Tap Build/);
     await page.waitForTimeout(700);await page.screenshot({path:path.join(OUT,`${engine}-guide-before.png`)});
     const opened=await tapStrip(page,'#mapButton .rsText b',`${tag}: "Ready to build"`);
     await page.screenshot({path:path.join(OUT,`${engine}-guide-after.png`)});

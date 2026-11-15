@@ -787,7 +787,6 @@ body.nextMode .boardHeading .coachSkip{color:var(--cb-ink2);font-weight:700}
 body.nextMode .moment{box-shadow:inset 0 0 0 1px var(--pp-line),0 6px 16px #1f5b6a2e;max-width:min(320px,calc(100vw - 24px))}
 @media (prefers-reduced-motion:no-preference){
  body.nextMode[data-art] #board.board .tile.tile.coachTarget{animation:tutPulse 1.6s ease-out infinite}
- body.nextMode[data-art] #board.board .tile.tile.coachFrom::after{content:"";position:absolute;inset:3px;z-index:3;border-radius:9px;border:2px solid var(--pp-gold);background:none;box-shadow:none;pointer-events:none;animation:tutGhost 1.8s ease-in-out infinite}
  body.nextMode #requests .requestShelf .requestCard.requestCard.coachTarget .reqDeliver,body.nextMode .restoreStrip.coachTarget .rsAction{animation:tutPulseCtl 1.6s ease-out infinite}
  #coachHand:not(.drag) svg{animation:tutTap 1.2s ease-in-out infinite}
  /* the target's own idle loop (a generator's bob) rests too: its pulse is the one moving cue */
@@ -802,5 +801,34 @@ body.nextMode .moment{box-shadow:inset 0 0 0 1px var(--pp-line),0 6px 16px #1f5b
 }
 @keyframes tutPulse{0%{box-shadow:0 0 0 2px var(--pp-gold),0 0 0 2px #e9a91c80}70%,100%{box-shadow:0 0 0 2px var(--pp-gold),0 0 0 9px #e9a91c00}}
 @keyframes tutPulseCtl{0%{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--pp-gold),0 0 0 4px #e9a91c80}70%,100%{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--pp-gold),0 0 0 10px #e9a91c00}}
-@keyframes tutGhost{0%,15%{transform:translate(0,0);opacity:0}30%{opacity:.85}75%{transform:translate(var(--dx,0),var(--dy,0));opacity:.85}90%,100%{transform:translate(var(--dx,0),var(--dy,0));opacity:0}}
 @keyframes tutTap{0%,100%{transform:translate(2px,3px)}45%{transform:translate(0,0) scale(.94)}}
+/* ===== Action clarity (2026-11-15, owner on a real iPhone; docs/V5_TUTORIAL_CLARITY_2026-11-15.md) ================
+   The next action must be readable from a still screenshot. The line names the control as it looks on screen (a small
+   green "Deliver" or orange "Build" chip); it sits next to its target (under the order rail for a Deliver, app.mjs
+   placeHeading) with a gold notch pointing at the control; a small pointer touches the Deliver chip from the card's
+   free space. A merge reads SOURCE (gold ring) → arrow → DESTINATION (green dashed ring). While the guide points at
+   something, the board's own selection marks (corner brackets, twin rings, crate keys, held-part glows on other
+   cards) step back to a faint neutral line: the state, the controls and selecting are unchanged. Toasts move to the
+   foot of the screen while the target is in the order rail. */
+body.nextMode #hint .gChip{display:inline-block;padding:0 7px;border-radius:999px;font-size:12.5px;line-height:17px;vertical-align:-2px;color:#fff;font-weight:900;letter-spacing:.1px}
+body.nextMode #hint .gChip[data-c="Deliver"]{background:var(--pp-green)}
+body.nextMode #hint .gChip[data-c="Build"]{background:linear-gradient(#ff9a3c,#ef6a1f)}
+body[data-art].nextMode .boardHeading #hint.primaryAction[data-kind="coach"][data-notch]{position:relative;overflow:visible}
+body[data-art].nextMode .boardHeading #hint.primaryAction[data-kind="coach"][data-notch]::before{display:block;content:"";position:absolute;left:calc(var(--nx,24px) - 8px);top:-7px;width:16px;height:8px;padding:0;margin:0;border:0;border-radius:0;background:var(--pp-gold);clip-path:polygon(50% 0,100% 100%,0 100%);box-shadow:none;transform:none;animation:none;opacity:1}
+/* the pointer under a Deliver chip (app.mjs chipSpot): the same small pointer as on a cell */
+#coachHand[data-on="chip"] svg{display:block}
+/* merge: the arrow from the source to the destination */
+body.nextMode #board .coachArrow{position:absolute;z-index:5;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;display:grid;place-items:center;background:#173845;box-shadow:0 0 0 2px #fff,0 2px 5px #0006;pointer-events:none;transform:rotate(var(--a,0deg))}
+body.nextMode #board .coachArrow svg{width:14px;height:14px;fill:none;stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+@media (prefers-reduced-motion:no-preference){body.nextMode #board .coachArrow{animation:tutNudge 1.2s ease-in-out infinite}}
+@keyframes tutNudge{0%,100%{transform:rotate(var(--a,0deg)) translateX(-1px)}50%{transform:rotate(var(--a,0deg)) translateX(3px)}}
+/* everything else steps back while a target shows */
+body.nextMode:has(#board .tile:is(.coachTarget,.coachFrom),#requests .coachTarget,.restoreStrip.coachTarget) #board.board .tile.tile.selected:not(.coachTarget,.coachFrom,.coachTo)::after{opacity:.3;filter:grayscale(1)}
+body.nextMode[data-art]:has(#board .tile:is(.coachTarget,.coachFrom),#requests .coachTarget,.restoreStrip.coachTarget) #board.board .tile.tile:is(.match,.nextAction,.orderSource,.hintPair):not(.coachTarget,.coachFrom,.coachTo){box-shadow:inset 0 0 0 1.5px #d8ccb6;animation:none}
+body.nextMode:has(#board .tile:is(.coachTarget,.coachFrom),#requests .coachTarget,.restoreStrip.coachTarget) #board .tile.cargo:not(.coachTarget,.coachFrom,.coachTo) .cargoKey{opacity:.4;filter:grayscale(.6)}
+body.nextMode:has(#board .tile:is(.coachTarget,.coachFrom),#requests .coachTarget,.restoreStrip.coachTarget) #requests .requestCard:not(.coachTarget) .requestItems>span.held{box-shadow:0 0 0 1.5px var(--pp-line)}
+body.nextMode:has(#requests .coachTarget) .moment{top:auto;bottom:max(14px,calc(env(safe-area-inset-bottom) + 8px))}
+/* the line above the strip: the board keeps the gap it has under the line (no move when they trade places) */
+body.nextMode .boardHeading:has(#hint[data-kind="coach"])+#mapButton+#board.board{margin-top:4px}
+/* the last merge's name pill steps back too while an order is the target (filter: its own fade animates opacity) */
+body.nextMode:has(#requests .coachTarget,.restoreStrip.coachTarget) .mergeTag{filter:opacity(.45)}

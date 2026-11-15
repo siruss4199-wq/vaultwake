@@ -2,7 +2,10 @@
 // through the UI from a new camp to the first Build on the coast. At every step: one focus (one target, or the two
 // cells of a merge), the pointer small (at most 24 px) and over no item picture, count or word, at most four
 // looping animations on screen while a target shows (the target's own cue and, on the coast, the Build button's), and the board never
-// moves. 360×640, 390×664 and 430×932; ENGINES (default chromium,webkit), VIEWPORTS.
+// moves. Action clarity (2026-11-15, owner on a real iPhone): a Deliver step says "Tap Deliver to collect N coins" (the
+// card's pay), its line sits right under the order rail with its notch under the Deliver chip, the pointer beside the
+// chip, no toast over the card; a merge shows an arrow from source to destination; other selection marks are faint.
+// 360×640, 390×664 and 430×932; ENGINES (default chromium,webkit), VIEWPORTS.
 const assert=require('node:assert/strict');const {chromium,webkit}=require('playwright');
 const ORIGIN=process.env.ORIGIN||'http://127.0.0.1:8080';
 const VIEWPORTS=(process.env.VIEWPORTS||'360x640,390x664,430x932').split(',').map(s=>s.split('x').map(Number));
@@ -17,7 +20,18 @@ const metrics=page=>page.evaluate(()=>{const R=e=>{const r=e.getBoundingClientRe
  const anims=document.getAnimations().filter(a=>a.playState==='running'&&(a.effect?.getTiming?.().iterations===Infinity)).map(a=>{const t=a.effect.target;return (t?.id||t?.className?.baseVal||t?.className||'?').toString().slice(0,40)+'/'+(a.animationName||'');});
  const panels=['#hint[data-kind="coach"]','#storyRibbon:not([hidden])','.moment','#coastMap[open] .coachLine','#coachSkip:not([hidden])','#guideHint'].filter(s=>{const e=document.querySelector(s);return e&&vis(e);});
  const st=window.VWGuide?.step;const b=document.querySelector('#board').getBoundingClientRect();
- return {step:st?.kind,level:document.querySelector('#hint')?.dataset.level,what:st?.what,target:st?.target?.kind,emph,hand:hr?{w:Math.round(hr.w),h:Math.round(hr.h)}:null,covers,anims,panels,boardTop:Math.round(b.top),hint:(()=>{const e=document.querySelector('#hint');return vis(e)?R(e):null;})()};});
+ // action clarity (2026-11-15): where the line sits, its notch, the Deliver chip, the merge arrow, other marks, toasts
+ const tgt=document.querySelector('#requests .coachTarget'),chip=tgt?.querySelector('.reqDeliver'),hintEl=document.querySelector('#hint'),rail=document.querySelector('#requests');
+ const nx=hintEl?.dataset.notch?parseFloat(getComputedStyle(hintEl).getPropertyValue('--nx')):null,hr0=hintEl?.getBoundingClientRect();
+ const arrow=document.querySelector('#board .coachArrow'),from=document.querySelector('#board .coachFrom'),to=document.querySelector('#board .coachTo');
+ const cen=e=>{const r=e.getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2};};
+ const sel=[...document.querySelectorAll('#board .tile.selected:not(.coachTarget,.coachFrom,.coachTo)')].map(e=>+getComputedStyle(e,'::after').opacity);
+ const mo=document.querySelector('.moment');
+ const clarity={line:hintEl?.innerText??'',lineTop:hr0?.top,railBottom:rail?.getBoundingClientRect().bottom,
+  notchX:nx!=null&&hr0?hr0.left+nx:null,chip:chip?R(chip):null,chipText:chip?.innerText??'',
+  arrow:arrow&&from&&to?{a:cen(arrow),s:cen(from),d:cen(to)}:null,selected:sel,
+  momentOverTarget:!!(mo&&tgt&&inter(R(mo),R(tgt))>0)};
+ return {clarity,handBox:hr,step:st?.kind,level:document.querySelector('#hint')?.dataset.level,what:st?.what,target:st?.target?.kind,emph,hand:hr?{w:Math.round(hr.w),h:Math.round(hr.h)}:null,covers,anims,panels,boardTop:Math.round(b.top),hint:(()=>{const e=document.querySelector('#hint');return vis(e)?R(e):null;})()};});
 (async()=>{for(const engine of (process.env.ENGINES||'chromium,webkit').split(',')){
  let browser;try{browser=await {chromium,webkit}[engine].launch();}catch(e){if(engine!=='chromium'&&/Executable doesn't exist/.test(e.message)){console.log(`${engine}: not installed here, skipped`);continue;}throw e;}
  try{for(const [W,H] of VIEWPORTS){const tag=s=>`${engine} ${W}×${H}: ${s}`;
@@ -31,7 +45,22 @@ const metrics=page=>page.evaluate(()=>{const R=e=>{const r=e.getBoundingClientRe
    if(m.hand)assert.ok(m.hand.w<=24&&m.hand.h<=28,t+`: a small pointer (${m.hand.w}×${m.hand.h})`);
    assert.deepEqual(m.covers,[],t+': the pointer covers no picture, count or word');
    // while the guide points at something, nothing else loops for attention (a quiet step is the plain game)
-   if(m.emph.length)assert.ok(m.anims.length<=4,t+`: at most four looping animations (${m.anims.join(', ')})`);};
+   if(m.emph.length)assert.ok(m.anims.length<=4,t+`: at most four looping animations (${m.anims.join(', ')})`);
+   if(where!=='board'||!m.emph.length)return;const c=m.clarity;
+   // the board's own selection marks step back while the guide points at something
+   for(const o of c.selected)assert.ok(o<=0.35,t+`: a selected part's corners are faint (${o})`);
+   if(m.target==='order'){
+    // the line names the control and its pay, sits right under the order rail and points at the chip
+    const n=+(/^Tap Deliver to collect (\d+) coins/.exec(c.line)?.[1]);assert.ok(n>0,t+`: the line says "Tap Deliver to collect N coins" (${c.line})`);
+    if(/\+\d/.test(c.chipText))assert.ok(c.chipText.includes('+'+n),t+`: the same pay as the chip (${c.chipText})`);
+    assert.ok(c.lineTop-c.railBottom<=8,t+`: the line just under the order rail (${Math.round(c.railBottom)} → ${Math.round(c.lineTop)})`);
+    assert.ok(c.notchX!=null&&c.notchX>=c.chip.l&&c.notchX<=c.chip.r,t+`: the notch under the Deliver chip (${c.notchX} in ${c.chip.l}-${c.chip.r})`);
+    if(m.handBox)assert.ok(m.handBox.r<=c.chip.l||m.handBox.l>=c.chip.r||m.handBox.b<=c.chip.t+3||m.handBox.t>=c.chip.b-3,t+': the pointer beside the chip, not over it');
+    assert.ok(!c.momentOverTarget,t+': no toast over the order to deliver');}
+   if(m.target==='pair'){
+    // SOURCE → DESTINATION: an arrow on the line between them, turned toward the destination
+    const a=c.arrow;assert.ok(a,t+': a merge shows its arrow');const vx=a.d.x-a.s.x,vy=a.d.y-a.s.y,L=Math.hypot(vx,vy),wx=a.a.x-a.s.x,wy=a.a.y-a.s.y;
+    assert.ok(Math.abs(vx*wy-vy*wx)/L<=3&&(vx*wx+vy*wy)>0,t+`: the arrow between source and destination (${JSON.stringify(a)})`);}};
   let idle=0,top0=null,steps=0,build=false;const kinds=new Set();
   for(let n=0;n<70;n++){await delay(900);
    if(await page.locator('#beat[open]').count()){await tapAt(page.locator('#beatNext'));continue;}
