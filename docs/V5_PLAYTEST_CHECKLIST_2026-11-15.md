@@ -46,6 +46,16 @@
   - the coast open and close it crashed on also passes in WebKit in the coast-back, core-actions, strip-tap and chapter suites;
   - Chromium never shows it.
 - **What it is:** an intermittent WebKit page-process loss in the CI container (Playwright 1.62.1 WebKit), not a gameplay error. No page error or assertion failure comes before it.
+- **It failed again on `e4e8575` (390×664, run 43699583743), so it was tested directly.**
+  - The same suite ran 12 times in WebKit against each build, on the same runners at the same time (scratch run 43702050248, branch `claude/v5-webkit-soak`, not for merge):
+
+    | Build | Passed | Failed |
+    |---|---|---|
+    | PR #104 base `6bbee67` | 10 | 2 |
+    | this PR `e4e8575` | 11 | 1 |
+
+  - Every failure had the same signature: the page closes at different points of the flow (lines 62, 94, 100).
+  - **Conclusion:** CI WebKit instability, present on the base code. Not a regression of this PR.
 - **What remains:** no WebKit binary is available outside CI to rule out a real Safari crash on this path, so real iPhones (§2) are the check. Any crash or "A problem repeatedly occurred" on an iPhone is an S1 and blocks the build.
 
 ## 2. Setup (preserves the preview and every save)
