@@ -156,7 +156,7 @@ That is a choice of what to tap and which order to work on, where before there w
 | **Generator pacing** | Kite at 6.8 / 8.5 / 13.7 min instead of 14 / 17.6 / 28 (normal, whole-game run). The Rope Winch still comes from the Kite's level 3; the Kite's copies (Workshop and later stages) are unchanged. The Rover's level 3 brings nothing new now (it still makes better parts). | Earlier second generator only |
 | **Inventory** | Items on the board at 10 min: 2–7 (before 3–6); full-board actions 0%. With two chains the board holds a few more parts. | Fine |
 | **Later chapters** | Whole game, 12 seeds × 4/5/6 s: every run finishes; total time 350 → 354, 438 → 439, 526 → 530 min (+0–1%). Gold-first Chapter 1: 133 → 128, 170 → 160, 272 → 253 min. | Unchanged |
-| **Rare crew orders (owner review)** | Level 3 rare crew asks 16 → median 11 / 7 / 14 a game (4/5/6 s; min 6). Level 2: 42 → 53 / 45 / 53. Level 2 + 3 together: 58 → 64 / 52 / 67. With the Kite out earlier, the notes chain is asked at Level 2 more on the beach, which uses the drops a Level 3 ask needs. **The guard test changed** from "Level 2 ≥ 30 and Level 3 ≥ 10" to "Level 2 ≥ 30, Level 2 + 3 ≥ 45, Level 3 ≥ 5" (`tests/v5-next-build52a.test.mjs`). | **Trade-off: fewer hard rare crew goals** |
+| **Rare crew orders** | **Corrected on 2026-11-15 (§9).** On `3808698` the Kite reshuffled the order stream: Level 3 rare crew asks 16 → 7–14 a game, and only 3.3 of them delivered (baseline 9.0). The "ladder" rule in `secondaryNeed` brings back 21 asks and 9.0 deliveries a game. The original guard (Level 2 ≥ 30, Level 3 ≥ 10) is restored and passes on its seeds and on 36 more runs. | Restored; see §9 for the rare-gold-wait trade-off |
 | **Crew-order repeats (gold-first)** | An everyday order repeating one of the last four: 5.7% → 13% for the gold-first player (normal player 2.2% → 2.5–3.1%). | Minor; watch |
 
 ## 5. Saves, cloud and existing players
@@ -185,7 +185,10 @@ That is a choice of what to tap and which order to work on, where before there w
 | `tests/v5-next-first10.test.mjs` (new) | Rule, save-compatibility and first-10-minutes simulation guard |
 | `tests/v5-next-first10-policy.mjs`, `tests/v5-next-first10-metrics.mjs` (new) | The guide player and the measurements |
 | `tests/v5-next.test.mjs`, `tests/v5-next-economy-sim.mjs` | Updated for the tent's Kite; the harness also counts a generator a stage gives |
-| `tests/v5-next-build52a.test.mjs` | The rare-demand guard (§4) |
+| `tests/v5-next-build52a.test.mjs` | The original rare-demand guard, restored (§9) |
+| `v5/next/game.mjs` (2026-11-15) | `secondaryNeed`: the Level 3 "ladder" (§9) |
+| `v5/next/app.mjs` (2026-11-15) | A guide note points at a newly arrived generator once; the Daily-gift rule keyed to the camp's moves at page load (§9) |
+| `tests/v5-next-kite-browser.cjs` (new, in CI) | The Kite's card, reward, guide note and first part; no gift popup in a new camp's first session |
 
 **To revert the gameplay change:** restore the one `areas.mjs` line (`effect:{energy:8}` and its lines). The UI changes are independent of it.
 
@@ -217,3 +220,123 @@ That is a choice of what to tap and which order to work on, where before there w
 - **The energy pill** ("100 /50 +50 BONUS") is unchanged.
 - **WebKit** is tested in CI only (not installed in this sandbox).
 - **No claim** of a retention, playtime or conversion change until CrazyGames analytics on a released build show it.
+
+## 9. Balance review and corrections (2026-11-15)
+
+**Owner decisions:**
+- **Kept:** the Survey Kite from the camp tent, the quiet guide purpose line, no Daily-gift interruption for new players, existing saves and UI.
+- **To correct:** the weakened rare-order guard, the gold-first player's repetition and rare-gold waits, and the Kite's discoverability.
+
+Measured on three trees: the baseline `6bbee67`, the PR #105 head `3808698`, and the corrected head. Sources:
+- `rarefate.mjs`: asked, delivered and replaced rare crew orders; normal player, whole game, 18 runs.
+- `rare2.mjs`: the guard counts; 12 seeds × 4/5/6 s.
+- `goldwait.mjs`: rare gold-order waits, normalised per second-per-action; 36 runs per player.
+- `guidech1.mjs`: the guide-following player, Chapter 1, 12 runs.
+- `repeats.mjs`: crew-order repeats.
+
+All are in `docs/evidence/v5-first-10-minutes-2026-11-14/balance-review/`.
+
+### 9a. Rare crew orders: why Level 3 fell, and the correction
+
+**Cause.** `secondaryNeed` lists the merged parts the player can make now (a Level 2 from two held Bolts) before the goals a few drops away (where a Level 3 is). So a Level 3 was asked mostly by accident: when the Level 2 happened to be among the last four asks and was skipped. The Kite changed which orders came first, so the Level 2 was asked again and again. It used the drops two at a time, and Level 3 seldom came up.
+
+**Correction (`v5/next/game.mjs`, `secondaryNeed`, one rule): climb the ladder.** A chain whose Level 2 one of the recent everyday orders asked is asked its Level 3 next. This applies only when the Level 3 is a goal within the existing allowance:
+- `goalMax` drops away;
+- one goal at a time;
+- a generator that can drop.
+
+No rates, rewards or recipes change.
+
+**Whole game, normal player:**
+
+| | Baseline | PR #105 head | Corrected |
+|---|---|---|---|
+| Level 3 crew asks / delivered / replaced unfinished, per game | 16 / **9.0** / 7 | 10.6 / **3.3** / 7.1 | 21 / **9.0** / 11 |
+| Level 2 crew asks / delivered / replaced | 42 / 23 / 18 | 49 / 32.7 / 14.9 | 51 / 32 / 18 |
+| Original guard seeds (1–3, 5 s): Level 3 asks | 16 ✓ | 7 ✗ | 21 ✓ |
+| 12 seeds × 4/5/6 s: Level 3 asks, minimum | 16 | 6 | **21** (Level 2 minimum 51) |
+| Total game time, 4/5/6 s (median, min) | 350.5 / 438.5 / 526 | 354.5 / 439 / 530 | 352 / 440 / 528 |
+| Wait of a delivered Level 3 crew order (median / 90th percentile, min) | 4.7 / 39 | — | 2.1 / 47 |
+| Energy starvation | 0 | 0 | 0 |
+
+**The original guard is restored** (`tests/v5-next-build52a.test.mjs`: Level 2 ≥ 30, Level 3 ≥ 10). Delivered Level 3 rare crafting is back to the baseline's 9 a game, total time is unchanged, and there is no starvation. A Level 3 card is replaced unfinished more often than before (11 against 7 a game). That happens when a stage's new gold order takes the lane of the least-progressed crew order, which is baseline behaviour.
+
+### 9b. Rare gold-order waits (per second-per-action; ×5 = minutes at 5 s an action)
+
+| Player | Baseline: median / 90th pct / 99th pct / max | PR #105 head | Corrected |
+|---|---|---|---|
+| Normal (whole game, 36 runs) | 0.43 / 0.85 / 0.96 / 0.99 | 0.36 / 0.91 / 1.18 / 1.24 | 0.40 / 0.86 / **1.33 / 1.38** |
+| Gold-first (Chapter 1, 36 runs) | 0.47 / 0.88 / 1.36 / 1.36 | 0.46 / 1.11 / 1.48 / 1.49 | same as PR #105 head |
+| Guide-following (Chapter 1, 12 runs) | 0.49 / 1.30 / – / 3.2 | 0.46 / 1.08 / – / 2.66 | 0.39 / **1.64** / – / 3.49 |
+
+**What this shows:**
+- The median and the typical wait are unchanged or better.
+- **The slowest rare gold orders wait longer:**
+  - normal player: 99th percentile 0.96 → 1.33, about +1.9 min at 5 s an action;
+  - guide-following player: 90th percentile 1.30 → 1.64.
+- These are two stages: the Vault door's ring (a Gear assembly) and the harbour registry's Travel notebook. Both need four drops.
+- With Level 3 crew goals restored, the drops the player held when those gold orders arrived had been spent on a crew goal. In a traced case, 3 drops were still needed in the baseline and 4 after the correction.
+- The gold order's own guaranteed drop (`goldChase`) still bounds the wait.
+- **The gold-first player's longer waits come from the Kite change itself.** They are identical on the PR #105 head and the corrected head. In a traced case (the Vault door), a "1 Gear" crew order was on the board when the Gear-assembly gold order arrived, and took two of its drops. In the baseline that lane happened to hold a notes order.
+
+### 9c. Crew-order repetition (an everyday order asking the same parts as one of the last four)
+
+| Player | Baseline | PR #105 head | Corrected |
+|---|---|---|---|
+| Normal (whole game) | 2.2% | 2.5–3.1% | 4.2% |
+| Gold-first (Chapter 1) | 5.7% | 13% | 13% |
+| Guide-following (Chapter 1) | 3.2% | 5.0% | 5.3% |
+
+The gold-first repeats are "1 Gear" and "1 Expedition note". The gold-first player rarely delivers crew orders. When a stage's gold order arrives, it takes the lane of the least-progressed crew order, often that rare card. The next everyday order then asks the same rare part again, because the player still holds its drops.
+
+### 9d. Corrections tried and not kept (all measured; normal-player time is whole game at 4/5/8 s against 351 / 439 / 702 min)
+
+| Attempt | Effect on the problem | Cost | Kept? |
+|---|---|---|---|
+| A repeated rare ask is skipped (an ordinary order instead) | gold-first repeats 13% → 1.3%; gold-first rare-gold max 1.36 → about 0.8 per s/action | normal player's game +8% (378 / 473 / 757): rare crew orders pay 35–70 coins, and fewer of them slow every stage | No |
+| A repeated rare ask is paired with a modest part of another chain | repeats 1.4% | game +9% | No |
+| Only repeated rare *goals* skipped (uses kept) | repeats 1.3% | game +11% | No |
+| A gold order takes an ordinary crew lane before a rare one | repeats 5.3% | rare cards pile up: Level 3 delivered 9 → 5; normal rare-gold max 17 min at 8 s | No |
+| Ladder only when the Level 3 is one drop away | rare-gold 99th percentile 1.20 | Level 3 delivered 6 a game (baseline 9); game +4–5% | No |
+| Ladder off for chains an open stage still needs | no effect (the slow stages are not yet open when the crew goal is asked) | — | No |
+| A crew goal on the gold order's rare chain gives its place to a new order | — | guide player: Chapter 1 32 → 46 time units, starvation up to 226 min | No |
+
+**Owner decision needed:**
+- **Keep the ladder (this PR):** the original guard and the baseline's Level 3 crafting, with a longer worst-case rare-gold wait at two four-drop stages.
+- **Revert it (one block in `secondaryNeed`):** the PR #105 head's numbers, but Level 3 delivered drops to 3.3 a game and the original guard fails.
+
+**Gold-first repetition** has no minimal fix that does not slow the ordinary player. It is reported, not changed. Reward values and gold recipes are unchanged in every variant.
+
+### 9e. Survey Kite discoverability (existing systems only, nothing blocking)
+
+| When | What the player sees |
+|---|---|
+| Before building the tent | The coast card: "Unlocks a new generator: the Survey Kite". The previous restored card's next line: "Next: Pitch the camp tent · unlocks the Survey Kite". |
+| On Build | The reward: "a new generator: the Survey Kite". Neri's two lines: "my Survey Kite is dry at last … Tap the Kite for charts and lenses. The crates the Rover cannot open take its parts." The toast "New generator: Survey Kite!" lists its whole chain (Ink scrap → …). |
+| **Back on the board (new)** | The guide line's own note, once, for about 7 s: "New generator: tap the Survey Kite for an Ink scrap". The Kite is highlighted with the pointing hand; nothing blocks. |
+| Afterwards | The hint line names the Kite whenever an order needs its parts ("Tap Survey Kite for an Ink scrap"). Its canvas crates show the Kite part that opens them. Help: "The Survey Kite comes with the camp tent". |
+
+Checked at 360×640, 390×664, 390×844, 430×932 and 907×510. The new `tests/v5-next-kite-browser.cjs`, in CI for Chromium and WebKit, checks:
+- the card and the reward;
+- the note and the highlight;
+- that a tap on the Kite makes its part;
+- that a new camp's first session gets no gift popup.
+
+### 9f. A Daily-gift fix found by the new test
+
+PR #105 recorded the camp's progress for the gift rule the first time the once-a-second check ran with Home closed. For a new player, Home stays logically open until the first actions. So that first check could run after three moves and treat the new camp as a returning one, and the gift popped up after Skip guide. The baseline is now taken from the camp as the page loads it, before any input. A camp swapped in later is noted when it appears.
+- A returning camp still gets the gift by itself (`v5-next-browser.cjs`, 360/390/430 px).
+- A new camp does not (`v5-next-kite-browser.cjs`).
+
+### 9g. Ready for real-device player testing?
+
+**Yes, for a playtest, not for release.**
+- All unit tests pass (494), and CI runs every Coast Camp suite in Chromium and WebKit on the PR head.
+- Saves are untouched.
+- The first-10-minutes measurements are unchanged by these corrections: the ladder acts later in the game.
+
+**Still open, for the playtest and the owner:**
+- **The rare-gold tail (§9b):** the longer worst-case wait at the Vault door ring and the harbour registry. It is reached 2–7 hours in, beyond a first playtest session.
+- **Gold-first repetition (§9c):** players who skip crew orders see the same rare card return after a gold order.
+- **Whether new players read the Kite note:** a 7-second note with a hand. The playtest should watch for it.
+- **CrazyGames numbers:** no retention claim until CrazyGames data on a released build.
