@@ -13,8 +13,8 @@
 | Check | Result |
 |---|---|
 | Unit and simulation tests (CI, `5a5355b`) | ✅ 494 pass |
-| Chromium browser suites (CI) | see the PR's checks on `5a5355b` |
-| WebKit browser suites (CI) | see the PR's checks on `5a5355b` |
+| Chromium browser suites (CI, `5a5355b`) | ✅ all Coast Camp suites (run 43691777608) |
+| WebKit browser suites (CI, `5a5355b`) | ✅ all Coast Camp suites, including build-flow at 360/390×664/390×844/430×932 with fresh browsers (run 43691777608) |
 | Local Chromium, all 29 Coast Camp suites (`1db7432`; `5a5355b` changes only the build-flow test) | ✅ |
 | Saves | No migration. The existing-save, cloud-save and fixture suites pass. Save keys are unchanged. |
 
@@ -24,7 +24,7 @@
 - **It is a known WebKit crash.** The First Session 2.0 suite already documents it: "WebKit's page process crashed twice in CI late in one long-lived browser" (`7d2674e` at 430×932, `a840801`), and relaunches the browser per run.
 - **The fix is in the test only.** `5a5355b` gives the build-flow suite a fresh browser per size; every check is unchanged.
 - **The flow itself was checked again.** On `1db7432`, 23 WebKit suites passed, including the save, cloud-save and chapter suites (each with builds and reloads). The 5 suites after build-flow in the same CI step did not run.
-- **Confirmation:** the WebKit run on `5a5355b`, which runs the same flow at all four sizes.
+- **Confirmed:** the WebKit run on `5a5355b` ran the same flow at all four sizes, green.
 - **On real phones:** if a page crash or "A problem repeatedly occurred" is ever seen, record it as a bug (§3).
 
 ## 2. Setup (preserves the preview and every save)
@@ -123,7 +123,7 @@ Owner decisions needed:
 
 ## 6. Current recommendation
 
-**GO for the real-device playtest, provided the WebKit and Chromium CI on `5a5355b` are green.** If either is red, it is NO-GO until fixed.
+**GO for the real-device playtest.** The unit, Chromium and WebKit CI on `5a5355b` are all green.
 
 - **Not a release candidate.**
 - No CrazyGames upload, no merge to main, no save migration.
