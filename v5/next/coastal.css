@@ -499,29 +499,18 @@ body.nextMode #board.board .tile.tile.located{outline:3px solid #ffb81f;outline-
 body.nextMode .boardHeading #hint.primaryAction[data-kind="coach"]{display:block!important;flex:1;min-width:0;background:linear-gradient(#fffaf0,#fff1cf)!important;color:#5a3c06!important;box-shadow:0 0 0 2px #f5c24e,0 3px 8px #e9a52140;font-weight:800;white-space:normal;line-height:1.25;text-align:left}
 body.nextMode .boardHeading:has(#hint[data-kind="coach"]) .nextPlace{display:none}
 body.nextMode .boardHeading .coachSkip{flex:none;min-height:44px;padding:0 10px;border:0;border-radius:999px;background:#ffffffb3;color:#2a5a62;font:700 12px/1 inherit;cursor:pointer}
-body.nextMode .coachTarget,body.nextMode .coachFrom,body.nextMode .coachTo{position:relative;z-index:2;outline:3px solid #f5c24e;outline-offset:2px;border-radius:12px}
-body.nextMode #board .tile.coachTarget,body.nextMode #board .tile.coachTo{box-shadow:0 0 0 3px #f5c24e,0 0 14px #f5c24ecc}
-@media (prefers-reduced-motion:no-preference){
- body.nextMode .coachTarget,body.nextMode .coachTo{animation:coachPulse 1.4s ease-in-out infinite}
- body.nextMode #board .tile.coachFrom::after{content:"";position:absolute;inset:18%;border-radius:50%;background:#ffffffb0;box-shadow:0 0 0 2px #f5c24e;pointer-events:none;animation:coachDrag 1.8s ease-in-out infinite}
-}
-@keyframes coachPulse{0%,100%{outline-color:#f5c24e}50%{outline-color:#f5c24e33}}
-@keyframes coachDrag{0%,15%{transform:translate(0,0);opacity:0}25%{opacity:1}75%{transform:translate(var(--dx,0),var(--dy,0));opacity:1}90%,100%{transform:translate(var(--dx,0),var(--dy,0));opacity:0}}
 #help .helpReplay{margin-top:12px;min-height:44px;width:100%}
 #coastMap .coachLine{margin:0 0 6px;padding:6px 10px;border-radius:10px;background:#fff1cf;color:#5a3c06;font-weight:800;font-size:13px;box-shadow:0 0 0 2px #f5c24e}
 /* Build 51d: the guide's pointing hand and its label ("Tap here"); the fingertip sits on the target's middle.
    It never takes a tap and stays still with reduced motion. */
 #coachHand{position:fixed;left:0;top:0;width:0;height:0;z-index:40;pointer-events:none}
 #coachHand[hidden]{display:none}
-#coachHand svg,#coastMap .coachHand svg{position:absolute;left:-14px;top:-3px;width:34px;height:40px;fill:#fff;stroke:#3a2a10;stroke-width:2.6;stroke-linejoin:round;filter:drop-shadow(0 2px 3px #0007)}
 #coachHand .handLabel,#coastMap .coachHand .handLabel{position:absolute;top:40px;left:0;transform:translateX(calc(-50% + var(--lx,0px)));white-space:nowrap;padding:5px 9px;border-radius:999px;background:#3a2a10;color:#fff;font:800 12px/1.1 system-ui,sans-serif;box-shadow:0 2px 6px #0005}
 #coastMap .coachHand{position:absolute;left:50%;top:50%;width:0;height:0;pointer-events:none;z-index:3}
 #coastMap [data-restore].coachTarget{overflow:visible}
 @media (prefers-reduced-motion:no-preference){
- #coachHand:not(.drag) svg,#coastMap .coachHand svg{animation:coachTap 1.1s ease-in-out infinite}
  #coachHand.drag svg{animation:coachHandDrag 1.8s ease-in-out infinite}
 }
-@keyframes coachTap{0%,100%{transform:translateY(7px) scale(1)}45%{transform:translateY(0) scale(.94)}}
 @keyframes coachHandDrag{0%,15%{transform:translate(0,0)}75%,100%{transform:translate(var(--dx,0),var(--dy,0))}}
 /* ---------- Build 57y (2026-11-11, owner on a real iPhone): order details in a bottom sheet ----------
    Built on 664956e/e6eddf6 (the live Basic Launch layout); nothing from the rejected 57v/57w.
@@ -567,14 +556,10 @@ body.nextMode .boardHeading #hint.primaryAction[data-level="quiet"]{background:#
 body.nextMode .boardHeading #hint.primaryAction[data-level="quiet"] .gWhat{font-size:14px}
 body.nextMode .boardHeading .guideHint{flex:none;display:grid;place-items:center;width:44px;height:44px;min-height:44px;padding:0;border:0;border-radius:999px;background:#fff1cf;box-shadow:0 0 0 1.5px #f5c24e,0 2px 5px #e9a52133;font-size:19px;line-height:1;cursor:pointer}
 body.nextMode .boardHeading:not(:has(#hint[data-kind="coach"])) .guideHint{background:#ffffffd9;box-shadow:0 1px 3px #0d5a6a33}
-body.nextMode #board .tile.coachPair{outline-color:#1f9e66;box-shadow:0 0 0 3px #1f9e66,0 0 12px #1f9e6677}
 @media (prefers-reduced-motion:no-preference){
  body.nextMode .boardHeading #hint.nudge{animation:hintNudge .7s cubic-bezier(.3,1.6,.5,1)}
- body.nextMode #board .tile.coachPair{animation:coachPulseG 1.4s ease-in-out infinite}
- body.nextMode #board .tile.coachFrom.coachPair::after{box-shadow:0 0 0 2px #1f9e66}
 }
 @keyframes hintNudge{35%{transform:scale(1.03)}}
-@keyframes coachPulseG{0%,100%{outline-color:#1f9e66}50%{outline-color:#1f9e6633}}
 /* First Session 2.0: the opening story as one caption line (a new player), folding at the first action */
 .storyRibbon{position:fixed;z-index:30;left:calc(10px + env(safe-area-inset-left,0px));right:calc(10px + env(safe-area-inset-right,0px));bottom:calc(10px + env(safe-area-inset-bottom,0px));max-width:520px;margin:0 auto;display:flex;align-items:center;gap:10px;padding:8px 6px 8px 8px;border-radius:16px;background:linear-gradient(#fffaf0,#fdf0d8);box-shadow:0 10px 26px #0f4c5c40;color:#1d3340}
 .storyRibbon[hidden]{display:none}
@@ -659,9 +644,6 @@ body.nextMode .restoreStrip.ready{box-shadow:0 0 0 3px #f5c24e,0 6px 16px #e9a52
 :root{--pp-sand:#fffaf0;--pp-sand2:#f6ead2;--pp-line:#e9d7b2;--pp-teal:#0f8f97;--pp-gold:#e9a91c;--pp-green:#1f9e66}
 /* -- the merge the guide shows: the part to pick up in gold, its twin (the target) in green; the hand's words are
    in the guide line, so no label sits over the board -- */
-body.nextMode[data-art] #board.board .tile.tile.coachFrom.coachPair{box-shadow:0 0 0 3px var(--pp-gold),0 0 8px #e9a91c66;animation:none}
-body.nextMode[data-art] #board.board .tile.tile.coachTo.coachPair{box-shadow:0 0 0 3px var(--pp-green),0 0 8px #1f9e6666}
-body.nextMode[data-art] #board.board .tile.tile.coachTarget{box-shadow:0 0 0 3px var(--pp-gold),0 0 8px #e9a91c66}
 #coachHand .handLabel{display:none}
 /* -- the story caption: one compact card -- */
 .storyRibbon{padding:6px 8px;gap:8px}
@@ -774,3 +756,51 @@ body.nextMode #board~.boardHeading:has(#orderDetails:not([hidden])){gap:8px}
 .storyRibbon p{font-size:12.5px;line-height:1.25}
 .storyRibbon p b{font-size:10.5px}
 .storyRibbon.inline{position:relative;left:auto;right:auto;bottom:auto;z-index:1;max-width:none;margin:8px 0 0;animation:none}
+/* ===== Tutorial visual system (2026-11-15; docs/V5_TUTORIAL_POLISH_2026-11-15.md) =============================
+   One focus at a time, in the game's own language. Gold marks the one thing to do now: a 2 px ring and one soft
+   pulse (no glow, no thick border). Where a dragged part goes is a green dashed ring. The pointer is small and its
+   fingertip touches a cell's corner, never its picture; on an order or the Coast strip the control to press
+   (Deliver, Build) carries the ring and no hand is drawn over the card or the strip. One guide panel (the line above
+   the board); its Hint and Skip are quiet. While a target shows, the other loops on the board and the order rail
+   (crate nudges, generator bob, ready bounce) pause. Reduced motion: the same rings, still. */
+/* targets */
+body.nextMode :is(.coachTarget,.coachFrom,.coachTo){position:relative;z-index:2;outline:none}
+body.nextMode[data-art] #board.board .tile.tile:is(.coachTarget,.coachFrom){box-shadow:0 0 0 2px var(--pp-gold);animation:none}
+body.nextMode[data-art] #board.board .tile.tile.coachTo{box-shadow:none;outline:2px dashed var(--pp-green);outline-offset:-2px;animation:none}
+body.nextMode #requests .requestShelf .requestCard.requestCard.coachTarget .reqDeliver{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--pp-gold)}
+body.nextMode .restoreStrip.coachTarget .rsAction{border-radius:999px;box-shadow:0 0 0 2px #fff,0 0 0 4px var(--pp-gold)}
+body.nextMode #coinPill.coachTarget{border-radius:999px;box-shadow:0 0 0 2px var(--pp-gold)}
+#coastMap [data-restore].coachTarget{outline:2px solid var(--pp-gold);outline-offset:3px}
+/* the pointer: small, on a cell's corner; none over an order card, the strip or the coast's Build button */
+#coachHand svg{position:absolute;left:-8px;top:-2px;width:20px;height:24px;fill:#fff;stroke:#3a2a10;stroke-width:2.2;stroke-linejoin:round;filter:drop-shadow(0 1px 2px #0006)}
+#coachHand[data-on="control"] svg,#coachHand.drag svg,#coastMap .coachHand{display:none}
+#coachHand .handLabel{display:none}
+/* the guide panel and its quiet companions */
+body.nextMode .boardHeading #hint.primaryAction[data-kind="coach"]{box-shadow:inset 0 0 0 1px var(--pp-line),inset 3px 0 0 var(--pp-teal),0 1px 2px #0d5a6a1a!important}
+body.nextMode .boardHeading #hint.primaryAction[data-kind="coach"][data-level="full"]{box-shadow:inset 0 0 0 1px var(--pp-line),inset 3px 0 0 var(--pp-gold),0 1px 2px #0d5a6a1a!important}
+body.nextMode .boardHeading #hint.primaryAction[data-kind="coach"] .gWhy{font-weight:600;color:var(--cb-ink2)}
+body.nextMode .boardHeading :is(.guideHint,.coachSkip){background:#fffaf0;box-shadow:inset 0 0 0 1px var(--pp-line),0 1px 2px #0d5a6a1a}
+body.nextMode .boardHeading .guideHint{font-size:17px}
+body.nextMode .boardHeading .coachSkip{color:var(--cb-ink2);font-weight:700}
+#coastMap .coachLine{background:#fffaf0;color:var(--cb-ink);box-shadow:inset 0 0 0 1px var(--pp-line),inset 3px 0 0 var(--pp-gold);border-radius:12px;font-size:13px}
+/* toasts: the guide's quiet frame, not a second gold box */
+body.nextMode .moment{box-shadow:inset 0 0 0 1px var(--pp-line),0 6px 16px #1f5b6a2e;max-width:min(320px,calc(100vw - 24px))}
+@media (prefers-reduced-motion:no-preference){
+ body.nextMode[data-art] #board.board .tile.tile.coachTarget{animation:tutPulse 1.6s ease-out infinite}
+ body.nextMode[data-art] #board.board .tile.tile.coachFrom::after{content:"";position:absolute;inset:3px;z-index:3;border-radius:9px;border:2px solid var(--pp-gold);background:none;box-shadow:none;pointer-events:none;animation:tutGhost 1.8s ease-in-out infinite}
+ body.nextMode #requests .requestShelf .requestCard.requestCard.coachTarget .reqDeliver,body.nextMode .restoreStrip.coachTarget .rsAction{animation:tutPulseCtl 1.6s ease-out infinite}
+ #coachHand:not(.drag) svg{animation:tutTap 1.2s ease-in-out infinite}
+ /* the target's own idle loop (a generator's bob) rests too: its pulse is the one moving cue */
+ body.nextMode[data-art] #board.board .tile.tile.source:is(.coachTarget,.coachFrom)>.art{animation-play-state:paused}
+ /* one moving thing at a time: while a target shows, the idle loops elsewhere rest (only named loops: entrance and
+    feedback animations are never paused, so nothing freezes half-drawn) */
+ body.nextMode:has(#board .tile:is(.coachTarget,.coachFrom),#requests .coachTarget,.restoreStrip.coachTarget) :is(#board .tile.source>.art,#board .tile.cargo.keyReady .art,#board .tile.cargo.keyReady .cargoKey,#board .cargoGlow,#requests .requestCard.ready:not(.coachTarget) .reqDeliver){animation-play-state:paused}
+ /* on the coast, while the guide points at Build, the scene's idle loops rest; the Build button keeps its own */
+ #coastMap[open]:has([data-restore].coachTarget) :is(.sceneLight i,.siteMarker.ready,.tileBadge.ready),
+ #coastMap[open]:has([data-restore].coachTarget) :is(.sceneLight,.siteMarker.selected)::before,
+ #coastMap[open]:has([data-restore].coachTarget) .siteMarker.selected::after{animation-play-state:paused}
+}
+@keyframes tutPulse{0%{box-shadow:0 0 0 2px var(--pp-gold),0 0 0 2px #e9a91c80}70%,100%{box-shadow:0 0 0 2px var(--pp-gold),0 0 0 9px #e9a91c00}}
+@keyframes tutPulseCtl{0%{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--pp-gold),0 0 0 4px #e9a91c80}70%,100%{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--pp-gold),0 0 0 10px #e9a91c00}}
+@keyframes tutGhost{0%,15%{transform:translate(0,0);opacity:0}30%{opacity:.85}75%{transform:translate(var(--dx,0),var(--dy,0));opacity:.85}90%,100%{transform:translate(var(--dx,0),var(--dy,0));opacity:0}}
+@keyframes tutTap{0%,100%{transform:translate(2px,3px)}45%{transform:translate(0,0) scale(.94)}}

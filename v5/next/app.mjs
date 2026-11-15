@@ -520,8 +520,12 @@ function placeHand(){
  const h=document.getElementById('coachHand');if(!h)return;
  const r=handFor?.isConnected&&!homeOpen&&!document.querySelector('#story:not([hidden])')?handFor.getBoundingClientRect():null;
  if(!r?.width){h.hidden=true;return;}
- // an order card (handLow): the hand points into the card's middle, so it never hangs over the Coast strip below
- h.hidden=false;h.style.left=`${r.left+r.width/2}px`;h.style.top=`${handLow?r.top+r.height*.42:r.top+r.height/2}px`;
+ // Tutorial polish (2026-11-15): on a board cell the small pointer's fingertip touches the cell's lower-right corner,
+ // never the picture; on an order or the Coast strip it anchors on the control to press (Deliver, Build), and that
+ // control's own ring is the cue (no hand drawn over the card or the strip).
+ const cell=handFor.classList.contains('tile'),ctl=cell?null:handFor.querySelector('.reqDeliver,.rsAction'),c=ctl?.getBoundingClientRect();
+ h.hidden=false;h.dataset.on=cell?'cell':'control';
+ h.style.left=`${cell?r.right-5:c?.width?c.left+c.width/2:r.left+r.width/2}px`;h.style.top=`${cell?r.bottom-5:c?.width?c.top+c.height/2:handLow?r.top+r.height*.42:r.top+r.height/2}px`;
  // the label stays on screen near the edges
  const l=h.querySelector('.handLabel'),w=l.offsetWidth,cx=r.left+r.width/2;h.style.setProperty('--lx',`${Math.max(8-cx+w/2,Math.min(0,innerWidth-8-cx-w/2))}px`);
 }
