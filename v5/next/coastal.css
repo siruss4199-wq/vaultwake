@@ -791,3 +791,25 @@ body.nextMode .mapCard .cardGift{margin:4px 0 0;font-size:12.5px;line-height:1.3
 /* Initial screen (2026-11-15): the page never pans sideways (nothing in it is wider than the screen; measured), so the
    orders and the board stay centred after a swipe or a reload. clip, not hidden: no scroll container, sticky unaffected. */
 html:has(> body.nextMode),body.nextMode{overflow-x:clip}
+/* Order card zones (2026-11-15, owner's screenshot: counts touching GOLD/STAGE/crew names, Lv tags over the art).
+   The card stays 90 px tall; four zones that never meet:
+   head 6–30 (face, reward or Deliver) · art 32–63 · have/need counts ending at 67 · bottom label 71–85.
+   The Lv tag is lighter and sits inside the art's top corner, below the head; the counts keep their size.
+   Under 390 px wide the cards are a little narrower so three fit without scrolling (lead 132, gold 104, crew 90). */
+body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard .requestItems{top:32px;bottom:27px;gap:4px;align-items:center}
+body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard .requestItems>span,body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard .requestItems>span>:is(svg,img){width:31px!important;height:31px!important}
+body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard .requestItems:has(>span:nth-child(2))>span,body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard .requestItems:has(>span:nth-child(2))>span>:is(svg,img){width:29px!important;height:29px!important}
+body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard .requestItems:has(>span:nth-child(3))>span,body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard .requestItems:has(>span:nth-child(3))>span>:is(svg,img){width:25px!important;height:25px!important}
+body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard:has(.requestItems>span:nth-child(3)) .requestItems{gap:3px}
+body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard.lead .requestItems{gap:8px}
+body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard.lead .requestItems>span,body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard.lead .requestItems>span>:is(svg,img){width:31px!important;height:31px!important}
+body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard .requestItems>span>b{bottom:-4px;font-size:10px;line-height:13px;padding:0 4px;z-index:1}
+body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard .requestItems .reqLv{left:-2px;top:0;font-size:8.5px;font-weight:800;line-height:11px;padding:0 2px;border-radius:4px;background:#f2fbfaeb;color:var(--cb-ink);box-shadow:0 0 0 1px var(--cb-turq)}
+body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard .reqName{bottom:5px;height:14px}
+@media(max-width:389px){
+ body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard{flex-basis:90px;width:90px}
+ body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard.storyOrder{flex-basis:104px;width:104px}
+ body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard.lead{flex-basis:132px;width:132px}
+ body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard.storyOrder .reqName b{letter-spacing:.03em}
+ body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard .reqTag{padding:0 4px;letter-spacing:0}
+}

@@ -62,9 +62,12 @@ async function run(engine,W,H,motion){
   // gold 110 × 90 and next after the lead, with a crown and a GOLD label whether or not it leads.
   {const cards=await page.locator('#requests .requestCard').evaluateAll(cs=>cs.map(c=>{const r=c.getBoundingClientRect();return {w:r.width,h:r.height,x:r.left,lead:c.classList.contains('lead'),gold:c.classList.contains('storyOrder'),crown:!!c.querySelector('.reqCrown')};}));
    const lead=cards.filter(c=>c.lead);assert.equal(lead.length,1,`${tag}: one lead card`);
-   assert.ok(lead[0].w>=144&&lead[0].w<=156&&lead[0].h>=84&&lead[0].h<=96,`${tag}: lead card ${lead[0].w}×${lead[0].h}`);
+   // Order card zones (2026-11-15): under 390 px wide the cards are a little narrower (lead 132, gold 104, crew 90) so
+   // three fit without scrolling at 360/375; at 390 and wider the sizes above are unchanged. The lead stays the widest.
+   const narrow=W<390,[L0,L1,G0,G1,C0,C1]=narrow?[128,140,100,108,86,94]:[144,156,104,116,90,102];
+   assert.ok(lead[0].w>=L0&&lead[0].w<=L1&&lead[0].h>=84&&lead[0].h<=96,`${tag}: lead card ${lead[0].w}×${lead[0].h}`);
    assert.ok(lead[0].x<=Math.min(...cards.map(c=>c.x))+1,`${tag}: the lead card comes first`);
-   for(const c of cards.filter(c=>!c.lead))assert.ok((c.gold?c.w>=104&&c.w<=116:c.w>=90&&c.w<=102)&&c.h>=84&&c.h<=96,`${tag}: compact ${c.gold?'gold':'crew'} card ${c.w}×${c.h}`);
+   for(const c of cards.filter(c=>!c.lead))assert.ok((c.gold?c.w>=G0&&c.w<=G1:c.w>=C0&&c.w<=C1)&&c.h>=84&&c.h<=96&&c.w<lead[0].w,`${tag}: compact ${c.gold?'gold':'crew'} card ${c.w}×${c.h}`);
    for(const c of cards.filter(c=>c.gold))assert.ok(c.crown,`${tag}: a gold card shows its crown`);
    const xs=cards.filter(c=>!c.lead).sort((a,b)=>a.x-b.x);if(xs.some(c=>c.gold))assert.ok(xs[0].gold,`${tag}: the gold card comes right after the lead`);
    // one row that scrolls sideways when the cards do not all fit (three fit at 390 px since 45c)

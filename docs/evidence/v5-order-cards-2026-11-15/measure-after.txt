@@ -1,0 +1,112 @@
+360 new player: fully visible cards 3/3, sw 360, board 267-607 w340
+   o0  lead                   132x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+   o1                         90x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+   o2                         90x90 items 2 Lv 2 | count 10px Lv 8.5px (25% of art) | gap count→label 5 | gap face/reward→Lv 3 | no overlap
+360 new player +selected: fully visible cards 3/3, sw 360, board 267-607 w340
+   o0  active lead            132x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+   o1                         90x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+   o2                         90x90 items 2 Lv 2 | count 10px Lv 8.5px (25% of art) | gap count→label 5 | gap face/reward→Lv 3 | no overlap
+360 camp A: fully visible cards 3/4, sw 360, board 222-562 w340
+   g1  storyOrder lead        132x90 items 3 Lv 2 | count 10px Lv 8.5px (34% of art) | gap count→label 7 | gap face/reward→Lv 2 | no overlap
+   c1                         90x90 items 2 Lv 2 | count 10px Lv 8.5px (25% of art) | gap count→label 5 | gap face/reward→Lv 3 | no overlap
+   c2                         90x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+   c3                         90x90 items 3 Lv 2 | count 10px Lv 8.5px (33% of art) | gap count→label 7 | gap face/reward→Lv 5 | no overlap
+360 camp A +selected: fully visible cards 3/4, sw 360, board 263-603 w340
+   g1  storyOrder             104x90 items 3 Lv 2 | count 10px Lv 8.5px (34% of art) | gap count→label 7 | gap face/reward→Lv 5 | no overlap
+   c1  active lead            132x90 items 2 Lv 2 | count 10px Lv 8.5px (25% of art) | gap count→label 5 | gap face/reward→Lv 0 | no overlap
+   c2                         90x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+   c3                         90x90 items 3 Lv 2 | count 10px Lv 8.5px (33% of art) | gap count→label 7 | gap face/reward→Lv 5 | no overlap
+360 camp B: fully visible cards 3/4, sw 360, board 222-562 w340
+   g1  storyOrder             104x90 items 2 Lv 0 | count 10px Lv null (-% of art) | gap count→label 5 | gap face/reward→Lv null | no overlap
+   c1  ready lead             132x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+   c2                         90x90 items 2 Lv 2 | count 10px Lv 8.5px (25% of art) | gap count→label 5 | gap face/reward→Lv 3 | no overlap
+   c3                         90x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+360 camp B +selected: fully visible cards 3/4, sw 360, board 263-603 w340
+   g1  storyOrder             104x90 items 2 Lv 0 | count 10px Lv null (-% of art) | gap count→label 5 | gap face/reward→Lv null | no overlap
+   c1  ready lead             132x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+   c2  active                 90x90 items 2 Lv 2 | count 10px Lv 8.5px (25% of art) | gap count→label 5 | gap face/reward→Lv 3 | no overlap
+   c3                         90x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+375 new player: fully visible cards 3/3, sw 375, board 267-622 w355
+   o0  lead                   132x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+   o1                         90x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+   o2                         90x90 items 2 Lv 2 | count 10px Lv 8.5px (25% of art) | gap count→label 5 | gap face/reward→Lv 3 | no overlap
+375 new player +selected: fully visible cards 3/3, sw 375, board 267-622 w355
+   o0  active lead            132x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+   o1                         90x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+   o2                         90x90 items 2 Lv 2 | count 10px Lv 8.5px (25% of art) | gap count→label 5 | gap face/reward→Lv 3 | no overlap
+375 camp A: fully visible cards 3/4, sw 375, board 222-577 w355
+   g1  storyOrder lead        132x90 items 3 Lv 2 | count 10px Lv 8.5px (34% of art) | gap count→label 7 | gap face/reward→Lv 2 | no overlap
+   c1                         90x90 items 2 Lv 2 | count 10px Lv 8.5px (25% of art) | gap count→label 5 | gap face/reward→Lv 3 | no overlap
+   c2                         90x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+   c3                         90x90 items 3 Lv 2 | count 10px Lv 8.5px (33% of art) | gap count→label 7 | gap face/reward→Lv 5 | no overlap
+375 camp A +selected: fully visible cards 3/4, sw 375, board 263-618 w355
+   g1  storyOrder             104x90 items 3 Lv 2 | count 10px Lv 8.5px (34% of art) | gap count→label 7 | gap face/reward→Lv 5 | no overlap
+   c1  active lead            132x90 items 2 Lv 2 | count 10px Lv 8.5px (25% of art) | gap count→label 5 | gap face/reward→Lv 0 | no overlap
+   c2                         90x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+   c3                         90x90 items 3 Lv 2 | count 10px Lv 8.5px (33% of art) | gap count→label 7 | gap face/reward→Lv 5 | no overlap
+375 camp B: fully visible cards 3/4, sw 375, board 222-577 w355
+   g1  storyOrder             104x90 items 2 Lv 0 | count 10px Lv null (-% of art) | gap count→label 5 | gap face/reward→Lv null | no overlap
+   c1  ready lead             132x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+   c2                         90x90 items 2 Lv 2 | count 10px Lv 8.5px (25% of art) | gap count→label 5 | gap face/reward→Lv 3 | no overlap
+   c3                         90x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+375 camp B +selected: fully visible cards 3/4, sw 375, board 263-618 w355
+   g1  storyOrder             104x90 items 2 Lv 0 | count 10px Lv null (-% of art) | gap count→label 5 | gap face/reward→Lv null | no overlap
+   c1  ready lead             132x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+   c2  active                 90x90 items 2 Lv 2 | count 10px Lv 8.5px (25% of art) | gap count→label 5 | gap face/reward→Lv 3 | no overlap
+   c3                         90x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+390 new player: fully visible cards 3/3, sw 390, board 267-637 w370
+   o0  lead                   150x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+   o1                         96x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+   o2                         96x90 items 2 Lv 2 | count 10px Lv 8.5px (25% of art) | gap count→label 5 | gap face/reward→Lv 3 | no overlap
+390 new player +selected: fully visible cards 3/3, sw 390, board 267-637 w370
+   o0  active lead            150x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+   o1                         96x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+   o2                         96x90 items 2 Lv 2 | count 10px Lv 8.5px (25% of art) | gap count→label 5 | gap face/reward→Lv 3 | no overlap
+390 camp A: fully visible cards 3/4, sw 390, board 222-592 w370
+   g1  storyOrder lead        150x90 items 3 Lv 2 | count 10px Lv 8.5px (34% of art) | gap count→label 7 | gap face/reward→Lv 2 | no overlap
+   c1                         96x90 items 2 Lv 2 | count 10px Lv 8.5px (25% of art) | gap count→label 5 | gap face/reward→Lv 3 | no overlap
+   c2                         96x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+   c3                         96x90 items 3 Lv 2 | count 10px Lv 8.5px (33% of art) | gap count→label 7 | gap face/reward→Lv 5 | no overlap
+390 camp A +selected: fully visible cards 3/4, sw 390, board 263-633 w370
+   g1  storyOrder             110x90 items 3 Lv 2 | count 10px Lv 8.5px (34% of art) | gap count→label 7 | gap face/reward→Lv 5 | no overlap
+   c1  active lead            150x90 items 2 Lv 2 | count 10px Lv 8.5px (25% of art) | gap count→label 5 | gap face/reward→Lv 0 | no overlap
+   c2                         96x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+   c3                         96x90 items 3 Lv 2 | count 10px Lv 8.5px (33% of art) | gap count→label 7 | gap face/reward→Lv 5 | no overlap
+390 camp B: fully visible cards 3/4, sw 390, board 222-592 w370
+   g1  storyOrder             110x90 items 2 Lv 0 | count 10px Lv null (-% of art) | gap count→label 5 | gap face/reward→Lv null | no overlap
+   c1  ready lead             150x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+   c2                         96x90 items 2 Lv 2 | count 10px Lv 8.5px (25% of art) | gap count→label 5 | gap face/reward→Lv 3 | no overlap
+   c3                         96x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+390 camp B +selected: fully visible cards 3/4, sw 390, board 263-633 w370
+   g1  storyOrder             110x90 items 2 Lv 0 | count 10px Lv null (-% of art) | gap count→label 5 | gap face/reward→Lv null | no overlap
+   c1  ready lead             150x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+   c2  active                 96x90 items 2 Lv 2 | count 10px Lv 8.5px (25% of art) | gap count→label 5 | gap face/reward→Lv 3 | no overlap
+   c3                         96x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+430 new player: fully visible cards 3/3, sw 430, board 267-677 w410
+   o0  lead                   150x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+   o1                         96x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+   o2                         96x90 items 2 Lv 2 | count 10px Lv 8.5px (25% of art) | gap count→label 5 | gap face/reward→Lv 3 | no overlap
+430 new player +selected: fully visible cards 3/3, sw 430, board 267-677 w410
+   o0  active lead            150x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+   o1                         96x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+   o2                         96x90 items 2 Lv 2 | count 10px Lv 8.5px (25% of art) | gap count→label 5 | gap face/reward→Lv 3 | no overlap
+430 camp A: fully visible cards 3/4, sw 430, board 222-632 w410
+   g1  storyOrder lead        150x90 items 3 Lv 2 | count 10px Lv 8.5px (34% of art) | gap count→label 7 | gap face/reward→Lv 2 | no overlap
+   c1                         96x90 items 2 Lv 2 | count 10px Lv 8.5px (25% of art) | gap count→label 5 | gap face/reward→Lv 3 | no overlap
+   c2                         96x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+   c3                         96x90 items 3 Lv 2 | count 10px Lv 8.5px (33% of art) | gap count→label 7 | gap face/reward→Lv 5 | no overlap
+430 camp A +selected: fully visible cards 3/4, sw 430, board 263-673 w410
+   g1  storyOrder             110x90 items 3 Lv 2 | count 10px Lv 8.5px (34% of art) | gap count→label 7 | gap face/reward→Lv 5 | no overlap
+   c1  active lead            150x90 items 2 Lv 2 | count 10px Lv 8.5px (25% of art) | gap count→label 5 | gap face/reward→Lv 0 | no overlap
+   c2                         96x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+   c3                         96x90 items 3 Lv 2 | count 10px Lv 8.5px (33% of art) | gap count→label 7 | gap face/reward→Lv 5 | no overlap
+430 camp B: fully visible cards 3/4, sw 430, board 222-632 w410
+   g1  storyOrder             110x90 items 2 Lv 0 | count 10px Lv null (-% of art) | gap count→label 5 | gap face/reward→Lv null | no overlap
+   c1  ready lead             150x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+   c2                         96x90 items 2 Lv 2 | count 10px Lv 8.5px (25% of art) | gap count→label 5 | gap face/reward→Lv 3 | no overlap
+   c3                         96x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+430 camp B +selected: fully visible cards 3/4, sw 430, board 263-673 w410
+   g1  storyOrder             110x90 items 2 Lv 0 | count 10px Lv null (-% of art) | gap count→label 5 | gap face/reward→Lv null | no overlap
+   c1  ready lead             150x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap
+   c2  active                 96x90 items 2 Lv 2 | count 10px Lv 8.5px (25% of art) | gap count→label 5 | gap face/reward→Lv 3 | no overlap
+   c3                         96x90 items 1 Lv 0 | count 10px Lv null (-% of art) | gap count→label 4 | gap face/reward→Lv null | no overlap

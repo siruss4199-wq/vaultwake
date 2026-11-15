@@ -1,0 +1,1890 @@
+[
+ {
+  "W": 360,
+  "case": "new player",
+  "cards": [
+   {
+    "id": "o0",
+    "cls": "lead",
+    "w": 150,
+    "h": 90,
+    "left": 0,
+    "right": 150,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -4,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "o1",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 157,
+    "right": 253,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -3,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "o2",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 260,
+    "right": 356,
+    "items": 2,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": -2,
+    "gapLvTop": 1,
+    "lvAreaPct": 31,
+    "issues": [
+     "count×label"
+    ]
+   }
+  ],
+  "fullyVisible": 3,
+  "sw": 360,
+  "board": {
+   "top": 267,
+   "bottom": 607,
+   "w": 340
+  },
+  "scrollY": 0
+ },
+ {
+  "W": 360,
+  "case": "new player +selected",
+  "cards": [
+   {
+    "id": "o0",
+    "cls": "active lead",
+    "w": 150,
+    "h": 90,
+    "left": 0,
+    "right": 150,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -4,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "o1",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 157,
+    "right": 253,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -3,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "o2",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 260,
+    "right": 356,
+    "items": 2,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": -2,
+    "gapLvTop": 1,
+    "lvAreaPct": 31,
+    "issues": [
+     "count×label"
+    ]
+   }
+  ],
+  "fullyVisible": 3,
+  "sw": 360,
+  "board": {
+   "top": 267,
+   "bottom": 607,
+   "w": 340
+  },
+  "scrollY": 0
+ },
+ {
+  "W": 360,
+  "case": "camp A",
+  "cards": [
+   {
+    "id": "g1",
+    "cls": "storyOrder lead",
+    "w": 150,
+    "h": 90,
+    "left": 0,
+    "right": 150,
+    "items": 3,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": 0.5,
+    "gapLvTop": 0.5,
+    "lvAreaPct": 45,
+    "issues": []
+   },
+   {
+    "id": "c1",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 157,
+    "right": 253,
+    "items": 2,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": -2,
+    "gapLvTop": 1,
+    "lvAreaPct": 31,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c2",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 260,
+    "right": 356,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -3,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c3",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 363,
+    "right": 459,
+    "items": 3,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": 0.5,
+    "gapLvTop": 3.5,
+    "lvAreaPct": 44,
+    "issues": []
+   }
+  ],
+  "fullyVisible": 3,
+  "sw": 360,
+  "board": {
+   "top": 222,
+   "bottom": 562,
+   "w": 340
+  },
+  "scrollY": 0
+ },
+ {
+  "W": 360,
+  "case": "camp A +selected",
+  "cards": [
+   {
+    "id": "g1",
+    "cls": "storyOrder",
+    "w": 110,
+    "h": 90,
+    "left": 34,
+    "right": 144,
+    "items": 3,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": 0.5,
+    "gapLvTop": 3.5,
+    "lvAreaPct": 45,
+    "issues": []
+   },
+   {
+    "id": "c1",
+    "cls": "active lead",
+    "w": 150,
+    "h": 90,
+    "left": -123,
+    "right": 27,
+    "items": 2,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": -2,
+    "gapLvTop": -2,
+    "lvAreaPct": 31,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c2",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 151,
+    "right": 247,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -3,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c3",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 254,
+    "right": 350,
+    "items": 3,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": 0.5,
+    "gapLvTop": 3.5,
+    "lvAreaPct": 44,
+    "issues": []
+   }
+  ],
+  "fullyVisible": 3,
+  "sw": 360,
+  "board": {
+   "top": 263,
+   "bottom": 603,
+   "w": 340
+  },
+  "scrollY": 0
+ },
+ {
+  "W": 360,
+  "case": "camp B",
+  "cards": [
+   {
+    "id": "g1",
+    "cls": "storyOrder",
+    "w": 110,
+    "h": 90,
+    "left": 157,
+    "right": 267,
+    "items": 2,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -2,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c1",
+    "cls": "ready lead",
+    "w": 150,
+    "h": 90,
+    "left": 0,
+    "right": 150,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -4,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c2",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 274,
+    "right": 370,
+    "items": 2,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": -2,
+    "gapLvTop": 1,
+    "lvAreaPct": 31,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c3",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 377,
+    "right": 473,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -3,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   }
+  ],
+  "fullyVisible": 2,
+  "sw": 360,
+  "board": {
+   "top": 222,
+   "bottom": 562,
+   "w": 340
+  },
+  "scrollY": 0
+ },
+ {
+  "W": 360,
+  "case": "camp B +selected",
+  "cards": [
+   {
+    "id": "g1",
+    "cls": "storyOrder",
+    "w": 110,
+    "h": 90,
+    "left": 157,
+    "right": 267,
+    "items": 2,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -2,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c1",
+    "cls": "ready lead",
+    "w": 150,
+    "h": 90,
+    "left": 0,
+    "right": 150,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -4,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c2",
+    "cls": "active",
+    "w": 96,
+    "h": 90,
+    "left": 274,
+    "right": 370,
+    "items": 2,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": -2,
+    "gapLvTop": 1,
+    "lvAreaPct": 31,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c3",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 377,
+    "right": 473,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -3,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   }
+  ],
+  "fullyVisible": 2,
+  "sw": 360,
+  "board": {
+   "top": 263,
+   "bottom": 603,
+   "w": 340
+  },
+  "scrollY": 0
+ },
+ {
+  "W": 375,
+  "case": "new player",
+  "cards": [
+   {
+    "id": "o0",
+    "cls": "lead",
+    "w": 150,
+    "h": 90,
+    "left": 9,
+    "right": 159,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -4,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "o1",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 166,
+    "right": 262,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -3,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "o2",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 269,
+    "right": 365,
+    "items": 2,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": -2,
+    "gapLvTop": 1,
+    "lvAreaPct": 31,
+    "issues": [
+     "count×label"
+    ]
+   }
+  ],
+  "fullyVisible": 3,
+  "sw": 375,
+  "board": {
+   "top": 267,
+   "bottom": 622,
+   "w": 355
+  },
+  "scrollY": 0
+ },
+ {
+  "W": 375,
+  "case": "new player +selected",
+  "cards": [
+   {
+    "id": "o0",
+    "cls": "active lead",
+    "w": 150,
+    "h": 90,
+    "left": 9,
+    "right": 159,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -4,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "o1",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 166,
+    "right": 262,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -3,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "o2",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 269,
+    "right": 365,
+    "items": 2,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": -2,
+    "gapLvTop": 1,
+    "lvAreaPct": 31,
+    "issues": [
+     "count×label"
+    ]
+   }
+  ],
+  "fullyVisible": 3,
+  "sw": 375,
+  "board": {
+   "top": 267,
+   "bottom": 622,
+   "w": 355
+  },
+  "scrollY": 0
+ },
+ {
+  "W": 375,
+  "case": "camp A",
+  "cards": [
+   {
+    "id": "g1",
+    "cls": "storyOrder lead",
+    "w": 150,
+    "h": 90,
+    "left": 0,
+    "right": 150,
+    "items": 3,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": 0.5,
+    "gapLvTop": 0.5,
+    "lvAreaPct": 45,
+    "issues": []
+   },
+   {
+    "id": "c1",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 157,
+    "right": 253,
+    "items": 2,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": -2,
+    "gapLvTop": 1,
+    "lvAreaPct": 31,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c2",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 260,
+    "right": 356,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -3,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c3",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 363,
+    "right": 459,
+    "items": 3,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": 0.5,
+    "gapLvTop": 3.5,
+    "lvAreaPct": 44,
+    "issues": []
+   }
+  ],
+  "fullyVisible": 3,
+  "sw": 375,
+  "board": {
+   "top": 222,
+   "bottom": 577,
+   "w": 355
+  },
+  "scrollY": 0
+ },
+ {
+  "W": 375,
+  "case": "camp A +selected",
+  "cards": [
+   {
+    "id": "g1",
+    "cls": "storyOrder",
+    "w": 110,
+    "h": 90,
+    "left": 49,
+    "right": 159,
+    "items": 3,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": 0.5,
+    "gapLvTop": 3.5,
+    "lvAreaPct": 45,
+    "issues": []
+   },
+   {
+    "id": "c1",
+    "cls": "active lead",
+    "w": 150,
+    "h": 90,
+    "left": -108,
+    "right": 42,
+    "items": 2,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": -2,
+    "gapLvTop": -2,
+    "lvAreaPct": 31,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c2",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 166,
+    "right": 262,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -3,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c3",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 269,
+    "right": 365,
+    "items": 3,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": 0.5,
+    "gapLvTop": 3.5,
+    "lvAreaPct": 44,
+    "issues": []
+   }
+  ],
+  "fullyVisible": 3,
+  "sw": 375,
+  "board": {
+   "top": 263,
+   "bottom": 618,
+   "w": 355
+  },
+  "scrollY": 0
+ },
+ {
+  "W": 375,
+  "case": "camp B",
+  "cards": [
+   {
+    "id": "g1",
+    "cls": "storyOrder",
+    "w": 110,
+    "h": 90,
+    "left": 157,
+    "right": 267,
+    "items": 2,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -2,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c1",
+    "cls": "ready lead",
+    "w": 150,
+    "h": 90,
+    "left": 0,
+    "right": 150,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -4,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c2",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 274,
+    "right": 370,
+    "items": 2,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": -2,
+    "gapLvTop": 1,
+    "lvAreaPct": 31,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c3",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 377,
+    "right": 473,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -3,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   }
+  ],
+  "fullyVisible": 3,
+  "sw": 375,
+  "board": {
+   "top": 222,
+   "bottom": 577,
+   "w": 355
+  },
+  "scrollY": 0
+ },
+ {
+  "W": 375,
+  "case": "camp B +selected",
+  "cards": [
+   {
+    "id": "g1",
+    "cls": "storyOrder",
+    "w": 110,
+    "h": 90,
+    "left": 157,
+    "right": 267,
+    "items": 2,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -2,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c1",
+    "cls": "ready lead",
+    "w": 150,
+    "h": 90,
+    "left": 0,
+    "right": 150,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -4,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c2",
+    "cls": "active",
+    "w": 96,
+    "h": 90,
+    "left": 274,
+    "right": 370,
+    "items": 2,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": -2,
+    "gapLvTop": 1,
+    "lvAreaPct": 31,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c3",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 377,
+    "right": 473,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -3,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   }
+  ],
+  "fullyVisible": 3,
+  "sw": 375,
+  "board": {
+   "top": 263,
+   "bottom": 618,
+   "w": 355
+  },
+  "scrollY": 0
+ },
+ {
+  "W": 390,
+  "case": "new player",
+  "cards": [
+   {
+    "id": "o0",
+    "cls": "lead",
+    "w": 150,
+    "h": 90,
+    "left": 10,
+    "right": 160,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -4,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "o1",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 167,
+    "right": 263,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -3,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "o2",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 270,
+    "right": 366,
+    "items": 2,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": -2,
+    "gapLvTop": 1,
+    "lvAreaPct": 31,
+    "issues": [
+     "count×label"
+    ]
+   }
+  ],
+  "fullyVisible": 3,
+  "sw": 390,
+  "board": {
+   "top": 267,
+   "bottom": 637,
+   "w": 370
+  },
+  "scrollY": 0
+ },
+ {
+  "W": 390,
+  "case": "new player +selected",
+  "cards": [
+   {
+    "id": "o0",
+    "cls": "active lead",
+    "w": 150,
+    "h": 90,
+    "left": 10,
+    "right": 160,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -4,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "o1",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 167,
+    "right": 263,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -3,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "o2",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 270,
+    "right": 366,
+    "items": 2,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": -2,
+    "gapLvTop": 1,
+    "lvAreaPct": 31,
+    "issues": [
+     "count×label"
+    ]
+   }
+  ],
+  "fullyVisible": 3,
+  "sw": 390,
+  "board": {
+   "top": 267,
+   "bottom": 637,
+   "w": 370
+  },
+  "scrollY": 0
+ },
+ {
+  "W": 390,
+  "case": "camp A",
+  "cards": [
+   {
+    "id": "g1",
+    "cls": "storyOrder lead",
+    "w": 150,
+    "h": 90,
+    "left": 0,
+    "right": 150,
+    "items": 3,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": 0.5,
+    "gapLvTop": 0.5,
+    "lvAreaPct": 45,
+    "issues": []
+   },
+   {
+    "id": "c1",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 157,
+    "right": 253,
+    "items": 2,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": -2,
+    "gapLvTop": 1,
+    "lvAreaPct": 31,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c2",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 260,
+    "right": 356,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -3,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c3",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 363,
+    "right": 459,
+    "items": 3,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": 0.5,
+    "gapLvTop": 3.5,
+    "lvAreaPct": 44,
+    "issues": []
+   }
+  ],
+  "fullyVisible": 3,
+  "sw": 390,
+  "board": {
+   "top": 222,
+   "bottom": 592,
+   "w": 370
+  },
+  "scrollY": 0
+ },
+ {
+  "W": 390,
+  "case": "camp A +selected",
+  "cards": [
+   {
+    "id": "g1",
+    "cls": "storyOrder",
+    "w": 110,
+    "h": 90,
+    "left": 64,
+    "right": 174,
+    "items": 3,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": 0.5,
+    "gapLvTop": 3.5,
+    "lvAreaPct": 45,
+    "issues": []
+   },
+   {
+    "id": "c1",
+    "cls": "active lead",
+    "w": 150,
+    "h": 90,
+    "left": -93,
+    "right": 57,
+    "items": 2,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": -2,
+    "gapLvTop": -2,
+    "lvAreaPct": 31,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c2",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 181,
+    "right": 277,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -3,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c3",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 284,
+    "right": 380,
+    "items": 3,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": 0.5,
+    "gapLvTop": 3.5,
+    "lvAreaPct": 44,
+    "issues": []
+   }
+  ],
+  "fullyVisible": 3,
+  "sw": 390,
+  "board": {
+   "top": 263,
+   "bottom": 633,
+   "w": 370
+  },
+  "scrollY": 0
+ },
+ {
+  "W": 390,
+  "case": "camp B",
+  "cards": [
+   {
+    "id": "g1",
+    "cls": "storyOrder",
+    "w": 110,
+    "h": 90,
+    "left": 157,
+    "right": 267,
+    "items": 2,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -2,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c1",
+    "cls": "ready lead",
+    "w": 150,
+    "h": 90,
+    "left": 0,
+    "right": 150,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -4,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c2",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 274,
+    "right": 370,
+    "items": 2,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": -2,
+    "gapLvTop": 1,
+    "lvAreaPct": 31,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c3",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 377,
+    "right": 473,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -3,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   }
+  ],
+  "fullyVisible": 3,
+  "sw": 390,
+  "board": {
+   "top": 222,
+   "bottom": 592,
+   "w": 370
+  },
+  "scrollY": 0
+ },
+ {
+  "W": 390,
+  "case": "camp B +selected",
+  "cards": [
+   {
+    "id": "g1",
+    "cls": "storyOrder",
+    "w": 110,
+    "h": 90,
+    "left": 157,
+    "right": 267,
+    "items": 2,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -2,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c1",
+    "cls": "ready lead",
+    "w": 150,
+    "h": 90,
+    "left": 0,
+    "right": 150,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -4,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c2",
+    "cls": "active",
+    "w": 96,
+    "h": 90,
+    "left": 274,
+    "right": 370,
+    "items": 2,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": -2,
+    "gapLvTop": 1,
+    "lvAreaPct": 31,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c3",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 377,
+    "right": 473,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -3,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   }
+  ],
+  "fullyVisible": 3,
+  "sw": 390,
+  "board": {
+   "top": 263,
+   "bottom": 633,
+   "w": 370
+  },
+  "scrollY": 0
+ },
+ {
+  "W": 430,
+  "case": "new player",
+  "cards": [
+   {
+    "id": "o0",
+    "cls": "lead",
+    "w": 150,
+    "h": 90,
+    "left": 10,
+    "right": 160,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -4,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "o1",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 167,
+    "right": 263,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -3,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "o2",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 270,
+    "right": 366,
+    "items": 2,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": -2,
+    "gapLvTop": 1,
+    "lvAreaPct": 31,
+    "issues": [
+     "count×label"
+    ]
+   }
+  ],
+  "fullyVisible": 3,
+  "sw": 430,
+  "board": {
+   "top": 267,
+   "bottom": 677,
+   "w": 410
+  },
+  "scrollY": 0
+ },
+ {
+  "W": 430,
+  "case": "new player +selected",
+  "cards": [
+   {
+    "id": "o0",
+    "cls": "active lead",
+    "w": 150,
+    "h": 90,
+    "left": 10,
+    "right": 160,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -4,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "o1",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 167,
+    "right": 263,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -3,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "o2",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 270,
+    "right": 366,
+    "items": 2,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": -2,
+    "gapLvTop": 1,
+    "lvAreaPct": 31,
+    "issues": [
+     "count×label"
+    ]
+   }
+  ],
+  "fullyVisible": 3,
+  "sw": 430,
+  "board": {
+   "top": 267,
+   "bottom": 677,
+   "w": 410
+  },
+  "scrollY": 0
+ },
+ {
+  "W": 430,
+  "case": "camp A",
+  "cards": [
+   {
+    "id": "g1",
+    "cls": "storyOrder lead",
+    "w": 150,
+    "h": 90,
+    "left": 0,
+    "right": 150,
+    "items": 3,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": 0.5,
+    "gapLvTop": 0.5,
+    "lvAreaPct": 45,
+    "issues": []
+   },
+   {
+    "id": "c1",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 157,
+    "right": 253,
+    "items": 2,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": -2,
+    "gapLvTop": 1,
+    "lvAreaPct": 31,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c2",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 260,
+    "right": 356,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -3,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c3",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 363,
+    "right": 459,
+    "items": 3,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": 0.5,
+    "gapLvTop": 3.5,
+    "lvAreaPct": 44,
+    "issues": []
+   }
+  ],
+  "fullyVisible": 3,
+  "sw": 430,
+  "board": {
+   "top": 222,
+   "bottom": 632,
+   "w": 410
+  },
+  "scrollY": 0
+ },
+ {
+  "W": 430,
+  "case": "camp A +selected",
+  "cards": [
+   {
+    "id": "g1",
+    "cls": "storyOrder",
+    "w": 110,
+    "h": 90,
+    "left": 104,
+    "right": 214,
+    "items": 3,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": 0.5,
+    "gapLvTop": 3.5,
+    "lvAreaPct": 45,
+    "issues": []
+   },
+   {
+    "id": "c1",
+    "cls": "active lead",
+    "w": 150,
+    "h": 90,
+    "left": -53,
+    "right": 97,
+    "items": 2,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": -2,
+    "gapLvTop": -2,
+    "lvAreaPct": 31,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c2",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 221,
+    "right": 317,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -3,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c3",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 324,
+    "right": 420,
+    "items": 3,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": 0.5,
+    "gapLvTop": 3.5,
+    "lvAreaPct": 44,
+    "issues": []
+   }
+  ],
+  "fullyVisible": 3,
+  "sw": 430,
+  "board": {
+   "top": 263,
+   "bottom": 673,
+   "w": 410
+  },
+  "scrollY": 0
+ },
+ {
+  "W": 430,
+  "case": "camp B",
+  "cards": [
+   {
+    "id": "g1",
+    "cls": "storyOrder",
+    "w": 110,
+    "h": 90,
+    "left": 157,
+    "right": 267,
+    "items": 2,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -2,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c1",
+    "cls": "ready lead",
+    "w": 150,
+    "h": 90,
+    "left": 0,
+    "right": 150,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -4,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c2",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 274,
+    "right": 370,
+    "items": 2,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": -2,
+    "gapLvTop": 1,
+    "lvAreaPct": 31,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c3",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 377,
+    "right": 473,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -3,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   }
+  ],
+  "fullyVisible": 3,
+  "sw": 430,
+  "board": {
+   "top": 222,
+   "bottom": 632,
+   "w": 410
+  },
+  "scrollY": 0
+ },
+ {
+  "W": 430,
+  "case": "camp B +selected",
+  "cards": [
+   {
+    "id": "g1",
+    "cls": "storyOrder",
+    "w": 110,
+    "h": 90,
+    "left": 157,
+    "right": 267,
+    "items": 2,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -2,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c1",
+    "cls": "ready lead",
+    "w": 150,
+    "h": 90,
+    "left": 0,
+    "right": 150,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -4,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c2",
+    "cls": "active",
+    "w": 96,
+    "h": 90,
+    "left": 274,
+    "right": 370,
+    "items": 2,
+    "lvs": 2,
+    "countFont": "10px",
+    "lvFont": "9.5px",
+    "gapCountLabel": -2,
+    "gapLvTop": 1,
+    "lvAreaPct": 31,
+    "issues": [
+     "count×label"
+    ]
+   },
+   {
+    "id": "c3",
+    "cls": "",
+    "w": 96,
+    "h": 90,
+    "left": 377,
+    "right": 473,
+    "items": 1,
+    "lvs": 0,
+    "countFont": "10px",
+    "lvFont": null,
+    "gapCountLabel": -3,
+    "gapLvTop": null,
+    "lvAreaPct": null,
+    "issues": [
+     "count×label"
+    ]
+   }
+  ],
+  "fullyVisible": 3,
+  "sw": 430,
+  "board": {
+   "top": 263,
+   "bottom": 673,
+   "w": 410
+  },
+  "scrollY": 0
+ }
+]

@@ -84,6 +84,7 @@ jobs:
           node tests/v5-next-guide-browser.cjs
           node tests/v5-next-kite-browser.cjs
           node tests/v5-next-initial-view-browser.cjs
+          node tests/v5-next-order-cards-browser.cjs
           node tests/v5-next-saves-browser.cjs
           node tests/v5-next-crazygames-browser.cjs
           node tests/v5-next-crazygames-save-browser.cjs
