@@ -1,0 +1,48 @@
+360x640  · new player         · scrollY 0/241 · hudTop 0 · req 64-163 off 0 · strip 168-214 · board 267-607 L10 R10 off 0 · tile 44.8 · card 68-158 · vis board/card/orders/strip 1111 · sw 360 · 
+360x640  · new player reload  · scrollY 0/241 · hudTop 0 · req 64-163 off 0 · strip 168-214 · board 267-607 L10 R10 off 0 · tile 44.8 · card 68-158 · vis board/card/orders/strip 1111 · sw 360 · 
+360x640  · returning          · scrollY 0/198 · hudTop 0 · req 64-163 off 0 · strip 168-214 · board 222-562 L10 R10 off 0 · tile 44.8 · card 68-158 · vis board/card/orders/strip 1111 · sw 360 · 
+360x640  · returning reload   · scrollY 0/196 · hudTop 0 · req 64-163 off 0 · strip 168-214 · board 222-562 L10 R10 off 0 · tile 44.8 · card 68-158 · vis board/card/orders/strip 1111 · sw 360 · 
+360x640  · scrolled + reload  · scrollY 196/196 · hudTop 0 · req -132--33 off 0 · strip -28-18 · board 26-366 L10 R10 off 0 · tile 44.8 · card -128--38 · vis board/card/orders/strip 1000 · sw 360 · 
+360x640  · scrolled + menu Home · scrollY 0/196 · hudTop 0 · req 64-163 off 0 · strip 168-214 · board 222-562 L10 R10 off 0 · tile 44.8 · card 68-158 · vis board/card/orders/strip 1111 · sw 360 · 
+360x640  · crazygames         · scrollY 0/198 · hudTop 0 · req 64-163 off 0 · strip 168-214 · board 222-562 L10 R10 off 0 · tile 44.8 · card 68-158 · vis board/card/orders/strip 1111 · sw 360 · 
+360x640  · crazygames iframe  · scrollY 0/241 · hudTop 0 · req 64-163 off 0 · strip 168-214 · board 267-607 L10 R10 off 0 · tile 44.8 · card 68-158 · vis board/card/orders/strip 1111 · sw 360 · 
+390x664  · new player         · scrollY 0/247 · hudTop 0 · req 64-163 off 0 · strip 168-214 · board 267-637 L10 R10 off 0 · tile 49.1 · card 68-158 · vis board/card/orders/strip 1111 · sw 390 · 
+390x664  · new player reload  · scrollY 0/247 · hudTop 0 · req 64-163 off 0 · strip 168-214 · board 267-637 L10 R10 off 0 · tile 49.1 · card 68-158 · vis board/card/orders/strip 1111 · sw 390 · 
+390x664  · returning          · scrollY 0/204 · hudTop 0 · req 64-163 off 0 · strip 168-214 · board 222-592 L10 R10 off 0 · tile 49.1 · card 68-158 · vis board/card/orders/strip 1111 · sw 390 · 
+390x664  · returning reload   · scrollY 0/202 · hudTop 0 · req 64-163 off 0 · strip 168-214 · board 222-592 L10 R10 off 0 · tile 49.1 · card 68-158 · vis board/card/orders/strip 1111 · sw 390 · 
+390x664  · scrolled + reload  · scrollY 202/202 · hudTop 0 · req -138--39 off 0 · strip -34-12 · board 20-390 L10 R10 off 0 · tile 49.1 · card -134--44 · vis board/card/orders/strip 1000 · sw 390 · 
+390x664  · scrolled + menu Home · scrollY 0/202 · hudTop 0 · req 64-163 off 0 · strip 168-214 · board 222-592 L10 R10 off 0 · tile 49.1 · card 68-158 · vis board/card/orders/strip 1111 · sw 390 · 
+390x664  · crazygames         · scrollY 0/204 · hudTop 0 · req 64-163 off 0 · strip 168-214 · board 222-592 L10 R10 off 0 · tile 49.1 · card 68-158 · vis board/card/orders/strip 1111 · sw 390 · 
+390x664  · crazygames iframe  · scrollY 0/247 · hudTop 0 · req 64-163 off 0 · strip 168-214 · board 267-637 L10 R10 off 0 · tile 49.1 · card 68-158 · vis board/card/orders/strip 1111 · sw 390 · 
+390x844  · new player         · scrollY 0/67 · hudTop 0 · req 64-163 off 0 · strip 168-214 · board 267-637 L10 R10 off 0 · tile 49.1 · card 68-158 · vis board/card/orders/strip 1111 · sw 390 · 
+390x844  · new player reload  · scrollY 0/67 · hudTop 0 · req 64-163 off 0 · strip 168-214 · board 267-637 L10 R10 off 0 · tile 49.1 · card 68-158 · vis board/card/orders/strip 1111 · sw 390 · 
+390x844  · returning          · scrollY 0/24 · hudTop 0 · req 64-163 off 0 · strip 168-214 · board 222-592 L10 R10 off 0 · tile 49.1 · card 68-158 · vis board/card/orders/strip 1111 · sw 390 · 
+390x844  · returning reload   · scrollY 0/22 · hudTop 0 · req 64-163 off 0 · strip 168-214 · board 222-592 L10 R10 off 0 · tile 49.1 · card 68-158 · vis board/card/orders/strip 1111 · sw 390 · 
+390x844  · scrolled + reload  · scrollY 22/22 · hudTop 0 · req 42-141 off 0 · strip 146-192 · board 200-570 L10 R10 off 0 · tile 49.1 · card 46-136 · vis board/card/orders/strip 1111 · sw 390 · 
+390x844  · scrolled + menu Home · scrollY 15/22 · hudTop 0 · req 49-148 off 0 · strip 153-199 · board 207-577 L10 R10 off 0 · tile 49.1 · card 53-143 · vis board/card/orders/strip 1111 · sw 390 · 
+390x844  · crazygames         · scrollY 0/24 · hudTop 0 · req 64-163 off 0 · strip 168-214 · board 222-592 L10 R10 off 0 · tile 49.1 · card 68-158 · vis board/card/orders/strip 1111 · sw 390 · 
+390x844  · crazygames iframe  · scrollY 0/67 · hudTop 0 · req 64-163 off 0 · strip 168-214 · board 267-637 L10 R10 off 0 · tile 49.1 · card 68-158 · vis board/card/orders/strip 1111 · sw 390 · 
+430x932  · new player         · scrollY 0/19 · hudTop 0 · req 64-163 off 0 · strip 168-214 · board 267-677 L10 R10 off 0 · tile 54.8 · card 68-158 · vis board/card/orders/strip 1111 · sw 430 · 
+430x932  · new player reload  · scrollY 0/19 · hudTop 0 · req 64-163 off 0 · strip 168-214 · board 267-677 L10 R10 off 0 · tile 54.8 · card 68-158 · vis board/card/orders/strip 1111 · sw 430 · 
+430x932  · returning          · scrollY 0/0 · hudTop 0 · req 64-163 off 0 · strip 168-214 · board 222-632 L10 R10 off 0 · tile 54.8 · card 68-158 · vis board/card/orders/strip 1111 · sw 430 · 
+430x932  · returning reload   · scrollY 0/0 · hudTop 0 · req 64-163 off 0 · strip 168-214 · board 222-632 L10 R10 off 0 · tile 54.8 · card 68-158 · vis board/card/orders/strip 1111 · sw 430 · 
+430x932  · scrolled + reload  · scrollY 0/0 · hudTop 0 · req 64-163 off 0 · strip 168-214 · board 222-632 L10 R10 off 0 · tile 54.8 · card 68-158 · vis board/card/orders/strip 1111 · sw 430 · 
+430x932  · scrolled + menu Home · scrollY 0/0 · hudTop 0 · req 64-163 off 0 · strip 168-214 · board 222-632 L10 R10 off 0 · tile 54.8 · card 68-158 · vis board/card/orders/strip 1111 · sw 430 · 
+430x932  · crazygames         · scrollY 0/0 · hudTop 0 · req 64-163 off 0 · strip 168-214 · board 222-632 L10 R10 off 0 · tile 54.8 · card 68-158 · vis board/card/orders/strip 1111 · sw 430 · 
+430x932  · crazygames iframe  · scrollY 0/19 · hudTop 0 · req 64-163 off 0 · strip 168-214 · board 267-677 L10 R10 off 0 · tile 54.8 · card 68-158 · vis board/card/orders/strip 1111 · sw 430 · 
+907x510  · new player         · scrollY 0/0 · hudTop 0 · req 64-163 off -250 · strip 173-219 · board 12-498 L409 R12 off 199 · tile 65.7 · card 68-158 · vis board/card/orders/strip 1111 · sw 907 · 
+907x510  · new player reload  · scrollY 0/0 · hudTop 0 · req 64-163 off -250 · strip 173-219 · board 12-498 L409 R12 off 199 · tile 65.7 · card 68-158 · vis board/card/orders/strip 1111 · sw 907 · 
+907x510  · returning          · scrollY 0/6 · hudTop 0 · req 64-163 off -250 · strip 173-219 · board 10-496 L409 R12 off 199 · tile 65.7 · card 68-158 · vis board/card/orders/strip 1111 · sw 907 · 
+907x510  · returning reload   · scrollY 0/6 · hudTop 0 · req 64-163 off -250 · strip 173-219 · board 10-496 L409 R12 off 199 · tile 65.7 · card 68-158 · vis board/card/orders/strip 1111 · sw 907 · 
+907x510  · scrolled + reload  · scrollY 6/6 · hudTop 0 · req 58-157 off -250 · strip 167-213 · board 4-490 L409 R12 off 199 · tile 65.7 · card 62-152 · vis board/card/orders/strip 1111 · sw 907 · 
+907x510  · scrolled + menu Home · scrollY 6/6 · hudTop 0 · req 58-157 off -250 · strip 167-213 · board 4-490 L409 R12 off 199 · tile 65.7 · card 62-152 · vis board/card/orders/strip 1111 · sw 907 · 
+907x510  · crazygames         · scrollY 0/6 · hudTop 0 · req 64-163 off -250 · strip 173-219 · board 10-496 L409 R12 off 199 · tile 65.7 · card 68-158 · vis board/card/orders/strip 1111 · sw 907 · 
+907x510  · crazygames iframe  · scrollY 0/0 · hudTop 0 · req 64-163 off -250 · strip 173-219 · board 12-498 L409 R12 off 199 · tile 65.7 · card 68-158 · vis board/card/orders/strip 1111 · sw 907 · 
+375x553  · new player         · scrollY 0/343 · hudTop 0 · req 64-163 off 0 · strip 168-214 · board 267-622 L10 R10 off 0 · tile 47 · card 68-158 · vis board/card/orders/strip 0111 · sw 375 · 
+375x553  · new player reload  · scrollY 0/343 · hudTop 0 · req 64-163 off 0 · strip 168-214 · board 267-622 L10 R10 off 0 · tile 47 · card 68-158 · vis board/card/orders/strip 0111 · sw 375 · 
+375x553  · returning          · scrollY 0/300 · hudTop 0 · req 64-163 off 0 · strip 168-214 · board 222-577 L10 R10 off 0 · tile 47 · card 68-158 · vis board/card/orders/strip 0111 · sw 375 · 
+375x553  · returning reload   · scrollY 0/298 · hudTop 0 · req 64-163 off 0 · strip 168-214 · board 222-577 L10 R10 off 0 · tile 47 · card 68-158 · vis board/card/orders/strip 0111 · sw 375 · 
+375x553  · scrolled + reload  · scrollY 298/298 · hudTop 0 · req -234--135 off 0 · strip -130--84 · board -76-279 L10 R10 off 0 · tile 47 · card -230--140 · vis board/card/orders/strip 0000 · sw 375 · 
+375x553  · scrolled + menu Home · scrollY 0/298 · hudTop 0 · req 64-163 off 0 · strip 168-214 · board 222-577 L10 R10 off 0 · tile 47 · card 68-158 · vis board/card/orders/strip 0111 · sw 375 · 
+375x553  · crazygames         · scrollY 0/300 · hudTop 0 · req 64-163 off 0 · strip 168-214 · board 222-577 L10 R10 off 0 · tile 47 · card 68-158 · vis board/card/orders/strip 0111 · sw 375 · 
+375x553  · crazygames iframe  · scrollY 0/343 · hudTop 0 · req 64-163 off 0 · strip 168-214 · board 267-622 L10 R10 off 0 · tile 47 · card 68-158 · vis board/card/orders/strip 0111 · sw 375 · 
