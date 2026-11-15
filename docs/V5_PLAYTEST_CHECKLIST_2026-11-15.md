@@ -18,7 +18,7 @@
 | Local Chromium, all 29 Coast Camp suites (`1db7432`; `5a5355b` changes only the build-flow test) | ✅ |
 | Saves | No migration. The existing-save, cloud-save and fixture suites pass. Save keys are unchanged. |
 
-**The WebKit crash on `1db7432` was a test-lifecycle failure, not a gameplay crash:**
+**The WebKit crash on `1db7432`: first read as a test-lifecycle failure (see the correction after the toast note below):**
 - **One step crashed.** It was the 4th size (430×932) of `v5-next-build-flow-browser.cjs`, on `page.reload`, in one long-lived WebKit browser. The same flow had just passed at 360×640, 390×664 and 390×844 in that browser.
 - **It does not depend on this PR.** The same suite passed in WebKit on `6bbee67` (PR #104) and `3808698`. This PR changes nothing in the forge build and reload the step exercises.
 - **It is a known WebKit crash.** The First Session 2.0 suite already documents it: "WebKit's page process crashed twice in CI late in one long-lived browser" (`7d2674e` at 430×932, `a840801`), and relaunches the browser per run.
@@ -34,6 +34,19 @@
 - **The fix is in the test only:** the page now records every toast as it appears, and the test checks the recorded text. The assertions are unchanged.
 
 **On a real phone the toast's short life may matter:** watch whether players read "Materials secured · Build" before it fades (§3, question 3).
+
+**A third WebKit failure, on `02add52` (test-only change over `5a5355b`), corrects the explanation above:**
+- **What failed:** the same WebKit page process closed in `v5-next-build-flow-browser.cjs`, this time at the *first* size (360×640) of a *fresh* browser, 23 s in, while tapping the coast screen's × (run 43696912404). A fresh browser per size therefore does not prevent it; "test lifecycle" was too narrow an explanation.
+- **It is not specific to this PR's code:**
+  - the step that failed is the first open and close of the coast screen in a chapter-1 camp;
+  - on that path, this PR's new close listener returns at once (no new generator pending), and the new line on the coast card appears only for the tent;
+  - PR #104's own code shows the same failure ("Target page, context or browser has been closed", WebKit only) in other suites and at other points: `7d2674e` (first-session-2, 430×932, run 43438042076) and `a840801`. This PR's `1db7432` shows it too (build-flow, 430×932 reload).
+- **It does not reproduce on the same flow:**
+  - build-flow passed in WebKit on `6bbee67`, `3808698`, `5a5355b` and `39502af`;
+  - the coast open and close it crashed on also passes in WebKit in the coast-back, core-actions, strip-tap and chapter suites;
+  - Chromium never shows it.
+- **What it is:** an intermittent WebKit page-process loss in the CI container (Playwright 1.62.1 WebKit), not a gameplay error. No page error or assertion failure comes before it.
+- **What remains:** no WebKit binary is available outside CI to rule out a real Safari crash on this path, so real iPhones (§2) are the check. Any crash or "A problem repeatedly occurred" on an iPhone is an S1 and blocks the build.
 
 ## 2. Setup (preserves the preview and every save)
 
@@ -131,7 +144,10 @@ Owner decisions needed:
 
 ## 6. Current recommendation
 
-**GO for the real-device playtest.** The unit, Chromium and WebKit CI on `5a5355b` are all green.
+**GO for the real-device playtest.**
+- The unit, Chromium and WebKit CI on `5a5355b` (the pinned preview) are all green.
+- On later test-only commits, WebKit CI shows an intermittent page-process loss. PR #104's code has it too (§1). No gameplay error is behind it.
+- Real iPhones are the deciding check for it.
 
 - **Not a release candidate.**
 - No CrazyGames upload, no merge to main, no save migration.
