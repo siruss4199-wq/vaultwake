@@ -1563,11 +1563,32 @@ function storyRibbon(){
 function foldRibbon(){const r=$('#storyRibbon');if(!r||r.hidden)return;r.classList.add('folded');setTimeout(()=>{r.hidden=true;},reduced()?0:320);}
 function replayStory(){$('#menu').open&&$('#menu').close();playScenes({scenes:INTRO.map(x=>({...x,src:`assets/premium/coast/story/${x.art}.webp`,id:x.art})),face:who=>`assets/premium/coast/ui/${FACES[who]}.webp`,reduced,last:'Back to the camp'}).then(()=>render());}
 {const sb=document.createElement('button');sb.id='storyButton';sb.type='button';sb.className='menuButton';sb.textContent='Story: the letter';sb.onclick=replayStory;$('#homeButton').after(sb);}
+// Initial screen (2026-11-15): each time play starts (a new camp's first board, Home → Play/Continue, the menu's
+// Home → Continue) the play area is framed: the page starts at its left edge and at the top (the HUD, the orders,
+// the restoration strip and the board in view). The page is taller than a phone (the shed and settings sit below
+// the board), and a browser restores an old scroll position on reload: a returning player came back with the orders
+// above the screen. On a screen too short for everything (a small phone's browser with its bars), the least scroll
+// that shows the whole board, never more than a few pixels into the primary order card: the board stays whole, the
+// primary order in view, and no tile is shrunk. Layout only: nothing in the game or the save changes.
+try{history.scrollRestoration='manual';}catch{}
+let framedAt=0;
+function framePlay(){
+ const at=framedAt=performance.now();let touched=false;const mark=()=>{touched=true;};
+ for(const e of ['pointerdown','touchstart','wheel','keydown'])addEventListener(e,mark,{once:true,passive:true,capture:true});
+ const go=()=>{if(homeOpen||touched||at!==framedAt)return;
+  const b=$('#board'),card=$('#requests .requestCard');if(!b)return;const H=window.visualViewport?.height||innerHeight,y0=scrollY;
+  const bottom=b.getBoundingClientRect().bottom+y0,cardTop=card?card.getBoundingClientRect().top+y0:0;
+  // the whole board first (the least scroll that shows its bottom row), never more than 12 px into the primary order card
+  const y=Math.round(Math.max(0,Math.min(bottom+4-H,cardTop+12)));
+  if(scrollX||Math.abs(scrollY-y)>1)window.scrollTo(0,y);};
+ go();requestAnimationFrame(()=>requestAnimationFrame(go));setTimeout(go,450);
+}
+addEventListener('pageshow',e=>{if(e.persisted&&!homeOpen)framePlay();});
 // What happens on arriving at the board: once at the start without Home, and each time from Home.
 let storyJustPlayed=false;
 function arrive(fromHome=true){
  if(holdSave&&!damaged&&!waitFirstAction){holdSave=false;persist();}
- syncPlaying();if(fromHome)$('#hint').focus({preventScroll:true});
+ syncPlaying();if(fromHome)$('#hint').focus({preventScroll:true});framePlay();
  // Build 51c: a story played to its end already says what to do first, so no second introduction follows
  // it; a skipped story is followed by the beach's one line (the same words)
  if(!state.moves){if(waitFirstAction)storyRibbon();else if(!storyJustPlayed)showIntro();}
