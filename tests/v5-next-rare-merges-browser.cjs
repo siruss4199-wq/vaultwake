@@ -41,6 +41,10 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
   try{for(const [W,H] of [[390,844],[360,780],[430,932],[907,510]])for(const motion of W===390?['no-preference','reduce']:['reduce']){
    const context=await browser.newContext({viewport:{width:W,height:H},isMobile:W<700&&engine==='chromium',hasTouch:true,reducedMotion:motion});
    const page=await context.newPage(),errors=[];throughHome(page);
+   // Every toast is recorded as it appears: a toast lives 1.75 s, and on a slow WebKit runner it could come and go before
+   // a wait for it began (CI 39502af: "Materials secured" was shown, the wait missed it). The checks read the record.
+   await page.addInitScript(()=>{window.__moments=[];addEventListener('DOMContentLoaded',()=>new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes)if(n.classList?.contains('moment'))__moments.push(n.innerText);}).observe(document.body,{childList:true,subtree:true}));});
+   const momentSeen=async text=>{await page.waitForFunction(t=>window.__moments.some(x=>x.includes(t)),text,{timeout:6000});return page.evaluate(t=>window.__moments.filter(x=>x.includes(t)).at(-1),text);};
    page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
    const tag=s=>`${engine} ${W}×${H} ${motion}: ${s}`,save=()=>page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
    const shot=async name=>{if(SHOTS&&motion==='reduce')await page.screenshot({path:path.join(SHOTS,`rare-${W}x${H}-${name}.png`)});};
@@ -83,11 +87,10 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
    // the second Pocket winch in, then deliver: materials secured, Build · 100 coins, the strip at once
    let s=await save();s.board[s.board.indexOf(null)]=g.item('rig',3);await page.evaluate(([k,v])=>localStorage.setItem(k,v),[KEY,JSON.stringify(s)]);await page.reload();await page.waitForSelector('#board .tile');await beats();
    const coins=(await save()).coins;
-   await page.locator(`[data-order="${mastGold.id}"]`).click();
+   await page.evaluate(()=>{window.__moments.length=0;});await page.locator(`[data-order="${mastGold.id}"]`).click();
    await page.waitForFunction(()=>document.querySelector('#mapButton')?.dataset.ready==='1',null,{timeout:3000});
    assert.equal(await page.locator('#mapButton .rsText b').textContent(),'Ready to build',tag('the strip turns at once'));assert.equal(await page.locator('#mapButton .rsAction').textContent(),'Build');
-   await page.waitForSelector('.moment:has-text("Materials secured")',{timeout:4000});
-   const m=await page.locator('.moment').innerText();assert.match(m,/Materials secured · \+\d+ coins/);assert.match(m,/paid \d+ coins and brought the materials for Raise the signal mast/,tag('both rewards (build 51c)'));assert.match(m,/Build · 100 coins/,tag('Build · cost'));
+   const m=await momentSeen('Materials secured');assert.match(m,/Materials secured · \+\d+ coins/);assert.match(m,/paid \d+ coins and brought the materials for Raise the signal mast/,tag('both rewards (build 51c)'));assert.match(m,/Build · 100 coins/,tag('Build · cost'));
    assert.equal(await page.locator('dialog[open]').count(),0,tag('nothing blocks the board'));
    s=await save();assert.equal(s.materials['beach-mast'],1);assert.equal(s.coins,coins+mastGold.coins,tag('the gold order paid its coins'));
    await fits('materials secured');await shot('4-materials-secured');
@@ -118,9 +121,9 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
    {const a=await page.locator(`#board [data-index="${bolts[0]}"]`).boundingBox(),c=await page.locator(`#board [data-index="${bolts[1]}"]`).boundingBox();
     await page.mouse.move(a.x+a.width/2,a.y+a.height/2);await page.mouse.down();await page.mouse.move(c.x+c.width/2,c.y+c.height/2,{steps:6});await page.mouse.up();await page.waitForTimeout(300);}
    s=await save();assert.equal(s.board.filter(x=>x?.type==='item'&&x.family==='mech'&&x.tier===1).length,1,tag('a Gear'));
-   await page.locator(`[data-order="${hoistGold.id}"]`).click();
-   await page.waitForSelector('.moment:has-text("Materials secured")',{timeout:4000});s=await save();
-   assert.match(await page.locator('.moment').innerText(),new RegExp(`${200-s.coins} more coins to build it: deliver crew orders`),tag('how many more coins'));
+   await page.evaluate(()=>{window.__moments.length=0;});await page.locator(`[data-order="${hoistGold.id}"]`).click();
+   const m2=await momentSeen('Materials secured');s=await save();
+   assert.match(m2,new RegExp(`${200-s.coins} more coins to build it: deliver crew orders`),tag('how many more coins'));
    assert.match(await page.locator('#mapButton .rsText small').innerText(),new RegExp(`Materials · ${200-s.coins} more`),tag('the strip says it too'));
    assert.equal(s.materials['ws-hoist'],2);await fits('coins short');await shot('7-coins-short');
    assert.deepEqual(errors,[],tag('no page errors'));

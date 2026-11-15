@@ -27,6 +27,14 @@
 - **Confirmed:** the WebKit run on `5a5355b` ran the same flow at all four sizes, green.
 - **On real phones:** if a page crash or "A problem repeatedly occurred" is ever seen, record it as a bug (§3).
 
+**A second WebKit failure, on `39502af` (docs only, the same game code as `5a5355b`), was also a test-timing issue:**
+- **What failed:** `v5-next-rare-merges-browser.cjs` waited 4 s for the "Materials secured" toast and missed it.
+- **What the game does:** a recording of every toast in that flow (Chromium) shows exactly one, "Materials secured", at 0.94 s after the tap, nothing replacing it. It lives 1.75 s.
+- **Why the test missed it:** the check began only after another wait (for the strip), so a slow runner could start looking after the toast had gone.
+- **The fix is in the test only:** the page now records every toast as it appears, and the test checks the recorded text. The assertions are unchanged.
+
+**On a real phone the toast's short life may matter:** watch whether players read "Materials secured · Build" before it fades (§3, question 3).
+
 ## 2. Setup (preserves the preview and every save)
 
 - **Preview:**
