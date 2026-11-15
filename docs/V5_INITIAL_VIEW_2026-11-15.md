@@ -28,13 +28,13 @@
 - `history.scrollRestoration='manual'`.
 - The page goes to its left edge and the top, so the HUD, orders, strip and board are in view.
 - If the board's bottom row would be off screen, it scrolls the least amount that shows the whole board, never more than 12 px into the primary order card. No tile is shrunk.
-- It re-checks after two frames and at 450 ms, and stops as soon as the player touches, scrolls or types.
+- It re-checks after two frames and at 450 ms, and stops as soon as the player touches, scrolls or types. The input listeners are registered once, when the module loads. A first version added four per trip Home, and the Home suite caught it (listeners 68 → 80 after three trips).
 - A page restored from the back/forward cache is framed again.
 
 **`v5/next/coastal.css`:** `overflow-x:clip` on the page. It is a guard only: nothing measured is wider than the screen. A swipe can never leave the page offset sideways, and `clip` creates no scroll container.
 
 **Other files:**
-- Cache tags in `v5/play.html` bumped (`first60a`).
+- Cache tags in `v5/play.html` bumped (`coastal.css` `first60a`, `app.mjs` `first60b`).
 - `v5/coast-crazygames.html` regenerated with `node tools/coast-crazygames.mjs`.
 - No save, rule or style change elsewhere.
 
@@ -72,7 +72,10 @@
 - checks: no sideways offset; nothing wider than the screen; the whole board, the primary order card, the orders and the strip in view; board and orders centred; tiles at the same size in every case;
 - it fails on the build before the fix (390×664, scrolled then reload: card top at −134).
 
-**Existing suites:** unit tests 494 pass. Chromium browser suites: see the PR report.
+**Existing suites:**
+- Unit tests: 494 pass.
+- Chromium: all 29 Coast Camp browser suites pass, plus the new one.
+- Two suites, `v5-next-browser.cjs` and `v5-next-playtest-browser.cjs`, also launch WebKit, which is not installed outside CI. Their Chromium parts pass. CI runs both engines.
 
 ## 5. Not covered here
 

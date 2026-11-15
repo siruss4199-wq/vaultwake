@@ -1571,11 +1571,12 @@ function replayStory(){$('#menu').open&&$('#menu').close();playScenes({scenes:IN
 // that shows the whole board, never more than a few pixels into the primary order card: the board stays whole, the
 // primary order in view, and no tile is shrunk. Layout only: nothing in the game or the save changes.
 try{history.scrollRestoration='manual';}catch{}
-let framedAt=0;
+let framedAt=0,lastInput=0;
+// the player's own input stops the framing (registered once: a trip Home adds no listener)
+for(const e of ['pointerdown','touchstart','wheel','keydown'])addEventListener(e,()=>{lastInput=performance.now();},{passive:true,capture:true});
 function framePlay(){
- const at=framedAt=performance.now();let touched=false;const mark=()=>{touched=true;};
- for(const e of ['pointerdown','touchstart','wheel','keydown'])addEventListener(e,mark,{once:true,passive:true,capture:true});
- const go=()=>{if(homeOpen||touched||at!==framedAt)return;
+ const at=framedAt=performance.now();
+ const go=()=>{if(homeOpen||lastInput>at||at!==framedAt)return;
   const b=$('#board'),card=$('#requests .requestCard');if(!b)return;const H=window.visualViewport?.height||innerHeight,y0=scrollY;
   const bottom=b.getBoundingClientRect().bottom+y0,cardTop=card?card.getBoundingClientRect().top+y0:0;
   // the whole board first (the least scroll that shows its bottom row), never more than 12 px into the primary order card
