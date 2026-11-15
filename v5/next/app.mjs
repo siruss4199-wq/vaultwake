@@ -1005,11 +1005,13 @@ async function watchAd(action){
 // Build 51c: not offered by itself while a new camp's first-loop guide runs (its button still shows the gift).
 // First Session 2.0: not while the guide is teaching (the first build's next objective stays in view); the gift button stays.
 // First 10 minutes (2026-11-14): the Daily gift opens by itself only for a camp that already had progress when this
-// session reached the board (a returning player: "a gift from the crew for coming back"). A camp started in this
+// page loaded it (a returning player: "a gift from the crew for coming back"). A camp started in this
 // session is never interrupted by it (measured: it opened about 2 minutes into a new player's first session, over the
 // next objective); its gift button stays, so the gift is one tap away. Rewards and saves are unchanged.
-let giftBase=null;
-function offerGift(){if(!homeOpen&&giftBase===null)giftBase=state.moves??0;
+// (the camp's moves when this page loaded it, before any input; a camp swapped in later, a new one, is noted when it
+// appears)
+let giftBase=state.moves??0,giftCamp=state;
+function offerGift(){if(state!==giftCamp){giftCamp=state;giftBase=state.moves??0;}
  if(!homeOpen&&!adBusy&&giftReady()&&giftShown!==today()&&giftBase>=3&&state.moves>=3&&!tutorActive(state)&&!drag&&!document.querySelector('dialog[open]'))showDaily();}
 $('#soundButton').onclick=()=>{sounds.toggle();render();sfx('tap');};
 $('#hapticsButton').onclick=()=>{haptics.toggle();render();haptics.pulse('merge');};
@@ -1019,7 +1021,7 @@ $('#menuButton').onclick=()=>{$('#homeButton').hidden=homeOpen;{const n=kept().l
 $('#newGame').onclick=()=>{if(!confirm('Start a new game from the beginning? This camp is kept in this browser (Kept camps in this menu brings it back), and your Classic save is not affected.'))return;if(!newCamp())return;$('#menu').close();if(homeOpen&&home)home.enter();else showIntro();};
 // A new camp, chosen by the player (the menu, or Home after a save could not be read).
 // Round 2: the camp a new camp replaces is kept (SAVE_KEY-kept…), so starting again loses nothing.
-function newCamp(){giftBase=null;const wasDamaged=damaged;if(!keepDamaged()){alert('Your old save could not be copied aside (this browser\'s storage is full), so nothing was replaced.');return false;}
+function newCamp(){const wasDamaged=damaged;if(!keepDamaged()){alert('Your old save could not be copied aside (this browser\'s storage is full), so nothing was replaced.');return false;}
  if(!wasDamaged){persist();if(!keepCopy(storage.get(SAVE_KEY),'kept')){alert('Your camp could not be copied aside (this browser\'s storage is full), so nothing was replaced.');return false;}}
  holdSave=false;replaced=null;state=fresh(Date.now());selected=null;focusOrder=null;persist();render();return true;}
 $('#homeButton').onclick=()=>{$('#menu').close();persist();home?.show();};
@@ -1256,7 +1258,7 @@ function showBeat(id,effects,stage=stageOf(state,id)){
   else if(caption||effects&&Object.keys(effects).length)moment(`${st.name} · stage ${stage} of ${STAGES}`,said+(effects&&Object.keys(effects).length?rewardText(effects):'')+next,null);burst(($('#coastMap').open?$('#coastMap .beachScene'):board).getBoundingClientRect(),'gold',true);
   for(const i of [effects?.kit,effects?.copy,effects?.token,effects?.cog])if(i>=0)board.querySelector(`[data-index="${i}"]`)?.classList.add('unsealed');
   // Build 47e (from PR #80): a first generator of its kind from a stage (the Lens Bench) shows its chain.
-  if(effects?.copyId&&[...state.board,...state.shed,...state.pending].filter(y=>y?.type==='source'&&y.id===effects.copyId).length===1)setTimeout(()=>newGeneratorMoment(effects.copyId),1400);
+  if(effects?.copyId&&[...state.board,...state.shed,...state.pending].filter(y=>y?.type==='source'&&y.id===effects.copyId).length===1){setTimeout(()=>newGeneratorMoment(effects.copyId),1400);kindIntro=effects.copyId;}
   if(pendingReveals().some(v=>v.live(state)))setTimeout(()=>nextReveal(()=>{if(allDone(state))setTimeout(showEnd,600);}),900);
   else if(effects?.areaDone&&allDone(state))setTimeout(showEnd,900);});
  sfx('milestone');
@@ -1298,6 +1300,11 @@ function mergeTag(rect,text,rare=false){
 function mergeRays(rect){if(!rect||reduced())return;const el=document.createElement('i');el.className='mergeRays';const w=rect.width*2.4;
  el.style.cssText=`left:${rect.x+rect.width/2-w/2}px;top:${rect.y+rect.height/2-w/2}px;width:${w}px;height:${w}px`;document.body.append(el);setTimeout(()=>el.remove(),950);}
 function mergeTier(m,first){if(m?.type!=='item')return 'micro';if(CHAINS[m.family]?.secondary||m.tier>=5)return 'major';if(m.tier>=3||first&&m.tier>=2)return 'medium';return 'micro';}
+// First 10 minutes (2026-11-14): a stage that brought a new generator kind (the camp tent's Survey Kite) points at it
+// once, back on the board, with the guide line's own note (text, highlight and hand for a few seconds; nothing blocks).
+let kindIntro=null;
+$('#coastMap').addEventListener('close',()=>{if(!kindIntro)return;const id=kindIntro;kindIntro=null;const i=state.board.findIndex(x=>x?.type==='source'&&x.id===id);if(i<0)return;
+ const part=CHAINS[GENERATOR_CHAINS[id][0][0]].names[0];coachNote={text:`New generator: tap the ${SOURCES[id].name} for ${/^[aeiou]/i.test(part)?'an':'a'} ${part}`,until:performance.now()+7000,target:{kind:'cell',index:i}};render();});
 function newGeneratorMoment(gen){const c=CHAINS[GENERATOR_CHAINS[gen][0][0]];moment(`New generator: ${SOURCES[gen].name}!`,c.names.join(' → '),{type:'source',id:gen});}
 function showIntro(){const a=currentArea(state);if(a.intro)playLines(a.name,a.intro);}
 // ---------- reveals (Build 47b, from PR #80) ----------
