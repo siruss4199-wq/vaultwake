@@ -1,0 +1,2092 @@
+{
+ "before": [
+  {
+   "vp": "360x640",
+   "case": "new player (tutorial)",
+   "hud": "8-60",
+   "rail": "64-163",
+   "strip": "168-214",
+   "guide": "219-263",
+   "board": "267-607",
+   "boardW": 340,
+   "tile": 44.8,
+   "lead": 132,
+   "card": 90,
+   "ratio": 1.47,
+   "cardH": [
+    90
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "32x38",
+   "outl": 2,
+   "fonts": {
+    "cardName": 11.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": 14,
+    "guideWhy": 11.5,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 28,
+    "leadFace": 28,
+    "item": 31,
+    "leadItem": 31,
+    "stripH": 46,
+    "stripAction": [
+     68,
+     30
+    ],
+    "skip": [
+     44,
+     44
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "360x640",
+   "case": "returning gold",
+   "hud": "8-60",
+   "rail": "64-163",
+   "strip": "168-214",
+   "guide": "\u2014",
+   "board": "222-562",
+   "boardW": 340,
+   "tile": 44.8,
+   "lead": 132,
+   "card": 90,
+   "ratio": 1.47,
+   "cardH": [
+    90
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "\u2014",
+   "outl": 1,
+   "fonts": {
+    "cardName": 10.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": null,
+    "guideWhy": null,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 28,
+    "leadFace": 28,
+    "item": 29,
+    "leadItem": 25,
+    "stripH": 46,
+    "stripAction": [
+     72,
+     32
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "360x640",
+   "case": "ready + selected",
+   "hud": "8-60",
+   "rail": "64-163",
+   "strip": "168-214",
+   "guide": "\u2014",
+   "board": "263-603",
+   "boardW": 340,
+   "tile": 44.8,
+   "lead": 132,
+   "card": 104,
+   "ratio": 1.27,
+   "cardH": [
+    90
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "\u2014",
+   "outl": 2,
+   "fonts": {
+    "cardName": 10.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": null,
+    "guideWhy": null,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 24,
+    "leadFace": 28,
+    "item": 29,
+    "leadItem": 31,
+    "stripH": 46,
+    "stripAction": [
+     68,
+     30
+    ],
+    "deliver": [
+     84,
+     26
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "375x667",
+   "case": "new player (tutorial)",
+   "hud": "8-60",
+   "rail": "64-163",
+   "strip": "168-214",
+   "guide": "219-263",
+   "board": "267-622",
+   "boardW": 355,
+   "tile": 47,
+   "lead": 132,
+   "card": 90,
+   "ratio": 1.47,
+   "cardH": [
+    90
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "32x38",
+   "outl": 2,
+   "fonts": {
+    "cardName": 11.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": 14,
+    "guideWhy": 11.5,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 28,
+    "leadFace": 28,
+    "item": 31,
+    "leadItem": 31,
+    "stripH": 46,
+    "stripAction": [
+     68,
+     30
+    ],
+    "skip": [
+     44,
+     44
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "375x667",
+   "case": "returning gold",
+   "hud": "8-60",
+   "rail": "64-163",
+   "strip": "168-214",
+   "guide": "\u2014",
+   "board": "222-577",
+   "boardW": 355,
+   "tile": 47,
+   "lead": 132,
+   "card": 90,
+   "ratio": 1.47,
+   "cardH": [
+    90
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "\u2014",
+   "outl": 1,
+   "fonts": {
+    "cardName": 10.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": null,
+    "guideWhy": null,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 28,
+    "leadFace": 28,
+    "item": 29,
+    "leadItem": 25,
+    "stripH": 46,
+    "stripAction": [
+     70,
+     31
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "375x667",
+   "case": "ready + selected",
+   "hud": "8-60",
+   "rail": "64-163",
+   "strip": "168-214",
+   "guide": "\u2014",
+   "board": "263-618",
+   "boardW": 355,
+   "tile": 47,
+   "lead": 132,
+   "card": 104,
+   "ratio": 1.27,
+   "cardH": [
+    90
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "\u2014",
+   "outl": 2,
+   "fonts": {
+    "cardName": 10.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": null,
+    "guideWhy": null,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 24,
+    "leadFace": 28,
+    "item": 29,
+    "leadItem": 31,
+    "stripH": 46,
+    "stripAction": [
+     68,
+     30
+    ],
+    "deliver": [
+     84,
+     26
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "390x664",
+   "case": "new player (tutorial)",
+   "hud": "8-60",
+   "rail": "64-163",
+   "strip": "168-214",
+   "guide": "219-263",
+   "board": "267-637",
+   "boardW": 370,
+   "tile": 49.1,
+   "lead": 150,
+   "card": 96,
+   "ratio": 1.56,
+   "cardH": [
+    90
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "32x38",
+   "outl": 2,
+   "fonts": {
+    "cardName": 11.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": 14,
+    "guideWhy": 11.5,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 28,
+    "leadFace": 28,
+    "item": 31,
+    "leadItem": 31,
+    "stripH": 46,
+    "stripAction": [
+     68,
+     30
+    ],
+    "skip": [
+     44,
+     44
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "390x664",
+   "case": "returning gold",
+   "hud": "8-60",
+   "rail": "64-163",
+   "strip": "168-214",
+   "guide": "\u2014",
+   "board": "222-592",
+   "boardW": 370,
+   "tile": 49.1,
+   "lead": 150,
+   "card": 96,
+   "ratio": 1.56,
+   "cardH": [
+    90
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "\u2014",
+   "outl": 1,
+   "fonts": {
+    "cardName": 10.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": null,
+    "guideWhy": null,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 28,
+    "leadFace": 28,
+    "item": 29,
+    "leadItem": 25,
+    "stripH": 46,
+    "stripAction": [
+     70,
+     31
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "390x664",
+   "case": "ready + selected",
+   "hud": "8-60",
+   "rail": "64-163",
+   "strip": "168-214",
+   "guide": "\u2014",
+   "board": "263-633",
+   "boardW": 370,
+   "tile": 49.1,
+   "lead": 150,
+   "card": 110,
+   "ratio": 1.36,
+   "cardH": [
+    90
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "\u2014",
+   "outl": 2,
+   "fonts": {
+    "cardName": 10.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": null,
+    "guideWhy": null,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 24,
+    "leadFace": 28,
+    "item": 29,
+    "leadItem": 31,
+    "stripH": 46,
+    "stripAction": [
+     68,
+     30
+    ],
+    "deliver": [
+     84,
+     26
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "390x844",
+   "case": "new player (tutorial)",
+   "hud": "8-60",
+   "rail": "64-163",
+   "strip": "168-214",
+   "guide": "219-263",
+   "board": "267-637",
+   "boardW": 370,
+   "tile": 49.1,
+   "lead": 150,
+   "card": 96,
+   "ratio": 1.56,
+   "cardH": [
+    90
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "32x38",
+   "outl": 2,
+   "fonts": {
+    "cardName": 11.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": 14,
+    "guideWhy": 11.5,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 28,
+    "leadFace": 28,
+    "item": 31,
+    "leadItem": 31,
+    "stripH": 46,
+    "stripAction": [
+     68,
+     30
+    ],
+    "skip": [
+     44,
+     44
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "390x844",
+   "case": "returning gold",
+   "hud": "8-60",
+   "rail": "64-163",
+   "strip": "168-214",
+   "guide": "\u2014",
+   "board": "222-592",
+   "boardW": 370,
+   "tile": 49.1,
+   "lead": 150,
+   "card": 96,
+   "ratio": 1.56,
+   "cardH": [
+    90
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "\u2014",
+   "outl": 1,
+   "fonts": {
+    "cardName": 10.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": null,
+    "guideWhy": null,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 28,
+    "leadFace": 28,
+    "item": 29,
+    "leadItem": 25,
+    "stripH": 46,
+    "stripAction": [
+     70,
+     31
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "390x844",
+   "case": "ready + selected",
+   "hud": "8-60",
+   "rail": "64-163",
+   "strip": "168-214",
+   "guide": "\u2014",
+   "board": "263-633",
+   "boardW": 370,
+   "tile": 49.1,
+   "lead": 150,
+   "card": 110,
+   "ratio": 1.36,
+   "cardH": [
+    90
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "\u2014",
+   "outl": 2,
+   "fonts": {
+    "cardName": 10.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": null,
+    "guideWhy": null,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 24,
+    "leadFace": 28,
+    "item": 29,
+    "leadItem": 31,
+    "stripH": 46,
+    "stripAction": [
+     68,
+     30
+    ],
+    "deliver": [
+     84,
+     26
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "402x874",
+   "case": "new player (tutorial)",
+   "hud": "8-60",
+   "rail": "64-163",
+   "strip": "168-214",
+   "guide": "219-263",
+   "board": "267-649",
+   "boardW": 382,
+   "tile": 50.8,
+   "lead": 150,
+   "card": 96,
+   "ratio": 1.56,
+   "cardH": [
+    90
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "32x38",
+   "outl": 2,
+   "fonts": {
+    "cardName": 11.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": 14,
+    "guideWhy": 11.5,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 28,
+    "leadFace": 28,
+    "item": 31,
+    "leadItem": 31,
+    "stripH": 46,
+    "stripAction": [
+     68,
+     30
+    ],
+    "skip": [
+     44,
+     44
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "402x874",
+   "case": "returning gold",
+   "hud": "8-60",
+   "rail": "64-163",
+   "strip": "168-214",
+   "guide": "\u2014",
+   "board": "222-604",
+   "boardW": 382,
+   "tile": 50.8,
+   "lead": 150,
+   "card": 96,
+   "ratio": 1.56,
+   "cardH": [
+    90
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "\u2014",
+   "outl": 1,
+   "fonts": {
+    "cardName": 10.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": null,
+    "guideWhy": null,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 28,
+    "leadFace": 28,
+    "item": 29,
+    "leadItem": 25,
+    "stripH": 46,
+    "stripAction": [
+     70,
+     31
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "402x874",
+   "case": "ready + selected",
+   "hud": "8-60",
+   "rail": "64-163",
+   "strip": "168-214",
+   "guide": "\u2014",
+   "board": "263-645",
+   "boardW": 382,
+   "tile": 50.8,
+   "lead": 150,
+   "card": 110,
+   "ratio": 1.36,
+   "cardH": [
+    90
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "\u2014",
+   "outl": 2,
+   "fonts": {
+    "cardName": 10.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": null,
+    "guideWhy": null,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 24,
+    "leadFace": 28,
+    "item": 29,
+    "leadItem": 31,
+    "stripH": 46,
+    "stripAction": [
+     68,
+     30
+    ],
+    "deliver": [
+     84,
+     26
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "430x932",
+   "case": "new player (tutorial)",
+   "hud": "8-60",
+   "rail": "64-163",
+   "strip": "168-214",
+   "guide": "219-263",
+   "board": "267-677",
+   "boardW": 410,
+   "tile": 54.8,
+   "lead": 150,
+   "card": 96,
+   "ratio": 1.56,
+   "cardH": [
+    90
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "32x38",
+   "outl": 2,
+   "fonts": {
+    "cardName": 11.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": 14,
+    "guideWhy": 11.5,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 28,
+    "leadFace": 28,
+    "item": 31,
+    "leadItem": 31,
+    "stripH": 46,
+    "stripAction": [
+     68,
+     30
+    ],
+    "skip": [
+     44,
+     44
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "430x932",
+   "case": "returning gold",
+   "hud": "8-60",
+   "rail": "64-163",
+   "strip": "168-214",
+   "guide": "\u2014",
+   "board": "222-632",
+   "boardW": 410,
+   "tile": 54.8,
+   "lead": 150,
+   "card": 96,
+   "ratio": 1.56,
+   "cardH": [
+    90
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "\u2014",
+   "outl": 1,
+   "fonts": {
+    "cardName": 10.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": null,
+    "guideWhy": null,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 28,
+    "leadFace": 28,
+    "item": 29,
+    "leadItem": 25,
+    "stripH": 46,
+    "stripAction": [
+     70,
+     31
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "430x932",
+   "case": "ready + selected",
+   "hud": "8-60",
+   "rail": "64-163",
+   "strip": "168-214",
+   "guide": "\u2014",
+   "board": "263-673",
+   "boardW": 410,
+   "tile": 54.8,
+   "lead": 150,
+   "card": 110,
+   "ratio": 1.36,
+   "cardH": [
+    90
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "\u2014",
+   "outl": 2,
+   "fonts": {
+    "cardName": 10.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": null,
+    "guideWhy": null,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 24,
+    "leadFace": 28,
+    "item": 29,
+    "leadItem": 31,
+    "stripH": 46,
+    "stripAction": [
+     68,
+     30
+    ],
+    "deliver": [
+     84,
+     26
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "907x510",
+   "case": "new player (tutorial)",
+   "hud": "8-60",
+   "rail": "64-163",
+   "strip": "173-219",
+   "guide": "224-268",
+   "board": "12-498",
+   "boardW": 486,
+   "tile": 65.7,
+   "lead": 150,
+   "card": 96,
+   "ratio": 1.56,
+   "cardH": [
+    90
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "32x38",
+   "outl": 2,
+   "fonts": {
+    "cardName": 11.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": 14,
+    "guideWhy": 11.5,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 28,
+    "leadFace": 28,
+    "item": 31,
+    "leadItem": 31,
+    "stripH": 46,
+    "stripAction": [
+     68,
+     30
+    ],
+    "skip": [
+     44,
+     44
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "907x510",
+   "case": "returning gold",
+   "hud": "8-60",
+   "rail": "64-163",
+   "strip": "173-219",
+   "guide": "\u2014",
+   "board": "10-496",
+   "boardW": 486,
+   "tile": 65.7,
+   "lead": 150,
+   "card": 96,
+   "ratio": 1.56,
+   "cardH": [
+    90
+   ],
+   "visible": 4,
+   "full": true,
+   "issues": 0,
+   "hand": "\u2014",
+   "outl": 1,
+   "fonts": {
+    "cardName": 10.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": null,
+    "guideWhy": null,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 28,
+    "leadFace": 28,
+    "item": 29,
+    "leadItem": 25,
+    "stripH": 46,
+    "stripAction": [
+     69,
+     31
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "907x510",
+   "case": "ready + selected",
+   "hud": "8-60",
+   "rail": "64-163",
+   "strip": "309-355",
+   "guide": "\u2014",
+   "board": "10-496",
+   "boardW": 486,
+   "tile": 65.7,
+   "lead": 150,
+   "card": 110,
+   "ratio": 1.36,
+   "cardH": [
+    90
+   ],
+   "visible": 4,
+   "full": true,
+   "issues": 0,
+   "hand": "\u2014",
+   "outl": 2,
+   "fonts": {
+    "cardName": 10.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": null,
+    "guideWhy": null,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 24,
+    "leadFace": 28,
+    "item": 29,
+    "leadItem": 31,
+    "stripH": 46,
+    "stripAction": [
+     69,
+     30
+    ],
+    "deliver": [
+     84,
+     26
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  }
+ ],
+ "after": [
+  {
+   "vp": "360x640",
+   "case": "new player (tutorial)",
+   "hud": "8-56",
+   "rail": "60-154",
+   "strip": "160-204",
+   "guide": "210-254",
+   "board": "258-598",
+   "boardW": 340,
+   "tile": 44.8,
+   "lead": 120.8,
+   "card": 96.6,
+   "ratio": 1.25,
+   "cardH": [
+    88
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "32x38",
+   "outl": 2,
+   "fonts": {
+    "cardName": 10.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": 14,
+    "guideWhy": 11.5,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 23.8,
+    "leadFace": 23.8,
+    "item": 30.2,
+    "leadItem": 30.2,
+    "stripH": 44,
+    "stripAction": [
+     68,
+     30
+    ],
+    "skip": [
+     44,
+     44
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "360x640",
+   "case": "returning gold",
+   "hud": "8-56",
+   "rail": "60-154",
+   "strip": "160-204",
+   "guide": "\u2014",
+   "board": "212-552",
+   "boardW": 340,
+   "tile": 44.8,
+   "lead": 120.8,
+   "card": 96.6,
+   "ratio": 1.25,
+   "cardH": [
+    88
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "\u2014",
+   "outl": 1,
+   "fonts": {
+    "cardName": 9.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": null,
+    "guideWhy": null,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 23.8,
+    "leadFace": 23.8,
+    "item": 29.2,
+    "leadItem": 26.9,
+    "stripH": 44,
+    "stripAction": [
+     70,
+     31
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "360x640",
+   "case": "ready + selected",
+   "hud": "8-56",
+   "rail": "60-154",
+   "strip": "160-204",
+   "guide": "\u2014",
+   "board": "253-593",
+   "boardW": 340,
+   "tile": 44.8,
+   "lead": 120.8,
+   "card": 96.6,
+   "ratio": 1.25,
+   "cardH": [
+    88
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "\u2014",
+   "outl": 2,
+   "fonts": {
+    "cardName": 9.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": null,
+    "guideWhy": null,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 23.8,
+    "leadFace": 23.8,
+    "item": 29.2,
+    "leadItem": 30.2,
+    "stripH": 44,
+    "stripAction": [
+     68,
+     30
+    ],
+    "deliver": [
+     96,
+     22
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "375x667",
+   "case": "new player (tutorial)",
+   "hud": "8-56",
+   "rail": "60-154",
+   "strip": "160-204",
+   "guide": "210-254",
+   "board": "258-613",
+   "boardW": 355,
+   "tile": 47,
+   "lead": 126.5,
+   "card": 101.2,
+   "ratio": 1.25,
+   "cardH": [
+    88
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "32x38",
+   "outl": 2,
+   "fonts": {
+    "cardName": 10.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": 14,
+    "guideWhy": 11.5,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 23.8,
+    "leadFace": 23.8,
+    "item": 30.2,
+    "leadItem": 30.2,
+    "stripH": 44,
+    "stripAction": [
+     68,
+     30
+    ],
+    "skip": [
+     44,
+     44
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "375x667",
+   "case": "returning gold",
+   "hud": "8-56",
+   "rail": "60-154",
+   "strip": "160-204",
+   "guide": "\u2014",
+   "board": "212-567",
+   "boardW": 355,
+   "tile": 47,
+   "lead": 126.5,
+   "card": 101.2,
+   "ratio": 1.25,
+   "cardH": [
+    88
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "\u2014",
+   "outl": 1,
+   "fonts": {
+    "cardName": 9.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": null,
+    "guideWhy": null,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 23.8,
+    "leadFace": 23.8,
+    "item": 29.2,
+    "leadItem": 27.2,
+    "stripH": 44,
+    "stripAction": [
+     70,
+     31
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "375x667",
+   "case": "ready + selected",
+   "hud": "8-56",
+   "rail": "60-154",
+   "strip": "160-204",
+   "guide": "\u2014",
+   "board": "253-608",
+   "boardW": 355,
+   "tile": 47,
+   "lead": 126.5,
+   "card": 101.2,
+   "ratio": 1.25,
+   "cardH": [
+    88
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "\u2014",
+   "outl": 2,
+   "fonts": {
+    "cardName": 9.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": null,
+    "guideWhy": null,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 23.8,
+    "leadFace": 23.8,
+    "item": 29.2,
+    "leadItem": 30.2,
+    "stripH": 44,
+    "stripAction": [
+     68,
+     30
+    ],
+    "deliver": [
+     96,
+     22
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "390x664",
+   "case": "new player (tutorial)",
+   "hud": "8-56",
+   "rail": "60-154",
+   "strip": "160-204",
+   "guide": "210-254",
+   "board": "258-628",
+   "boardW": 370,
+   "tile": 49.1,
+   "lead": 132.3,
+   "card": 105.8,
+   "ratio": 1.25,
+   "cardH": [
+    88
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "32x38",
+   "outl": 2,
+   "fonts": {
+    "cardName": 10.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": 14,
+    "guideWhy": 11.5,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 23.8,
+    "leadFace": 23.8,
+    "item": 30.2,
+    "leadItem": 30.2,
+    "stripH": 44,
+    "stripAction": [
+     68,
+     30
+    ],
+    "skip": [
+     44,
+     44
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "390x664",
+   "case": "returning gold",
+   "hud": "8-56",
+   "rail": "60-154",
+   "strip": "160-204",
+   "guide": "\u2014",
+   "board": "212-582",
+   "boardW": 370,
+   "tile": 49.1,
+   "lead": 132.3,
+   "card": 105.8,
+   "ratio": 1.25,
+   "cardH": [
+    88
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "\u2014",
+   "outl": 1,
+   "fonts": {
+    "cardName": 9.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": null,
+    "guideWhy": null,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 23.8,
+    "leadFace": 23.8,
+    "item": 29.2,
+    "leadItem": 27.2,
+    "stripH": 44,
+    "stripAction": [
+     70,
+     31
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "390x664",
+   "case": "ready + selected",
+   "hud": "8-56",
+   "rail": "60-154",
+   "strip": "160-204",
+   "guide": "\u2014",
+   "board": "253-623",
+   "boardW": 370,
+   "tile": 49.1,
+   "lead": 132.3,
+   "card": 105.8,
+   "ratio": 1.25,
+   "cardH": [
+    88
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "\u2014",
+   "outl": 2,
+   "fonts": {
+    "cardName": 9.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": null,
+    "guideWhy": null,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 23.8,
+    "leadFace": 23.8,
+    "item": 29.2,
+    "leadItem": 30.2,
+    "stripH": 44,
+    "stripAction": [
+     68,
+     30
+    ],
+    "deliver": [
+     96,
+     22
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "390x844",
+   "case": "new player (tutorial)",
+   "hud": "8-56",
+   "rail": "60-154",
+   "strip": "160-204",
+   "guide": "210-254",
+   "board": "258-628",
+   "boardW": 370,
+   "tile": 49.1,
+   "lead": 132.3,
+   "card": 105.8,
+   "ratio": 1.25,
+   "cardH": [
+    88
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "32x38",
+   "outl": 2,
+   "fonts": {
+    "cardName": 10.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": 14,
+    "guideWhy": 11.5,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 23.8,
+    "leadFace": 23.8,
+    "item": 30.2,
+    "leadItem": 30.2,
+    "stripH": 44,
+    "stripAction": [
+     68,
+     30
+    ],
+    "skip": [
+     44,
+     44
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "390x844",
+   "case": "returning gold",
+   "hud": "8-56",
+   "rail": "60-154",
+   "strip": "160-204",
+   "guide": "\u2014",
+   "board": "212-582",
+   "boardW": 370,
+   "tile": 49.1,
+   "lead": 132.3,
+   "card": 105.8,
+   "ratio": 1.25,
+   "cardH": [
+    88
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "\u2014",
+   "outl": 1,
+   "fonts": {
+    "cardName": 9.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": null,
+    "guideWhy": null,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 23.8,
+    "leadFace": 23.8,
+    "item": 29.2,
+    "leadItem": 27.2,
+    "stripH": 44,
+    "stripAction": [
+     70,
+     31
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "390x844",
+   "case": "ready + selected",
+   "hud": "8-56",
+   "rail": "60-154",
+   "strip": "160-204",
+   "guide": "\u2014",
+   "board": "253-623",
+   "boardW": 370,
+   "tile": 49.1,
+   "lead": 132.3,
+   "card": 105.8,
+   "ratio": 1.25,
+   "cardH": [
+    88
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "\u2014",
+   "outl": 2,
+   "fonts": {
+    "cardName": 9.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": null,
+    "guideWhy": null,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 23.8,
+    "leadFace": 23.8,
+    "item": 29.2,
+    "leadItem": 30.2,
+    "stripH": 44,
+    "stripAction": [
+     68,
+     30
+    ],
+    "deliver": [
+     96,
+     22
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "402x874",
+   "case": "new player (tutorial)",
+   "hud": "8-56",
+   "rail": "60-156",
+   "strip": "162-206",
+   "guide": "212-256",
+   "board": "260-642",
+   "boardW": 382,
+   "tile": 50.8,
+   "lead": 136.9,
+   "card": 109.5,
+   "ratio": 1.25,
+   "cardH": [
+    90
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "32x38",
+   "outl": 2,
+   "fonts": {
+    "cardName": 10.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": 14,
+    "guideWhy": 11.5,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 24,
+    "leadFace": 24,
+    "item": 31.8,
+    "leadItem": 31.8,
+    "stripH": 44,
+    "stripAction": [
+     68,
+     30
+    ],
+    "skip": [
+     44,
+     44
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "402x874",
+   "case": "returning gold",
+   "hud": "8-56",
+   "rail": "60-156",
+   "strip": "162-206",
+   "guide": "\u2014",
+   "board": "214-596",
+   "boardW": 382,
+   "tile": 50.8,
+   "lead": 136.9,
+   "card": 109.5,
+   "ratio": 1.25,
+   "cardH": [
+    90
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "\u2014",
+   "outl": 1,
+   "fonts": {
+    "cardName": 9.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": null,
+    "guideWhy": null,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 24,
+    "leadFace": 24,
+    "item": 30.8,
+    "leadItem": 28.8,
+    "stripH": 44,
+    "stripAction": [
+     70,
+     31
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "402x874",
+   "case": "ready + selected",
+   "hud": "8-56",
+   "rail": "60-156",
+   "strip": "162-206",
+   "guide": "\u2014",
+   "board": "255-637",
+   "boardW": 382,
+   "tile": 50.8,
+   "lead": 136.9,
+   "card": 109.5,
+   "ratio": 1.25,
+   "cardH": [
+    90
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "\u2014",
+   "outl": 2,
+   "fonts": {
+    "cardName": 9.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": null,
+    "guideWhy": null,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 24,
+    "leadFace": 24,
+    "item": 30.8,
+    "leadItem": 31.8,
+    "stripH": 44,
+    "stripAction": [
+     69,
+     30
+    ],
+    "deliver": [
+     96,
+     22
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "430x932",
+   "case": "new player (tutorial)",
+   "hud": "8-56",
+   "rail": "60-156",
+   "strip": "162-206",
+   "guide": "212-256",
+   "board": "260-670",
+   "boardW": 410,
+   "tile": 54.8,
+   "lead": 147.7,
+   "card": 118.1,
+   "ratio": 1.25,
+   "cardH": [
+    90
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "32x38",
+   "outl": 2,
+   "fonts": {
+    "cardName": 10.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": 14,
+    "guideWhy": 11.5,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 24,
+    "leadFace": 24,
+    "item": 32,
+    "leadItem": 32,
+    "stripH": 44,
+    "stripAction": [
+     68,
+     30
+    ],
+    "skip": [
+     44,
+     44
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "430x932",
+   "case": "returning gold",
+   "hud": "8-56",
+   "rail": "60-156",
+   "strip": "162-206",
+   "guide": "\u2014",
+   "board": "214-624",
+   "boardW": 410,
+   "tile": 54.8,
+   "lead": 147.7,
+   "card": 118.1,
+   "ratio": 1.25,
+   "cardH": [
+    90
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "\u2014",
+   "outl": 1,
+   "fonts": {
+    "cardName": 9.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": null,
+    "guideWhy": null,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 24,
+    "leadFace": 24,
+    "item": 31,
+    "leadItem": 29,
+    "stripH": 44,
+    "stripAction": [
+     70,
+     31
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "430x932",
+   "case": "ready + selected",
+   "hud": "8-56",
+   "rail": "60-156",
+   "strip": "162-206",
+   "guide": "\u2014",
+   "board": "255-665",
+   "boardW": 410,
+   "tile": 54.8,
+   "lead": 147.7,
+   "card": 118.1,
+   "ratio": 1.25,
+   "cardH": [
+    90
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "\u2014",
+   "outl": 2,
+   "fonts": {
+    "cardName": 9.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": null,
+    "guideWhy": null,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 24,
+    "leadFace": 24,
+    "item": 31,
+    "leadItem": 32,
+    "stripH": 44,
+    "stripAction": [
+     68,
+     30
+    ],
+    "deliver": [
+     96,
+     22
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "907x510",
+   "case": "new player (tutorial)",
+   "hud": "8-56",
+   "rail": "60-155",
+   "strip": "161-205",
+   "guide": "211-255",
+   "board": "12-498",
+   "boardW": 486,
+   "tile": 65.7,
+   "lead": 136.1,
+   "card": 108.9,
+   "ratio": 1.25,
+   "cardH": [
+    89
+   ],
+   "visible": 3,
+   "full": true,
+   "issues": 0,
+   "hand": "32x38",
+   "outl": 2,
+   "fonts": {
+    "cardName": 10.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": 14,
+    "guideWhy": 11.5,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 24,
+    "leadFace": 24,
+    "item": 31.3,
+    "leadItem": 31.3,
+    "stripH": 44,
+    "stripAction": [
+     68,
+     30
+    ],
+    "skip": [
+     44,
+     44
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "907x510",
+   "case": "returning gold",
+   "hud": "8-56",
+   "rail": "60-155",
+   "strip": "161-205",
+   "guide": "\u2014",
+   "board": "10-496",
+   "boardW": 486,
+   "tile": 65.7,
+   "lead": 136.1,
+   "card": 108.9,
+   "ratio": 1.25,
+   "cardH": [
+    89
+   ],
+   "visible": 4,
+   "full": true,
+   "issues": 0,
+   "hand": "\u2014",
+   "outl": 1,
+   "fonts": {
+    "cardName": 9.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": null,
+    "guideWhy": null,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 24,
+    "leadFace": 24,
+    "item": 30.3,
+    "leadItem": 28.3,
+    "stripH": 44,
+    "stripAction": [
+     70,
+     31
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  },
+  {
+   "vp": "907x510",
+   "case": "ready + selected",
+   "hud": "8-56",
+   "rail": "60-155",
+   "strip": "297-341",
+   "guide": "\u2014",
+   "board": "10-496",
+   "boardW": 486,
+   "tile": 65.7,
+   "lead": 136.1,
+   "card": 108.9,
+   "ratio": 1.25,
+   "cardH": [
+    89
+   ],
+   "visible": 4,
+   "full": true,
+   "issues": 0,
+   "hand": "\u2014",
+   "outl": 2,
+   "fonts": {
+    "cardName": 9.5,
+    "count": 10,
+    "lv": 8.5,
+    "reward": 12,
+    "stripTitle": 13,
+    "guide": null,
+    "guideWhy": null,
+    "hudNum": 15
+   },
+   "sizes": {
+    "face": 24,
+    "leadFace": 24,
+    "item": 30.3,
+    "leadItem": 31.3,
+    "stripH": 44,
+    "stripAction": [
+     69,
+     30
+    ],
+    "deliver": [
+     96,
+     22
+    ],
+    "menu": [
+     44,
+     44
+    ]
+   }
+  }
+ ]
+}

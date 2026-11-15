@@ -657,63 +657,6 @@ body.nextMode .restoreStrip.ready{box-shadow:0 0 0 3px #f5c24e,0 6px 16px #e9a52
    art keeps its colour. Order rail 124 → 80 px, Coast strip 56 → 46 px, guide line 55 → 44 px and joined to the
    board, so the board starts about 65 px higher (more without the guide). Tiles keep their size. */
 :root{--pp-sand:#fffaf0;--pp-sand2:#f6ead2;--pp-line:#e9d7b2;--pp-teal:#0f8f97;--pp-gold:#e9a91c;--pp-green:#1f9e66}
-/* -- orders: one lead card (the order the next step serves), the rest compact cards in the same rail -- */
-body.nextMode #requests{margin-top:4px}
-body.nextMode #requests .requestShelf.requestShelf{gap:6px;padding-top:2px;padding-bottom:2px}
-body.nextMode #requests .requestShelf .requestCard.requestCard{flex:0 0 84px;width:84px;height:76px;border-radius:14px}
-body.nextMode #requests .requestShelf .requestCard.requestCard.lead{flex-basis:178px;width:178px;order:-1}
-body.nextMode #requests .requestShelf .requestCard.requestCard::before{border:0;border-image:none;inset:0;border-radius:14px;
- background:linear-gradient(#fffdf7,var(--pp-sand));box-shadow:inset 0 0 0 1px var(--pp-line),0 1px 2px #6b4a1f24;filter:none}
-body.nextMode #requests .requestShelf .requestCard.requestCard.storyOrder::before{box-shadow:inset 0 0 0 1.5px #ecc66a,0 1px 2px #6b4a1f24}
-body.nextMode #requests .requestShelf .requestCard.requestCard.lead::before{background:linear-gradient(#fffaf0,#fff1d2);box-shadow:inset 0 0 0 2px var(--pp-gold),0 2px 6px #b8862033}
-body.nextMode #requests .requestShelf .requestCard.requestCard.active::before{box-shadow:inset 0 0 0 2px var(--pp-teal),0 2px 6px #0f8f9733}
-body.nextMode #requests .requestShelf .requestCard.requestCard.ready::before{background:linear-gradient(#f7fff9,#e7f8ee);box-shadow:inset 0 0 0 2px var(--pp-green),0 2px 6px #1f9e6633}
-body.nextMode #requests.onboarding .requestShelf .requestCard.requestCard.primary{box-shadow:none}
-body.nextMode #requests.onboarding .requestCard:not(.primary){opacity:.72;filter:saturate(.7)}
-/* the parts of a card */
-body.nextMode #requests .requestShelf .requestCard .reqHead{position:absolute;inset:0 0 auto 0;height:30px}
-body.nextMode #requests .requestShelf .requestCard .reqFace{left:6px;top:5px;width:22px;height:22px}
-body.nextMode #requests .requestShelf .requestCard:not(.lead) .reqName{display:none}
-body.nextMode #requests .requestShelf .requestCard .requestItems{position:absolute;left:4px;right:4px;top:30px;bottom:8px;padding:0;gap:2px;justify-content:center}
-body.nextMode #requests .requestShelf .requestCard .requestItems>span,body.nextMode #requests .requestShelf .requestCard .requestItems :is(svg,img){width:30px!important;height:30px!important}
-body.nextMode #requests .requestShelf .requestCard .requestItems:has(>span:nth-child(2))>span,body.nextMode #requests .requestShelf .requestCard .requestItems:has(>span:nth-child(2)) :is(svg,img){width:27px!important;height:27px!important}
-body.nextMode #requests .requestShelf .requestCard .requestItems:has(>span:nth-child(3))>span,body.nextMode #requests .requestShelf .requestCard .requestItems:has(>span:nth-child(3)) :is(svg,img){width:23px!important;height:23px!important}
-body.nextMode #requests .requestShelf .requestCard .requestItems b{bottom:-7px;font-size:9.5px;line-height:13px;padding:0 4px}
-body.nextMode #requests .requestShelf .requestCard .reqFoot{position:absolute;top:6px;right:5px;height:20px;padding:0;justify-content:flex-end}
-body.nextMode #requests .requestShelf .requestCard .requestReward{padding:0 6px 0 2px;font-size:11px;line-height:18px;box-shadow:inset 0 0 0 1px #efd28a}
-body.nextMode #requests .requestShelf .requestCard .requestReward .coinIcon{font-size:12px}
-body.nextMode #requests .requestShelf .requestCard:not(.lead) .reqBonus{display:none}
-/* ready to deliver: a compact card says so in a green chip; the lead card keeps the Deliver button (the whole card delivers) */
-body.nextMode #requests .requestShelf .requestCard:not(.lead) .reqDeliver{width:auto;height:18px;padding:0 7px;background:var(--pp-green);border-radius:999px;font-size:10.5px;line-height:18px;color:#fff}
-body.nextMode #requests .requestShelf .requestCard:not(.lead) .reqDeliver :is(em,.coinIcon){display:none}
-/* the lead card: face, name and reward on top, the parts below, left-aligned */
-body.nextMode #requests .requestShelf .requestCard.lead .reqHead{height:36px}
-body.nextMode #requests .requestShelf .requestCard.lead .reqFace{left:7px;top:6px;width:28px;height:28px}
-body.nextMode #requests .requestShelf .requestCard.lead .reqName{left:40px;right:64px;top:8px;flex-direction:row;align-items:center;gap:4px}
-body.nextMode #requests .requestShelf .requestCard.lead .reqName b{font-size:12.5px}
-body.nextMode #requests .requestShelf .requestCard.lead .reqTag{font-size:9px;line-height:14px;padding:0 5px}
-body.nextMode #requests .requestShelf .requestCard.lead .reqFoot{top:7px;right:6px;height:24px}
-body.nextMode #requests .requestShelf .requestCard.lead .requestReward{font-size:12px;line-height:20px}
-body.nextMode #requests .requestShelf .requestCard.lead .reqDeliver{width:86px;height:24px;font-size:11.5px}
-body.nextMode #requests .requestShelf .requestCard.lead.ready .reqName{right:96px}
-body.nextMode #requests .requestShelf .requestCard.lead .requestItems{left:8px;right:8px;top:37px;bottom:7px;justify-content:flex-start;gap:8px}
-body.nextMode #requests .requestShelf .requestCard.lead .requestItems>span,body.nextMode #requests .requestShelf .requestCard.lead .requestItems :is(svg,img){width:30px!important;height:30px!important}
-body.nextMode #requests .requestShelf .requestCard .reqStuck{top:-6px;right:4px}
-/* -- the Coast strip, recognisable but compact (its painted frame scaled from 56 to 46 px) -- */
-body.nextMode .restoreStrip.restoreStrip{height:46px;border-width:0 62px 0 49px;margin-top:5px}
-body.nextMode .restoreStrip .rsThumb{left:-43px;top:4px;width:36px;height:36px}
-body.nextMode .restoreStrip .rsText b{font-size:13px}
-body.nextMode .restoreStrip .rsText small{font-size:11px}
-body.nextMode .restoreStrip .rsAction{left:calc(100% + 5px);top:8px;width:54px;height:29px;font-size:11.5px}
-body.nextMode .restoreStrip.ready{box-shadow:0 0 0 2px #f2c23a}
-/* -- the guide: one short line joined to the board's top edge, its Hint and Skip at 44 px -- */
-body.nextMode .boardHeading:has(#hint[data-kind="coach"]){margin-top:5px;min-height:44px;gap:4px}
-body.nextMode .boardHeading #hint.primaryAction[data-kind="coach"]{min-height:44px;padding:3px 10px;border-radius:12px;box-shadow:inset 3px 0 0 var(--pp-teal),0 1px 3px #0d5a6a26!important;background:#fffaf0!important}
-body.nextMode .boardHeading #hint.primaryAction[data-kind="coach"][data-level="full"]{box-shadow:inset 3px 0 0 var(--pp-gold),0 1px 3px #0d5a6a26!important}
-body.nextMode .boardHeading #hint.primaryAction[data-kind="coach"] .gWhat{font-size:14px;line-height:1.2}
-body.nextMode .boardHeading #hint.primaryAction[data-kind="coach"] .gWhy{font-size:11.5px;line-height:1.25;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-body.nextMode .boardHeading:has(#hint[data-kind="coach"])+#board.board{margin-top:4px}
-body.nextMode .boardHeading .guideHint,body.nextMode .boardHeading .coachSkip{box-shadow:0 1px 3px #0d5a6a26;background:#fffaf0}
 /* -- the merge the guide shows: the part to pick up in gold, its twin (the target) in green; the hand's words are
    in the guide line, so no label sits over the board -- */
 body.nextMode[data-art] #board.board .tile.tile.coachFrom.coachPair{box-shadow:0 0 0 3px var(--pp-gold),0 0 8px #e9a91c66;animation:none}
@@ -724,92 +667,101 @@ body.nextMode[data-art] #board.board .tile.tile.coachTarget{box-shadow:0 0 0 3px
 .storyRibbon{padding:6px 8px;gap:8px}
 .storyRibbon .face{width:36px;height:36px}
 .storyRibbon p{font-size:13px;line-height:1.25}
-/* polish follow-ups: the lead card's name with its stage tag under it; its parts centred; the strip's action pill
-   over the painted one; the ready strip outlined along its shape; no stray outline on the guide line */
-body.nextMode #requests .requestShelf .requestCard.lead .reqName{flex-direction:column;align-items:flex-start;gap:1px;top:6px}
-body.nextMode #requests .requestShelf .requestCard.lead .requestItems{left:36px;right:8px;top:38px;justify-content:center}
-body.nextMode .restoreStrip .rsAction{left:calc(100% - 9px);top:7px;width:66px;height:30px}
-/* (an outline that follows the strip's rounded shape: cheap to paint, unlike a filter over its breathing Build pill) */
-body.nextMode .restoreStrip.restoreStrip.ready{box-shadow:none;filter:none;border-radius:999px;outline:2px solid #f2c23a;outline-offset:-1px}
-body.nextMode .boardHeading #hint.primaryAction[data-kind="coach"]{outline:0}
-body.nextMode .boardHeading #hint.primaryAction[data-kind="coach"]:focus-visible{outline:2px solid var(--pp-teal);outline-offset:2px}
-body.nextMode #requests .requestShelf .requestCard.lead .requestItems{left:8px;right:8px;gap:10px}
-body.nextMode .restoreStrip .rsAction{left:calc(100% - 9px);width:68px}
 
-/* ===== Order cards v2 (2026-11-14; docs/V5_ORDER_CARDS_2026-11-14.md): legible cards, gold orders known at a glance ====
-   Every card 90 px tall: its picture and reward (or Deliver) on top, the parts with have/need in the middle, who it is
-   for on the bottom line. Crew cards 96 px wide, a gold order 110 px, the lead card (the order the next step serves)
-   150 px. Each state has its own sign, so none hides another:
-   - gold order: warm gold card, gold border, a crown and GOLD with its stage, whatever else it is;
-   - ready: the green Deliver chip or button (a ready crew card also turns green; a ready gold order stays gold);
-   - selected (tapped): a teal ring outside the card;
-   - lead: size and place only (first in the rail). The gold order comes right after it, before the crew orders. */
-body.nextMode #requests .requestShelf.requestShelf{gap:7px;padding-top:4px;padding-bottom:5px}
-body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard{flex:0 0 96px;width:96px;height:90px;order:1}
-body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard.storyOrder{flex-basis:110px;width:110px;order:0}
-body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard.lead{flex-basis:150px;width:150px;order:-1}
-/* surfaces */
-body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard::before{background:linear-gradient(#fffdf8,#fffaf0);box-shadow:inset 0 0 0 1px var(--pp-line),0 1px 2px #6b4a1f24}
-body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard.lead::before{box-shadow:inset 0 0 0 1px #dcc596,0 3px 8px #6b4a1f30}
-body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard.ready:not(.storyOrder)::before{background:linear-gradient(#f6fff9,#e6f7ed);box-shadow:inset 0 0 0 2px var(--pp-green),0 2px 6px #1f9e6630}
-body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard.storyOrder::before{background:linear-gradient(#fff7df,#ffe8ad);box-shadow:inset 0 0 0 2px #d9a21f,0 2px 6px #b8862038}
-body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard.active{outline:2.5px solid var(--pp-teal);outline-offset:2px}
-body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard.active::before{box-shadow:inset 0 0 0 1px var(--pp-line),0 1px 2px #6b4a1f24}
-body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard.active.storyOrder::before{box-shadow:inset 0 0 0 2px #d9a21f,0 2px 6px #b8862038}
-body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard.active.ready:not(.storyOrder)::before{box-shadow:inset 0 0 0 2px var(--pp-green)}
-/* top row: picture and reward or Deliver */
-body.nextMode #requests .requestShelf .requestCard.requestCard .reqHead{height:32px}
-body.nextMode #requests .requestShelf .requestCard.requestCard .reqFace{left:6px;top:6px;width:24px;height:24px}
-body.nextMode #requests .requestShelf .requestCard.requestCard.lead .reqFace{left:6px;top:5px;width:28px;height:28px}
-body.nextMode #requests .requestShelf .requestCard.requestCard .reqFoot{top:7px;right:6px;height:22px}
-body.nextMode #requests .requestShelf .requestCard.requestCard .requestReward{font-size:12px;line-height:20px;padding:0 7px 0 2px}
-body.nextMode #requests .requestShelf .requestCard.requestCard .requestReward .coinIcon{font-size:13px}
-body.nextMode #requests .requestShelf .requestCard.requestCard:not(.lead) .reqDeliver{height:20px;line-height:20px;font-size:11px;padding:0 8px}
-body.nextMode #requests .requestShelf .requestCard.requestCard.lead .reqDeliver{width:84px;height:26px;font-size:11.5px}
-/* middle: the parts, larger, with their have/need counts */
-body.nextMode #requests .requestShelf .requestCard.requestCard .requestItems{left:4px;right:4px;top:33px;bottom:22px;gap:4px;justify-content:center}
-body.nextMode #requests .requestShelf .requestCard.requestCard .requestItems>span,body.nextMode #requests .requestShelf .requestCard.requestCard .requestItems :is(svg,img){width:33px!important;height:33px!important}
-body.nextMode #requests .requestShelf .requestCard.requestCard .requestItems:has(>span:nth-child(2))>span,body.nextMode #requests .requestShelf .requestCard.requestCard .requestItems:has(>span:nth-child(2)) :is(svg,img){width:31px!important;height:31px!important}
-body.nextMode #requests .requestShelf .requestCard.requestCard .requestItems:has(>span:nth-child(3))>span,body.nextMode #requests .requestShelf .requestCard.requestCard .requestItems:has(>span:nth-child(3)) :is(svg,img){width:26px!important;height:26px!important}
-body.nextMode #requests .requestShelf .requestCard.requestCard.lead .requestItems{gap:10px}
-body.nextMode #requests .requestShelf .requestCard.requestCard.lead .requestItems>span,body.nextMode #requests .requestShelf .requestCard.requestCard.lead .requestItems :is(svg,img){width:35px!important;height:35px!important}
-body.nextMode #requests .requestShelf .requestCard.requestCard .requestItems b{bottom:-7px;font-size:10px;line-height:14px;padding:0 5px}
-/* bottom line: who the order is for (a gold order: crown, GOLD and its stage) */
-body.nextMode #requests .requestShelf .requestCard.requestCard .reqName,body.nextMode #requests .requestShelf .requestCard.requestCard.lead .reqName{display:flex;position:absolute;left:4px;right:4px;top:auto;bottom:5px;height:14px;flex-direction:row;align-items:center;justify-content:center;gap:4px;line-height:14px}
-body.nextMode #requests .requestShelf .requestCard.requestCard .reqName b{font-size:10.5px;font-weight:800;color:var(--cb-ink2);max-width:100%}
-body.nextMode #requests .requestShelf .requestCard.requestCard.lead .reqName b{font-size:11.5px;color:var(--cb-ink)}
-body.nextMode #requests .requestShelf .requestCard.requestCard.storyOrder .reqName b{display:inline-flex;align-items:center;gap:2px;color:#8a5a00;font-size:10.5px;font-weight:900;letter-spacing:.06em;text-transform:uppercase}
-body.nextMode #requests .requestShelf .requestCard.requestCard.storyOrder .reqWord{display:none}
-body.nextMode #requests .requestShelf .requestCard.requestCard .reqCrown{display:inline-block;width:12px;height:10px;flex:none;background:#c98a06;
- -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 10'%3E%3Cpath d='M0 2.2 3 5 6 0l3 5 3-2.8L11 10H1Z'/%3E%3C/svg%3E") center/contain no-repeat;
- mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 10'%3E%3Cpath d='M0 2.2 3 5 6 0l3 5 3-2.8L11 10H1Z'/%3E%3C/svg%3E") center/contain no-repeat}
-body.nextMode #requests .requestShelf .requestCard.requestCard .reqTag{font-size:9px;line-height:13px;padding:0 5px;letter-spacing:.02em}
-body.nextMode #requests .requestShelf .requestCard.requestCard .reqHead,body.nextMode #requests .requestShelf .requestCard.requestCard.lead .reqHead{position:absolute;inset:0;height:auto;pointer-events:none}
-body.nextMode #requests .requestShelf .requestCard.requestCard.lead .reqDeliver{background:linear-gradient(#34c486,#1f9e66);border-radius:999px;box-shadow:0 2px 0 #137a4c;padding:0 0 1px}
 /* First 10 minutes (2026-11-14): a stage that brings a new generator kind says so on its coast card */
 body.nextMode .mapCard .cardGift{margin:4px 0 0;font-size:12.5px;line-height:1.3;font-weight:800;color:#0b7c84}
 /* Initial screen (2026-11-15): the page never pans sideways (nothing in it is wider than the screen; measured), so the
    orders and the board stay centred after a swipe or a reload. clip, not hidden: no scroll container, sticky unaffected. */
 html:has(> body.nextMode),body.nextMode{overflow-x:clip}
-/* Order card zones (2026-11-15, owner's screenshot: counts touching GOLD/STAGE/crew names, Lv tags over the art).
-   The card stays 90 px tall; four zones that never meet:
-   head 6–30 (face, reward or Deliver) · art 32–63 · have/need counts ending at 67 · bottom label 71–85.
-   The Lv tag is lighter and sits inside the art's top corner, below the head; the counts keep their size.
-   Under 390 px wide the cards are a little narrower so three fit without scrolling (lead 132, gold 104, crew 90). */
-body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard .requestItems{top:32px;bottom:27px;gap:4px;align-items:center}
-body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard .requestItems>span,body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard .requestItems>span>:is(svg,img){width:31px!important;height:31px!important}
-body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard .requestItems:has(>span:nth-child(2))>span,body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard .requestItems:has(>span:nth-child(2))>span>:is(svg,img){width:29px!important;height:29px!important}
-body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard .requestItems:has(>span:nth-child(3))>span,body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard .requestItems:has(>span:nth-child(3))>span>:is(svg,img){width:25px!important;height:25px!important}
-body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard:has(.requestItems>span:nth-child(3)) .requestItems{gap:3px}
-body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard.lead .requestItems{gap:8px}
-body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard.lead .requestItems>span,body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard.lead .requestItems>span>:is(svg,img){width:31px!important;height:31px!important}
-body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard .requestItems>span>b{bottom:-4px;font-size:10px;line-height:13px;padding:0 4px;z-index:1}
-body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard .requestItems .reqLv{left:-2px;top:0;font-size:8.5px;font-weight:800;line-height:11px;padding:0 2px;border-radius:4px;background:#f2fbfaeb;color:var(--cb-ink);box-shadow:0 0 0 1px var(--cb-turq)}
-body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard .reqName{bottom:5px;height:14px}
-@media(max-width:389px){
- body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard{flex-basis:90px;width:90px}
- body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard.storyOrder{flex-basis:104px;width:104px}
- body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard.lead{flex-basis:132px;width:132px}
- body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard.storyOrder .reqName b{letter-spacing:.03em}
- body.nextMode #requests .requestShelf .requestCard.requestCard.requestCard .reqTag{padding:0 4px;letter-spacing:0}
+/* ===== Layout system (2026-11-15; docs/V5_LAYOUT_SYSTEM_2026-11-15.md) =========================================
+   One set of proportions for the gameplay screen, derived from the space it has. It replaces the earlier layers
+   for the order cards (Premium polish, Order cards v2, Order card zones), the compact strip and the guide line.
+   - Rail: three whole cards and a peek of the fourth fit the rail's own width (a container query; 100vw − 2
+     gutters on a phone, the left column on a landscape embed). The lead card is 1.25 × a card; the gold order is
+     a card like the others (its gold, crown and Stage mark it). Every card has the same height.
+   - Inside a card, four zones that never meet: head (face, reward or Deliver), art, have/need counts, label.
+     Faces, art, badges, buttons and type are the same proportions on every card.
+   - Strip and guide row: 44 px (touch targets). One primary action: the strip's breathing Build when it is ready;
+     Deliver is a flat green chip on every card. The board takes the rest of the height. */
+body.nextMode{--l-gap:6px;--l-strip-h:44px;--l-row-h:44px}
+/* card sizes live on the card itself, so every derived size follows the width the card really has */
+body.nextMode #requests .requestCard{
+ --l-card-w:clamp(92px,calc((100vw - 46px) / 3.25),124px);
+ --l-lead-w:calc(var(--l-card-w) * 1.25);
+ --l-card-h:clamp(88px,calc(var(--l-card-w) * .82),90px);
+ --l-face:clamp(22px,calc(var(--l-card-h) * .27),24px);
+ --l-head:calc(var(--l-face) + 8px);
+ --l-foot:20px;
+ --l-items-h:calc(var(--l-card-h) - var(--l-head) - var(--l-foot) - 6px);
+ --l-item:min(var(--l-items-h),34px);
+ --l-item2:min(calc(var(--l-items-h) - 1px),31px);
+ --l-item3:min(calc((var(--l-card-w) - 16px) / 3),calc(var(--l-items-h) - 3px));
+ --l-btn-h:22px;
+ --l-fs-name:10.5px;--l-fs-gold:9.5px;--l-fs-tag:8.5px;--l-fs-count:10px;--l-fs-lv:8.5px;--l-fs-reward:12px;--l-fs-btn:11px;
 }
+@supports (container-type:inline-size){
+ body.nextMode #requests{container-type:inline-size}
+ body.nextMode #requests .requestShelf .requestCard{--l-card-w:clamp(92px,calc((100cqw - 26px) / 3.25),124px)}
+}
+/* -- vertical rhythm: HUD pills 44 px with 2 px above them, then 4 px to the rail, 6 px between rows -- */
+body.nextMode header{height:48px;min-height:48px;padding-top:2px}
+/* -- the rail and its cards -- */
+body.nextMode #requests{margin-top:4px;margin-bottom:0}
+body.nextMode #requests .requestShelf.requestShelf{gap:var(--l-gap);padding-top:3px;padding-bottom:3px}
+body.nextMode #requests .requestShelf .requestCard.requestCard{flex:0 0 var(--l-card-w);width:var(--l-card-w);height:var(--l-card-h);border-radius:14px;order:1}
+body.nextMode #requests .requestShelf .requestCard.requestCard.storyOrder{order:0}
+body.nextMode #requests .requestShelf .requestCard.requestCard.lead{flex-basis:var(--l-lead-w);width:var(--l-lead-w);order:-1}
+/* surfaces: one sign per state (gold order: gold card and border; ready: green; selected: a teal ring outside) */
+body.nextMode #requests .requestShelf .requestCard.requestCard::before{border:0;border-image:none;inset:0;border-radius:14px;filter:none;background:linear-gradient(#fffdf8,#fffaf0);box-shadow:inset 0 0 0 1px var(--pp-line),0 1px 2px #6b4a1f24}
+body.nextMode #requests .requestShelf .requestCard.requestCard.lead::before{box-shadow:inset 0 0 0 1px #dcc596,0 3px 8px #6b4a1f30}
+body.nextMode #requests .requestShelf .requestCard.requestCard.ready:not(.storyOrder)::before{background:linear-gradient(#f6fff9,#e6f7ed);box-shadow:inset 0 0 0 2px var(--pp-green),0 2px 6px #1f9e6630}
+body.nextMode #requests .requestShelf .requestCard.requestCard.storyOrder::before{background:linear-gradient(#fff7df,#ffe8ad);box-shadow:inset 0 0 0 2px #d9a21f,0 2px 6px #b8862038}
+body.nextMode #requests .requestShelf .requestCard.requestCard.active{outline:2.5px solid var(--pp-teal);outline-offset:2px}
+body.nextMode #requests.onboarding .requestShelf .requestCard.requestCard.primary{box-shadow:none}
+body.nextMode #requests.onboarding .requestCard:not(.primary){opacity:.72;filter:saturate(.7)}
+/* head: face (left), reward or Deliver (right) */
+body.nextMode #requests .requestShelf .requestCard.requestCard .reqHead{position:absolute;inset:0;height:auto;pointer-events:none}
+body.nextMode #requests .requestShelf .requestCard.requestCard .reqFace{left:6px;top:5px;width:var(--l-face);height:var(--l-face)}
+body.nextMode #requests .requestShelf .requestCard.requestCard .reqFoot{position:absolute;top:6px;right:6px;height:var(--l-btn-h);padding:0;justify-content:flex-end}
+body.nextMode #requests .requestShelf .requestCard.requestCard .requestReward{padding:0 7px 0 2px;font-size:var(--l-fs-reward);line-height:calc(var(--l-btn-h) - 2px);box-shadow:inset 0 0 0 1px #efd28a}
+body.nextMode #requests .requestShelf .requestCard.requestCard .requestReward .coinIcon{font-size:13px}
+body.nextMode #requests .requestShelf .requestCard.requestCard:not(.lead) .reqBonus{display:none}
+body.nextMode #requests .requestShelf .requestCard.requestCard .reqDeliver{width:auto;height:var(--l-btn-h);padding:0 9px;border-radius:999px;background:var(--pp-green);box-shadow:none;color:#fff;font-size:var(--l-fs-btn);line-height:var(--l-btn-h);gap:3px}
+body.nextMode #requests .requestShelf .requestCard.requestCard:not(.lead) .reqDeliver :is(em,.coinIcon){display:none}
+body.nextMode #requests .requestShelf .requestCard.requestCard .reqStuck{top:-6px;right:4px}
+/* art: one row, centred, the same size on every card of the same item count */
+body.nextMode #requests .requestShelf .requestCard.requestCard .requestItems{position:absolute;left:4px;right:4px;top:var(--l-head);bottom:auto;height:var(--l-items-h);padding:0;gap:4px;justify-content:center;align-items:center}
+body.nextMode #requests .requestShelf .requestCard.requestCard.lead .requestItems{gap:8px}
+body.nextMode #requests .requestShelf .requestCard.requestCard .requestItems:has(>span:nth-child(3)){gap:3px}
+body.nextMode #requests .requestShelf .requestCard.requestCard .requestItems>span,body.nextMode #requests .requestShelf .requestCard.requestCard .requestItems>span>:is(svg,img){width:var(--l-item)!important;height:var(--l-item)!important}
+body.nextMode #requests .requestShelf .requestCard.requestCard .requestItems:has(>span:nth-child(2))>span,body.nextMode #requests .requestShelf .requestCard.requestCard .requestItems:has(>span:nth-child(2))>span>:is(svg,img){width:var(--l-item2)!important;height:var(--l-item2)!important}
+body.nextMode #requests .requestShelf .requestCard.requestCard .requestItems:has(>span:nth-child(3))>span,body.nextMode #requests .requestShelf .requestCard.requestCard .requestItems:has(>span:nth-child(3))>span>:is(svg,img){width:var(--l-item3)!important;height:var(--l-item3)!important}
+/* counts: 3 px below the art, 4 px above the label; the Lv tag inside the art's top corner */
+body.nextMode #requests .requestShelf .requestCard.requestCard .requestItems>span>b{bottom:-3px;font-size:var(--l-fs-count);line-height:13px;padding:0 4px;z-index:1}
+body.nextMode #requests .requestShelf .requestCard.requestCard .requestItems .reqLv{left:-2px;top:0;font-size:var(--l-fs-lv);font-weight:800;line-height:11px;padding:0 2px;border-radius:4px;background:#f2fbfaeb;color:var(--cb-ink);box-shadow:0 0 0 1px var(--cb-turq)}
+/* label: who it is for; a gold order: crown, GOLD and its stage */
+body.nextMode #requests .requestShelf .requestCard.requestCard .reqName{display:flex;position:absolute;left:4px;right:4px;top:auto;bottom:5px;height:14px;flex-direction:row;align-items:center;justify-content:center;gap:4px;line-height:14px}
+body.nextMode #requests .requestShelf .requestCard.requestCard .reqName b{font-size:var(--l-fs-name);font-weight:800;color:var(--cb-ink2);max-width:100%}
+body.nextMode #requests .requestShelf .requestCard.requestCard.lead .reqName b{color:var(--cb-ink)}
+body.nextMode #requests .requestShelf .requestCard.requestCard.storyOrder .reqName b{display:inline-flex;align-items:center;gap:2px;color:#8a5a00;font-size:var(--l-fs-gold);font-weight:900;letter-spacing:.03em;text-transform:uppercase}
+body.nextMode #requests .requestShelf .requestCard.requestCard.storyOrder .reqWord{display:none}
+body.nextMode #requests .requestShelf .requestCard.requestCard .reqCrown{display:inline-block;width:11px;height:9px;flex:none;background:#c98a06;
+ -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 10'%3E%3Cpath d='M0 2.2 3 5 6 0l3 5 3-2.8L11 10H1Z'/%3E%3C/svg%3E") center/contain no-repeat;
+ mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 10'%3E%3Cpath d='M0 2.2 3 5 6 0l3 5 3-2.8L11 10H1Z'/%3E%3C/svg%3E") center/contain no-repeat}
+body.nextMode #requests .requestShelf .requestCard.requestCard .reqTag{font-size:var(--l-fs-tag);line-height:13px;padding:0 4px;letter-spacing:0}
+/* -- the Coast strip: its painted frame at 44 px; the Build pill is the screen's one breathing action -- */
+body.nextMode .restoreStrip.restoreStrip{height:var(--l-strip-h);border-width:0 60px 0 47px;margin-top:var(--l-gap)}
+body.nextMode .restoreStrip .rsThumb{left:-41px;top:4px;width:35px;height:35px}
+body.nextMode .restoreStrip .rsText b{font-size:13px}
+body.nextMode .restoreStrip .rsText small{font-size:11px}
+body.nextMode .restoreStrip .rsAction{left:calc(100% - 9px);top:7px;width:68px;height:30px;font-size:11.5px}
+body.nextMode .restoreStrip.restoreStrip.ready{box-shadow:none;filter:none;border-radius:999px;outline:2px solid #f2c23a;outline-offset:-1px}
+/* -- the guide row: one line joined to the board, its Hint and Skip at 44 px -- */
+body.nextMode .boardHeading:has(#hint[data-kind="coach"]){margin-top:var(--l-gap);min-height:var(--l-row-h);gap:4px}
+body.nextMode .boardHeading #hint.primaryAction[data-kind="coach"]{min-height:var(--l-row-h);padding:3px 10px;border-radius:12px;outline:0;box-shadow:inset 3px 0 0 var(--pp-teal),0 1px 3px #0d5a6a26!important;background:#fffaf0!important}
+body.nextMode .boardHeading #hint.primaryAction[data-kind="coach"][data-level="full"]{box-shadow:inset 3px 0 0 var(--pp-gold),0 1px 3px #0d5a6a26!important}
+body.nextMode .boardHeading #hint.primaryAction[data-kind="coach"]:focus-visible{outline:2px solid var(--pp-teal);outline-offset:2px}
+body.nextMode .boardHeading #hint.primaryAction[data-kind="coach"] .gWhat{font-size:14px;line-height:1.2}
+body.nextMode .boardHeading #hint.primaryAction[data-kind="coach"] .gWhy{font-size:11.5px;line-height:1.25;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.nextMode .boardHeading:has(#hint[data-kind="coach"])+#board.board{margin-top:4px}
+body.nextMode .boardHeading .guideHint,body.nextMode .boardHeading .coachSkip{box-shadow:0 1px 3px #0d5a6a26;background:#fffaf0}

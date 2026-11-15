@@ -10,7 +10,7 @@
 const assert=require('node:assert/strict');const fs=require('node:fs');const path=require('node:path');
 const {chromium,webkit}=require('playwright');
 const ORIGIN=process.env.ORIGIN||'http://127.0.0.1:8080',KEY='vaultwake-v5-coast';
-const WIDTHS=(process.env.WIDTHS||'360,375,390,430').split(',').map(Number);
+const WIDTHS=(process.env.WIDTHS||'360,375,390,402,430').split(',').map(Number);
 const base=JSON.parse(fs.readFileSync(path.join(__dirname,'fixtures','coast','coast-ch1-pre-secondary.json'),'utf8'));base.daily={day:9e6,count:1};
 const N=(family,tier,count=1)=>({family,tier,count});
 // camps: each a set of orders (gold first, then crew). Lv badges come from one chain at two levels in one order.

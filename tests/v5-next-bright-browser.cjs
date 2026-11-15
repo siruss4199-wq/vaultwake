@@ -62,12 +62,14 @@ async function run(engine,W,H,motion){
   // gold 110 × 90 and next after the lead, with a crown and a GOLD label whether or not it leads.
   {const cards=await page.locator('#requests .requestCard').evaluateAll(cs=>cs.map(c=>{const r=c.getBoundingClientRect();return {w:r.width,h:r.height,x:r.left,lead:c.classList.contains('lead'),gold:c.classList.contains('storyOrder'),crown:!!c.querySelector('.reqCrown')};}));
    const lead=cards.filter(c=>c.lead);assert.equal(lead.length,1,`${tag}: one lead card`);
-   // Order card zones (2026-11-15): under 390 px wide the cards are a little narrower (lead 132, gold 104, crew 90) so
-   // three fit without scrolling at 360/375; at 390 and wider the sizes above are unchanged. The lead stays the widest.
-   const narrow=W<390,[L0,L1,G0,G1,C0,C1]=narrow?[128,140,100,108,86,94]:[144,156,104,116,90,102];
-   assert.ok(lead[0].w>=L0&&lead[0].w<=L1&&lead[0].h>=84&&lead[0].h<=96,`${tag}: lead card ${lead[0].w}×${lead[0].h}`);
+   // Layout system (2026-11-15, docs/V5_LAYOUT_SYSTEM_2026-11-15.md): sizes derive from the rail's width. Every card
+   // the same height (86–92 px); the lead 1.2–1.3 × a card (it comes first); a gold order that does not lead is a card
+   // like the others (crown, GOLD and Stage mark it); cards 92–124 px wide.
+   const others=cards.filter(c=>!c.lead),cw=others.length?Math.max(...others.map(c=>c.w)):lead[0].w/1.25;
+   assert.ok(lead[0].w/cw>=1.19&&lead[0].w/cw<=1.31,`${tag}: lead card ${lead[0].w.toFixed(1)} is ${(lead[0].w/cw).toFixed(2)} × a card (${cw.toFixed(1)})`);
    assert.ok(lead[0].x<=Math.min(...cards.map(c=>c.x))+1,`${tag}: the lead card comes first`);
-   for(const c of cards.filter(c=>!c.lead))assert.ok((c.gold?c.w>=G0&&c.w<=G1:c.w>=C0&&c.w<=C1)&&c.h>=84&&c.h<=96&&c.w<lead[0].w,`${tag}: compact ${c.gold?'gold':'crew'} card ${c.w}×${c.h}`);
+   for(const c of cards)assert.ok(c.h>=86&&c.h<=92&&Math.abs(c.h-lead[0].h)<0.6,`${tag}: one card height (${c.h} vs ${lead[0].h})`);
+   for(const c of others)assert.ok(c.w>=91.5&&c.w<=124.5&&Math.abs(c.w-cw)<0.6,`${tag}: compact ${c.gold?'gold':'crew'} card ${c.w}×${c.h}`);
    for(const c of cards.filter(c=>c.gold))assert.ok(c.crown,`${tag}: a gold card shows its crown`);
    const xs=cards.filter(c=>!c.lead).sort((a,b)=>a.x-b.x);if(xs.some(c=>c.gold))assert.ok(xs[0].gold,`${tag}: the gold card comes right after the lead`);
    // one row that scrolls sideways when the cards do not all fit (three fit at 390 px since 45c)
