@@ -1,0 +1,69 @@
+name: Vaultwake Merge Basic ZIP RC (owner-authorized, unpublished)
+on:
+  push:
+    branches: [claude/v5-rc-zip-2026-11-16]
+permissions:
+  contents: read
+jobs:
+  basic-rc:
+    name: Build and verify Basic Launch ZIP
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ecde1626ca96e717f22ed75629bf6971df3525e1
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify exact approved source and static game
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "ecde1626ca96e717f22ed75629bf6971df3525e1"
+          node --test tests/v5-*.test.mjs
+          node tools/coast-crazygames.mjs --check
+      - name: Build Basic Launch ZIP, verify entries and record checksum
+        run: |
+          set -euo pipefail
+          node tools/coast-crazygames.mjs --zip
+          ZIP="dist/vaultwake-merge-crazygames-basic-ecde162.zip"
+          cp dist/vaultwake-coast-crazygames.zip "$ZIP"
+          unzip -t "$ZIP" | tail -3
+          unzip -Z -1 "$ZIP" | grep -Fx 'index.html'
+          unzip -Z -1 "$ZIP" | grep -Fx 'v5/coast-crazygames.html'
+          sha256sum "$ZIP" | tee dist/SHA256SUMS
+          cat > dist/RELEASE-CANDIDATE.txt <<'EOF'
+          Vaultwake Merge — CrazyGames Basic Launch update candidate
+          Game source commit: ecde1626ca96e717f22ed75629bf6971df3525e1
+          PR stack: #103 -> #104 -> #105
+          Status: QA CANDIDATE ONLY — NOT UPLOADED OR PUBLISHED
+          Package: vaultwake-merge-crazygames-basic-ecde162.zip
+          No new ads, gameplay changes, or save-key changes in this packaging operation.
+          EOF
+      - name: Install browsers for extracted-ZIP QA
+        run: |
+          npm install --no-save playwright@1.62.1
+          npx playwright install --with-deps chromium webkit
+      - name: Play extracted ZIP in Chromium and WebKit (SDK stub)
+        env:
+          CG_URL: http://127.0.0.1:8081/index.html
+          ENGINES: chromium,webkit
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/vaultwake-basic-rc
+          unzip -q dist/vaultwake-merge-crazygames-basic-ecde162.zip -d /tmp/vaultwake-basic-rc
+          python3 -m http.server 8081 --directory /tmp/vaultwake-basic-rc > /tmp/vaultwake-basic-rc.log 2>&1 &
+          sleep 2
+          node tests/v5-next-crazygames-browser.cjs
+          node tests/v5-next-crazygames-save-browser.cjs
+      - name: Upload verified release candidate (do not publish)
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: vaultwake-merge-basic-RC-ecde162
+          path: |
+            dist/vaultwake-merge-crazygames-basic-ecde162.zip
+            dist/SHA256SUMS
+            dist/RELEASE-CANDIDATE.txt
+          retention-days: 30
