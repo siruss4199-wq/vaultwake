@@ -1,0 +1,4683 @@
+{
+ "engine": "chromium",
+ "viewport": "390x664",
+ "think": 1500,
+ "url": "http://127.0.0.1:8081/v5/coast-crazygames.html",
+ "firsts": {
+  "tap": 5,
+  "merge": 11.6,
+  "crew delivered": 22.3,
+  "gold delivered": 62.9,
+  "coast opened": 67.8,
+  "stage 1": 73.9,
+  "stage 2": 161,
+  "stage 3": 248.9,
+  "stage 4": 305.5,
+  "stage 5": 470.9,
+  "second generator": 475.6,
+  "stage 6": 572.8
+ },
+ "log": [
+  {
+   "t": 0.3,
+   "e": "page opened"
+  },
+  {
+   "t": 0.4,
+   "e": "board visible"
+  },
+  {
+   "t": 5,
+   "e": "produce",
+   "src": "guide",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 99,
+   "coins": 0,
+   "orders": 0,
+   "stages": 0,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 5,
+   "e": "FIRST tap"
+  },
+  {
+   "t": 7.1,
+   "e": "produce",
+   "src": "guide",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 98,
+   "coins": 0,
+   "orders": 0,
+   "stages": 0,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 11.6,
+   "e": "merge",
+   "src": "guide",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 98,
+   "coins": 0,
+   "orders": 0,
+   "stages": 0,
+   "msg": "Grip tool · the tideglass cracks · too small for the tideglass: merge a level 3 or better beside it"
+  },
+  {
+   "t": 11.6,
+   "e": "FIRST merge"
+  },
+  {
+   "t": 13.7,
+   "e": "produce",
+   "src": "guide",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 97,
+   "coins": 0,
+   "orders": 0,
+   "stages": 0,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 15.8,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 96,
+   "coins": 0,
+   "orders": 0,
+   "stages": 0,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 18.2,
+   "e": "merge",
+   "src": "guide",
+   "ok": true,
+   "line": "Drag a Grip tool onto its twin",
+   "energy": 96,
+   "coins": 0,
+   "orders": 0,
+   "stages": 0,
+   "msg": "Split spanner · the tideglass cracks"
+  },
+  {
+   "t": 22.3,
+   "e": "deliver",
+   "src": "guide",
+   "ok": true,
+   "line": "Tap Ivo's order",
+   "energy": 112,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "+10 coins · +1 energy · first crew order: +15 energy"
+  },
+  {
+   "t": 22.3,
+   "e": "FIRST crew delivered"
+  },
+  {
+   "t": 24.5,
+   "e": "produce",
+   "src": "guide",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 111,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 26.9,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 111,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "Grip tool · the tideglass cracks · too small for the tideglass: merge a level 3 or better beside it"
+  },
+  {
+   "t": 28.9,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 110,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 30.9,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 109,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 33.4,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 109,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "Grip tool · the tideglass cracks"
+  },
+  {
+   "t": 35.7,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Grip tool onto its twin",
+   "energy": 109,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "Split spanner · the tideglass breaks"
+  },
+  {
+   "t": 37.8,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 108,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 40.2,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Grip tool onto its twin",
+   "energy": 108,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "Split spanner · the tideglass cracks"
+  },
+  {
+   "t": 42.6,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Split spanner onto its twin",
+   "energy": 108,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "Pocket winch"
+  },
+  {
+   "t": 44.7,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 107,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 47.1,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 107,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "Grip tool · the tideglass cracks"
+  },
+  {
+   "t": 49.2,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 106,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 51.2,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 105,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 53.7,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 110,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "Grip tool · the tideglass breaks · too small for the tideglass: merge a level 3 or better beside it"
+  },
+  {
+   "t": 53.7,
+   "e": "level up",
+   "level": 2
+  },
+  {
+   "t": 56.1,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Grip tool onto its twin",
+   "energy": 110,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "Split spanner · the tideglass cracks"
+  },
+  {
+   "t": 58.2,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 109,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 60.7,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Grip tool onto its twin",
+   "energy": 109,
+   "coins": 10,
+   "orders": 1,
+   "stages": 0,
+   "msg": "Split spanner · the tideglass cracks"
+  },
+  {
+   "t": 62.9,
+   "e": "deliver",
+   "src": "guide",
+   "ok": true,
+   "line": "Tap the gold order",
+   "energy": 109,
+   "coins": 80,
+   "orders": 2,
+   "stages": 0,
+   "msg": "+70 coins · materials for Clear the landing path"
+  },
+  {
+   "t": 62.9,
+   "e": "FIRST gold delivered"
+  },
+  {
+   "t": 67.8,
+   "e": "FIRST coast opened"
+  },
+  {
+   "t": 73.4,
+   "e": "coast closed"
+  },
+  {
+   "t": 73.9,
+   "e": "restore",
+   "src": "guide",
+   "ok": true,
+   "line": "Tap the coast strip",
+   "energy": 129,
+   "coins": 40,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Guide complete. Next: Lay a boardwalk: its gold order brings the materials and coins, crew orders add more coins."
+  },
+  {
+   "t": 73.9,
+   "e": "FIRST stage 1"
+  },
+  {
+   "t": 76,
+   "e": "produce",
+   "src": "guide",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 128,
+   "coins": 40,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 78.4,
+   "e": "merge",
+   "src": "guide",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 128,
+   "coins": 40,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Grip tool · too small for the tideglass: merge a level 3 or better beside it"
+  },
+  {
+   "t": 80.4,
+   "e": "produce",
+   "src": "guide",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 127,
+   "coins": 40,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 82.4,
+   "e": "produce",
+   "src": "guide",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 126,
+   "coins": 40,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 84.8,
+   "e": "merge",
+   "src": "guide",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 126,
+   "coins": 40,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 87.2,
+   "e": "merge",
+   "src": "guide",
+   "ok": true,
+   "line": "Drag a Grip tool onto its twin",
+   "energy": 126,
+   "coins": 40,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 89.2,
+   "e": "produce",
+   "src": "guide",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 125,
+   "coins": 40,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 91.3,
+   "e": "produce",
+   "src": "guide",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 124,
+   "coins": 40,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 93.4,
+   "e": "produce",
+   "src": "guide",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 123,
+   "coins": 40,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 95.9,
+   "e": "merge",
+   "src": "guide",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 123,
+   "coins": 40,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 98.3,
+   "e": "merge",
+   "src": "guide",
+   "ok": true,
+   "line": "Drag a Grip tool onto its twin",
+   "energy": 123,
+   "coins": 40,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 100.8,
+   "e": "merge",
+   "src": "guide",
+   "ok": true,
+   "line": "Drag a Split spanner onto its twin",
+   "energy": 123,
+   "coins": 40,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Pocket winch"
+  },
+  {
+   "t": 102.8,
+   "e": "produce",
+   "src": "guide",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 122,
+   "coins": 40,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 104.9,
+   "e": "produce",
+   "src": "guide",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 121,
+   "coins": 40,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 106.9,
+   "e": "produce",
+   "src": "guide",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 120,
+   "coins": 40,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 109.3,
+   "e": "merge",
+   "src": "guide",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 120,
+   "coins": 40,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Grip tool · too small for the tideglass: merge a level 3 or better beside it"
+  },
+  {
+   "t": 111.4,
+   "e": "produce",
+   "src": "guide",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 119,
+   "coins": 40,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 113.5,
+   "e": "produce",
+   "src": "guide",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 118,
+   "coins": 40,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 115.8,
+   "e": "merge",
+   "src": "guide",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 118,
+   "coins": 40,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Grip tool · the tideglass cracks"
+  },
+  {
+   "t": 117.9,
+   "e": "produce",
+   "src": "guide",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 117,
+   "coins": 40,
+   "orders": 2,
+   "stages": 1,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 119.9,
+   "e": "deliver",
+   "src": "guide",
+   "ok": true,
+   "line": "Tap the gold order",
+   "energy": 132,
+   "coins": 80,
+   "orders": 3,
+   "stages": 1,
+   "msg": "+40 coins · materials for Lay a boardwalk"
+  },
+  {
+   "t": 119.9,
+   "e": "level up",
+   "level": 3
+  },
+  {
+   "t": 151.5,
+   "e": "action failed",
+   "a": {
+    "type": "restore",
+    "id": "beach-path"
+   },
+   "err": "TimeoutError: page.waitForSelector: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#coastMap[open]') to be visible\u001b[22m\n"
+  },
+  {
+   "t": 160.6,
+   "e": "coast closed"
+  },
+  {
+   "t": 161,
+   "e": "restore",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the coast strip",
+   "energy": 142,
+   "coins": 10,
+   "orders": 3,
+   "stages": 2,
+   "msg": "Lay a boardwalk · stage 2"
+  },
+  {
+   "t": 161,
+   "e": "FIRST stage 2"
+  },
+  {
+   "t": 163.4,
+   "e": "merge",
+   "src": "copies",
+   "ok": true,
+   "energy": 142,
+   "coins": 10,
+   "orders": 3,
+   "stages": 2,
+   "msg": "Rivet Rover reaches level 2 · the tideglass cracks"
+  },
+  {
+   "t": 165.4,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 141,
+   "coins": 10,
+   "orders": 3,
+   "stages": 2,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 167.5,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 140,
+   "coins": 10,
+   "orders": 3,
+   "stages": 2,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 169.8,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 140,
+   "coins": 10,
+   "orders": 3,
+   "stages": 2,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 171.9,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 139,
+   "coins": 10,
+   "orders": 3,
+   "stages": 2,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 174.2,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Grip tool onto its twin",
+   "energy": 139,
+   "coins": 10,
+   "orders": 3,
+   "stages": 2,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 176.2,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 138,
+   "coins": 10,
+   "orders": 3,
+   "stages": 2,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 178.3,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 137,
+   "coins": 10,
+   "orders": 3,
+   "stages": 2,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 180.3,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 136,
+   "coins": 10,
+   "orders": 3,
+   "stages": 2,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 182.4,
+   "e": "deliver",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap Bram's order",
+   "energy": 137,
+   "coins": 30,
+   "orders": 4,
+   "stages": 2,
+   "msg": "+20 coins · +1 energy"
+  },
+  {
+   "t": 184.5,
+   "e": "deliver",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap Ivo's order",
+   "energy": 137,
+   "coins": 40,
+   "orders": 5,
+   "stages": 2,
+   "msg": "+10 coins"
+  },
+  {
+   "t": 186.5,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 136,
+   "coins": 40,
+   "orders": 5,
+   "stages": 2,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 188.9,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 136,
+   "coins": 40,
+   "orders": 5,
+   "stages": 2,
+   "msg": "Grip tool · the tideglass cracks"
+  },
+  {
+   "t": 190.9,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 135,
+   "coins": 40,
+   "orders": 5,
+   "stages": 2,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 193.3,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Grip tool onto its twin",
+   "energy": 135,
+   "coins": 40,
+   "orders": 5,
+   "stages": 2,
+   "msg": "Split spanner · the tideglass breaks"
+  },
+  {
+   "t": 195.4,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 134,
+   "coins": 40,
+   "orders": 5,
+   "stages": 2,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 197.4,
+   "e": "deliver",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap Bram's order",
+   "energy": 135,
+   "coins": 65,
+   "orders": 6,
+   "stages": 2,
+   "msg": "+25 coins · +1 energy"
+  },
+  {
+   "t": 199.5,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 134,
+   "coins": 65,
+   "orders": 6,
+   "stages": 2,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 201.5,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 133,
+   "coins": 65,
+   "orders": 6,
+   "stages": 2,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 203.9,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 133,
+   "coins": 65,
+   "orders": 6,
+   "stages": 2,
+   "msg": "Grip tool · too small for the tideglass: merge a level 3 or better beside it"
+  },
+  {
+   "t": 205.9,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 132,
+   "coins": 65,
+   "orders": 6,
+   "stages": 2,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 208,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 131,
+   "coins": 65,
+   "orders": 6,
+   "stages": 2,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 210,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 130,
+   "coins": 65,
+   "orders": 6,
+   "stages": 2,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 212.7,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 130,
+   "coins": 65,
+   "orders": 6,
+   "stages": 2,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 215.2,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Grip tool onto its twin",
+   "energy": 135,
+   "coins": 65,
+   "orders": 6,
+   "stages": 2,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 215.2,
+   "e": "level up",
+   "level": 4
+  },
+  {
+   "t": 217.7,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Split spanner onto its twin",
+   "energy": 135,
+   "coins": 65,
+   "orders": 6,
+   "stages": 2,
+   "msg": "Pocket winch"
+  },
+  {
+   "t": 220.1,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 134,
+   "coins": 65,
+   "orders": 6,
+   "stages": 2,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 222.2,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 133,
+   "coins": 65,
+   "orders": 6,
+   "stages": 2,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 224.6,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Grip tool onto its twin",
+   "energy": 133,
+   "coins": 65,
+   "orders": 6,
+   "stages": 2,
+   "msg": "Split spanner · the tideglass cracks"
+  },
+  {
+   "t": 226.7,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 132,
+   "coins": 65,
+   "orders": 6,
+   "stages": 2,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 228.8,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 131,
+   "coins": 65,
+   "orders": 6,
+   "stages": 2,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 230.8,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 130,
+   "coins": 65,
+   "orders": 6,
+   "stages": 2,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 233.2,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 130,
+   "coins": 65,
+   "orders": 6,
+   "stages": 2,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 235.7,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Grip tool onto its twin",
+   "energy": 130,
+   "coins": 65,
+   "orders": 6,
+   "stages": 2,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 238.1,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Split spanner onto its twin",
+   "energy": 130,
+   "coins": 65,
+   "orders": 6,
+   "stages": 2,
+   "msg": "Pocket winch"
+  },
+  {
+   "t": 240.1,
+   "e": "deliver",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the gold order",
+   "energy": 130,
+   "coins": 110,
+   "orders": 7,
+   "stages": 2,
+   "msg": "+45 coins · materials for Pitch the camp tent"
+  },
+  {
+   "t": 248.4,
+   "e": "coast closed"
+  },
+  {
+   "t": 248.9,
+   "e": "restore",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the coast strip",
+   "energy": 148,
+   "coins": 30,
+   "orders": 7,
+   "stages": 3,
+   "msg": "Pitch the camp tent · restored"
+  },
+  {
+   "t": 248.9,
+   "e": "FIRST stage 3"
+  },
+  {
+   "t": 251,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 147,
+   "coins": 30,
+   "orders": 7,
+   "stages": 3,
+   "msg": "Grip tool · and a Bolt"
+  },
+  {
+   "t": 253,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 146,
+   "coins": 30,
+   "orders": 7,
+   "stages": 3,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 255.4,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Grip tool onto its twin",
+   "energy": 146,
+   "coins": 30,
+   "orders": 7,
+   "stages": 3,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 257.4,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 145,
+   "coins": 30,
+   "orders": 7,
+   "stages": 3,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 259.5,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 144,
+   "coins": 30,
+   "orders": 7,
+   "stages": 3,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 261.9,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 144,
+   "coins": 30,
+   "orders": 7,
+   "stages": 3,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 263.9,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 143,
+   "coins": 30,
+   "orders": 7,
+   "stages": 3,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 265.9,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 142,
+   "coins": 30,
+   "orders": 7,
+   "stages": 3,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 268,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 141,
+   "coins": 30,
+   "orders": 7,
+   "stages": 3,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 272.3,
+   "e": "unseal",
+   "src": "tidy",
+   "ok": true,
+   "energy": 141,
+   "coins": 45,
+   "orders": 7,
+   "stages": 3,
+   "msg": "Cargo opened · Empty space"
+  },
+  {
+   "t": 274.3,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 140,
+   "coins": 45,
+   "orders": 7,
+   "stages": 3,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 276.4,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 139,
+   "coins": 45,
+   "orders": 7,
+   "stages": 3,
+   "msg": "Grip tool · and a Bolt"
+  },
+  {
+   "t": 278.7,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Bolt onto its twin",
+   "energy": 139,
+   "coins": 45,
+   "orders": 7,
+   "stages": 3,
+   "msg": "Gear · too small for the tideglass: merge a level 4 or better beside it"
+  },
+  {
+   "t": 280.7,
+   "e": "deliver",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the gold order",
+   "energy": 139,
+   "coins": 80,
+   "orders": 8,
+   "stages": 3,
+   "msg": "+35 coins · materials for Line the path with lanterns"
+  },
+  {
+   "t": 283.1,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Grip tool onto its twin",
+   "energy": 139,
+   "coins": 80,
+   "orders": 8,
+   "stages": 3,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 285.4,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 139,
+   "coins": 80,
+   "orders": 8,
+   "stages": 3,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 287.5,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 138,
+   "coins": 80,
+   "orders": 8,
+   "stages": 3,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 289.5,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 137,
+   "coins": 80,
+   "orders": 8,
+   "stages": 3,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 291.9,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Grip tool onto its twin",
+   "energy": 137,
+   "coins": 80,
+   "orders": 8,
+   "stages": 3,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 294.3,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Split spanner onto its twin",
+   "energy": 137,
+   "coins": 80,
+   "orders": 8,
+   "stages": 3,
+   "msg": "Pocket winch"
+  },
+  {
+   "t": 296.3,
+   "e": "deliver",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap Ivo's order",
+   "energy": 138,
+   "coins": 105,
+   "orders": 9,
+   "stages": 3,
+   "msg": "+25 coins · +1 energy"
+  },
+  {
+   "t": 305,
+   "e": "coast closed"
+  },
+  {
+   "t": 305.5,
+   "e": "restore",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the coast strip",
+   "energy": 153,
+   "coins": 5,
+   "orders": 9,
+   "stages": 4,
+   "msg": "Line the path with lanterns · stage 3"
+  },
+  {
+   "t": 305.5,
+   "e": "FIRST stage 4"
+  },
+  {
+   "t": 305.5,
+   "e": "level up",
+   "level": 5
+  },
+  {
+   "t": 307.6,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 152,
+   "coins": 5,
+   "orders": 9,
+   "stages": 4,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 309.9,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 152,
+   "coins": 5,
+   "orders": 9,
+   "stages": 4,
+   "msg": "Grip tool · too small for the tideglass: merge a level 3 or better beside it"
+  },
+  {
+   "t": 312,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 151,
+   "coins": 5,
+   "orders": 9,
+   "stages": 4,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 314.4,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Grip tool onto its twin",
+   "energy": 151,
+   "coins": 5,
+   "orders": 9,
+   "stages": 4,
+   "msg": "Split spanner · the tideglass cracks"
+  },
+  {
+   "t": 316.5,
+   "e": "deliver",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap Ivo's order",
+   "energy": 152,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "+10 coins · +1 energy"
+  },
+  {
+   "t": 318.5,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 151,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 320.5,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 150,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 323,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 150,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 325,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 149,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 327.1,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 148,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 329.5,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Grip tool onto its twin",
+   "energy": 148,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 331.5,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 147,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 333.9,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 147,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Grip tool · too small for the tideglass: merge a level 3 or better beside it"
+  },
+  {
+   "t": 335.9,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 146,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 337.9,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 145,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 340.3,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 145,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 342.7,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Grip tool onto its twin",
+   "energy": 145,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 345.1,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Split spanner onto its twin",
+   "energy": 145,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Pocket winch"
+  },
+  {
+   "t": 347.1,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 144,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 349.2,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 143,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 351.2,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 142,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 353.6,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 142,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 356,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Grip tool onto its twin",
+   "energy": 142,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 358.1,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 141,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 360.1,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 140,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 362.2,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 139,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 364.6,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 139,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 366.9,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Grip tool onto its twin",
+   "energy": 139,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 369.3,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Split spanner onto its twin",
+   "energy": 139,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Pocket winch"
+  },
+  {
+   "t": 371.6,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Pocket winch onto its twin",
+   "energy": 139,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Crawler jack"
+  },
+  {
+   "t": 373.7,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 138,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 375.7,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 137,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 378,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 137,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 380.1,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 136,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 382.4,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Grip tool onto its twin",
+   "energy": 136,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 384.5,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 135,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 386.5,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 134,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 388.8,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 134,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Grip tool · too small for the tideglass: merge a level 3 or better beside it"
+  },
+  {
+   "t": 390.9,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 133,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 392.9,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 132,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 395.3,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Grip tool onto its twin",
+   "energy": 132,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 397.6,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Split spanner onto its twin",
+   "energy": 132,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Pocket winch"
+  },
+  {
+   "t": 399.7,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 131,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 402,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 131,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 404.1,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 130,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 406.1,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 129,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 408.4,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 129,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Grip tool · too small for the tideglass: merge a level 3 or better beside it"
+  },
+  {
+   "t": 410.8,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Grip tool onto its twin",
+   "energy": 129,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 412.8,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 128,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 414.9,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 127,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 416.9,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 126,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 419.3,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 126,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 421.7,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Grip tool onto its twin",
+   "energy": 126,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 424.1,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Split spanner onto its twin",
+   "energy": 126,
+   "coins": 15,
+   "orders": 10,
+   "stages": 4,
+   "msg": "Pocket winch"
+  },
+  {
+   "t": 426.2,
+   "e": "deliver",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the gold order",
+   "energy": 126,
+   "coins": 50,
+   "orders": 11,
+   "stages": 4,
+   "msg": "+35 coins · materials for Add bunks and a stove"
+  },
+  {
+   "t": 428.2,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 125,
+   "coins": 50,
+   "orders": 11,
+   "stages": 4,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 430.2,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 124,
+   "coins": 50,
+   "orders": 11,
+   "stages": 4,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 432.2,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 123,
+   "coins": 50,
+   "orders": 11,
+   "stages": 4,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 434.6,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 123,
+   "coins": 50,
+   "orders": 11,
+   "stages": 4,
+   "msg": "Grip tool · too small for the tideglass: merge a level 3 or better beside it"
+  },
+  {
+   "t": 436.9,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Grip tool onto its twin",
+   "energy": 123,
+   "coins": 50,
+   "orders": 11,
+   "stages": 4,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 439,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 122,
+   "coins": 50,
+   "orders": 11,
+   "stages": 4,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 441,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 121,
+   "coins": 50,
+   "orders": 11,
+   "stages": 4,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 443.4,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 121,
+   "coins": 50,
+   "orders": 11,
+   "stages": 4,
+   "msg": "Grip tool · too small for the tideglass: merge a level 3 or better beside it"
+  },
+  {
+   "t": 445.4,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 120,
+   "coins": 50,
+   "orders": 11,
+   "stages": 4,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 447.7,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Grip tool onto its twin",
+   "energy": 120,
+   "coins": 50,
+   "orders": 11,
+   "stages": 4,
+   "msg": "Split spanner · the tideglass breaks"
+  },
+  {
+   "t": 449.7,
+   "e": "deliver",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap Bram's order",
+   "energy": 136,
+   "coins": 90,
+   "orders": 12,
+   "stages": 4,
+   "msg": "+40 coins · +1 energy · a Tide token"
+  },
+  {
+   "t": 449.8,
+   "e": "level up",
+   "level": 6
+  },
+  {
+   "t": 451.8,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 135,
+   "coins": 90,
+   "orders": 12,
+   "stages": 4,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 453.8,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 134,
+   "coins": 90,
+   "orders": 12,
+   "stages": 4,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 456.2,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 134,
+   "coins": 90,
+   "orders": 12,
+   "stages": 4,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 458.2,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 133,
+   "coins": 90,
+   "orders": 12,
+   "stages": 4,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 460.3,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 132,
+   "coins": 90,
+   "orders": 12,
+   "stages": 4,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 462.3,
+   "e": "deliver",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap Ivo's order",
+   "energy": 133,
+   "coins": 100,
+   "orders": 13,
+   "stages": 4,
+   "msg": "+10 coins · +1 energy"
+  },
+  {
+   "t": 470.4,
+   "e": "coast closed"
+  },
+  {
+   "t": 470.9,
+   "e": "restore",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the coast strip",
+   "energy": 133,
+   "coins": 0,
+   "orders": 13,
+   "stages": 5,
+   "msg": "Add bunks and a stove · stage 2"
+  },
+  {
+   "t": 470.9,
+   "e": "FIRST stage 5"
+  },
+  {
+   "t": 473.2,
+   "e": "merge",
+   "src": "copies",
+   "ok": true,
+   "energy": 133,
+   "coins": 0,
+   "orders": 13,
+   "stages": 5,
+   "msg": "Rivet Rover reaches level 2 · the tideglass breaks"
+  },
+  {
+   "t": 475.6,
+   "e": "merge",
+   "src": "copies",
+   "ok": true,
+   "energy": 133,
+   "coins": 0,
+   "orders": 13,
+   "stages": 5,
+   "msg": "Rivet Rover reaches level 3 · the tideglass breaks · the Survey Kite comes out"
+  },
+  {
+   "t": 475.6,
+   "e": "FIRST second generator"
+  },
+  {
+   "t": 477.7,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 132,
+   "coins": 0,
+   "orders": 13,
+   "stages": 5,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 480,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 132,
+   "coins": 0,
+   "orders": 13,
+   "stages": 5,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 482.4,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Grip tool onto its twin",
+   "energy": 132,
+   "coins": 0,
+   "orders": 13,
+   "stages": 5,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 484.7,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Split spanner onto its twin",
+   "energy": 132,
+   "coins": 0,
+   "orders": 13,
+   "stages": 5,
+   "msg": "Pocket winch"
+  },
+  {
+   "t": 486.8,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 131,
+   "coins": 0,
+   "orders": 13,
+   "stages": 5,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 488.8,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 130,
+   "coins": 0,
+   "orders": 13,
+   "stages": 5,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 490.9,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 129,
+   "coins": 0,
+   "orders": 13,
+   "stages": 5,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 492.9,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 128,
+   "coins": 0,
+   "orders": 13,
+   "stages": 5,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 495.2,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 128,
+   "coins": 0,
+   "orders": 13,
+   "stages": 5,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 497.6,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Grip tool onto its twin",
+   "energy": 128,
+   "coins": 0,
+   "orders": 13,
+   "stages": 5,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 499.9,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Split spanner onto its twin",
+   "energy": 128,
+   "coins": 0,
+   "orders": 13,
+   "stages": 5,
+   "msg": "Pocket winch"
+  },
+  {
+   "t": 502.3,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Pocket winch onto its twin",
+   "energy": 128,
+   "coins": 0,
+   "orders": 13,
+   "stages": 5,
+   "msg": "Crawler jack"
+  },
+  {
+   "t": 504.4,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 127,
+   "coins": 0,
+   "orders": 13,
+   "stages": 5,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 506.4,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 126,
+   "coins": 0,
+   "orders": 13,
+   "stages": 5,
+   "msg": "Copper offcut · and a Bolt"
+  },
+  {
+   "t": 508.4,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 125,
+   "coins": 0,
+   "orders": 13,
+   "stages": 5,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 510.5,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 124,
+   "coins": 0,
+   "orders": 13,
+   "stages": 5,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 512.8,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 124,
+   "coins": 0,
+   "orders": 13,
+   "stages": 5,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 515.2,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Grip tool onto its twin",
+   "energy": 124,
+   "coins": 0,
+   "orders": 13,
+   "stages": 5,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 517.2,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 123,
+   "coins": 0,
+   "orders": 13,
+   "stages": 5,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 519.2,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 122,
+   "coins": 0,
+   "orders": 13,
+   "stages": 5,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 521.3,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 121,
+   "coins": 0,
+   "orders": 13,
+   "stages": 5,
+   "msg": "Split spanner · and a Bolt"
+  },
+  {
+   "t": 523.7,
+   "e": "merge",
+   "src": "tidy",
+   "ok": true,
+   "energy": 121,
+   "coins": 0,
+   "orders": 13,
+   "stages": 5,
+   "msg": "Tide token · Grip tool"
+  },
+  {
+   "t": 526,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Grip tool onto its twin",
+   "energy": 121,
+   "coins": 0,
+   "orders": 13,
+   "stages": 5,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 528.1,
+   "e": "deliver",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the gold order",
+   "energy": 121,
+   "coins": 35,
+   "orders": 14,
+   "stages": 5,
+   "msg": "+35 coins · materials for Raise the signal mast"
+  },
+  {
+   "t": 530.1,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 120,
+   "coins": 35,
+   "orders": 14,
+   "stages": 5,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 532.5,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 120,
+   "coins": 35,
+   "orders": 14,
+   "stages": 5,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 534.5,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 119,
+   "coins": 35,
+   "orders": 14,
+   "stages": 5,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 536.5,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 118,
+   "coins": 35,
+   "orders": 14,
+   "stages": 5,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 538.5,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 117,
+   "coins": 35,
+   "orders": 14,
+   "stages": 5,
+   "msg": "Split spanner"
+  },
+  {
+   "t": 540.6,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 116,
+   "coins": 35,
+   "orders": 14,
+   "stages": 5,
+   "msg": "Copper offcut"
+  },
+  {
+   "t": 542.9,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Copper offcut onto its twin",
+   "energy": 116,
+   "coins": 35,
+   "orders": 14,
+   "stages": 5,
+   "msg": "Grip tool"
+  },
+  {
+   "t": 545,
+   "e": "deliver",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap Bram's order",
+   "energy": 117,
+   "coins": 55,
+   "orders": 15,
+   "stages": 5,
+   "msg": "+20 coins · +1 energy"
+  },
+  {
+   "t": 547,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Survey Kite",
+   "energy": 116,
+   "coins": 55,
+   "orders": 15,
+   "stages": 5,
+   "msg": "Ink scrap"
+  },
+  {
+   "t": 549,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Survey Kite",
+   "energy": 115,
+   "coins": 55,
+   "orders": 15,
+   "stages": 5,
+   "msg": "Ink scrap"
+  },
+  {
+   "t": 551.4,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Ink scrap onto its twin",
+   "energy": 115,
+   "coins": 55,
+   "orders": 15,
+   "stages": 5,
+   "msg": "Route fold"
+  },
+  {
+   "t": 553.4,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Survey Kite",
+   "energy": 114,
+   "coins": 55,
+   "orders": 15,
+   "stages": 5,
+   "msg": "Ink scrap"
+  },
+  {
+   "t": 555.4,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Survey Kite",
+   "energy": 113,
+   "coins": 55,
+   "orders": 15,
+   "stages": 5,
+   "msg": "Route fold"
+  },
+  {
+   "t": 557.8,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Route fold onto its twin",
+   "energy": 113,
+   "coins": 55,
+   "orders": 15,
+   "stages": 5,
+   "msg": "Sight lens"
+  },
+  {
+   "t": 559.8,
+   "e": "deliver",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap Neri's order",
+   "energy": 114,
+   "coins": 65,
+   "orders": 16,
+   "stages": 5,
+   "msg": "+10 coins · +1 energy · a Tide token"
+  },
+  {
+   "t": 562.2,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Bolt onto its twin",
+   "energy": 129,
+   "coins": 65,
+   "orders": 16,
+   "stages": 5,
+   "msg": "Gear"
+  },
+  {
+   "t": 562.2,
+   "e": "level up",
+   "level": 7
+  },
+  {
+   "t": 564.2,
+   "e": "deliver",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap Ivo's order",
+   "energy": 130,
+   "coins": 105,
+   "orders": 17,
+   "stages": 5,
+   "msg": "+40 coins · +1 energy"
+  },
+  {
+   "t": 572.3,
+   "e": "coast closed"
+  },
+  {
+   "t": 572.8,
+   "e": "restore",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the coast strip",
+   "energy": 130,
+   "coins": 5,
+   "orders": 17,
+   "stages": 6,
+   "msg": "Raise the signal mast · restored"
+  },
+  {
+   "t": 572.8,
+   "e": "FIRST stage 6"
+  },
+  {
+   "t": 574.8,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Survey Kite",
+   "energy": 129,
+   "coins": 5,
+   "orders": 17,
+   "stages": 6,
+   "msg": "Ink scrap"
+  },
+  {
+   "t": 577.2,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Ink scrap onto its twin",
+   "energy": 129,
+   "coins": 5,
+   "orders": 17,
+   "stages": 6,
+   "msg": "Route fold"
+  },
+  {
+   "t": 579.2,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Survey Kite",
+   "energy": 128,
+   "coins": 5,
+   "orders": 17,
+   "stages": 6,
+   "msg": "Ink scrap"
+  },
+  {
+   "t": 581.2,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Survey Kite",
+   "energy": 127,
+   "coins": 5,
+   "orders": 17,
+   "stages": 6,
+   "msg": "Ink scrap"
+  },
+  {
+   "t": 583.6,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Ink scrap onto its twin",
+   "energy": 127,
+   "coins": 5,
+   "orders": 17,
+   "stages": 6,
+   "msg": "Route fold"
+  },
+  {
+   "t": 586,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Route fold onto its twin",
+   "energy": 127,
+   "coins": 5,
+   "orders": 17,
+   "stages": 6,
+   "msg": "Sight lens"
+  },
+  {
+   "t": 588,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Survey Kite",
+   "energy": 126,
+   "coins": 5,
+   "orders": 17,
+   "stages": 6,
+   "msg": "Route fold"
+  },
+  {
+   "t": 590,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Survey Kite",
+   "energy": 125,
+   "coins": 5,
+   "orders": 17,
+   "stages": 6,
+   "msg": "Ink scrap"
+  },
+  {
+   "t": 592,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Survey Kite",
+   "energy": 124,
+   "coins": 5,
+   "orders": 17,
+   "stages": 6,
+   "msg": "Ink scrap"
+  },
+  {
+   "t": 594.4,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Ink scrap onto its twin",
+   "energy": 124,
+   "coins": 5,
+   "orders": 17,
+   "stages": 6,
+   "msg": "Route fold"
+  },
+  {
+   "t": 596.8,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Route fold onto its twin",
+   "energy": 124,
+   "coins": 5,
+   "orders": 17,
+   "stages": 6,
+   "msg": "Sight lens"
+  },
+  {
+   "t": 599.2,
+   "e": "merge",
+   "src": "hint",
+   "ok": true,
+   "line": "Drag a Sight lens onto its twin",
+   "energy": 124,
+   "coins": 5,
+   "orders": 17,
+   "stages": 6,
+   "msg": "Survey scope"
+  },
+  {
+   "t": 601.3,
+   "e": "produce",
+   "src": "hint",
+   "ok": true,
+   "line": "Tap the Rivet Rover",
+   "energy": 123,
+   "coins": 5,
+   "orders": 17,
+   "stages": 6,
+   "msg": "Grip tool"
+  }
+ ],
+ "snaps": [
+  {
+   "t": 5,
+   "energy": 99,
+   "coins": 0,
+   "level": 1,
+   "orders": 0,
+   "merges": 0,
+   "stages": 0,
+   "free": 3,
+   "items": 1,
+   "cargo": 27,
+   "glass": 17,
+   "gens": "rig1"
+  },
+  {
+   "t": 31,
+   "energy": 109,
+   "coins": 10,
+   "level": 1,
+   "orders": 1,
+   "merges": 3,
+   "stages": 0,
+   "free": 1,
+   "items": 3,
+   "cargo": 27,
+   "glass": 17,
+   "gens": "rig1"
+  },
+  {
+   "t": 60.7,
+   "energy": 109,
+   "coins": 10,
+   "level": 2,
+   "orders": 1,
+   "merges": 11,
+   "stages": 0,
+   "free": 4,
+   "items": 5,
+   "cargo": 27,
+   "glass": 12,
+   "gens": "rig1"
+  },
+  {
+   "t": 91.3,
+   "energy": 124,
+   "coins": 40,
+   "level": 2,
+   "orders": 2,
+   "merges": 14,
+   "stages": 1,
+   "free": 4,
+   "items": 4,
+   "cargo": 27,
+   "glass": 12,
+   "gens": "rig1"
+  },
+  {
+   "t": 152.3,
+   "energy": 132,
+   "coins": 80,
+   "level": 3,
+   "orders": 3,
+   "merges": 19,
+   "stages": 1,
+   "free": 7,
+   "items": 1,
+   "cargo": 27,
+   "glass": 12,
+   "gens": "rig1"
+  },
+  {
+   "t": 161,
+   "energy": 142,
+   "coins": 10,
+   "level": 3,
+   "orders": 3,
+   "merges": 19,
+   "stages": 2,
+   "free": 6,
+   "items": 1,
+   "cargo": 27,
+   "glass": 12,
+   "gens": "rig1,rig1"
+  },
+  {
+   "t": 180.3,
+   "energy": 136,
+   "coins": 10,
+   "level": 3,
+   "orders": 3,
+   "merges": 21,
+   "stages": 2,
+   "free": 2,
+   "items": 6,
+   "cargo": 27,
+   "glass": 12,
+   "gens": "rig2"
+  },
+  {
+   "t": 210,
+   "energy": 130,
+   "coins": 65,
+   "level": 3,
+   "orders": 6,
+   "merges": 24,
+   "stages": 2,
+   "free": 4,
+   "items": 5,
+   "cargo": 27,
+   "glass": 11,
+   "gens": "rig2"
+  },
+  {
+   "t": 240.2,
+   "energy": 130,
+   "coins": 110,
+   "level": 4,
+   "orders": 7,
+   "merges": 31,
+   "stages": 2,
+   "free": 8,
+   "items": 1,
+   "cargo": 27,
+   "glass": 11,
+   "gens": "rig2"
+  },
+  {
+   "t": 272.3,
+   "energy": 141,
+   "coins": 45,
+   "level": 4,
+   "orders": 7,
+   "merges": 33,
+   "stages": 3,
+   "free": 4,
+   "items": 6,
+   "cargo": 26,
+   "glass": 11,
+   "gens": "rig2"
+  },
+  {
+   "t": 305.5,
+   "energy": 153,
+   "coins": 5,
+   "level": 5,
+   "orders": 9,
+   "merges": 38,
+   "stages": 4,
+   "free": 7,
+   "items": 2,
+   "cargo": 26,
+   "glass": 11,
+   "gens": "rig1,rig2"
+  },
+  {
+   "t": 331.5,
+   "energy": 147,
+   "coins": 15,
+   "level": 5,
+   "orders": 10,
+   "merges": 42,
+   "stages": 4,
+   "free": 5,
+   "items": 4,
+   "cargo": 26,
+   "glass": 11,
+   "gens": "rig1,rig2"
+  },
+  {
+   "t": 360.1,
+   "energy": 140,
+   "coins": 15,
+   "level": 5,
+   "orders": 10,
+   "merges": 48,
+   "stages": 4,
+   "free": 4,
+   "items": 5,
+   "cargo": 26,
+   "glass": 11,
+   "gens": "rig1,rig2"
+  },
+  {
+   "t": 390.9,
+   "energy": 133,
+   "coins": 15,
+   "level": 5,
+   "orders": 10,
+   "merges": 55,
+   "stages": 4,
+   "free": 4,
+   "items": 5,
+   "cargo": 26,
+   "glass": 11,
+   "gens": "rig1,rig2"
+  },
+  {
+   "t": 421.7,
+   "energy": 126,
+   "coins": 15,
+   "level": 5,
+   "orders": 10,
+   "merges": 62,
+   "stages": 4,
+   "free": 4,
+   "items": 5,
+   "cargo": 26,
+   "glass": 11,
+   "gens": "rig1,rig2"
+  },
+  {
+   "t": 451.8,
+   "energy": 135,
+   "coins": 90,
+   "level": 6,
+   "orders": 12,
+   "merges": 67,
+   "stages": 4,
+   "free": 7,
+   "items": 2,
+   "cargo": 26,
+   "glass": 10,
+   "gens": "rig1,rig2"
+  },
+  {
+   "t": 480.1,
+   "energy": 132,
+   "coins": 0,
+   "level": 6,
+   "orders": 13,
+   "merges": 69,
+   "stages": 5,
+   "free": 7,
+   "items": 4,
+   "cargo": 26,
+   "glass": 8,
+   "gens": "rig3,chart1"
+  },
+  {
+   "t": 510.5,
+   "energy": 124,
+   "coins": 0,
+   "level": 6,
+   "orders": 13,
+   "merges": 75,
+   "stages": 5,
+   "free": 4,
+   "items": 7,
+   "cargo": 26,
+   "glass": 8,
+   "gens": "rig3,chart1"
+  },
+  {
+   "t": 540.6,
+   "energy": 116,
+   "coins": 35,
+   "level": 6,
+   "orders": 14,
+   "merges": 79,
+   "stages": 5,
+   "free": 5,
+   "items": 7,
+   "cargo": 26,
+   "glass": 8,
+   "gens": "rig3,chart1"
+  },
+  {
+   "t": 572.8,
+   "energy": 130,
+   "coins": 5,
+   "level": 7,
+   "orders": 17,
+   "merges": 83,
+   "stages": 6,
+   "free": 9,
+   "items": 2,
+   "cargo": 26,
+   "glass": 8,
+   "gens": "rig3,chart1"
+  }
+ ],
+ "hints": [
+  {
+   "t": 0.9,
+   "h": "Tap the Rivet Rover Makes a Copper offcut for Ivo's Split spanner."
+  },
+  {
+   "t": 7.1,
+   "h": "Drag a Copper offcut onto its twin Two make a Grip tool, for Ivo's Split spanner."
+  },
+  {
+   "t": 11.7,
+   "h": "Tap the Rivet Rover Makes a Copper offcut for Ivo's Split spanner."
+  },
+  {
+   "t": 13.8,
+   "h": "Tap the Rivet Rover"
+  },
+  {
+   "t": 15.8,
+   "h": "Drag a Grip tool onto its twin Two make a Split spanner, for Ivo's Split spanner."
+  },
+  {
+   "t": 18.3,
+   "h": "Tap Ivo's order +10 coins."
+  },
+  {
+   "t": 24.5,
+   "h": "+10 coins from Ivo's order: crew orders pay coins."
+  },
+  {
+   "t": 26.9,
+   "h": "Tap the Rivet Rover"
+  },
+  {
+   "t": 31,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 33.4,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 35.8,
+   "h": "Tap the Rivet Rover"
+  },
+  {
+   "t": 37.8,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 40.2,
+   "h": "Drag a Split spanner onto its twin"
+  },
+  {
+   "t": 42.6,
+   "h": "Tap the Rivet Rover"
+  },
+  {
+   "t": 44.7,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 47.1,
+   "h": "Tap the Rivet Rover"
+  },
+  {
+   "t": 51.2,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 53.7,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 56.2,
+   "h": "Tap the Rivet Rover"
+  },
+  {
+   "t": 58.3,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 60.8,
+   "h": "Tap the gold order +70 coins and materials: Clear the landing path."
+  },
+  {
+   "t": 73.9,
+   "h": "Tap the Rivet Rover Makes a Copper offcut for the gold order's Pocket winch."
+  },
+  {
+   "t": 76,
+   "h": "Drag a Copper offcut onto its twin Two make a Grip tool, for the gold order's Pocket winch."
+  },
+  {
+   "t": 78.4,
+   "h": "Tap the Rivet Rover Makes a Copper offcut for the gold order's Pocket winch."
+  },
+  {
+   "t": 82.4,
+   "h": "Drag a Copper offcut onto its twin Two make a Grip tool, for the gold order's Pocket winch."
+  },
+  {
+   "t": 84.8,
+   "h": "Drag a Grip tool onto its twin Two make a Split spanner, for the gold order's Pocket winch."
+  },
+  {
+   "t": 87.2,
+   "h": "Tap the Rivet Rover Makes a Copper offcut for the gold order's Pocket winch."
+  },
+  {
+   "t": 93.4,
+   "h": "Drag a Copper offcut onto its twin Two make a Grip tool, for the gold order's Pocket winch."
+  },
+  {
+   "t": 95.9,
+   "h": "Drag a Grip tool onto its twin Two make a Split spanner, for the gold order's Pocket winch."
+  },
+  {
+   "t": 98.4,
+   "h": "Drag a Split spanner onto its twin Two make a Pocket winch, for the gold order's Pocket winch."
+  },
+  {
+   "t": 100.8,
+   "h": "Tap the Rivet Rover Makes a Copper offcut for the gold order's Grip tool."
+  },
+  {
+   "t": 106.9,
+   "h": "Drag a Copper offcut onto its twin Two make a Grip tool, for the gold order's Grip tool."
+  },
+  {
+   "t": 109.3,
+   "h": "Tap the Rivet Rover Makes a Copper offcut for the gold order's Grip tool."
+  },
+  {
+   "t": 113.5,
+   "h": "Drag a Copper offcut onto its twin Two make a Grip tool, for the gold order's Grip tool."
+  },
+  {
+   "t": 115.8,
+   "h": "Tap the Rivet Rover Makes a Copper offcut for the gold order's Grip tool."
+  },
+  {
+   "t": 117.9,
+   "h": "Tap the gold order +40 coins and materials: Lay a boardwalk."
+  },
+  {
+   "t": 152.3,
+   "h": "Upgrade Landing Beach: Lay a boardwalk"
+  },
+  {
+   "t": 161.1,
+   "h": "Two Rivet Rovers: drag one onto the other for a stronger Rivet Rover."
+  },
+  {
+   "t": 163.4,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 167.5,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 169.9,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 171.9,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 174.2,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 180.4,
+   "h": "✓ Deliver · +20 coins"
+  },
+  {
+   "t": 184.5,
+   "h": "✓ Deliver · +10 coins"
+  },
+  {
+   "t": 186.5,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 188.9,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 191,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 193.3,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 195.4,
+   "h": "✓ Deliver · +25 coins"
+  },
+  {
+   "t": 199.5,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 201.5,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 203.9,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 210,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 212.7,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 215.2,
+   "h": "Drag a Split spanner onto its twin"
+  },
+  {
+   "t": 217.7,
+   "h": "✓ Deliver · +25 coins"
+  },
+  {
+   "t": 238.1,
+   "h": "✓ Deliver · +45 coins"
+  },
+  {
+   "t": 248.9,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 253,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 255.4,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 259.5,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 261.9,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 263.9,
+   "h": "Drag a Split spanner onto its twin"
+  },
+  {
+   "t": 272.3,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 274.4,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 276.4,
+   "h": "Drag a Bolt onto its twin"
+  },
+  {
+   "t": 278.7,
+   "h": "✓ Deliver · +35 coins"
+  },
+  {
+   "t": 283.1,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 285.5,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 289.5,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 291.9,
+   "h": "Drag a Split spanner onto its twin"
+  },
+  {
+   "t": 294.3,
+   "h": "✓ Deliver · +25 coins"
+  },
+  {
+   "t": 305.5,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 307.6,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 310,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 312,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 314.4,
+   "h": "✓ Deliver · +10 coins"
+  },
+  {
+   "t": 318.5,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 320.5,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 323,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 327.1,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 329.5,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 331.5,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 333.9,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 337.9,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 340.3,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 342.7,
+   "h": "Drag a Split spanner onto its twin"
+  },
+  {
+   "t": 345.1,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 351.2,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 353.6,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 356,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 362.2,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 364.6,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 366.9,
+   "h": "Drag a Split spanner onto its twin"
+  },
+  {
+   "t": 369.3,
+   "h": "Drag a Pocket winch onto its twin"
+  },
+  {
+   "t": 371.6,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 375.7,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 378,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 380.1,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 382.4,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 386.5,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 388.8,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 392.9,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 395.3,
+   "h": "Drag a Split spanner onto its twin"
+  },
+  {
+   "t": 397.6,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 399.7,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 402,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 406.1,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 408.5,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 410.8,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 417,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 419.3,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 421.8,
+   "h": "Drag a Split spanner onto its twin"
+  },
+  {
+   "t": 424.1,
+   "h": "✓ Deliver · +35 coins"
+  },
+  {
+   "t": 428.2,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 432.2,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 434.6,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 437,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 441,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 443.4,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 445.4,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 447.7,
+   "h": "✓ Deliver · +40 coins"
+  },
+  {
+   "t": 451.8,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 453.8,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 456.2,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 460.3,
+   "h": "✓ Deliver · +10 coins"
+  },
+  {
+   "t": 470.9,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 477.7,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 480.1,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 482.4,
+   "h": "Drag a Split spanner onto its twin"
+  },
+  {
+   "t": 484.7,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 492.9,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 495.2,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 497.6,
+   "h": "Drag a Split spanner onto its twin"
+  },
+  {
+   "t": 500,
+   "h": "Drag a Pocket winch onto its twin"
+  },
+  {
+   "t": 502.3,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 510.5,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 512.8,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 515.2,
+   "h": "Tap Rivet Rover for a Copper offcut"
+  },
+  {
+   "t": 521.3,
+   "h": "Drag a Bolt onto its twin"
+  },
+  {
+   "t": 523.7,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 526.1,
+   "h": "✓ Deliver · +35 coins"
+  },
+  {
+   "t": 530.1,
+   "h": "Drag a Copper offcut onto its twin"
+  },
+  {
+   "t": 532.5,
+   "h": "Drag a Bolt onto its twin"
+  },
+  {
+   "t": 534.5,
+   "h": "Drag a Grip tool onto its twin"
+  },
+  {
+   "t": 542.9,
+   "h": "✓ Deliver · +20 coins"
+  },
+  {
+   "t": 547,
+   "h": "Drag a Bolt onto its twin"
+  },
+  {
+   "t": 549,
+   "h": "Drag a Ink scrap onto its twin"
+  },
+  {
+   "t": 551.4,
+   "h": "Drag a Bolt onto its twin"
+  },
+  {
+   "t": 555.5,
+   "h": "Drag a Route fold onto its twin"
+  },
+  {
+   "t": 557.8,
+   "h": "✓ Deliver · +10 coins"
+  },
+  {
+   "t": 562.2,
+   "h": "✓ Deliver · +40 coins"
+  },
+  {
+   "t": 572.8,
+   "h": "Tap Survey Kite for a Ink scrap"
+  },
+  {
+   "t": 574.9,
+   "h": "Drag a Ink scrap onto its twin"
+  },
+  {
+   "t": 577.2,
+   "h": "Tap Survey Kite for a Ink scrap"
+  },
+  {
+   "t": 581.3,
+   "h": "Drag a Ink scrap onto its twin"
+  },
+  {
+   "t": 583.6,
+   "h": "Drag a Route fold onto its twin"
+  },
+  {
+   "t": 586,
+   "h": "Tap Survey Kite for a Ink scrap"
+  },
+  {
+   "t": 592,
+   "h": "Drag a Ink scrap onto its twin"
+  },
+  {
+   "t": 594.4,
+   "h": "Drag a Route fold onto its twin"
+  },
+  {
+   "t": 596.8,
+   "h": "Drag a Sight lens onto its twin"
+  },
+  {
+   "t": 599.2,
+   "h": "✓ Deliver · +30 coins"
+  }
+ ],
+ "dialogs": [
+  {
+   "t": 11.8,
+   "id": "moment",
+   "text": "Tideglass cracked · 1 of 3 2 more merges beside it free the part inside. Any merge counts."
+  },
+  {
+   "t": 17.8,
+   "id": "moment",
+   "text": "New: Split spanner Next: Pocket winch · in the book: +2 coins"
+  },
+  {
+   "t": 21.9,
+   "id": "energyNote",
+   "text": "First crew order · +15 energy"
+  },
+  {
+   "t": 42.1,
+   "id": "moment",
+   "text": "New: Pocket winch Next: Crawler jack · in the book: +3 coins"
+  },
+  {
+   "t": 53.6,
+   "id": "moment",
+   "text": "Level 2! +5 ϟ for the level. Level 3: Triple merge."
+  },
+  {
+   "t": 63.4,
+   "id": "moment",
+   "text": "Materials secured · +70 coins The gold order paid 70 coins and brought the materials for Clear the landing path. Build · 40 coins: tap the strip under the orders."
+  },
+  {
+   "t": 66.6,
+   "id": "coastMap",
+   "text": "× Landing Beach 80 BEACH SURVEY VAULT OBSERVATORY HARBOUR LIGHT REEF STATION ▲ 0 / 21 stages Tap Build · Clear the landing path: 40 coins, the place changes. STAGE 1 NEW PLACE Clea"
+  },
+  {
+   "t": 68,
+   "id": "energyNote",
+   "text": "First stage · +20 energy"
+  },
+  {
+   "t": 69.4,
+   "id": "restoredCard",
+   "text": "LANDING BEACH · STAGE 1 OF 3 Clear the landing path −40 coins Ivo: “A path from the boats to dry ground. Now the crew can carry real loads.” Ivo: “Somebody left a driftwood crate o"
+  },
+  {
+   "t": 119.8,
+   "id": "moment",
+   "text": "Level 3! · New: Triple merge Drag a level 3 or bigger part onto its twin while a third one touches it: all three make two of the next level. +5 ϟ for the level. Energy capacity is "
+  },
+  {
+   "t": 120.2,
+   "id": "daily",
+   "text": "× Daily gift A gift from the crew for coming back. One each day; a missed day does not reset the row. Day 1 ϟ +10 ϟ Day 2 +25 Day 3 Crate Day 4 ϟ +15 ϟ Day 5 Token Day 6 +50 Day 7 "
+  },
+  {
+   "t": 120.4,
+   "id": "moment",
+   "text": "Materials secured · +40 coins The gold order paid 40 coins and brought the materials for Lay a boardwalk. Build · 70 coins: tap the strip under the orders."
+  },
+  {
+   "t": 121.7,
+   "id": "energyNote",
+   "text": "Energy capacity 50 → 60 · +10 energy"
+  },
+  {
+   "t": 155.2,
+   "id": "energyNote",
+   "text": "Restoration 2 · +10 energy"
+  },
+  {
+   "t": 156.5,
+   "id": "restoredCard",
+   "text": "LANDING BEACH · STAGE 2 OF 3 Lay a boardwalk −70 coins Ivo: “Planks over the sand. The carts stop sinking.” Ivo: “A Rivet Rover was buried under the old planks! Merge it with yours"
+  },
+  {
+   "t": 163,
+   "id": "moment",
+   "text": "Rivet Rover extras unlocked A level 2+ Rivet Rover now sometimes adds a rare Bolt to a tap, at no extra energy. Your first Bolt is on the board (or waits for space), and the next n"
+  },
+  {
+   "t": 215,
+   "id": "moment",
+   "text": "Level 4! +5 ϟ for the level. Level 5: Tide tokens from the crew."
+  },
+  {
+   "t": 240.6,
+   "id": "moment",
+   "text": "Materials secured · +45 coins The gold order paid 45 coins and brought the materials for Pitch the camp tent. Build · 80 coins: tap the strip under the orders."
+  },
+  {
+   "t": 243,
+   "id": "energyNote",
+   "text": "Restoration 3 · +10 energy"
+  },
+  {
+   "t": 244.3,
+   "id": "restoredCard",
+   "text": "LANDING BEACH · STAGE 1 OF 3 Pitch the camp tent −80 coins Neri: “Dry blankets and hot tea. Everyone works faster after a rest.” Ivo: “+8 energy for the crew.” +8 energy restoratio"
+  },
+  {
+   "t": 281.2,
+   "id": "moment",
+   "text": "Materials secured · +35 coins The gold order paid 35 coins and brought the materials for Line the path with lanterns. 20 more coins to build it: deliver crew orders."
+  },
+  {
+   "t": 299.4,
+   "id": "moment",
+   "text": "Level 5! · New: Tide tokens from the crew Every eighth crew order also pays a Tide token. +5 ϟ for the level. Energy capacity is now 70."
+  },
+  {
+   "t": 300.6,
+   "id": "restoredCard",
+   "text": "LANDING BEACH · STAGE 3 OF 3 Line the path with lanterns −100 coins Neri: “Geared lanterns all the way to the boats. They wind themselves at dusk, and night shifts are safe now.” I"
+  },
+  {
+   "t": 301.2,
+   "id": "energyNote",
+   "text": "Energy capacity 60 → 70 · +10 energy"
+  },
+  {
+   "t": 371.2,
+   "id": "moment",
+   "text": "New: Crawler jack Next: Bridge rig · in the book: +5 coins"
+  },
+  {
+   "t": 426.7,
+   "id": "moment",
+   "text": "Materials secured · +35 coins The gold order paid 35 coins and brought the materials for Add bunks and a stove. 50 more coins to build it: deliver crew orders."
+  },
+  {
+   "t": 449.7,
+   "id": "moment",
+   "text": "Level 6! +15 ϟ for the level. Level 8: Crew favours."
+  },
+  {
+   "t": 466.4,
+   "id": "restoredCard",
+   "text": "LANDING BEACH · STAGE 2 OF 3 Add bunks and a stove −100 coins Neri: “Bunks and a stove. Nobody sleeps on wet sand any more.” Ivo: “Under the old bunks: a rusted Rivet Rover. A litt"
+  },
+  {
+   "t": 472.8,
+   "id": "moment",
+   "text": "Rivet Rover · level 2 Every third part comes out one tier higher. Level 3 brings out the Survey Kite."
+  },
+  {
+   "t": 475.1,
+   "id": "moment",
+   "text": "Rivet Rover · level 3 Every second part comes out one tier higher."
+  },
+  {
+   "t": 476,
+   "id": "moment",
+   "text": "New generator: Survey Kite! Ink scrap → Route fold → Sight lens → Survey scope → Bearing dial → Star chart → Horizon model → Sky atlas"
+  },
+  {
+   "t": 528.6,
+   "id": "moment",
+   "text": "Materials secured · +35 coins The gold order paid 35 coins and brought the materials for Raise the signal mast. 65 more coins to build it: deliver crew orders."
+  },
+  {
+   "t": 557.3,
+   "id": "moment",
+   "text": "New: Sight lens Next: Survey scope · in the book: +2 coins"
+  },
+  {
+   "t": 562.1,
+   "id": "moment",
+   "text": "Level 7! +15 ϟ for the level. Level 8: Crew favours."
+  },
+  {
+   "t": 568.4,
+   "id": "restoredCard",
+   "text": "LANDING BEACH · STAGE 1 OF 3 Raise the signal mast −100 coins Neri: “The mast is up. Camps along the reach can see our signal.” Bram: “More crews will send orders now: a fourth ord"
+  },
+  {
+   "t": 598.7,
+   "id": "moment",
+   "text": "New: Survey scope Next: Bearing dial · in the book: +3 coins"
+  }
+ ],
+ "cg": [
+  [
+   "init",
+   200.09999999962747
+  ],
+  [
+   "loadingStart",
+   238.59999999962747
+  ],
+  [
+   "loadingStop",
+   238.59999999962747
+  ],
+  [
+   "gameplayStart",
+   292.09999999962747
+  ]
+ ],
+ "errors": [],
+ "final": {
+  "version": 5,
+  "board": [
+   {
+    "type": "glass",
+    "family": "chart",
+    "tier": 3
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "chart",
+     "tier": 5
+    },
+    "find": {
+     "type": "kit",
+     "family": "chart",
+     "size": 3,
+     "left": 6
+    }
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "rope",
+     "tier": 3
+    },
+    "find": {
+     "type": "jar",
+     "energy": 5
+    }
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "chart",
+     "tier": 4
+    },
+    "find": {
+     "type": "coins",
+     "n": 50
+    }
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "rope",
+     "tier": 4
+    },
+    "find": {
+     "type": "kit",
+     "family": "chart",
+     "size": 2,
+     "left": 5
+    }
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "chart",
+     "tier": 4
+    },
+    "find": {
+     "type": "token"
+    }
+   },
+   {
+    "type": "glass",
+    "family": "shell",
+    "tier": 1
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "rig",
+     "tier": 4
+    },
+    "find": {
+     "type": "token"
+    }
+   },
+   {
+    "type": "item",
+    "family": "rig",
+    "tier": 1
+   },
+   {
+    "type": "source",
+    "id": "rig",
+    "level": 3
+   },
+   null,
+   {
+    "type": "cargo",
+    "key": {
+     "family": "chart",
+     "tier": 5
+    },
+    "find": {
+     "type": "kit",
+     "family": "chart",
+     "size": 3,
+     "left": 6
+    }
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "chart",
+     "tier": 4
+    },
+    "find": {
+     "type": "coins",
+     "n": 60
+    }
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "rig",
+     "tier": 3
+    },
+    "find": {
+     "type": "kit",
+     "family": "rig",
+     "size": 1,
+     "left": 3
+    }
+   },
+   {
+    "type": "source",
+    "id": "chart"
+   },
+   {
+    "type": "kit",
+    "family": "rig",
+    "size": 1,
+    "left": 3
+   },
+   null,
+   {
+    "type": "cargo",
+    "key": {
+     "family": "rig",
+     "tier": 5
+    },
+    "find": {
+     "type": "coins",
+     "n": 60
+    }
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "rope",
+     "tier": 3
+    },
+    "find": {
+     "type": "kit",
+     "family": "rig",
+     "size": 2,
+     "left": 5
+    }
+   },
+   null,
+   {
+    "type": "item",
+    "family": "rig",
+    "tier": 2
+   },
+   {
+    "type": "token"
+   },
+   null,
+   null,
+   {
+    "type": "cargo",
+    "key": {
+     "family": "chart",
+     "tier": 5
+    },
+    "find": {
+     "type": "token"
+    }
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "chart",
+     "tier": 3
+    },
+    "find": {
+     "type": "coins",
+     "n": 20
+    }
+   },
+   {
+    "type": "item",
+    "family": "chart",
+    "tier": 3
+   },
+   null,
+   null,
+   {
+    "type": "cargo",
+    "key": {
+     "family": "chart",
+     "tier": 3
+    },
+    "find": {
+     "type": "item",
+     "family": "chart",
+     "tier": 3
+    }
+   },
+   {
+    "type": "glass",
+    "family": "rope",
+    "tier": 1
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "rope",
+     "tier": 5
+    },
+    "find": {
+     "type": "token"
+    }
+   },
+   null,
+   {
+    "type": "cargo",
+    "key": {
+     "family": "rig",
+     "tier": 3
+    },
+    "find": {
+     "type": "jar",
+     "energy": 5
+    }
+   },
+   {
+    "type": "glass",
+    "family": "rope",
+    "tier": 1,
+    "cracks": 2
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "chart",
+     "tier": 3
+    },
+    "find": {
+     "type": "kit",
+     "family": "chart",
+     "size": 1,
+     "left": 3
+    }
+   },
+   {
+    "type": "glass",
+    "family": "shell",
+    "tier": 2
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "rope",
+     "tier": 3
+    },
+    "find": {
+     "type": "coins",
+     "n": 30
+    }
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "chart",
+     "tier": 3
+    },
+    "find": {
+     "type": "item",
+     "family": "rope",
+     "tier": 2
+    }
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "rope",
+     "tier": 5
+    },
+    "find": {
+     "type": "coins",
+     "n": 80
+    }
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "chart",
+     "tier": 5
+    },
+    "find": {
+     "type": "kit",
+     "family": "rope",
+     "size": 3,
+     "left": 6
+    }
+   },
+   {
+    "type": "glass",
+    "family": "lamp",
+    "tier": 2
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "rope",
+     "tier": 4
+    },
+    "find": {
+     "type": "coins",
+     "n": 80
+    }
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "rope",
+     "tier": 5
+    },
+    "find": {
+     "type": "kit",
+     "family": "rig",
+     "size": 3,
+     "left": 6
+    }
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "chart",
+     "tier": 3
+    },
+    "find": {
+     "type": "kit",
+     "family": "rope",
+     "size": 1,
+     "left": 3
+    }
+   },
+   {
+    "type": "glass",
+    "family": "rope",
+    "tier": 3
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "rope",
+     "tier": 4
+    },
+    "find": {
+     "type": "coins",
+     "n": 50
+    }
+   },
+   {
+    "type": "cargo",
+    "key": {
+     "family": "chart",
+     "tier": 3
+    },
+    "find": {
+     "type": "kit",
+     "family": "chart",
+     "size": 1,
+     "left": 3
+    }
+   },
+   {
+    "type": "glass",
+    "family": "lamp",
+    "tier": 1
+   }
+  ],
+  "energy": 123,
+  "energyAt": 1794677909682,
+  "coins": 5,
+  "level": {
+   "version": 1,
+   "level": 7,
+   "xp": 22
+  },
+  "taps": {
+   "rig": 110,
+   "chart": 10,
+   "rope": 0,
+   "shell": 0,
+   "lamp": 0,
+   "flux": 0,
+   "optic": 0
+  },
+  "orders": [
+   {
+    "id": "o17",
+    "who": "bram",
+    "needs": [
+     {
+      "family": "chart",
+      "tier": 3,
+      "count": 1
+     },
+     {
+      "family": "rig",
+      "tier": 4,
+      "count": 1
+     }
+    ],
+    "coins": 40,
+    "story": "beach-tent"
+   },
+   {
+    "id": "o19",
+    "who": "bram",
+    "needs": [
+     {
+      "family": "rig",
+      "tier": 3,
+      "count": 1
+     },
+     {
+      "family": "chart",
+      "tier": 2,
+      "count": 1
+     }
+    ],
+    "coins": 65,
+    "role": "pair",
+    "born": 226
+   },
+   {
+    "id": "o20",
+    "who": "ivo",
+    "needs": [
+     {
+      "family": "mech",
+      "tier": 1,
+      "count": 1
+     }
+    ],
+    "coins": 40,
+    "role": "quick",
+    "born": 228
+   },
+   {
+    "id": "o21",
+    "who": "neri",
+    "needs": [
+     {
+      "family": "chart",
+      "tier": 3,
+      "count": 1
+     }
+    ],
+    "coins": 30,
+    "role": "quick",
+    "born": 229
+   }
+  ],
+  "slots": 4,
+  "orderSeq": 22,
+  "ordersDone": 17,
+  "area": 0,
+  "built": {
+   "beach-path": 3,
+   "beach-tent": 2,
+   "beach-mast": 1
+  },
+  "found": [
+   "rig0",
+   "rig1",
+   "rig2",
+   "chart1",
+   "rig3",
+   "mech0",
+   "mech1",
+   "rig4",
+   "chart0",
+   "chart2",
+   "chart3"
+  ],
+  "moves": 243,
+  "merges": 89,
+  "lastAt": 1794678510248,
+  "shed": [
+   null,
+   null,
+   null,
+   null
+  ],
+  "pending": [],
+  "seen": {
+   "coach-on": true,
+   "tip-ice": true,
+   "coach-done": true,
+   "coach-next": true,
+   "tip-genmerge": true,
+   "extras-rig": true
+  },
+  "daily": {
+   "day": -1,
+   "count": 0
+  },
+  "book": {
+   "claimed": [],
+   "pages": []
+  },
+  "shop": {
+   "day": -1,
+   "bought": {}
+  },
+  "swaps": {
+   "day": -1,
+   "n": 0,
+   "ads": 0
+  },
+  "materials": {
+   "beach-path": 3,
+   "beach-tent": 2,
+   "beach-mast": 1
+  },
+  "secSince": {
+   "rig": 6,
+   "chart": 0
+  },
+  "secTaps": {
+   "rig": 48,
+   "chart": 0
+  },
+  "secOpen": {
+   "rig": true
+  },
+  "secIntro": [],
+  "capPaid": 70,
+  "boost": {
+   "order": true,
+   "stage": true
+  },
+  "energyRewards": {
+   "id": "d2dd5bb2-9990-4e49-b62e-d4fc9c57dcb5",
+   "stages": 3
+  },
+  "recent": [
+   "rig1x2",
+   "rig1x1+rig1x2",
+   "chart2x1",
+   "chart2x1+rig3x1",
+   "mech1x1",
+   "chart3x1"
+  ]
+ }
+}

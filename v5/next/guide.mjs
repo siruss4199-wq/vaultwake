@@ -7,6 +7,8 @@ import {CHAINS,maxTier} from './chains.mjs';
 import {missingOf} from './needs.mjs';
 
 const has=(s,id)=>s.board.some(x=>x?.type==='source'&&x.id===id);
+// "a" or "an" before a part's name (2026-11-14: the Survey Kite's Ink scrap now shows in the first minutes)
+export const an=name=>(/^[aeiou]/i.test(name)?'an ':'a ')+name;
 // Two identical parts, below a wanted tier of a wanted chain when needs are given.
 function pairFor(s,needs=null){
  const b=s.board,items=b.flatMap((x,i)=>x?.type==='item'&&x.tier<maxTier(x.family)?[i]:[]);
@@ -34,7 +36,7 @@ export function primaryAction(s,focus=null){
  if(gen&&free&&s.energy>=1){const rare=extra&&!own.some(r=>CHAINS[r.family].gen===gen)&&CHAINS[extra.family].gen===gen;
   // round 3: only a level 2+ generator makes rare extras, so the hint points at one (else the first)
   const lv2=rare?s.board.findIndex((x,i)=>x?.type==='source'&&x.id===gen&&secondarySource(s,i)):-1,index=lv2>=0?lv2:s.board.findIndex(x=>x?.type==='source'&&x.id===gen);
-  return {kind:'tap',index,id:gen,label:rare?`Tap ${SOURCES[gen].name}: a ${CHAINS[extra.family].names[0]} comes now and then`:`Tap ${SOURCES[gen].name} for a ${CHAINS[gen].names[0]}`};}
+  return {kind:'tap',index,id:gen,label:rare?`Tap ${SOURCES[gen].name}: a ${CHAINS[extra.family].names[0]} comes now and then`:`Tap ${SOURCES[gen].name} for ${an(CHAINS[gen].names[0])}`};}
  // A crate whose key is in hand.
  const key=cargoKeys(s).map(k=>[s.board.findIndex(x=>matches(x,k)),k.index]).find(([i])=>i>=0);
  if(key)return {kind:'unseal',cells:key,label:`Lay the ${nameOf(s.board[key[0]])} on its crate`};

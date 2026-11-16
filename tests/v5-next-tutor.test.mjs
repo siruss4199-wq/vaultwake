@@ -43,17 +43,18 @@ test('fresh camp: one clear first step, the Rivet Rover, full guidance',()=>{
 test('the guided flow reaches the real first restoration: every step valid, in the order of the brief',()=>{
  const s=camp(),seen=[];
  const {kinds}=follow(s,200,(st,coast)=>{checkTarget(s,st,st.kind);seen.push(st);});
- // Generator → Merge → Crew order → Gold order → Coast strip → Build (then the next objective)
+ // Generator → Merge → Crew order → Gold order → Coast strip → Build, and the Build is the end
  const order=['tap','merge','deliver','gold','build','coastBuild'];
  assert.deepEqual(kinds.filter(k=>order.includes(k)),order,`first appearances: ${kinds.join(' → ')}`);
  assert.equal(s.built['beach-path'],1);assert.equal(s.coins,40);assert.equal(s.energy,129);
  assert.equal(s.taps.rig,12,'12 taps (the same as the game\'s own guide)');assert.equal(s.merges,11,'11 merges');assert.equal(s.ordersDone,2);
  // every step says what, where and why, in short text
  for(const st of seen){assert.ok(st.what.length>0&&st.what.length<=40,`short "what": ${st.what}`);assert.ok(st.why.length>0&&st.why.length<=90,`short "why": ${st.why}`);}
- // after the build (the app marks the guided finish: coach-done + coach-next): the next objective is named (light)
- s.seen={...s.seen,'coach-done':true,'coach-next':true};
- const next=tutorStep(s,{now:NOW});assert.ok(['tap','merge'].includes(next.kind));assert.match(next.why,/gold order's Pocket winch/);
- assert.equal(guideLevel(s,next),'light');
+ // Tutorial endpoint (owner, 2026-11-16): the first Build ends it. Nothing is guided after it, whatever the seen
+ // flags say (the app marks coach-done + coach-next): no second restoration, no extra delivery; the Hint still works
+ assert.equal(tutorActive(s),false,'the first Build ends the tutorial');
+ for(const seen of [{},{'coach-on':true},{'coach-on':true,'coach-done':true,'coach-next':true}]){const k={...s,seen};assert.equal(tutorActive(k),false);
+  const next=tutorStep(k,{now:NOW});assert.ok(next,'the Hint still has a step to show');assert.equal(guideLevel(k,next),'quiet','but nothing is guided');}
 });
 
 test('guidance fades as each skill is shown (full → light → quiet)',()=>{
@@ -130,12 +131,20 @@ test('resume: a reloaded camp gets the same step and level at every point of the
   assert.equal(signature(again),signature(st),`same step after a reload: ${st.what}`);assert.equal(guideLevel(r,again),guideLevel(s,st));});
 });
 
-test('skip semantics: seen["coach-done"] (Skip guide) ends the guided span; a guided finish keeps the next objective',()=>{
+test('endpoint and skip: Skip ends the guide; the first Build ends it for good; no camp is ever sent back into it',()=>{
  const s=camp();assert.equal(tutorActive(s),true);s.seen['coach-done']=true;
  assert.equal(tutorActive(s),false);assert.equal(guideLevel(s,tutorStep(s,{now:NOW})),'quiet');
  // skipped, then built later: still no guide
  const k=camp();follow(k);k.seen['coach-done']=true;assert.equal(tutorActive(k),false);
- // finished by the guide: the next objective, until the next delivery after it
- k.seen['coach-next']=true;assert.equal(tutorActive(k),true);
+ // finished by the guide: over (no guided next objective)
+ k.seen['coach-next']=true;assert.equal(tutorActive(k),false);
+ // the gold order delivered, the Build not yet made: still guided, to the strip and the coast's Build, across a reload
+ const g=camp();let at=null;follow(g,200,(st,coast)=>{if(!at&&st.kind==='build'&&!coast)at=structuredClone(g);});
+ assert.ok(at,'reached "Tap Build"');assert.ok(at.materials['beach-path']>=1&&!at.built['beach-path'],'materials in, nothing built');
+ assert.equal(tutorActive(at),true);assert.equal(tutorStep(at,{now:NOW}).kind,'build');
+ const back=load(JSON.stringify(at),NOW);assert.equal(tutorActive(back),true);assert.equal(tutorStep(back,{now:NOW}).kind,'build','a reload resumes at Build');
+ assert.equal(tutorStep(back,{now:NOW,coast:'open'}).kind,'coastBuild');
+ // after the Build, a reload keeps it over
+ const after=load(JSON.stringify(k),NOW);assert.equal(tutorActive(after),false,'complete across a reload');
  const old=camp();old.moves=5;old.seen={};assert.equal(tutorActive(old),false,'a camp from before the guide never gets it');
 });

@@ -15,12 +15,11 @@
 // (a short line only). It drops as the player shows each skill, measured from fields the save already has
 // (s.taps, s.merges, s.ordersDone, s.materials, s.built): no new save data, and a reload resumes at the same
 // level. The Hint button and the 8 s idle reminder raise ONE step to 'full' (the app keeps that, per session).
-import {act,orderItems,nextTask,sourceOpen,SOURCES,totalBuilt,stageOf} from './game.mjs';
-import {primaryAction} from './guide.mjs';
+import {act,orderItems,nextTask,sourceOpen,SOURCES,totalBuilt} from './game.mjs';
+import {primaryAction,an} from './guide.mjs';
 import {missingOf} from './needs.mjs';
 import {coachActive} from './coach.mjs';
 import {CHAINS} from './chains.mjs';
-import {TASKS} from './areas.mjs';
 import {refillTimes,REFILL_EVERY} from './energy.mjs';
 
 const WHO={ivo:'Ivo',bram:'Bram',neri:'Neri',tamsin:'Tamsin'};
@@ -48,22 +47,24 @@ export function tutorStep(s,ctx={}){
  // --- the coast panel (player-opened) ---
  if(coast==='open'){
   const up=nextTask(s),a=up&&{type:'restore',id:up.id};
-  if(a&&valid(s,a,now))return step('coastBuild','coastBuild',`Tap Build`,`${up.name}: ${up.cost} coins, the place changes.`,{kind:'restore',id:up.id},a,'build');
+  if(a&&valid(s,a,now))return step('coastBuild','coastBuild',`Tap Build`,`Spend ${up.cost} coins to rebuild`,{kind:'restore',id:up.id},a,'build');
   return step('close','wait',`Back to the board`,up?`${up.name} needs ${up.cost} coins. Deliver crew orders for coins.`:'Deliver the gold order for the next materials.',{kind:'back'},null,null);
  }
  // --- materials in and coins enough: the coast strip ---
  const up=nextTask(s);
  if(up&&valid(s,{type:'restore',id:up.id},now))
-  return step('build','build',`Tap the coast strip`,`${up.name}: ${up.cost} coins.`,{kind:'strip'},{type:'restore',id:up.id},'build');
+  return step('build','build',`Tap Build`,`Spend ${up.cost} coins to rebuild`,{kind:'strip'},{type:'restore',id:up.id},'build');
  const focus=focusOrder(s);
  // --- a ready order: the focus order first, else another ready one, but only if delivering it takes no
  // part the focus order still counts on (the player may still deliver it: nothing is blocked) ---
  const spares=o=>{if(!focus||o===focus)return true;const c=structuredClone(s);if(!act(c,{type:'deliver',id:o.id},now).ok)return false;
   const have=x=>missingOf(x,focus).reduce((n,r)=>n+r.count-r.have,0);return have(c)<=have(s);};
  const ready=[focus,...s.orders.filter(o=>o&&o!==focus)].find(o=>o&&orderItems(s,o)&&valid(s,{type:'deliver',id:o.id},now)&&spares(o));
- if(ready){const g=!!ready.story,place=TASKS[ready.story]?.stages[stageOf(s,ready.story)]?.name;
-  return step(g?'gold':'deliver',g?'gold':'deliver',g?'Tap the gold order':`Tap ${who(ready)}'s order`,
-   g?`+${ready.coins} coins and materials: ${place??'the next place'}.`:`+${ready.coins} coins.`,{kind:'order',id:ready.id},{type:'deliver',id:ready.id},g?'gold':'deliver',ready);}
+ if(ready){const g=!!ready.story;
+  // Tutorial spotlight (2026-11-16, owner on a real iPhone): the words of the one cue at the card's Deliver button:
+  // the button's own name, then what it gives (read from the order itself)
+  return step(g?'gold':'deliver',g?'gold':'deliver','Tap Deliver',
+   g?`Get ${ready.coins} coins + materials`:`Get ${ready.coins} coins`,{kind:'order',id:ready.id},{type:'deliver',id:ready.id},g?'gold':'deliver',ready);}
  if(!focus)return step('wait','wait','New orders are on the way','Merge parts while you wait.',null,null,null);
  // --- the focus order needs parts nobody can make yet: say so, and work on an order that can be done ---
  let o=focus,note='';
@@ -80,7 +81,7 @@ export function tutorStep(s,ctx={}){
   if(valid(s,act1,now))return step('unseal','unseal',`Drop the ${partName(s.board[a])} on its crate`,`${note}Opens the crate: more room.`,{kind:'pair',cells:[a,b]},act1,'merge',o);}
  if(g.kind==='tap'){const act1={type:'produce',id:g.id,index:g.index};
   const r=missingOf(s,o).find(r=>CHAINS[r.family].gen===g.id);
-  if(valid(s,act1,now))return step('tap','tap',`Tap the ${SOURCES[g.id].name}`,`${note}Makes a ${CHAINS[g.id].names[0]}${r?` for ${tag}`:''}.`,{kind:'cell',index:g.index},act1,'tap',o);}
+  if(valid(s,act1,now))return step('tap','tap',`Tap the ${SOURCES[g.id].name}`,`${note}Makes ${an(CHAINS[g.id].names[0])}${r?` for ${tag}`:''}.`,{kind:'cell',index:g.index},act1,'tap',o);}
  if(g.kind==='space'||!s.board.includes(null))
   return step('space','space','The board is full','Merge twins or deliver to free a space.',null,null,null,o);
  if(g.kind==='energy'||s.energy<1){const t=refillTimes(s,now),sec=t?Math.ceil(t.next/1000):null;
@@ -101,22 +102,19 @@ export function guideLevel(s,st){
  if(!st)return 'quiet';
  // blockers always say why (light: no finger, nothing to point at)
  if(!st.target)return 'light';
- // after the guide's span (the first restoration and the next objective) only Hint and the idle reminder guide
+ // after the guide (it ends with the first restoration) only the voluntary Hint guides
  if(!tutorActive(s))return 'quiet';
  // the coast screen's Build and × are one-off screen steps: shown while the first restoration is new
  if(['coastBuild','close'].includes(st.kind))return totalBuilt(s)<=1?'full':'light';
- const n=skills(s)[st.skill]??0,[full,light]=LEARN[st.skill]??[1,2],lv=n<full?'full':n<light?'light':'quiet';
- // the next objective after the first build is always named once (light), even for a skilled player
- return lv==='quiet'&&!coachActive(s)?'light':lv;
+ const n=skills(s)[st.skill]??0,[full,light]=LEARN[st.skill]??[1,2];
+ return n<full?'full':n<light?'light':'quiet';
 }
-// The guided span: the game's own coach span (until the first restoration) plus the next objective (until
-// the next delivery after it), so the "what next" after the first build is shown too. The existing skip
-// (seen['coach-done']) ends it at once, as in production.
-// 'coach-next' (an existing save field, s.seen) marks a guide finished by its first restoration (the app sets it
-// with coach-done); coach-done alone is Skip guide, which ends everything.
+// The guided span (owner decision, 2026-11-16: docs/V5_TUTORIAL_ENDPOINT_2026-11-16.md): the first loop only.
+// Generator → merge → crew order → coins → gold order → materials → coast → the first Build, and it ends with that
+// Build: no guided second restoration, no extra delivery. It is the game's own coach span (coach.mjs coachActive):
+// a new camp, until its first stage is built (that ends it for good, across reloads, whatever the seen flags say)
+// or Skip (seen['coach-done']). A camp that had played before the guide existed, or any camp with a stage built,
+// never gets it. 'coach-next' (s.seen) still records a guide finished by its first restoration; it no longer
+// extends the guide.
 export const COACH_NEXT='coach-next';
-export function tutorActive(s){
- if(coachActive(s))return true;
- if(s.seen?.['coach-done']&&!s.seen?.[COACH_NEXT])return false;
- return !!s.seen?.[COACH_NEXT]&&totalBuilt(s)===1&&stageOf(s,'beach-path')===1&&(s.ordersDone??0)<=2;
-}
+export const tutorActive=s=>coachActive(s);

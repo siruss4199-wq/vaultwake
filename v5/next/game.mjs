@@ -744,8 +744,15 @@ export function secondaryNeed(s,n,k){
  // another exists (measured: with the fixed gold recipes, single-Gear and single-note jobs repeated in
  // 11 of 58 beach and worksite orders, against 6 before).
  const c=[];
- for(const f of order)for(let t=secondaryReach(s,f);t>=1;t--)if(secondaryDropsIn(free[f],t)===0)c.push({family:f,tier:t,count:1,use:true});
  const goalMax=s.area>=3?SECONDARY_ORDERS.goalLate:SECONDARY_ORDERS.goal;
+ // 2026-11-14 (docs/V5_FIRST_10_MINUTES_2026-11-14.md §4): climb the ladder. A chain whose Level 2 one of the
+ // recent everyday orders already asked is asked its Level 3 next, when that is a goal within the usual allowance
+ // (goalMax drops, one goal at a time, a generator that can drop), before another Level 2 from the parts held.
+ // Before, a Level 3 came up only when the Level 2 happened to be among the last four asks, so it depended on
+ // which other orders came first (the Survey Kite from the camp tent reshuffled them: Level 3 crew asks 16 → 7 a game).
+ const recentAll=Array.isArray(s.recent)?s.recent.slice(-RECENT):[],askedL2=f=>recentAll.some(k=>k.split('+').some(p=>p.startsWith(f+'1x')));
+ for(const f of order)if(canGoal(f)&&secondaryReach(s,f)>=2&&askedL2(f)&&secondaryDropsIn(free[f],2)>0&&secondaryDropsIn(free[f],2)<=goalMax)c.push({family:f,tier:2,count:1});
+ for(const f of order)for(let t=secondaryReach(s,f);t>=1;t--)if(secondaryDropsIn(free[f],t)===0)c.push({family:f,tier:t,count:1,use:true});
  for(const f of order)if(canGoal(f))for(let t=secondaryReach(s,f);t>=1;t--)if(secondaryDropsIn(free[f],t)<=goalMax)c.push({family:f,tier:t,count:1});
 // Build 52A: no Level 1 (tier 0) ask after the chain's introduction (its one Level 1 order, s.secIntro):
  // single Bolts and Ink scraps were asked again and again (51d, scripted player: 26-45 such asks a game).

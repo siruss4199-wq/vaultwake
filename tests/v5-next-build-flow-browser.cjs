@@ -34,7 +34,11 @@ const settle=async page=>{for(let k=0;k<10;k++){await page.waitForTimeout(150);
  const engines=(process.env.ENGINES||'chromium,webkit').split(',').map(e=>[e,{chromium,webkit,firefox}[e]]);
  for(const [engine,type] of engines){
   let browser;try{browser=await type.launch();}catch(e){if(engine!=='chromium'&&/Executable doesn't exist/.test(e.message)){console.log(`${engine}: not installed here, skipped`);continue;}throw e;}
+  // A fresh browser for each size (as in v5-next-first-session-2-browser.cjs): WebKit's page process crashed on the
+  // last size's reload in CI (1db7432, 430×932, after the three sizes before it passed in the same long-lived browser).
+  let runs=0;
   try{for(const [W,H] of SIZES){
+   if(runs++){await browser.close().catch(()=>{});browser=await type.launch();}
    const tag=s=>`${engine} ${W}×${H}: ${s}`;
    const context=await browser.newContext({viewport:{width:W,height:H},isMobile:engine==='chromium',hasTouch:true});
    const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));

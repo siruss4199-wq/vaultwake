@@ -4,7 +4,7 @@ import {blockedStage,isStuck,allDone,swapsLeft,adSwapsLeft,SHOP,shopLeft,BOOK_CO
 import {AREAS,STAGES,TASKS,LABELS} from './areas.mjs';
 import {primaryAction} from './guide.mjs';
 import {coachStep,coachActive,laterTip,nextRareUse,COACH_ON,COACH_DONE,FIRST_PLACE} from './coach.mjs';
-import {tutorStep,guideLevel,tutorActive,signature,skills,COACH_NEXT,focusOrder as tutorFocus} from './tutor.mjs';
+import {tutorStep,guideLevel,tutorActive,signature,skills,COACH_NEXT,focusOrder as tutorFocus,who as tutorWho} from './tutor.mjs';
 import {isNewPlayer} from './newcomer.mjs';
 import {needsOf,missingOf,levelOf} from './needs.mjs';
 import {LEVEL_PATH,BONUS_NAMES,CHEST_ENERGY,EARLY_LEVELS,EARLY_LEVEL_ENERGY,ONBOARDING,goldChase,CAMP} from './game.mjs';
@@ -499,7 +499,7 @@ let guide=null;
 // one short sentence, one highlighted target (a pulse; a drag demonstration for a pair; still with
 // reduced motion). Nothing is blocked: every other control works as before.
 let coach=null,coachNote=null;
-function clearCoach(){for(const el of document.querySelectorAll('.coachTarget,.coachFrom,.coachTo'))el.classList.remove('coachTarget','coachFrom','coachTo');coachHand(null);}
+function clearCoach(){for(const el of document.querySelectorAll('.coachTarget,.coachFrom,.coachTo'))el.classList.remove('coachTarget','coachFrom','coachTo');coachHand(null);coachArrow(null);spotlight(null);}
 // Build 51d (user, 2026-11-02: "guide hesgiig sain tod bolgomoor baina yag end touch hii geed"): a pointing
 // hand and a short label on the guide's target ("Tap here", "Drag onto its twin"). It never takes a tap
 // (pointer-events: none), it sits under any dialog, and with reduced motion it stays still.
@@ -520,24 +520,72 @@ function placeHand(){
  const h=document.getElementById('coachHand');if(!h)return;
  const r=handFor?.isConnected&&!homeOpen&&!document.querySelector('#story:not([hidden])')?handFor.getBoundingClientRect():null;
  if(!r?.width){h.hidden=true;return;}
- // an order card (handLow): the hand points into the card's middle, so it never hangs over the Coast strip below
- h.hidden=false;h.style.left=`${r.left+r.width/2}px`;h.style.top=`${handLow?r.top+r.height*.42:r.top+r.height/2}px`;
+ // Tutorial polish (2026-11-15): on a board cell the small pointer's fingertip touches the cell's lower-right corner,
+ // never the picture; on an order or the Coast strip it anchors on the control to press (Deliver, Build), and that
+ // control's own ring is the cue (no hand drawn over the card or the strip).
+ const cell=handFor.classList.contains('tile'),ctl=cell?null:handFor.querySelector('.reqDeliver,.rsAction'),c=ctl?.getBoundingClientRect();
+ h.hidden=false;h.dataset.on=cell?'cell':'control';
+ h.style.left=`${cell?r.right-5:c?.width?c.left+c.width/2:r.left+r.width/2}px`;h.style.top=`${cell?r.bottom-5:c?.width?c.top+c.height/2:handLow?r.top+r.height*.42:r.top+r.height/2}px`;
  // the label stays on screen near the edges
  const l=h.querySelector('.handLabel'),w=l.offsetWidth,cx=r.left+r.width/2;h.style.setProperty('--lx',`${Math.max(8-cx+w/2,Math.min(0,innerWidth-8-cx-w/2))}px`);
 }
 addEventListener('resize',placeHand);addEventListener('scroll',placeHand,true);
+// Tutorial spotlight (2026-11-16, owner on a real iPhone: everything competed for attention; docs/V5_TUTORIAL_SPOTLIGHT_
+// 2026-11-16.md). While the guide points at something, body[data-spot] (order | strip | pair | cell) lets one CSS block
+// (coastal.css "Tutorial spotlight") quiet everything that is not the target: the HUD, the other orders, the strip,
+// the board's other cells, the shed and the panels fade back; nothing is covered, no tap is caught (opacity only), and
+// it clears the moment the step changes, ends or is skipped. A Deliver or Build step adds ONE cue: a small dark label
+// ("Tap Deliver" / "Get 10 coins") whose tail touches that button, placed over the faded area next to it.
+function spotlight(t,on){
+ const b=document.body;if(!on||!t||!['order','strip','pair','cell'].includes(t.kind)){delete b.dataset.spot;spotCue(null);return;}
+ b.dataset.spot=t.kind;spotCue(['order','strip'].includes(t.kind)&&tutor?.st?{el:t.kind==='order'?$(`[data-order="${t.id}"] .reqDeliver`):$('#mapButton .rsAction'),title:tutor.st.what,sub:tutor.st.why}:null);
+}
+let cueFor=null;
+function spotCue(c){
+ let el=document.getElementById('spotCue');cueFor=c?.el??null;
+ if(!c?.el){if(el)el.hidden=true;return;}
+ if(!el){el=document.createElement('div');el.id='spotCue';el.setAttribute('aria-hidden','true');el.innerHTML='<b></b><small></small><i></i>';document.body.append(el);}
+ el.querySelector('b').textContent=c.title;el.querySelector('small').textContent=c.sub??'';placeCue();
+}
+function placeCue(){
+ const el=document.getElementById('spotCue');if(!el)return;
+ const r=cueFor?.isConnected&&!homeOpen&&!document.querySelector('#story:not([hidden])')&&!document.querySelector('dialog[open]')?cueFor.getBoundingClientRect():null;
+ if(!r?.width){el.hidden=true;return;}
+ el.hidden=false;const w=el.offsetWidth,h=el.offsetHeight,top=(window.visualViewport?.offsetTop??0)+4,above=r.top-10-h>=top;
+ const x=Math.max(8,Math.min(innerWidth-8-w,r.left+r.width/2-w/2));
+ el.dataset.side=above?'above':'below';el.style.left=`${Math.round(x)}px`;el.style.top=`${Math.round(above?r.top-10-h:r.bottom+10)}px`;
+ el.style.setProperty('--tx',`${Math.round(Math.max(14,Math.min(w-14,r.left+r.width/2-x)))}px`);
+}
+addEventListener('resize',placeCue);addEventListener('scroll',placeCue,true);
+// Merge: SOURCE (gold ring) → DESTINATION (green dashed ring). A small dark arrow sits on the line between the two
+// cells (on their shared edge or corner when they touch, else on the source's edge), turned toward the destination,
+// and a light copy of the source part glides to the destination and fades (the drag to make; still with reduced
+// motion: the arrow alone). Neither takes a tap; both live inside the board.
+const ARROW_SVG='<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8h9.5M8.5 3.5 13 8l-4.5 4.5"/></svg>';
+function coachArrow(a,b){
+ for(const e of board.querySelectorAll('.coachArrow,.coachGhost'))e.remove();if(!a||!b)return;
+ const br=board.getBoundingClientRect(),ra=a.getBoundingClientRect(),rb=b.getBoundingClientRect();if(!ra.width||!rb.width)return;
+ const sx=ra.left+ra.width/2,sy=ra.top+ra.height/2,dx=rb.left+rb.width/2-sx,dy=rb.top+rb.height/2-sy,d=Math.hypot(dx,dy)||1,pitch=Math.abs(rb.left-ra.left)||Math.abs(rb.top-ra.top)||ra.width;
+ const near=d<=Math.max(ra.width,pitch)*1.5,k=ra.width/2+1,px=near?sx+dx/2:sx+dx/d*k,py=near?sy+dy/2:sy+dy/d*k,ox=br.left+board.clientLeft,oy=br.top+board.clientTop;
+ const el=document.createElement('i');el.className='coachArrow';el.setAttribute('aria-hidden','true');el.innerHTML=ARROW_SVG;
+ el.style.left=`${px-ox}px`;el.style.top=`${py-oy}px`;el.style.setProperty('--a',`${Math.atan2(dy,dx)*180/Math.PI}deg`);board.append(el);
+ const art=a.querySelector(':scope>img.art,:scope>svg.art,:scope>.art');if(!art||reduced())return;
+ const g=document.createElement('span');g.className='coachGhost';g.setAttribute('aria-hidden','true');g.append(art.cloneNode(true));
+ g.style.cssText=`left:${sx-ox}px;top:${sy-oy}px;width:${ra.width}px;height:${ra.height}px;--gx:${dx}px;--gy:${dy}px`;board.append(g);
+}
 // First Session 2.0 (Adaptive tutorial 2.0, tutor.mjs): the same line and targets, one actionable step at a
 // time: what (bold), why (one short line), where (gold = the next action, green = the matching pair, the hand
 // only while that skill is new, after Hint or after an idle reminder). Every target is accepted by act().
-function showCoachTarget(t,{hand=true}={}){
+function showCoachTarget(t,{hand=true,spot=false}={}){
  clearCoach();if(!t)return;
  if(t.kind==='cell'){const el=board.querySelector(`[data-index="${t.index}"]`);el?.classList.add('coachTarget');if(hand)coachHand(el,'Tap here');}
  else if(t.kind==='pair'){const a=board.querySelector(`[data-index="${t.cells[0]}"]`),b=board.querySelector(`[data-index="${t.cells[1]}"]`);if(!a||!b)return;
   const ra=a.getBoundingClientRect(),rb=b.getBoundingClientRect(),dx=rb.left-ra.left,dy=rb.top-ra.top;a.style.setProperty('--dx',`${dx}px`);a.style.setProperty('--dy',`${dy}px`);a.classList.add('coachFrom','coachPair');b.classList.add('coachTo','coachPair');
-  if(hand)coachHand(a,'Drag onto its twin',{dx,dy});}
+  coachArrow(a,b);if(hand)coachHand(a,'Drag onto its twin',{dx,dy});}
  else if(t.kind==='order'){const el=$(`[data-order="${t.id}"]`);el?.classList.add('coachTarget');if(hand)coachHand(el,'Tap to deliver',null,true);}
  else if(t.kind==='strip'){const el=$('#mapButton');el?.classList.add('coachTarget');if(hand)coachHand(el,'Tap to open the coast');}
  else if(t.kind==='coins')$('#coinPill')?.classList.add('coachTarget');
+ spotlight(t,spot);
 }
 // The tutorial's current step and how much it shows. A Hint or the idle reminder raises one step to full until
 // the player acts or the step changes (session only: nothing is saved).
@@ -548,6 +596,14 @@ function tutorView(coast=$('#coastMap').open?'open':null){
  if(sig!==tutorSig||n!==tutorActs){tutorBoost=null;tutorSig=sig;tutorActs=n;}
  return {st,sig,lv:tutorBoost===sig?'full':guideLevel(state,st)};
 }
+// First 10 minutes (2026-11-14): a quiet step (a skill already shown) still says what the action is for, in a few
+// words, so a run of taps and merges keeps its reason ("For the gold order: Clear the landing path"). Text only:
+// no highlight and no hand, as before.
+function stepPurpose(st){
+ if(!['tap','merge','unseal'].includes(st?.kind)||!st.focus)return '';const o=state.orders.find(o=>o?.id===st.focus);if(!o)return '';
+ if(o.story){const place=TASKS[o.story]?.stages[stageOf(state,o.story)]?.name;return `For the gold order${place?': '+place:''}`;}
+ return `For ${tutorWho(o)}'s order`;
+}
 globalThis.VWGuide={get step(){return tutor&&{...tutor.st,level:tutor.lv};},get hints(){return tutorG.hints;},get reminders(){return tutorG.reminders;}};
 function renderCoach(){
  const on=coachActive(state);$('#coachSkip').hidden=!on;
@@ -557,8 +613,8 @@ function renderCoach(){
  // the guided span (the game's coach span and the next objective), or a step a Hint / reminder raised
  const v=tutorView();
  if(tutorActive(state)||v.lv==='full'){tutor=v;const {st,lv}=v;coach={id:st.kind,text:st.what,target:st.target};
-  b.innerHTML=`<b class="gWhat">${st.what}</b>${lv!=='quiet'&&st.why?`<small class="gWhy">${st.why}</small>`:''}`;b.dataset.kind='coach';b.dataset.step=st.kind;b.dataset.level=lv;
-  requestAnimationFrame(()=>{if(lv==='quiet'||!st.target)clearCoach();else showCoachTarget(st.target,{hand:lv==='full'});});
+  b.innerHTML=`<b class="gWhat">${st.what}</b>${lv!=='quiet'&&st.why?`<small class="gWhy">${st.why}</small>`:lv==='quiet'&&stepPurpose(st)?`<small class="gWhy gFor">${stepPurpose(st)}</small>`:''}`;b.dataset.kind='coach';b.dataset.step=st.kind;b.dataset.level=lv;
+  requestAnimationFrame(()=>{fitLine(b);if(lv==='quiet'||!st.target)clearCoach();else showCoachTarget(st.target,{hand:lv==='full',spot:tutorActive(state)});});
   armTutorIdle();return true;}
  tutor=null;delete b.dataset.level;
  coach=laterTip(state);
@@ -568,6 +624,9 @@ function renderCoach(){
  return true;
 }
 // One gentle reminder after about 8 s without input, once per step, during the guided span; never an action.
+// Action clarity (2026-11-15): the instruction is never cut off on a narrow phone; a long one steps its size down a
+// little (14 → 12.5 px) until it fits on its line
+function fitLine(b){const w=b.querySelector('.gWhat');if(!w)return;w.style.fontSize='';for(const px of [13.5,13,12.5]){if(w.scrollWidth<=w.clientWidth+1)break;w.style.fontSize=px+'px';}}
 function armTutorIdle(){clearTimeout(tutorIdle);tutorIdle=setTimeout(tutorRemind,8000);}
 function tutorRemind(){
  if(!tutor||!tutorActive(state))return;
@@ -586,6 +645,17 @@ $('#coachSkip').textContent='Skip';$('#coachSkip').setAttribute('aria-label','Sk
  $('#hint').after(hb);
  hb.onclick=()=>{const v=tutorView();tutorG.hints++;tutorReminded.add(v.sig);tutorBoost=v.sig;tutorSig=v.sig;sfx('tap');nudgeHint();renderHint();if($('#coastMap').open)showMap();
   if(!v.st.target)$('#message').textContent=`${v.st.what}. ${v.st.why}`;};}
+// Stable board (2026-11-15, owner): selecting or deselecting an order must not move the board. The row that holds
+// the Hint and Details buttons sits above the board only while it carries the tutorial's guide line (then it is
+// there all the time, and Details joins it without a jump); otherwise it sits just below the board, where showing
+// or hiding it moves only the shed. On a landscape screen the left column keeps its order (the board is in its own
+// column). It follows the guide line's kind, whatever changes it.
+function placeHeading(){
+ const h=$('.boardHeading'),b=$('#board'),f=$('#free');if(!h||!b)return;
+ if($('#hint')?.dataset.kind==='coach'){if(h.nextElementSibling!==b)b.before(h);}
+ else if(h.previousElementSibling!==(f??b))(f??b).after(h);
+}
+new MutationObserver(placeHeading).observe($('#hint'),{attributes:true,attributeFilter:['data-kind']});
 function renderHint(){
  // While a delivery's coins fly, the guidance waits too (it may be about to say "Upgrade").
  if(holdPlace>performance.now())return;
@@ -662,8 +732,12 @@ function run(a,{adCompletion=false}={}){
  // Build 51c: the guide's own feedback. The first crew order's coins are named (the coin count pulses);
  // the first restoration ends the guide (the message line names the next objective once).
  if(coachBefore&&r.event==='deliver'&&order&&!order.story&&state.ordersDone===1){coachNote={text:`+${order.coins} coins from ${CREW[order.who]?.name??'the crew'}'s order: crew orders pay coins.`,until:performance.now()+3800,target:{kind:'coins'}};setTimeout(renderHint,3900);}
- if(coachBefore&&r.event==='restore'){markSeen(COACH_DONE);markSeen(COACH_NEXT);coachNote=null;const next=TASKS[FIRST_PLACE].stages[stageOf(state,FIRST_PLACE)];
-  $('#message').textContent=`Guide complete. Next: ${next?next.name+': its gold order brings the materials and coins, crew orders add more coins.':'the coast\'s next place.'}`;}
+ // Tutorial endpoint (owner, 2026-11-16): the first Build ends the tutorial. One brief confirmation (a line at the top of
+ // the restored place's card, which later toasts cannot replace; a toast if no card shows), and the guide, its
+ // spotlight, cue and hand go at once; the optional Hint and the normal objective line stay.
+ if(coachBefore&&r.event==='restore'){markSeen(COACH_DONE);markSeen(COACH_NEXT);coachNote=null;tutorDone=true;tutor=null;clearCoach();const next=TASKS[FIRST_PLACE].stages[stageOf(state,FIRST_PLACE)];
+  $('#message').textContent=`Tutorial complete. Next: ${next?next.name+': its gold order brings the materials and coins, crew orders add more coins.':'the coast\'s next place.'}`;
+  setTimeout(()=>{if(tutorDone){tutorDone=false;moment('Tutorial complete','You know the loop: orders, materials, coins, build. Hint 💡 is there any time.');}},$('#coastMap').open?2600:400);}
  // the guide is this camp's from its first action on (a seen flag is an action too, so not before: a new
  // camp stays untouched until the player acts)
  if(coachBefore&&!state.seen?.[COACH_ON])markSeen(COACH_ON);
@@ -880,7 +954,9 @@ function laterTips(r){
    setTimeout(()=>moment(`Tideglass cracked · ${done} of ${GLASS_HITS}`,`${left} more ${left===1?'merge':'merges'} beside it free the part inside. ${need<=2?'Any merge counts.':`Each must make a level ${need} part or better.`}`),reduced()?0:700);}}
  if(!coachActive(state)&&!state.board.includes(null)&&!state.seen?.['tip-shed']){markSeen('tip-shed');moment('The board is full','Tap a part and choose Shed to keep it for later, or deliver and merge to make room.');}
 }
-$('#coachSkip').onclick=()=>{markSeen(COACH_DONE);coachNote=null;clearCoach();render();$('#message').textContent='Guide skipped. Help (in the menu) can replay it.';};
+// Skip is the player's own choice, so it counts as their first action: a new camp is saved from it (before, a Skip
+// pressed before any other action was not saved, and the guide came back after a reload).
+$('#coachSkip').onclick=()=>{if(waitFirstAction&&!damaged){waitFirstAction=false;holdSave=false;foldRibbon();}markSeen(COACH_DONE);coachNote=null;clearCoach();render();$('#message').textContent='Guide skipped. Help (in the menu) can replay it.';};
 // Help: a short replay of the guide (four lines with the crew's faces), whatever the camp's progress.
 const GUIDE_REPLAY=[['ivo','Tap a generator for parts, and drag matching parts together to merge them.'],['neri','Crew orders pay coins.'],['bram','A gold order pays coins too, and secures the materials for the next repair.'],['tamsin','On the coast screen, coins and materials together rebuild a place.']];
 $('#helpReplay').onclick=()=>{$('#help').close();playLines('How the camp works',GUIDE_REPLAY,()=>render(),{last:'Back to the board'});};
@@ -996,7 +1072,15 @@ async function watchAd(action){
 // The gift opens by itself once a session is under way, never over another screen or a drag.
 // Build 51c: not offered by itself while a new camp's first-loop guide runs (its button still shows the gift).
 // First Session 2.0: not while the guide is teaching (the first build's next objective stays in view); the gift button stays.
-function offerGift(){if(!homeOpen&&!adBusy&&giftReady()&&giftShown!==today()&&state.moves>=3&&!tutorActive(state)&&!drag&&!document.querySelector('dialog[open]'))showDaily();}
+// First 10 minutes (2026-11-14): the Daily gift opens by itself only for a camp that already had progress when this
+// page loaded it (a returning player: "a gift from the crew for coming back"). A camp started in this
+// session is never interrupted by it (measured: it opened about 2 minutes into a new player's first session, over the
+// next objective); its gift button stays, so the gift is one tap away. Rewards and saves are unchanged.
+// (the camp's moves when this page loaded it, before any input; a camp swapped in later, a new one, is noted when it
+// appears)
+let giftBase=state.moves??0,giftCamp=state;
+function offerGift(){if(state!==giftCamp){giftCamp=state;giftBase=state.moves??0;}
+ if(!homeOpen&&!adBusy&&giftReady()&&giftShown!==today()&&giftBase>=3&&state.moves>=3&&!tutorActive(state)&&!drag&&!document.querySelector('dialog[open]'))showDaily();}
 $('#soundButton').onclick=()=>{sounds.toggle();render();sfx('tap');};
 $('#hapticsButton').onclick=()=>{haptics.toggle();render();haptics.pulse('merge');};
 $('#helpButton').onclick=()=>$('#help').showModal();
@@ -1114,7 +1198,7 @@ function mapCard(area,t,u){
   :!u.materials&&state.orders.some(o=>o?.story)?`<button class="cardButton go" type="button" data-aim="${t.id}">Work on this next</button>`
   :!u.materials?`<button class="cardButton go" type="button" data-go>Deliver an order</button>`
   :`<button class="cardButton go" type="button" data-go>Earn ${u.cost-state.coins} more ${COIN}</button>`;
- return `<section id="mapCard" class="mapCard ${canBuild(u)?'ready':''}" data-card="${t.id}"><span class="cardArt next">${placeArt(t,u.stage)}<em>Stage ${u.stage}</em></span><div class="cardBody"><small class="cardPlace">${n?t.stages[n-1].name:'New place'}</small><h3>${u.name}</h3>${pips(n)}<div class="needs">${stuff}${coins}</div>${lack}</div>${button}</section>`;
+ return `<section id="mapCard" class="mapCard ${canBuild(u)?'ready':''}" data-card="${t.id}"><span class="cardArt next">${placeArt(t,u.stage)}<em>Stage ${u.stage}</em></span><div class="cardBody"><small class="cardPlace">${n?t.stages[n-1].name:'New place'}</small><h3>${u.name}</h3>${pips(n)}<div class="needs">${stuff}${coins}</div>${lack}${newKindOf(u)?`<p class="cardGift">Unlocks a new generator: the ${SOURCES[newKindOf(u)].name}</p>`:''}</div>${button}</section>`;
 }
 let focusOnOpen=false;
 function showMap(){
@@ -1198,11 +1282,16 @@ $('#mapContent').addEventListener('click',e=>{
  const p=e.target.closest('[data-replay]');if(p){showBeat(p.dataset.replay,{},STAGES);return;}
  if(e.target.closest('[data-back],[data-go],[data-done]'))$('#coastMap').close();
 });
+// A generator the camp has only one of (board, shed, waiting): a stage that gave it brought a new kind.
+const firstOfKind=id=>[...state.board,...state.shed,...state.pending].filter(y=>y?.type==='source'&&y.id===id).length===1;
+// First 10 minutes (2026-11-14): a stage that brings a generator kind the camp does not have yet says so before
+// it is built (the coast card, the next objective), so the next restoration has a visible pay-off.
+const newKindOf=u=>{const id=u?.effect?.copy;return id&&id!=='newest'&&SOURCES[id]&&![...state.board,...state.shed,...state.pending].some(y=>y?.type==='source'&&y.id===id)?id:null;};
 function rewardText(e={}){
  const out=[],wait=' (waits for a free space)';
  if(e.energy)out.push(`+${e.energy} energy`);
  if(e.boost)out.push(`${e.boost.milestone?'restoration '+e.boost.milestone:'first stage'}: +${e.boost.energy} energy`);
- if(e.copyId)out.push(`a ${SOURCES[e.copyId].name} to merge`+(e.copy>=0?'':wait));
+ if(e.copyId)out.push((firstOfKind(e.copyId)?`a new generator: the ${SOURCES[e.copyId].name}`:`a ${SOURCES[e.copyId].name} to merge`)+(e.copy>=0?'':wait));
  if(e.kit>=0&&state.board[e.kit]?.type==='kit')out.push(nameOf(state.board[e.kit]).replace(' · ',' for '));
  else if(e.kitFamily)out.push(`a crate for the ${SOURCES[e.kitFamily].name}`+wait);
  if(e.token!==undefined)out.push('a Tide token'+(e.token>=0?'':wait));
@@ -1237,7 +1326,7 @@ function showBeat(id,effects,stage=stageOf(state,id)){
   else if(caption||effects&&Object.keys(effects).length)moment(`${st.name} · stage ${stage} of ${STAGES}`,said+(effects&&Object.keys(effects).length?rewardText(effects):'')+next,null);burst(($('#coastMap').open?$('#coastMap .beachScene'):board).getBoundingClientRect(),'gold',true);
   for(const i of [effects?.kit,effects?.copy,effects?.token,effects?.cog])if(i>=0)board.querySelector(`[data-index="${i}"]`)?.classList.add('unsealed');
   // Build 47e (from PR #80): a first generator of its kind from a stage (the Lens Bench) shows its chain.
-  if(effects?.copyId&&[...state.board,...state.shed,...state.pending].filter(y=>y?.type==='source'&&y.id===effects.copyId).length===1)setTimeout(()=>newGeneratorMoment(effects.copyId),1400);
+  if(effects?.copyId&&[...state.board,...state.shed,...state.pending].filter(y=>y?.type==='source'&&y.id===effects.copyId).length===1){setTimeout(()=>newGeneratorMoment(effects.copyId),1400);kindIntro=effects.copyId;}
   if(pendingReveals().some(v=>v.live(state)))setTimeout(()=>nextReveal(()=>{if(allDone(state))setTimeout(showEnd,600);}),900);
   else if(effects?.areaDone&&allDone(state))setTimeout(showEnd,900);});
  sfx('milestone');
@@ -1248,11 +1337,13 @@ function showBeat(id,effects,stage=stageOf(state,id)){
 let restoredHtml=null;
 function keepRestoredCard(){if(!restoredHtml||!$('#coastMap').open)return;const wrap=$('#coastMap .sceneWrap');if(wrap&&!$('#coastMap .restoredCard'))wrap.insertAdjacentHTML('afterend',restoredHtml);}
 $('#coastMap').addEventListener('close',()=>{restoredHtml=null;});
+let tutorDone=false;
 function restoredCard(t,st,stage,effects,nxt,spent=null){
  $('#coastMap .restoredCard')?.remove();const wrap=$('#coastMap .sceneWrap');if(!wrap)return;
  const chips=rewardText(effects).replace(/^Rewards: /,'').split(' · ').map(x=>`<span>${x}</span>`).join('');
- const next=nxt?`<p class="rcNext"><b>Next:</b> ${nxt.u.name}${nxt.ready?' · ready to build':''}</p>`:'';
- wrap.insertAdjacentHTML('afterend',`<section class="restoredCard" role="status" aria-label="${st.name} restored"><small>${(AREAS.find(a=>a.tasks.includes(t))??currentArea(state)).name} · stage ${stage} of ${STAGES}</small><b class="rcTitle">${st.name}</b>${spent?`<b class="beatReceipt">−${spent} coins</b>`:''}
+ const next=nxt?`<p class="rcNext"><b>Next:</b> ${nxt.u.name}${nxt.ready?' · ready to build':''}${newKindOf(nxt.u)?` · unlocks the ${SOURCES[newKindOf(nxt.u)].name}`:''}</p>`:'';
+ const done=tutorDone?'<p class="rcDone"><b>✓ Tutorial complete</b> You know the loop: orders, materials, coins, build. Hint 💡 is there any time.</p>':'';tutorDone=false;
+ wrap.insertAdjacentHTML('afterend',`<section class="restoredCard" role="status" aria-label="${st.name} restored">${done}<small>${(AREAS.find(a=>a.tasks.includes(t))??currentArea(state)).name} · stage ${stage} of ${STAGES}</small><b class="rcTitle">${st.name}</b>${spent?`<b class="beatReceipt">−${spent} coins</b>`:''}
   ${st.lines.map(([w,l])=>`<p class="rcLine">${face(w)}<span><b>${who$(w)}</b>: “${l}”</span></p>`).join('')}<div class="rcRewards">${chips}</div>${next}<button class="primary rcBack" type="button" data-done>Back to the board</button></section>`);
  restoredHtml=$('#coastMap .restoredCard').outerHTML;
  // the restored place stays in view: the picture at the top of the screen, its card right under it
@@ -1279,6 +1370,11 @@ function mergeTag(rect,text,rare=false){
 function mergeRays(rect){if(!rect||reduced())return;const el=document.createElement('i');el.className='mergeRays';const w=rect.width*2.4;
  el.style.cssText=`left:${rect.x+rect.width/2-w/2}px;top:${rect.y+rect.height/2-w/2}px;width:${w}px;height:${w}px`;document.body.append(el);setTimeout(()=>el.remove(),950);}
 function mergeTier(m,first){if(m?.type!=='item')return 'micro';if(CHAINS[m.family]?.secondary||m.tier>=5)return 'major';if(m.tier>=3||first&&m.tier>=2)return 'medium';return 'micro';}
+// First 10 minutes (2026-11-14): a stage that brought a new generator kind (the camp tent's Survey Kite) points at it
+// once, back on the board, with the guide line's own note (text, highlight and hand for a few seconds; nothing blocks).
+let kindIntro=null;
+$('#coastMap').addEventListener('close',()=>{if(!kindIntro)return;const id=kindIntro;kindIntro=null;const i=state.board.findIndex(x=>x?.type==='source'&&x.id===id);if(i<0)return;
+ const part=CHAINS[GENERATOR_CHAINS[id][0][0]].names[0];coachNote={text:`New generator: tap the ${SOURCES[id].name} for ${/^[aeiou]/i.test(part)?'an':'a'} ${part}`,until:performance.now()+7000,target:{kind:'cell',index:i}};render();});
 function newGeneratorMoment(gen){const c=CHAINS[GENERATOR_CHAINS[gen][0][0]];moment(`New generator: ${SOURCES[gen].name}!`,c.names.join(' → '),{type:'source',id:gen});}
 function showIntro(){const a=currentArea(state);if(a.intro)playLines(a.name,a.intro);}
 // ---------- reveals (Build 47b, from PR #80) ----------
@@ -1522,7 +1618,7 @@ $('#playlogButton').onclick=()=>{$('#menu').close();showPlaylog();};
 // At most two things call for attention outside the board at once (Build 41 M3), in this order:
 // an affordable upgrade, energy from an ad when low, the daily gift, parts waiting in the book.
 function calmBadges(){let n=0;for(const el of [$('#mapReady'),$('#adEnergyButton'),$('#dailyButton'),$('#bookCount')]){if(el.hidden)continue;if(n>=2){el.hidden=true;if(el.id==='bookCount')$('#bookButton').classList.remove('ready');}else n++;}}
-render();header();setInterval(()=>{header();placeHand();if(state.energy<1)renderHint();offerGift();$('#dailyButton').hidden=!giftReady();calmBadges();syncPlaying();},1000);
+render();header();placeHeading();setInterval(()=>{header();placeHand();if(state.energy<1)renderHint();offerGift();$('#dailyButton').hidden=!giftReady();calmBadges();syncPlaying();},1000);
 // First Session 2.0: a new player meets the story as one caption line over the bottom of the screen (Ivo and
 // the beach's own intro line), not three pages before the board. It never blocks the board's middle, folds at
 // the first action (or a tap on it), and a tap on its "Story" replays the illustrated opening. The menu's
@@ -1533,15 +1629,49 @@ function storyRibbon(){
  r.innerHTML=`${face(who)}<p><b>${who$(who)} · ${a.name}</b>${line}</p><button type="button" class="ribbonStory" aria-label="Watch the story">Story</button><button type="button" class="ribbonClose" aria-label="Close the story line">×</button>`;
  r.hidden=false;r.classList.remove('folded');
  r.querySelector('.ribbonStory').onclick=()=>{foldRibbon();replayStory();};r.querySelector('.ribbonClose').onclick=foldRibbon;
+ placeRibbon();requestAnimationFrame(()=>requestAnimationFrame(placeRibbon));
 }
 function foldRibbon(){const r=$('#storyRibbon');if(!r||r.hidden)return;r.classList.add('folded');setTimeout(()=>{r.hidden=true;},reduced()?0:320);}
+// Stable board (2026-11-15, owner: the caption covered the board's bottom row). Pinned to the bottom of the screen
+// only where that leaves the board clear (a tall phone); otherwise it sits in the page just below the board, before
+// the shed: it never covers a cell or a control, and folding it moves only what is below. Same words, Story and ×.
+function placeRibbon(){
+ const r=$('#storyRibbon'),b=$('#board');if(!r||r.hidden||!b)return;
+ r.classList.remove('inline');if(r.parentNode!==document.body)document.body.append(r);
+ const box=b.getBoundingClientRect(),cs=getComputedStyle(r),bottom=parseFloat(cs.bottom)||0,top=innerHeight-bottom-r.offsetHeight;
+ const left=r.getBoundingClientRect().left,right=left+r.offsetWidth;
+ if(top<box.bottom+4&&left<box.right&&right>box.left){r.classList.add('inline');($('#shed')??b).before(r);}
+}
+addEventListener('resize',()=>placeRibbon());
 function replayStory(){$('#menu').open&&$('#menu').close();playScenes({scenes:INTRO.map(x=>({...x,src:`assets/premium/coast/story/${x.art}.webp`,id:x.art})),face:who=>`assets/premium/coast/ui/${FACES[who]}.webp`,reduced,last:'Back to the camp'}).then(()=>render());}
 {const sb=document.createElement('button');sb.id='storyButton';sb.type='button';sb.className='menuButton';sb.textContent='Story: the letter';sb.onclick=replayStory;$('#homeButton').after(sb);}
+// Initial screen (2026-11-15): each time play starts (a new camp's first board, Home → Play/Continue, the menu's
+// Home → Continue) the play area is framed: the page starts at its left edge and at the top (the HUD, the orders,
+// the restoration strip and the board in view). The page is taller than a phone (the shed and settings sit below
+// the board), and a browser restores an old scroll position on reload: a returning player came back with the orders
+// above the screen. On a screen too short for everything (a small phone's browser with its bars), the least scroll
+// that shows the whole board, never more than a few pixels into the primary order card: the board stays whole, the
+// primary order in view, and no tile is shrunk. Layout only: nothing in the game or the save changes.
+try{history.scrollRestoration='manual';}catch{}
+let framedAt=0,lastInput=0;
+// the player's own input stops the framing (registered once: a trip Home adds no listener)
+for(const e of ['pointerdown','touchstart','wheel','keydown'])addEventListener(e,()=>{lastInput=performance.now();},{passive:true,capture:true});
+function framePlay(){
+ const at=framedAt=performance.now();
+ const go=()=>{if(homeOpen||lastInput>at||at!==framedAt)return;
+  const b=$('#board'),card=$('#requests .requestCard');if(!b)return;const H=window.visualViewport?.height||innerHeight,y0=scrollY;
+  const bottom=b.getBoundingClientRect().bottom+y0,cardTop=card?card.getBoundingClientRect().top+y0:0;
+  // the whole board first (the least scroll that shows its bottom row), never more than 12 px into the primary order card
+  const y=Math.round(Math.max(0,Math.min(bottom+4-H,cardTop+12)));
+  if(scrollX||Math.abs(scrollY-y)>1)window.scrollTo(0,y);};
+ go();requestAnimationFrame(()=>requestAnimationFrame(go));setTimeout(go,450);
+}
+addEventListener('pageshow',e=>{if(e.persisted&&!homeOpen)framePlay();});
 // What happens on arriving at the board: once at the start without Home, and each time from Home.
 let storyJustPlayed=false;
 function arrive(fromHome=true){
  if(holdSave&&!damaged&&!waitFirstAction){holdSave=false;persist();}
- syncPlaying();if(fromHome)$('#hint').focus({preventScroll:true});
+ syncPlaying();if(fromHome)$('#hint').focus({preventScroll:true});framePlay();
  // Build 51c: a story played to its end already says what to do first, so no second introduction follows
  // it; a skipped story is followed by the beach's one line (the same words)
  if(!state.moves){if(waitFirstAction)storyRibbon();else if(!storyJustPlayed)showIntro();}
@@ -1556,7 +1686,7 @@ if(document.getElementById('home')){
   chapter:()=>{const a=currentArea(state);return a?.tasks?.length?`${a.name} · ${stagesBuilt()} of ${a.tasks.length*STAGES} stages built`:a?.name??'';},
   onEnter:arrive,onSettings:()=>$('#menuButton').onclick(),onBook:showBook,
   onNewCamp:()=>{if(!confirm('Start a new camp? The save that could not be read stays in this browser as a backup.'))return false;return newCamp();},
-  onOpenChange:v=>{homeOpen=v;syncPlaying?.();placeHand();},
+  onOpenChange:v=>{homeOpen=v;syncPlaying?.();placeHand();placeCue();},
   // The first-play story (Build 46q): once, on the first new camp's Play, never on Continue.
   autoEnter:newPlayer,
   beforeEnter:reason=>reason==='play'&&!rawSave&&!newPlayer&&!storySeen(storage)?playIntro({storage,reduced,face:who=>`assets/premium/coast/ui/${FACES[who]}.webp`}).then(how=>{storyJustPlayed=how==='done';return how;}):null});

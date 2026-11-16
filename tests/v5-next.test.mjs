@@ -81,10 +81,12 @@ test('coins upgrade each place in three stages; every stage gives a reward',()=>
   // cap is the player level's capacity, the first stage also gives +20 once, and a capacity milestone
   // its increase, both above the cap if need be.
   if(t.id==='beach-path')assert.deepEqual(r.effects.boost,{kind:'stage',energy:20});else if(totalBuilt(s)<=3)assert.deepEqual(r.effects.boost,{kind:'stage',milestone:totalBuilt(s),energy:10});else assert.equal(r.effects.boost,undefined,'no milestone after the third completed stage');
-  if(t.id==='beach-tent'){assert.equal(r.effects.energy,Math.min(8,200-e));assert.equal(s.energy,e+r.effects.energy+chest+boost);}
+  // First 10 minutes (2026-11-14): the camp tent brings the Survey Kite (it gave +8 energy, which the first minutes never
+  // needed), so the second generator arrives at the third restoration, not the Rover's level 3.
+  if(t.id==='beach-tent'){assert.deepEqual(s.board[r.effects.copy],source('chart'),'the camp tent brings the Survey Kite');assert.equal(r.effects.copyId,'chart');assert.equal(r.effects.energy,undefined);assert.equal(s.energy,e+chest+boost);}
   if(t.id==='beach-mast'){assert.equal(s.slots,4);assert.equal(s.orders.length,4);}
-  if(t.id==='beach-workshop'){assert.deepEqual(s.board[r.effects.copy],source('rig'),'a second Rivet Rover');const m=ok(s,{type:'merge',from:r.effects.copy,to:ROVER});assert.equal(s.board[ROVER].level,2);assert.equal(m.released,undefined,'level 2 is not yet enough for the Kite');}
-  if(t.id==='beach-pier')assert.deepEqual(s.board[r.effects.kit],kit('rig',2),'a sea chest for the newest generator (still Rover here)');
+  if(t.id==='beach-workshop'){const kite=s.board.findIndex((x,i)=>x?.type==='source'&&x.id==='chart'&&i!==r.effects.copy);assert.deepEqual(s.board[r.effects.copy],source('chart'),'a copy of the newest generator, the Kite');const m=ok(s,{type:'merge',from:r.effects.copy,to:kite});assert.equal(s.board[kite].level,2);assert.equal(m.released,undefined,'level 2 is not yet enough for the Rope Winch');}
+  if(t.id==='beach-pier')assert.deepEqual(s.board[r.effects.kit],kit('chart',2),'a sea chest for the newest generator (the Kite, since the tent)');
   if(t.id==='beach-beacon'){assert.equal(r.effects.energy,Math.min(10,200-e));assert.equal(s.energy,e+r.effects.energy+chest+boost);}
   assert.equal(s.board.filter(x=>x?.type==='cargo').length,27,'upgrades never open cargo');
  }
@@ -239,7 +241,8 @@ test('one generator, one chain; each generator at level 3 brings out the next ki
  const gifts=AREAS[0].tasks.flatMap(t=>t.stages.flatMap((st,k)=>st.effect?.copy?[t.id+(k+1)+':'+st.effect.copy]:[]));
  // Build 41g (user: "1-2 turliin oiroltsoo tuvshinii itemiin task tasraltgui"): four Rovers early so
  // the Survey Kite comes out early (Build 41h: the lanterns' Rover, as stages are slower).
- assert.deepEqual(gifts,['beach-path2:rig','beach-path3:rig','beach-tent2:rig','beach-mast2:rig','beach-workshop1:newest','beach-pier2:newest','beach-beacon2:newest','beach-cliff2:newest'],'the beach gives four Rovers, then copies of the newest generator');
+ // First 10 minutes (2026-11-14): the camp tent's first stage brings the Survey Kite itself.
+ assert.deepEqual(gifts,['beach-path2:rig','beach-path3:rig','beach-tent1:chart','beach-tent2:rig','beach-mast2:rig','beach-workshop1:newest','beach-pier2:newest','beach-beacon2:newest','beach-cliff2:newest'],'the beach gives four Rovers and the Survey Kite, then copies of the newest generator');
  // Play it through: two Rovers make level 2.
  const s=fresh(0);s.board[7]=source('rig');
  // Merge the two Rovers: level 2 is not enough yet; a Brass cog makes level 3 and brings out the Survey Kite beside it.
@@ -273,10 +276,10 @@ test('cargo keys grow harder away from the camp and every generator is reachable
  assert.deepEqual(CARGO[42].slice(0,2),['rope',4],'the far corner (a big coin pouch) needs a Rope ladder');
  // A scripted player finds every generator during Landing Beach.
  const t=fresh(0);let now=0;const found=[];
- while(t.area<1&&now<90*60*1000){tick(t,now);const a=nextAction(t);if(!a){now+=30000;continue;}const r=ok(t,a,now);now+=6000;for(const n of r.released??[])found.push([n.id,+(now/60000).toFixed(1)]);}
- assert.equal(found[0][0],'chart','Rivet Rover level 3 brings out the Survey Kite during Landing Beach');
+ while(t.area<1&&now<90*60*1000){tick(t,now);const a=nextAction(t);if(!a){now+=30000;continue;}const r=ok(t,a,now);now+=6000;for(const n of r.released??[])found.push([n.id,+(now/60000).toFixed(1)]);if(r.effects?.copyId&&!found.some(f=>f[0]===r.effects.copyId)&&r.effects.copyId!=='rig')found.push([r.effects.copyId,+(now/60000).toFixed(1)]);}
+ assert.equal(found[0][0],'chart','the camp tent brings the Survey Kite during Landing Beach (2026-11-14; before, Rivet Rover level 3)');
  assert.ok(found.map(f=>f[0]).every((id,n)=>id===['chart','rope','shell','lamp'][n]),'kinds come out in order');
- const at=Object.fromEntries(found);assert.ok(at.chart>=8&&at.chart<25,`the Survey Kite after levelling the Rover twice (${at.chart} min)`);
+ const at=Object.fromEntries(found);assert.ok(at.chart>=3&&at.chart<15,`the Survey Kite with the camp tent, the third restoration (${at.chart} min)`);
  assert.ok(!at.rope||at.rope-at.chart>=6,'the Rope Winch takes more levelling (or waits for the next area)');
  assert.ok(t.board.some(x=>x?.type==='cargo'),'some cargo is still sealed when the beach is restored');
  console.log(JSON.stringify({generatorsFoundAt:found,sealedLeft:t.board.filter(x=>x?.type==='cargo').length}));

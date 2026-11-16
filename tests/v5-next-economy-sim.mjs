@@ -44,6 +44,8 @@ export function simulate(g,policy,speed,seed,{until=4*3600e3,firstOnly=false,onS
   if(r.event==='deliver'){m.first.order??=now;m.orderAges.push(now-born[a.id]);if(now<15*MIN)m.first15.orders++;}
   if(r.event==='restore'){m.first.restore??=now;m.restores.push(now);if(now<15*MIN)m.first15.restores++;}
   for(const n of r.released??[])m.gens[n.id]??=now;
+  // (a stage may bring a generator kind itself: the camp tent's Survey Kite, 2026-11-14)
+  if(r.effects?.copyId)m.gens[r.effects.copyId]??=now;
   onStep?.(s,now);
  }
  if(starveStart!==null)m.starve.push(now-starveStart);

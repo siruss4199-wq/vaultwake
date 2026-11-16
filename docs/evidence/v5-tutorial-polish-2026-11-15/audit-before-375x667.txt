@@ -1,0 +1,11 @@
+ 0 tap/full           emph [cell21:coachTarget] hand 33x39 covers [cell21 31%] anims 3 [coachPulse,cbGenBob,coachTap] panels 4 [#hint[data-kind="coach"] #storyRibbon:not([hidden]) #coachSkip:not([hidden]) #guideHint]
+ 1 tap/light          emph [cell21:coachTarget] hand - covers [] anims 2 [coachPulse,cbGenBob] panels 3 [#hint[data-kind="coach"] #coachSkip:not([hidden]) #guideHint]
+ 2 merge/full         emph [cell15:coachPair+coachFrom cell20:coachPair+coachTo] hand 34x40 covers [cell20 37%, cell21 20%] anims 4 [coachDrag,coachPulseG,cbGenBob,coachHandDrag] panels 3 [#hint[data-kind="coach"] #coachSkip:not([hidden]) #guideHint]
+ 4 tap/quiet          emph [] hand - covers [] anims 1 [cbGenBob] panels 3 [#hint[data-kind="coach"] #coachSkip:not([hidden]) #guideHint]
+ 5 merge/light        emph [cell20:coachPair+coachFrom cell22:coachPair+coachTo] hand - covers [] anims 3 [coachDrag,cbGenBob,coachPulseG] panels 3 [#hint[data-kind="coach"] #coachSkip:not([hidden]) #guideHint]
+ 6 deliver/full       emph [o0:coachTarget] hand 34x39 covers [o0 72%, o0 74%, o0 100%] anims 6 [bcReady,cargoNudge,keyReady,cbGenBob,coachTap] panels 3 [#hint[data-kind="coach"] #coachSkip:not([hidden]) #guideHint]
+13 merge/quiet        emph [] hand - covers [] anims 1 [cbGenBob] panels 3 [#hint[data-kind="coach"] #coachSkip:not([hidden]) #guideHint]
+26 gold/full          emph [o3:coachTarget] hand 33x39 covers [o3 19%, o3 35%, o3 46%, o3 30%, o3 39%] anims 13 [bcReady,cargoNudge,keyReady,cbGenBob,coachTap] panels 3 [#hint[data-kind="coach"] #coachSkip:not([hidden]) #guideHint]
+27 build/full         emph [mapButton:coachTarget] hand 33x39 covers [] anims 3 [fsBreathe,cbGenBob,coachTap] panels 3 [#hint[data-kind="coach"] #coachSkip:not([hidden]) #guideHint]
+27 build (coast)/full emph [mapButton:coachTarget cellundefined:coachTarget] hand 34x40 covers [] anims 15 [fsBreathe,cbGenBob,sunSweep,twinkle,markerRing,barFlow,buildPulse,btnShine,coachTap,markerBob] panels 4 [#hint[data-kind="coach"] #coastMap[open] .coachLine #coachSkip:not([hidden]) #guideHint]
+board shifts during the tutorial: none | errors 0
