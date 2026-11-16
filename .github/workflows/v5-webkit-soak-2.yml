@@ -1,0 +1,75 @@
+# Scratch diagnostic (not for merge): v5-next-tutorial-visual-browser.cjs lost WebKit's page twice in CI (de140bc at
+# its 4th size; 951af3b 55 s into its first size, fresh browser). Does the tutorial spotlight (e582dff..) raise the
+# WebKit page-loss rate? The same neutral tutorial driver (docs/evidence/v5-tutorial-polish-2026-11-15/audit.cjs:
+# plays the real guide to the coast's Build, reads metrics incl. getAnimations each step) runs in WebKit against the
+# pre-spotlight build d671dfa and the candidate 951af3b, same runners, same time; plus the candidate's own
+# tutorial-visual suite at one size.
+name: V5 WebKit soak 2 (diagnostic)
+on:
+  push:
+    branches: [claude/v5-webkit-soak-2]
+permissions:
+  contents: read
+jobs:
+  driver:
+    name: tutorial driver webkit ${{ matrix.code }} ${{ matrix.size }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        code: [pre-d671dfa, cand-951af3b]
+        size: ['360x640', '390x664']
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      options: --ipc=host
+    env:
+      HOME: /root
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: npm install --no-save --no-audit --no-fund playwright@1.62.1
+      - name: Serve the code under test on 8080
+        run: |
+          git config --global --add safe.directory "$PWD"
+          REF=${{ matrix.code == 'pre-d671dfa' && 'd671dfa' || '951af3b' }}
+          mkdir -p /tmp/site && git archive "$REF" v5 v4/platform.mjs tools | tar -x -C /tmp/site
+          git rev-parse "$REF"
+          (node tools/ci-static-server.mjs /tmp/site 8080 > /tmp/http.log 2>&1 &)
+          for i in $(seq 1 30); do node -e "fetch('http://127.0.0.1:8080/v5/play.html').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))" && break; sleep 1; done
+      - name: tutorial driver, WebKit, 8 runs
+        run: |
+          pass=0; fail=0
+          for n in 1 2 3 4 5 6 7 8; do
+            if ENGINE=webkit VIEWPORT=${{ matrix.size }} timeout 300 node docs/evidence/v5-tutorial-polish-2026-11-15/audit.cjs > /tmp/run.log 2>&1 && grep -q "board shifts" /tmp/run.log; then pass=$((pass+1)); echo "run $n: pass ($(grep -c '/' /tmp/run.log) lines)";
+            else fail=$((fail+1)); echo "run $n: FAIL"; grep -E "closed|crash|Error|Timeout|at .*audit" /tmp/run.log | head -6; fi
+          done
+          echo "RESULT ${{ matrix.code }} ${{ matrix.size }}: $pass pass, $fail fail"
+  visual:
+    name: tutorial-visual webkit (candidate) shard ${{ matrix.shard }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2]
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      options: --ipc=host
+    env:
+      HOME: /root
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-audit --no-fund playwright@1.62.1
+      - run: |
+          (node tools/ci-static-server.mjs . 8080 > /tmp/http.log 2>&1 &)
+          for i in $(seq 1 30); do node -e "fetch('http://127.0.0.1:8080/v5/play.html').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))" && break; sleep 1; done
+      - name: tutorial-visual 390x664, WebKit, 5 runs
+        run: |
+          pass=0; fail=0
+          for n in 1 2 3 4 5; do
+            if ENGINES=webkit VIEWPORTS=390x664 timeout 400 node tests/v5-next-tutorial-visual-browser.cjs > /tmp/run.log 2>&1; then pass=$((pass+1)); echo "run $n: pass";
+            else fail=$((fail+1)); echo "run $n: FAIL"; grep -E "closed|crash|Error|assert|Timeout|at .*tutorial-visual" /tmp/run.log | head -6; fi
+          done
+          echo "RESULT candidate tutorial-visual shard ${{ matrix.shard }}: $pass pass, $fail fail"
