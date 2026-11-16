@@ -126,7 +126,7 @@ const cgStub=(cloud,o={})=>`(()=>{const m=new Map(${JSON.stringify([...cloud])})
       const rc=await page.evaluate(()=>{const c=document.querySelector('#coastMap .restoredCard'),s=document.querySelector('#coastMap .sceneWrap').getBoundingClientRect();
        return {beat:!!document.querySelector('#beat[open]'),text:c.innerText,sceneTop:s.top,sceneBottom:s.bottom,vh:innerHeight};});
       assert.equal(rc.beat,false,tag('no story dialog over the restored place'));assert.match(rc.text,/A path from the boats to dry ground/,tag('the stage lines'));
-      assert.match(rc.text,/\+20 energy/,tag('the real reward'));assert.match(rc.text,/Driftwood crate/,tag('the real reward (crate)'));assert.match(rc.text,/Next: Lay a boardwalk/,tag('the next objective'));
+      assert.match(rc.text,/\+20 energy/,tag('the real reward'));assert.match(rc.text,/Driftwood crate/,tag('the real reward (crate)'));assert.match(rc.text,/Next: Lay a boardwalk/,tag('the next objective'));assert.match(rc.text,/Tutorial complete/,tag('the tutorial\'s end is said once, on the card'));
       assert.ok(rc.sceneTop>=-1&&rc.sceneTop<rc.vh*0.5,tag(`the restored place is in view (scene top ${rc.sceneTop})`));
       await settle(page);await shot('7-restored');
       if(await page.locator('#coastMap[open]').count())await page.locator('#coastMap>.close').click();await page.waitForTimeout(500);built=true;}
@@ -134,16 +134,17 @@ const cgStub=(cloud,o={})=>`(()=>{const m=new Map(${JSON.stringify([...cloud])})
     assert.ok(built,tag('the guided player reached the first build'));assert.ok(idled&&hinted,tag('idle reminder and Hint exercised'));assert.ok(quiet>0,tag('guidance faded to quiet'));
     const camp=await page.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
     assert.equal(camp.built['beach-path'],1,tag('the landing path is built (act)'));assert.equal(camp.coins,40,tag('80 − 40 coins'));
-    await settle(page);m=await look(page);assert.ok(m.st&&['tap','merge','unseal','deliver','gold'].includes(m.st.kind),tag('the next objective is guided after the build: '+JSON.stringify(m.st)+' line: '+m.line));assert.notEqual(m.st.level,'quiet',tag('and named'));await shot('8-next-objective');
-    await page.waitForTimeout(1500);assert.equal(await page.locator('#daily[open]').count(),0,tag('no Daily gift dialog over the next objective while guided'));assert.equal(await page.locator('#dailyButton').isVisible(),true,tag('the gift button stays'));
-    // a reload: Home with Continue, the same camp, the same step
-    const sig=JSON.stringify([m.st.kind,m.st.target]);
+    // Tutorial endpoint (owner, 2026-11-16): the first Build ends the tutorial; the board is the normal game
+    await settle(page);m=await look(page);assert.equal(m.st,null,tag('nothing guided after the first Build: '+JSON.stringify(m.st)+' line: '+m.line));
+    assert.deepEqual([m.gold,m.pair,m.other,m.hand],[[],[],[],false],tag('no highlight, no hand'));assert.equal(await page.evaluate(()=>document.body.dataset.spot??null),null,tag('no spotlight'));await shot('8-after-tutorial');
+    // a reload: Home with Continue, the same camp, still complete
+    const sig=JSON.stringify(m.st);
     await page.reload();await page.waitForSelector('#homePlay:not([hidden])',{timeout:30000});
     assert.equal((await page.locator('#homePlay').textContent()).trim(),'Continue',tag('a reload offers Continue, never a new camp'));
     await page.locator('#homePlay').click();await page.waitForSelector('#home',{state:'hidden'});await page.waitForTimeout(500);
-    const again=await look(page);assert.equal(JSON.stringify([again.st.kind,again.st.target]),sig,tag('the same step after Continue'));
+    const again=await look(page);assert.equal(JSON.stringify(again.st),sig,tag('still complete after Continue'));
     assert.equal(await page.evaluate(k=>JSON.parse(localStorage.getItem(k)).built['beach-path'],KEY),1,tag('the same camp'));
-    assert.deepEqual(errors,[],tag('no page error'));console.log(`ok ${tag(`new player → board → guided first restoration in ${steps} steps; fades; idle once; Hint; reload resumes`)}`);
+    assert.deepEqual(errors,[],tag('no page error'));console.log(`ok ${tag(`new player → board → guided first restoration in ${steps} steps; fades; idle once; Hint; complete at the first Build, across a reload`)}`);
     await context.close();
    }
    // ---------- 2. existing saves: never a new player, never a restarted tutorial ----------

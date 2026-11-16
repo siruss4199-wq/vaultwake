@@ -4,8 +4,9 @@
 //    guided one action at a time through the real UI: each step's line says what and why; its target is gold (a
 //    matching pair green) with a pointing hand while the skill is new; quiet steps have no highlight and the
 //    player acts on the guide's own advice. Nothing is laid on the board and no coins are given. The first
-//    restoration ends the guide's lessons (coach-done) and the next objective is named once; a later order does
-//    not restart it. Actions and time are printed.
+//    restoration is the tutorial's end (2026-11-16): "Tutorial complete" on its card, the next objective named once in
+//    the message line, then the normal game (no guided line, highlight or spotlight; Hint stays), across a reload; a
+//    later order does not restart it. Actions and time are printed.
 // 2. 360 x 780 and 907 x 510 with reduced motion: the line and target fit (no sideways scroll); the hand and the
 //    pair stay still; a tap is not taught twice.
 // 3. Skip guide ends it for good (across a reload); Help replays the four lines.
@@ -116,6 +117,8 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
      await page.waitForTimeout(1200);{const r=await page.locator('#coastMap [data-restore="beach-path"]').boundingBox(),vh=await page.evaluate(()=>innerHeight);assert.ok(r&&r.y>=0&&r.y+r.height<=vh,tag(`the Build button in view: ${JSON.stringify(r)} of ${vh}`));}await shot('coast');
      await page.locator('#coastMap [data-restore="beach-path"]').click({force:true});await page.waitForTimeout(1300);
      await page.waitForSelector('#coastMap .restoredCard',{timeout:5000});const lines=(await beats())+await page.locator('#coastMap .restoredCard').innerText();assert.match(lines,/A path from the boats to dry ground/);
+     // Tutorial endpoint (2026-11-16): one brief confirmation on the restored place's card
+     assert.match(await page.locator('#coastMap .restoredCard .rcDone').innerText(),/Tutorial complete/,tag('the first Build says "Tutorial complete"'));
      assert.equal(await page.locator('#beat[open]').count(),0,tag('no story dialog over the restored path'));await page.locator('#coastMap .close').click().catch(()=>{});await page.waitForTimeout(300);actions++;break;}
     else assert.fail(tag(`unexpected step ${id}/${lv}: ${await line()}`));
     actions++;await page.waitForTimeout(60);
@@ -128,19 +131,22 @@ const URL='http://127.0.0.1:8080/v5/play.html',KEY='vaultwake-v5-coast',SHOTS=pr
     assert.deepEqual(first,LESSONS,tag('each control taught once with the hand, in order: '+seen.join(' ')));}assert.equal(taught,LESSONS.length);
    {const ms=await page.evaluate(()=>JSON.parse(sessionStorage.getItem('__moments')??'[]'));const ice=ms.find(m=>/Tideglass cracked/.test(m));
     assert.ok(ice,tag('the first loop cracks tideglass, and its tip shows: '+JSON.stringify(ms)));{assert.match(ice,/Tideglass cracked · 1 of 3/,tag('the hits so far'));assert.match(ice,/2 more merges beside it free the part inside/,tag('the hits left'));assert.match(ice,/Any merge counts|Each must make a level \d part or better/,tag('how strong a merge must be'));}}
-   // the first restoration ends the guide; the message line names the next objective once
+   // Tutorial endpoint (owner, 2026-11-16): the first restoration ends the tutorial; the message line names the next
+   // objective once; the screen is the normal game: no guided line, highlight, hand, spotlight or cue; Hint stays
    assert.equal(s.seen['coach-done'],true,tag('the first restoration completes the guide'));
-   assert.match(await page.locator('#message').innerText(),/Guide complete\. Next: Lay a boardwalk: its gold order brings the materials and coins/);
-   // First Session 2.0: the next objective is named once (light: the line and its target, no hand)
-   await page.waitForTimeout(500);assert.equal(await level(),'light',tag('the next objective is named'));assert.equal(await page.locator('#coachHand:not([hidden])').count(),0,tag('no hand on it'));await fits('after the guide');await shot('done');
+   assert.match(await page.locator('#message').innerText(),/Tutorial complete\. Next: Lay a boardwalk: its gold order brings the materials and coins/);
+   await page.waitForTimeout(500);assert.equal(await level(),null,tag('nothing guided after the first Build'));await noHighlight('after the tutorial');
+   assert.equal(await page.evaluate(()=>document.body.dataset.spot??null),null,tag('no spotlight'));assert.equal(await page.locator('#spotCue:not([hidden])').count(),0,tag('no cue'));
+   assert.ok(await page.locator('#guideHint').isVisible(),tag('the Hint stays'));assert.notEqual(await page.locator('#hint').getAttribute('data-kind'),'coach',tag('the normal objective line'));
+   await fits('after the guide');await shot('done');
    const secs=Math.round((Date.now()-t0)/1000);
    // later orders never restart it, across a reload: one ready part set is laid for the first crew order and delivered
    // (the daily gift is marked as taken today: after the guide it may open by itself, which is right, but it would cover the order)
    await page.evaluate(k=>{const s=JSON.parse(localStorage.getItem(k));const o=s.orders.find(o=>o&&!o.story);let i=s.board.indexOf(null);for(const r of o.needs)for(let c=0;c<r.count;c++){s.board[i]={type:'item',family:r.family,tier:r.tier};i=s.board.indexOf(null);}s.daily={day:9e6,count:1};localStorage.setItem(k,JSON.stringify(s));},KEY);
    await page.reload();await page.waitForSelector('#homePlay:not([hidden])');await page.locator('#homePlay').click();await page.waitForSelector('#home',{state:'hidden'});await page.waitForTimeout(300);
-   assert.equal(await level(),'light',tag('after a reload the next objective is still named, not restarted'));
+   assert.equal(await level(),null,tag('after a reload the tutorial stays complete (not restarted)'));await noHighlight('after a reload');
    {const o=(await save()).orders.find(o=>o&&!o.story);await page.locator(`[data-order="${o.id}"]`).click();await page.waitForTimeout(1100);}
-   await page.waitForTimeout(4200);assert.equal(await level(),null,tag('a later order ends the guided span; nothing restarts'));await noHighlight('a later order');
+   await page.waitForTimeout(4200);assert.equal(await level(),null,tag('a later order: nothing restarts'));await noHighlight('a later order');
    assert.deepEqual(errors,[],tag('no page errors'));
    console.log(tag(`new player → board → adaptive guide → first restoration in ${actions} actions, ${taught} taught with the hand (${secs} s of test time); steps: ${seen.join(' → ')}`));
    await context.close();

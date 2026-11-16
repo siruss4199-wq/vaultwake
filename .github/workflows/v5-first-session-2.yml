@@ -77,7 +77,7 @@ jobs:
           node tests/v5-next-strip-tap-browser.cjs
       - name: Home, story, guide, saves and CrazyGames
         if: ${{ !cancelled() }}
-        timeout-minutes: 30
+        timeout-minutes: 40
         run: |
           node tests/v5-next-home-browser.cjs
           node tests/v5-next-story-browser.cjs
@@ -87,6 +87,7 @@ jobs:
           node tests/v5-next-order-cards-browser.cjs
           node tests/v5-next-stable-board-browser.cjs
           node tests/v5-next-tutorial-visual-browser.cjs
+          node tests/v5-next-tutorial-endpoint-browser.cjs
           node tests/v5-next-saves-browser.cjs
           node tests/v5-next-crazygames-browser.cjs
           node tests/v5-next-crazygames-save-browser.cjs

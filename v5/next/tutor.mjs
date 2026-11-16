@@ -15,7 +15,7 @@
 // (a short line only). It drops as the player shows each skill, measured from fields the save already has
 // (s.taps, s.merges, s.ordersDone, s.materials, s.built): no new save data, and a reload resumes at the same
 // level. The Hint button and the 8 s idle reminder raise ONE step to 'full' (the app keeps that, per session).
-import {act,orderItems,nextTask,sourceOpen,SOURCES,totalBuilt,stageOf} from './game.mjs';
+import {act,orderItems,nextTask,sourceOpen,SOURCES,totalBuilt} from './game.mjs';
 import {primaryAction,an} from './guide.mjs';
 import {missingOf} from './needs.mjs';
 import {coachActive} from './coach.mjs';
@@ -102,22 +102,19 @@ export function guideLevel(s,st){
  if(!st)return 'quiet';
  // blockers always say why (light: no finger, nothing to point at)
  if(!st.target)return 'light';
- // after the guide's span (the first restoration and the next objective) only Hint and the idle reminder guide
+ // after the guide (it ends with the first restoration) only the voluntary Hint guides
  if(!tutorActive(s))return 'quiet';
  // the coast screen's Build and × are one-off screen steps: shown while the first restoration is new
  if(['coastBuild','close'].includes(st.kind))return totalBuilt(s)<=1?'full':'light';
- const n=skills(s)[st.skill]??0,[full,light]=LEARN[st.skill]??[1,2],lv=n<full?'full':n<light?'light':'quiet';
- // the next objective after the first build is always named once (light), even for a skilled player
- return lv==='quiet'&&!coachActive(s)?'light':lv;
+ const n=skills(s)[st.skill]??0,[full,light]=LEARN[st.skill]??[1,2];
+ return n<full?'full':n<light?'light':'quiet';
 }
-// The guided span: the game's own coach span (until the first restoration) plus the next objective (until
-// the next delivery after it), so the "what next" after the first build is shown too. The existing skip
-// (seen['coach-done']) ends it at once, as in production.
-// 'coach-next' (an existing save field, s.seen) marks a guide finished by its first restoration (the app sets it
-// with coach-done); coach-done alone is Skip guide, which ends everything.
+// The guided span (owner decision, 2026-11-16: docs/V5_TUTORIAL_ENDPOINT_2026-11-16.md): the first loop only.
+// Generator → merge → crew order → coins → gold order → materials → coast → the first Build, and it ends with that
+// Build: no guided second restoration, no extra delivery. It is the game's own coach span (coach.mjs coachActive):
+// a new camp, until its first stage is built (that ends it for good, across reloads, whatever the seen flags say)
+// or Skip (seen['coach-done']). A camp that had played before the guide existed, or any camp with a stage built,
+// never gets it. 'coach-next' (s.seen) still records a guide finished by its first restoration; it no longer
+// extends the guide.
 export const COACH_NEXT='coach-next';
-export function tutorActive(s){
- if(coachActive(s))return true;
- if(s.seen?.['coach-done']&&!s.seen?.[COACH_NEXT])return false;
- return !!s.seen?.[COACH_NEXT]&&totalBuilt(s)===1&&stageOf(s,'beach-path')===1&&(s.ordersDone??0)<=2;
-}
+export const tutorActive=s=>coachActive(s);

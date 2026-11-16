@@ -614,7 +614,7 @@ function renderCoach(){
  const v=tutorView();
  if(tutorActive(state)||v.lv==='full'){tutor=v;const {st,lv}=v;coach={id:st.kind,text:st.what,target:st.target};
   b.innerHTML=`<b class="gWhat">${st.what}</b>${lv!=='quiet'&&st.why?`<small class="gWhy">${st.why}</small>`:lv==='quiet'&&stepPurpose(st)?`<small class="gWhy gFor">${stepPurpose(st)}</small>`:''}`;b.dataset.kind='coach';b.dataset.step=st.kind;b.dataset.level=lv;
-  requestAnimationFrame(()=>{fitLine(b);if(lv==='quiet'||!st.target)clearCoach();else showCoachTarget(st.target,{hand:lv==='full',spot:true});});
+  requestAnimationFrame(()=>{fitLine(b);if(lv==='quiet'||!st.target)clearCoach();else showCoachTarget(st.target,{hand:lv==='full',spot:tutorActive(state)});});
   armTutorIdle();return true;}
  tutor=null;delete b.dataset.level;
  coach=laterTip(state);
@@ -732,8 +732,12 @@ function run(a,{adCompletion=false}={}){
  // Build 51c: the guide's own feedback. The first crew order's coins are named (the coin count pulses);
  // the first restoration ends the guide (the message line names the next objective once).
  if(coachBefore&&r.event==='deliver'&&order&&!order.story&&state.ordersDone===1){coachNote={text:`+${order.coins} coins from ${CREW[order.who]?.name??'the crew'}'s order: crew orders pay coins.`,until:performance.now()+3800,target:{kind:'coins'}};setTimeout(renderHint,3900);}
- if(coachBefore&&r.event==='restore'){markSeen(COACH_DONE);markSeen(COACH_NEXT);coachNote=null;const next=TASKS[FIRST_PLACE].stages[stageOf(state,FIRST_PLACE)];
-  $('#message').textContent=`Guide complete. Next: ${next?next.name+': its gold order brings the materials and coins, crew orders add more coins.':'the coast\'s next place.'}`;}
+ // Tutorial endpoint (owner, 2026-11-16): the first Build ends the tutorial. One brief confirmation (a line at the top of
+ // the restored place's card, which later toasts cannot replace; a toast if no card shows), and the guide, its
+ // spotlight, cue and hand go at once; the optional Hint and the normal objective line stay.
+ if(coachBefore&&r.event==='restore'){markSeen(COACH_DONE);markSeen(COACH_NEXT);coachNote=null;tutorDone=true;tutor=null;clearCoach();const next=TASKS[FIRST_PLACE].stages[stageOf(state,FIRST_PLACE)];
+  $('#message').textContent=`Tutorial complete. Next: ${next?next.name+': its gold order brings the materials and coins, crew orders add more coins.':'the coast\'s next place.'}`;
+  setTimeout(()=>{if(tutorDone){tutorDone=false;moment('Tutorial complete','You know the loop: orders, materials, coins, build. Hint 💡 is there any time.');}},$('#coastMap').open?2600:400);}
  // the guide is this camp's from its first action on (a seen flag is an action too, so not before: a new
  // camp stays untouched until the player acts)
  if(coachBefore&&!state.seen?.[COACH_ON])markSeen(COACH_ON);
@@ -950,7 +954,9 @@ function laterTips(r){
    setTimeout(()=>moment(`Tideglass cracked · ${done} of ${GLASS_HITS}`,`${left} more ${left===1?'merge':'merges'} beside it free the part inside. ${need<=2?'Any merge counts.':`Each must make a level ${need} part or better.`}`),reduced()?0:700);}}
  if(!coachActive(state)&&!state.board.includes(null)&&!state.seen?.['tip-shed']){markSeen('tip-shed');moment('The board is full','Tap a part and choose Shed to keep it for later, or deliver and merge to make room.');}
 }
-$('#coachSkip').onclick=()=>{markSeen(COACH_DONE);coachNote=null;clearCoach();render();$('#message').textContent='Guide skipped. Help (in the menu) can replay it.';};
+// Skip is the player's own choice, so it counts as their first action: a new camp is saved from it (before, a Skip
+// pressed before any other action was not saved, and the guide came back after a reload).
+$('#coachSkip').onclick=()=>{if(waitFirstAction&&!damaged){waitFirstAction=false;holdSave=false;foldRibbon();}markSeen(COACH_DONE);coachNote=null;clearCoach();render();$('#message').textContent='Guide skipped. Help (in the menu) can replay it.';};
 // Help: a short replay of the guide (four lines with the crew's faces), whatever the camp's progress.
 const GUIDE_REPLAY=[['ivo','Tap a generator for parts, and drag matching parts together to merge them.'],['neri','Crew orders pay coins.'],['bram','A gold order pays coins too, and secures the materials for the next repair.'],['tamsin','On the coast screen, coins and materials together rebuild a place.']];
 $('#helpReplay').onclick=()=>{$('#help').close();playLines('How the camp works',GUIDE_REPLAY,()=>render(),{last:'Back to the board'});};
@@ -1331,11 +1337,13 @@ function showBeat(id,effects,stage=stageOf(state,id)){
 let restoredHtml=null;
 function keepRestoredCard(){if(!restoredHtml||!$('#coastMap').open)return;const wrap=$('#coastMap .sceneWrap');if(wrap&&!$('#coastMap .restoredCard'))wrap.insertAdjacentHTML('afterend',restoredHtml);}
 $('#coastMap').addEventListener('close',()=>{restoredHtml=null;});
+let tutorDone=false;
 function restoredCard(t,st,stage,effects,nxt,spent=null){
  $('#coastMap .restoredCard')?.remove();const wrap=$('#coastMap .sceneWrap');if(!wrap)return;
  const chips=rewardText(effects).replace(/^Rewards: /,'').split(' · ').map(x=>`<span>${x}</span>`).join('');
  const next=nxt?`<p class="rcNext"><b>Next:</b> ${nxt.u.name}${nxt.ready?' · ready to build':''}${newKindOf(nxt.u)?` · unlocks the ${SOURCES[newKindOf(nxt.u)].name}`:''}</p>`:'';
- wrap.insertAdjacentHTML('afterend',`<section class="restoredCard" role="status" aria-label="${st.name} restored"><small>${(AREAS.find(a=>a.tasks.includes(t))??currentArea(state)).name} · stage ${stage} of ${STAGES}</small><b class="rcTitle">${st.name}</b>${spent?`<b class="beatReceipt">−${spent} coins</b>`:''}
+ const done=tutorDone?'<p class="rcDone"><b>✓ Tutorial complete</b> You know the loop: orders, materials, coins, build. Hint 💡 is there any time.</p>':'';tutorDone=false;
+ wrap.insertAdjacentHTML('afterend',`<section class="restoredCard" role="status" aria-label="${st.name} restored">${done}<small>${(AREAS.find(a=>a.tasks.includes(t))??currentArea(state)).name} · stage ${stage} of ${STAGES}</small><b class="rcTitle">${st.name}</b>${spent?`<b class="beatReceipt">−${spent} coins</b>`:''}
   ${st.lines.map(([w,l])=>`<p class="rcLine">${face(w)}<span><b>${who$(w)}</b>: “${l}”</span></p>`).join('')}<div class="rcRewards">${chips}</div>${next}<button class="primary rcBack" type="button" data-done>Back to the board</button></section>`);
  restoredHtml=$('#coastMap .restoredCard').outerHTML;
  // the restored place stays in view: the picture at the top of the screen, its card right under it
