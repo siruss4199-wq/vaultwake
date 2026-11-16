@@ -60,6 +60,8 @@ The spotlight replaces all of them.
 
 **Files:** before (`d671dfa`) | after, full screen at 2×. One sheet per size: `docs/evidence/v5-tutorial-spotlight-2026-11-16/360x640.jpg`, `390x664.jpg`, `390x844.jpg`, `430x932.jpg`. Rows: A Deliver, B Merge, C Gold Order, D Build on the board, Build on the coast screen.
 
+**After only, at actual size** (1 CSS pixel = 1 image pixel, A–D side by side): `after-ABCD-<size>.png` in the same folder.
+
 **My reading of the after screenshots,** the same at all four sizes (I am not a stranger to the game; the playtest is the real check):
 
 | Shot | What draws the eye first | The next interaction |
