@@ -499,7 +499,7 @@ let guide=null;
 // one short sentence, one highlighted target (a pulse; a drag demonstration for a pair; still with
 // reduced motion). Nothing is blocked: every other control works as before.
 let coach=null,coachNote=null;
-function clearCoach(){for(const el of document.querySelectorAll('.coachTarget,.coachFrom,.coachTo'))el.classList.remove('coachTarget','coachFrom','coachTo');coachHand(null);coachArrow(null);aimHint(null);}
+function clearCoach(){for(const el of document.querySelectorAll('.coachTarget,.coachFrom,.coachTo'))el.classList.remove('coachTarget','coachFrom','coachTo');coachHand(null);coachArrow(null);spotlight(null);}
 // Build 51d (user, 2026-11-02: "guide hesgiig sain tod bolgomoor baina yag end touch hii geed"): a pointing
 // hand and a short label on the guide's target ("Tap here", "Drag onto its twin"). It never takes a tap
 // (pointer-events: none), it sits under any dialog, and with reduced motion it stays still.
@@ -518,63 +518,65 @@ function coachHand(el,label,drag,low=false){
 }
 function placeHand(){
  const h=document.getElementById('coachHand');if(!h)return;
- let r=handFor?.isConnected&&!homeOpen&&!document.querySelector('#story:not([hidden])')?handFor.getBoundingClientRect():null;
+ const r=handFor?.isConnected&&!homeOpen&&!document.querySelector('#story:not([hidden])')?handFor.getBoundingClientRect():null;
  if(!r?.width){h.hidden=true;return;}
  // Tutorial polish (2026-11-15): on a board cell the small pointer's fingertip touches the cell's lower-right corner,
  // never the picture; on an order or the Coast strip it anchors on the control to press (Deliver, Build), and that
  // control's own ring is the cue (no hand drawn over the card or the strip).
- // a target that is sliding into place (the strip trading places with the guide line) is measured where it lands
- const ty=handFor.getAnimations?.().length?new DOMMatrix(getComputedStyle(handFor).transform).m42||0:0;
- const cell=handFor.classList.contains('tile'),ctl=cell?null:handFor.querySelector('.reqDeliver,.rsAction'),c0=ctl?.getBoundingClientRect(),c=c0&&ty?new DOMRect(c0.x,c0.y-ty,c0.width,c0.height):c0;
- if(ty)r=new DOMRect(r.x,r.y-ty,r.width,r.height);
- // Action clarity (2026-11-15): on an order card the pointer's fingertip touches the Deliver chip's lower edge from
- // the card's free space beside the parts (never over the chip, a picture or a count); with no free space, the chip's
- // ring alone is the cue
- const chip=!cell&&ctl?.classList.contains('reqDeliver')&&c?.width?chipSpot(handFor,c):null;
- h.hidden=false;h.dataset.on=cell?'cell':chip?'chip':'control';
- h.style.left=`${cell?r.right-5:chip?chip.x:c?.width?c.left+c.width/2:r.left+r.width/2}px`;h.style.top=`${cell?r.bottom-5:chip?chip.y:c?.width?c.top+c.height/2:handLow?r.top+r.height*.42:r.top+r.height/2}px`;
+ const cell=handFor.classList.contains('tile'),ctl=cell?null:handFor.querySelector('.reqDeliver,.rsAction'),c=ctl?.getBoundingClientRect();
+ h.hidden=false;h.dataset.on=cell?'cell':'control';
+ h.style.left=`${cell?r.right-5:c?.width?c.left+c.width/2:r.left+r.width/2}px`;h.style.top=`${cell?r.bottom-5:c?.width?c.top+c.height/2:handLow?r.top+r.height*.42:r.top+r.height/2}px`;
  // the label stays on screen near the edges
  const l=h.querySelector('.handLabel'),w=l.offsetWidth,cx=r.left+r.width/2;h.style.setProperty('--lx',`${Math.max(8-cx+w/2,Math.min(0,innerWidth-8-cx-w/2))}px`);
 }
-// the pointer's box (20×24, fingertip at its anchor) under the chip: the first spot, from the chip's right end, that
-// clears every part picture, count and level tag on the card and stays inside it
-function chipSpot(card,c){
- const k=card.getBoundingClientRect(),y=c.bottom+2,avoid=[...card.querySelectorAll('.requestItems :is(img,svg,b,.reqLv),.reqName')].map(e=>e.getBoundingClientRect()).filter(a=>a.width);
- for(let x=c.right-10;x>=c.left+8;x-=3){const box={l:x-8,t:y-2,r:x+12,b:y+22};
-  if(box.r>k.right-1||box.l<k.left+1||box.b>k.bottom-1)continue;
-  if(avoid.every(a=>a.right<=box.l+1||a.left>=box.r-1||a.bottom<=box.t+1||a.top>=box.b-1))return {x,y};}
- return null;
-}
 addEventListener('resize',placeHand);addEventListener('scroll',placeHand,true);
-// Action clarity (2026-11-15): a merge reads SOURCE → DESTINATION at a glance. A small dark arrow sits on the line
-// between the two cells (on their shared edge or corner when they touch, else on the source's edge), turned toward
-// the destination; it nudges that way (still with reduced motion). It takes no tap and lives inside the board.
+// Tutorial spotlight (2026-11-16, owner on a real iPhone: everything competed for attention; docs/V5_TUTORIAL_SPOTLIGHT_
+// 2026-11-16.md). While the guide points at something, body[data-spot] (order | strip | pair | cell) lets one CSS block
+// (coastal.css "Tutorial spotlight") quiet everything that is not the target: the HUD, the other orders, the strip,
+// the board's other cells, the shed and the panels fade back; nothing is covered, no tap is caught (opacity only), and
+// it clears the moment the step changes, ends or is skipped. A Deliver or Build step adds ONE cue: a small dark label
+// ("Tap Deliver" / "Get 10 coins") whose tail touches that button, placed over the faded area next to it.
+function spotlight(t,on){
+ const b=document.body;if(!on||!t||!['order','strip','pair','cell'].includes(t.kind)){delete b.dataset.spot;spotCue(null);return;}
+ b.dataset.spot=t.kind;spotCue(['order','strip'].includes(t.kind)&&tutor?.st?{el:t.kind==='order'?$(`[data-order="${t.id}"] .reqDeliver`):$('#mapButton .rsAction'),title:tutor.st.what,sub:tutor.st.why}:null);
+}
+let cueFor=null;
+function spotCue(c){
+ let el=document.getElementById('spotCue');cueFor=c?.el??null;
+ if(!c?.el){if(el)el.hidden=true;return;}
+ if(!el){el=document.createElement('div');el.id='spotCue';el.setAttribute('aria-hidden','true');el.innerHTML='<b></b><small></small><i></i>';document.body.append(el);}
+ el.querySelector('b').textContent=c.title;el.querySelector('small').textContent=c.sub??'';placeCue();
+}
+function placeCue(){
+ const el=document.getElementById('spotCue');if(!el)return;
+ const r=cueFor?.isConnected&&!homeOpen&&!document.querySelector('#story:not([hidden])')&&!document.querySelector('dialog[open]')?cueFor.getBoundingClientRect():null;
+ if(!r?.width){el.hidden=true;return;}
+ el.hidden=false;const w=el.offsetWidth,h=el.offsetHeight,top=(window.visualViewport?.offsetTop??0)+4,above=r.top-10-h>=top;
+ const x=Math.max(8,Math.min(innerWidth-8-w,r.left+r.width/2-w/2));
+ el.dataset.side=above?'above':'below';el.style.left=`${Math.round(x)}px`;el.style.top=`${Math.round(above?r.top-10-h:r.bottom+10)}px`;
+ el.style.setProperty('--tx',`${Math.round(Math.max(14,Math.min(w-14,r.left+r.width/2-x)))}px`);
+}
+addEventListener('resize',placeCue);addEventListener('scroll',placeCue,true);
+// Merge: SOURCE (gold ring) → DESTINATION (green dashed ring). A small dark arrow sits on the line between the two
+// cells (on their shared edge or corner when they touch, else on the source's edge), turned toward the destination,
+// and a light copy of the source part glides to the destination and fades (the drag to make; still with reduced
+// motion: the arrow alone). Neither takes a tap; both live inside the board.
 const ARROW_SVG='<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 8h9.5M8.5 3.5 13 8l-4.5 4.5"/></svg>';
 function coachArrow(a,b){
- board.querySelector('.coachArrow')?.remove();if(!a||!b)return;
+ for(const e of board.querySelectorAll('.coachArrow,.coachGhost'))e.remove();if(!a||!b)return;
  const br=board.getBoundingClientRect(),ra=a.getBoundingClientRect(),rb=b.getBoundingClientRect();if(!ra.width||!rb.width)return;
  const sx=ra.left+ra.width/2,sy=ra.top+ra.height/2,dx=rb.left+rb.width/2-sx,dy=rb.top+rb.height/2-sy,d=Math.hypot(dx,dy)||1,pitch=Math.abs(rb.left-ra.left)||Math.abs(rb.top-ra.top)||ra.width;
- const near=d<=Math.max(ra.width,pitch)*1.5,k=ra.width/2+1,px=near?sx+dx/2:sx+dx/d*k,py=near?sy+dy/2:sy+dy/d*k;
+ const near=d<=Math.max(ra.width,pitch)*1.5,k=ra.width/2+1,px=near?sx+dx/2:sx+dx/d*k,py=near?sy+dy/2:sy+dy/d*k,ox=br.left+board.clientLeft,oy=br.top+board.clientTop;
  const el=document.createElement('i');el.className='coachArrow';el.setAttribute('aria-hidden','true');el.innerHTML=ARROW_SVG;
- el.style.left=`${px-br.left-board.clientLeft}px`;el.style.top=`${py-br.top-board.clientTop}px`;el.style.setProperty('--a',`${Math.atan2(dy,dx)*180/Math.PI}deg`);board.append(el);
+ el.style.left=`${px-ox}px`;el.style.top=`${py-oy}px`;el.style.setProperty('--a',`${Math.atan2(dy,dx)*180/Math.PI}deg`);board.append(el);
+ const art=a.querySelector(':scope>img.art,:scope>svg.art,:scope>.art');if(!art||reduced())return;
+ const g=document.createElement('span');g.className='coachGhost';g.setAttribute('aria-hidden','true');g.append(art.cloneNode(true));
+ g.style.cssText=`left:${sx-ox}px;top:${sy-oy}px;width:${ra.width}px;height:${ra.height}px;--gx:${dx}px;--gy:${dy}px`;board.append(g);
 }
-// Action clarity (2026-11-15): the guide line sits next to its target (app.mjs placeHeading) and a small notch on its
-// edge points at it (an order's Deliver chip, the strip's Build), only where the target lies over the line itself.
-function aimHint(t){
- const b=$('#hint');if(!b)return;delete b.dataset.notch;if(!t||b.dataset.kind!=='coach')return;
- const el=t.kind==='order'?$(`[data-order="${t.id}"]`):t.kind==='strip'?$('#mapButton'):null,ctl=el?.querySelector('.reqDeliver,.rsAction')??el;if(!ctl)return;
- const h=b.getBoundingClientRect();let r=ctl.getBoundingClientRect();if(!r.width||!h.width)return;
- // the control's centre, or the nearest point of it over the line (16 px clear of the line's rounded ends); the strip
- // is one button, so past the line's end the notch points at the strip as near its Build as the line reaches
- if(t.kind==='strip'&&r.left+6>h.right-16)r={left:h.right-40,right:h.right,bottom:r.bottom,width:40};
- const lo=Math.max(r.left+6,h.left+16),hi=Math.min(r.right-6,h.right-16);if(lo>hi||r.bottom>h.top+2)return;
- b.style.setProperty('--nx',`${Math.round(Math.max(lo,Math.min(hi,r.left+r.width/2))-h.left)}px`);b.dataset.notch='up';
-}
-addEventListener('resize',()=>{if(tutor?.st?.target&&tutor.lv!=='quiet')aimHint(tutor.st.target);});
 // First Session 2.0 (Adaptive tutorial 2.0, tutor.mjs): the same line and targets, one actionable step at a
 // time: what (bold), why (one short line), where (gold = the next action, green = the matching pair, the hand
 // only while that skill is new, after Hint or after an idle reminder). Every target is accepted by act().
-function showCoachTarget(t,{hand=true}={}){
+function showCoachTarget(t,{hand=true,spot=false}={}){
  clearCoach();if(!t)return;
  if(t.kind==='cell'){const el=board.querySelector(`[data-index="${t.index}"]`);el?.classList.add('coachTarget');if(hand)coachHand(el,'Tap here');}
  else if(t.kind==='pair'){const a=board.querySelector(`[data-index="${t.cells[0]}"]`),b=board.querySelector(`[data-index="${t.cells[1]}"]`);if(!a||!b)return;
@@ -583,7 +585,7 @@ function showCoachTarget(t,{hand=true}={}){
  else if(t.kind==='order'){const el=$(`[data-order="${t.id}"]`);el?.classList.add('coachTarget');if(hand)coachHand(el,'Tap to deliver',null,true);}
  else if(t.kind==='strip'){const el=$('#mapButton');el?.classList.add('coachTarget');if(hand)coachHand(el,'Tap to open the coast');}
  else if(t.kind==='coins')$('#coinPill')?.classList.add('coachTarget');
- aimHint(t);
+ spotlight(t,spot);
 }
 // The tutorial's current step and how much it shows. A Hint or the idle reminder raises one step to full until
 // the player acts or the step changes (session only: nothing is saved).
@@ -611,8 +613,8 @@ function renderCoach(){
  // the guided span (the game's coach span and the next objective), or a step a Hint / reminder raised
  const v=tutorView();
  if(tutorActive(state)||v.lv==='full'){tutor=v;const {st,lv}=v;coach={id:st.kind,text:st.what,target:st.target};
-  b.innerHTML=`<b class="gWhat">${['deliver','gold','build'].includes(st.kind)?st.what.replace(/\b(Deliver|Build)\b/,'<span class="gChip" data-c="$1">$1</span>'):st.what}</b>${lv!=='quiet'&&st.why?`<small class="gWhy">${st.why}</small>`:lv==='quiet'&&stepPurpose(st)?`<small class="gWhy gFor">${stepPurpose(st)}</small>`:''}`;b.dataset.kind='coach';b.dataset.step=st.kind;b.dataset.level=lv;
-  requestAnimationFrame(()=>{fitLine(b);if(lv==='quiet'||!st.target)clearCoach();else showCoachTarget(st.target,{hand:lv==='full'});});
+  b.innerHTML=`<b class="gWhat">${st.what}</b>${lv!=='quiet'&&st.why?`<small class="gWhy">${st.why}</small>`:lv==='quiet'&&stepPurpose(st)?`<small class="gWhy gFor">${stepPurpose(st)}</small>`:''}`;b.dataset.kind='coach';b.dataset.step=st.kind;b.dataset.level=lv;
+  requestAnimationFrame(()=>{fitLine(b);if(lv==='quiet'||!st.target)clearCoach();else showCoachTarget(st.target,{hand:lv==='full',spot:true});});
   armTutorIdle();return true;}
  tutor=null;delete b.dataset.level;
  coach=laterTip(state);
@@ -648,22 +650,12 @@ $('#coachSkip').textContent='Skip';$('#coachSkip').setAttribute('aria-label','Sk
 // there all the time, and Details joins it without a jump); otherwise it sits just below the board, where showing
 // or hiding it moves only the shed. On a landscape screen the left column keeps its order (the board is in its own
 // column). It follows the guide line's kind, whatever changes it.
-// Action clarity (2026-11-15, owner on a real iPhone): while the guide's step is an order's Deliver, its line sits
-// directly under the order rail (above the Coast strip), next to the card it names; the strip and the line trade
-// places, which have the same height and spacing, so the board does not move. The two slide into place (no jump).
 function placeHeading(){
- const h=$('.boardHeading'),b=$('#board'),f=$('#free'),m=$('#mapButton'),hint=$('#hint');if(!h||!b)return;
- const coach=hint?.dataset.kind==='coach',top=coach&&['deliver','gold'].includes(hint.dataset.step)&&m&&!matchMedia('(min-width:700px) and (min-aspect-ratio:13/10)').matches;
- if(top){if(h.nextElementSibling!==m)slide(()=>m.before(h));}
- else if(coach){if(h.nextElementSibling!==b)slide(()=>b.before(h));}
+ const h=$('.boardHeading'),b=$('#board'),f=$('#free');if(!h||!b)return;
+ if($('#hint')?.dataset.kind==='coach'){if(h.nextElementSibling!==b)b.before(h);}
  else if(h.previousElementSibling!==(f??b))(f??b).after(h);
 }
-function slide(move){
- const els=[$('#mapButton'),$('.boardHeading')].filter(Boolean),y0=els.map(e=>e.getBoundingClientRect().top);move();
- if(reduced()||homeOpen)return;els.forEach((e,i)=>{const d=y0[i]-e.getBoundingClientRect().top;if(Math.abs(d)>1)e.animate([{transform:`translateY(${d}px)`},{transform:'none'}],{duration:220,easing:'ease-out'}).finished.then(reaim,()=>{});});
-}
-function reaim(){placeHand();if(tutor&&tutor.lv!=='quiet'&&tutor.st.target)aimHint(tutor.st.target);}
-new MutationObserver(placeHeading).observe($('#hint'),{attributes:true,attributeFilter:['data-kind','data-step']});
+new MutationObserver(placeHeading).observe($('#hint'),{attributes:true,attributeFilter:['data-kind']});
 function renderHint(){
  // While a delivery's coins fly, the guidance waits too (it may be about to say "Upgrade").
  if(holdPlace>performance.now())return;
@@ -1686,7 +1678,7 @@ if(document.getElementById('home')){
   chapter:()=>{const a=currentArea(state);return a?.tasks?.length?`${a.name} · ${stagesBuilt()} of ${a.tasks.length*STAGES} stages built`:a?.name??'';},
   onEnter:arrive,onSettings:()=>$('#menuButton').onclick(),onBook:showBook,
   onNewCamp:()=>{if(!confirm('Start a new camp? The save that could not be read stays in this browser as a backup.'))return false;return newCamp();},
-  onOpenChange:v=>{homeOpen=v;syncPlaying?.();placeHand();},
+  onOpenChange:v=>{homeOpen=v;syncPlaying?.();placeHand();placeCue();},
   // The first-play story (Build 46q): once, on the first new camp's Play, never on Continue.
   autoEnter:newPlayer,
   beforeEnter:reason=>reason==='play'&&!rawSave&&!newPlayer&&!storySeen(storage)?playIntro({storage,reduced,face:who=>`assets/premium/coast/ui/${FACES[who]}.webp`}).then(how=>{storyJustPlayed=how==='done';return how;}):null});

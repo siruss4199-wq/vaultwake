@@ -20,7 +20,6 @@ import {primaryAction,an} from './guide.mjs';
 import {missingOf} from './needs.mjs';
 import {coachActive} from './coach.mjs';
 import {CHAINS} from './chains.mjs';
-import {TASKS} from './areas.mjs';
 import {refillTimes,REFILL_EVERY} from './energy.mjs';
 
 const WHO={ivo:'Ivo',bram:'Bram',neri:'Neri',tamsin:'Tamsin'};
@@ -48,24 +47,24 @@ export function tutorStep(s,ctx={}){
  // --- the coast panel (player-opened) ---
  if(coast==='open'){
   const up=nextTask(s),a=up&&{type:'restore',id:up.id};
-  if(a&&valid(s,a,now))return step('coastBuild','coastBuild',`Tap Build`,`${up.name}: ${up.cost} coins, the place changes.`,{kind:'restore',id:up.id},a,'build');
+  if(a&&valid(s,a,now))return step('coastBuild','coastBuild',`Tap Build`,`Spend ${up.cost} coins to rebuild`,{kind:'restore',id:up.id},a,'build');
   return step('close','wait',`Back to the board`,up?`${up.name} needs ${up.cost} coins. Deliver crew orders for coins.`:'Deliver the gold order for the next materials.',{kind:'back'},null,null);
  }
  // --- materials in and coins enough: the coast strip ---
  const up=nextTask(s);
  if(up&&valid(s,{type:'restore',id:up.id},now))
-  return step('build','build',`Tap Build`,`${up.name}: ${up.cost} coins, materials in.`,{kind:'strip'},{type:'restore',id:up.id},'build');
+  return step('build','build',`Tap Build`,`Spend ${up.cost} coins to rebuild`,{kind:'strip'},{type:'restore',id:up.id},'build');
  const focus=focusOrder(s);
  // --- a ready order: the focus order first, else another ready one, but only if delivering it takes no
  // part the focus order still counts on (the player may still deliver it: nothing is blocked) ---
  const spares=o=>{if(!focus||o===focus)return true;const c=structuredClone(s);if(!act(c,{type:'deliver',id:o.id},now).ok)return false;
   const have=x=>missingOf(x,focus).reduce((n,r)=>n+r.count-r.have,0);return have(c)<=have(s);};
  const ready=[focus,...s.orders.filter(o=>o&&o!==focus)].find(o=>o&&orderItems(s,o)&&valid(s,{type:'deliver',id:o.id},now)&&spares(o));
- if(ready){const g=!!ready.story,place=TASKS[ready.story]?.stages[stageOf(s,ready.story)]?.name;
-  // Action clarity (2026-11-15, owner on a real iPhone): the line names the control on the card (its Deliver chip)
-  // and what it pays, read from the order itself
-  return step(g?'gold':'deliver',g?'gold':'deliver',`Tap Deliver to collect ${ready.coins} coins`,
-   g?`Plus the materials for ${place??'the next place'}.`:`${who(ready)}'s order is ready.`,{kind:'order',id:ready.id},{type:'deliver',id:ready.id},g?'gold':'deliver',ready);}
+ if(ready){const g=!!ready.story;
+  // Tutorial spotlight (2026-11-16, owner on a real iPhone): the words of the one cue at the card's Deliver button:
+  // the button's own name, then what it gives (read from the order itself)
+  return step(g?'gold':'deliver',g?'gold':'deliver','Tap Deliver',
+   g?`Get ${ready.coins} coins + materials`:`Get ${ready.coins} coins`,{kind:'order',id:ready.id},{type:'deliver',id:ready.id},g?'gold':'deliver',ready);}
  if(!focus)return step('wait','wait','New orders are on the way','Merge parts while you wait.',null,null,null);
  // --- the focus order needs parts nobody can make yet: say so, and work on an order that can be done ---
  let o=focus,note='';

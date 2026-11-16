@@ -4,6 +4,11 @@
 - The line said "Tap Ivo's order", but the Deliver control on the card looked unrelated to it.
 - A selected wrench on the board competed for attention.
 
+**Superseded in part (2026-11-16) by `docs/V5_TUTORIAL_SPOTLIGHT_2026-11-16.md`:**
+- The spotlight replaces this round's line swap, notch, chip pointer, in-line chips and per-mark dimming.
+- The cue's words now read "Tap Deliver" · "Get N coins".
+- The toast placement and the merge arrow carry over.
+
 **Pass/fail rule:** a player can name the next action from one still screenshot.
 
 **Scope:** not a redesign. The layout system, card sizes, board position, tutorial logic and steps, Hint, Skip, saves, the CrazyGames SDK and every game rule are unchanged.
