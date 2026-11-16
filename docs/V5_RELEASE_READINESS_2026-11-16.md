@@ -15,7 +15,7 @@
 
 ## 0. Verdict
 
-**NO-GO for publishing the update today. GO to move to the owner-run gates** (real devices, CrazyGames private QA, legal items) once CI on `951af3b` finishes green.
+**NO-GO for publishing the update today. GO to move to the owner-run gates** (real devices, CrazyGames private QA, legal items). CI is green on the candidate's code (run 43796053659).
 
 Everything that can be verified automatically passes. The blockers are the checks that only a person can run:
 - real phones;
@@ -28,7 +28,7 @@ Everything that can be verified automatically passes. The blockers are the check
 |---|---|---|---|---|---|
 | #103 Order details sheet, Build 57y | `claude/v5-order-details-sheet` | `f9da3ff` | `claude/v5-crazygames-release-package` @ `e6eddf6` | clean, no conflict | **PASS**: 3 jobs, runs 43061281277 and 43061291329 (order sheet / Build workflow in Chromium + WebKit; ZIP build of `822a8f9` with SHA-256 check; the ZIP's `index.html` in Chromium + WebKit) |
 | #104 First Session 2.0 | `claude/v5-first-session-2-production` | `6bbee67` | #103 @ `f9da3ff` | "unstable" (an older run on the same head was cancelled), no conflict | **PASS**: run 43618261706 (unit; Coast Camp suites in Chromium and in WebKit) |
-| #105 First 60 s + 10 min, tutorial | `claude/v5-first-10-minutes` | `951af3b` | #104 @ `6bbee67` | "unstable" (CI running), no conflict | Run 43793459523: **unit PASS**; the Chromium and WebKit suites were **still running when this report was committed**. This docs-only commit restarts CI on the same game code; its result is the gate (B1) |
+| #105 First 60 s + 10 min, tutorial | `claude/v5-first-10-minutes` | `951af3b` (game code); `6b14c8f` (+ this report) | #104 @ `6bbee67` | no conflict | **PASS on `6b14c8f`**: run 43796053659 (unit; Coast Camp suites in Chromium; Coast Camp suites in WebKit). Same game code as `951af3b`, whose run 43793459523 was cancelled by the report's push after WebKit `tutorial-visual` lost its page (see §3.5) |
 
 **Stack shape:** `main` (`11896b9`) → … → `e6eddf6` (release package) → #103 → #104 → #105.
 - `main` is an ancestor of the whole stack and has no newer commits, so there is nothing to conflict with.
@@ -66,7 +66,7 @@ Everything that can be verified automatically passes. The blockers are the check
 | Home, reload and Continue | **PASS** | `home-browser`, `initial-view-browser`, `saves-browser`, cross-build save test (§3.2) | NOT TESTED |
 | Unit and simulation tests | **PASS**: 494/494 | `node --test tests/v5-*.test.mjs` on `951af3b` (local and CI) | n/a |
 | All 34 Coast Camp browser suites | **PASS** (Chromium, local, on the same game code as `951af3b`) | the CI workflow's list. `v5-next-browser` and `v5-next-playtest-browser` also launch WebKit, which is not installed here; their Chromium parts pass | n/a |
-| WebKit (Safari engine) | **PENDING** (CI) | CI on this report's commit (same game code as `951af3b`) | NOT TESTED (iPhone) |
+| WebKit (Safari engine) | **PASS** (CI) | run 43796053659 on `6b14c8f`: every Coast Camp suite in WebKit, including tutorial-visual and the tutorial endpoint; soak §3.5 | NOT TESTED (iPhone) |
 
 **Gameplay changes an existing player will see** (approved in PR #105):
 - **The camp tent:** "Pitch the camp tent" now gives a Survey Kite instead of +8 energy. Only camps that have not built it yet are affected.
@@ -113,6 +113,30 @@ Everything that can be verified automatically passes. The blockers are the check
 | Save keys unchanged | **PASS** | §3.2 |
 | Size | **PASS** | 14.2 MB compressed, the same as the live build (+24 KB); 1.28 MB before gameplay |
 
+### 3.5 WebKit page loss in `tutorial-visual`: checked, not a spotlight defect
+
+**What happened:** WebKit's `tutorial-visual` suite lost its page twice: on `de140bc`, and on `951af3b` (run 43793459523, 55 s into its first size, in a fresh browser). The error was `Target page, context or browser has been closed`. Real Safari is WebKit, so this was measured, not assumed.
+
+**Controlled soak:** run 43796203432 on scratch branch `claude/v5-webkit-soak-2` (not for merge), same runners, same time.
+
+| What ran | Pre-spotlight `d671dfa` | Candidate `951af3b` |
+|---|---|---|
+| Neutral tutorial driver (`audit.cjs`: the real guide to the coast's Build, metrics every step), 360×640, 8 runs | 8 pass | 8 pass |
+| Same, 390×664, 8 runs | 8 pass | 8 pass |
+| The candidate's `tutorial-visual` suite, 390×664, 2 × 5 runs | n/a | 8 pass, 2 fail |
+
+**Results:**
+- **No page loss** in 42 WebKit plays of the full tutorial, 26 of them on the candidate.
+- **The 2 failures:** each shard's first, cold run, at the same assertion. The page had no highlighted target yet, but the spotlight was still on (`board (tap/light): no spotlight without a target`).
+- **Then:** run 43796053659 passed every WebKit suite, including `tutorial-visual`.
+
+**Conclusion:** the page losses match the known CI WebKit instability, already recorded on PR #105 (soak 43702050248: the base fails the same way). There is no evidence the spotlight raises the rate.
+
+**Finding S3, cosmetic, not a release blocker:**
+- The suite's cold-run failure is a timing race in the test. It reveals a real one-frame gap: when the board redraws during a tutorial step, `body[data-spot]` stays set while the target's highlight class is re-applied on the next animation frame. For that one frame, the target can draw faded with everything else.
+- **Fix (owner approval, UI code):** apply the coach classes in the same task as the render (before paint), and keep only the pointer placement in the animation frame. Also make the test wait one frame before reading.
+- Not changed in this audit.
+
 ## 4. Legal and portal gates
 
 | Gate | Status | Evidence / what is left |
@@ -132,7 +156,7 @@ Everything that can be verified automatically passes. The blockers are the check
 
 | # | Blocker | Type | Who |
 |---|---|---|---|
-| B1 | CI: the Chromium and WebKit browser suites on the candidate's code are pending (run 43793459523 on `951af3b` was still running; CI re-runs on this report's docs-only commit) | automated | CI |
+| B1 | ~~CI green on the candidate's code~~ **Resolved**: run 43796053659 on `6b14c8f` passed (unit, Chromium, WebKit). The WebKit page loss is not linked to the spotlight (§3.5) | automated | done |
 | B2 | No real-device PASS (iPhone Safari, Android Chrome) for the #103–#105 changes | manual | owner / testers |
 | B3 | No real CrazyGames private-QA run of the candidate, especially an existing player's cloud save carried over from the live build | manual (portal) | owner |
 | B4 | Legal items D and F open. They were open at the original Basic Launch too, so this is an owner decision, not a new finding | legal | owner |
@@ -140,7 +164,7 @@ Everything that can be verified automatically passes. The blockers are the check
 
 ## 6. Recommended release sequence
 
-1. **CI:** wait for CI on `951af3b` to finish green in Chromium and WebKit. A WebKit page-process loss is re-run once; anything else is fixed first.
+1. **CI:** ✅ done. Run 43796053659 on `6b14c8f` (the game code of `951af3b`) is green in Chromium and WebKit.
 2. **Real phones:** run the real-device playtest on the pinned preview (`https://bbd233e8.wispwood-game.pages.dev/v5/play.html`, the same game code), with an iPhone (Safari) and an Android phone (Chrome), using `docs/V5_PLAYTEST_CHECKLIST_2026-11-15.md`.
 3. **Owner decisions:** the timing within the Basic Launch window (ends 2026-12-02), PR #105's two open design items, and legal D and F.
 4. **Canonical ZIP:** on owner approval, a CI job builds the release ZIP from the approved head (as `v5-basic-zip-822a8f9.yml` did for `822a8f9`), records its SHA-256 and tests that ZIP's `index.html` in Chromium and WebKit. Only that ZIP is uploaded.
