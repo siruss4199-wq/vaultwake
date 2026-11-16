@@ -19,9 +19,11 @@ const state=page=>page.evaluate(k=>{const st=window.VWGuide?.step,h=document.que
   spot:document.body.dataset.spot??null,cue:!!document.querySelector('#spotCue:not([hidden])'),hand:!!document.querySelector('#coachHand:not([hidden])'),
   marks:document.querySelectorAll('.coachTarget,.coachFrom,.coachTo').length,hint:!!document.querySelector('#guideHint')&&getComputedStyle(document.querySelector('#guideHint')).display!=='none',
   built:s?Object.values(s.built??{}).reduce((n,k)=>n+k,0):null,mat:s?.materials?.['beach-path']??0,seen:s?.seen??{}};},KEY);
-(async()=>{for(const engine of (process.env.ENGINES||'chromium,webkit').split(',')){
- let browser;try{browser=await {chromium,webkit}[engine].launch();}catch(e){if(engine!=='chromium'&&/Executable doesn't exist/.test(e.message)){console.log(`${engine}: not installed here, skipped`);continue;}throw e;}
- try{for(const [W,H] of VIEWPORTS){const tag=s=>`${engine} ${W}×${H}: ${s}`;
+// a fresh browser per size: WebKit's page process in CI is known to drop late in one long-lived browser
+// (docs/V5_PLAYTEST_CHECKLIST_2026-11-15.md §1); every check is the same
+(async()=>{for(const engine of (process.env.ENGINES||'chromium,webkit').split(','))for(const [W,H] of VIEWPORTS){
+ let browser;try{browser=await {chromium,webkit}[engine].launch();}catch(e){if(engine!=='chromium'&&/Executable doesn't exist/.test(e.message)){console.log(`${engine}: not installed here, skipped`);break;}throw e;}
+ try{{const tag=s=>`${engine} ${W}×${H}: ${s}`;
   const open=async(seed)=>{const ctx=await browser.newContext({viewport:{width:W,height:H},isMobile:engine==='chromium',hasTouch:true}),page=await ctx.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
    if(seed)await page.addInitScript(([k,v])=>{if(!sessionStorage.seeded){localStorage.setItem(k,v);localStorage.setItem('vaultwake-v5-coast-story','{"intro":"skip"}');sessionStorage.seeded='1';}},[KEY,JSON.stringify(seed)]);
    await page.goto(ORIGIN+'/v5/play.html');await page.waitForSelector('#board .tile');await delay(1200);return {ctx,page,errors};};

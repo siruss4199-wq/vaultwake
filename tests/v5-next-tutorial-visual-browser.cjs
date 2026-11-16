@@ -39,9 +39,11 @@ const metrics=page=>page.evaluate(()=>{const R=e=>{const r=e.getBoundingClientRe
   arrow:arrow&&from&&to?{a:cen(arrow),s:cen(from),d:cen(to)}:null,
   toastOver:!!(mo&&((cueOn&&inter(R(mo),R(cueOn))>0)||(tgtCard&&inter(R(mo),R(tgtCard))>0)))};
  return {spot,step:st?.kind,level:document.querySelector('#hint')?.dataset.level,what:st?.what,why:st?.why,target:st?.target?.kind,emph,hand:hr?{w:Math.round(hr.w),h:Math.round(hr.h)}:null,covers,anims,boardTop:Math.round(b.top)};});
-(async()=>{for(const engine of (process.env.ENGINES||'chromium,webkit').split(',')){
- let browser;try{browser=await {chromium,webkit}[engine].launch();}catch(e){if(engine!=='chromium'&&/Executable doesn't exist/.test(e.message)){console.log(`${engine}: not installed here, skipped`);continue;}throw e;}
- try{for(const [W,H] of VIEWPORTS){const tag=s=>`${engine} ${W}×${H}: ${s}`;
+// a fresh browser per size: WebKit's page process in CI is known to drop late in one long-lived browser
+// (docs/V5_PLAYTEST_CHECKLIST_2026-11-15.md §1); every check is the same
+(async()=>{for(const engine of (process.env.ENGINES||'chromium,webkit').split(','))for(const [W,H] of VIEWPORTS){
+ let browser;try{browser=await {chromium,webkit}[engine].launch();}catch(e){if(engine!=='chromium'&&/Executable doesn't exist/.test(e.message)){console.log(`${engine}: not installed here, skipped`);break;}throw e;}
+ try{{const tag=s=>`${engine} ${W}×${H}: ${s}`;
   const ctx=await browser.newContext({viewport:{width:W,height:H},isMobile:engine==='chromium',hasTouch:true}),page=await ctx.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto(ORIGIN+'/v5/play.html');await page.waitForSelector('#board .tile');await delay(1500);
   const tapAt=async l=>{const b=await l.boundingBox();await page.touchscreen.tap(b.x+b.width/2,b.y+b.height/2);};
