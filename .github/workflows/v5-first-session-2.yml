@@ -65,6 +65,10 @@ jobs:
           node tests/v5-next-first-session-2-browser.cjs
           node tests/v5-next-board-feedback-browser.cjs
           node tests/v5-next-load-browser.cjs
+      - name: Shed overlay hotfix (a stored crate's tag and the store ring stay inside the shed; every shed path, merge, reload)
+        if: ${{ !cancelled() }}
+        timeout-minutes: 15
+        run: node tests/v5-next-shed-overlay-browser.cjs
       - name: Build 57y P0 set (build flow, core actions, SDK not ready, tap flicker, coast ×, strip tap)
         if: ${{ !cancelled() }}
         timeout-minutes: 30

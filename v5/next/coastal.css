@@ -171,6 +171,11 @@ body.nextMode #selection button{min-height:40px;padding:0 14px;border-radius:999
 body.nextMode #selection button.accent{background:linear-gradient(#ff8a63,var(--cb-coral));box-shadow:0 2px 0 #b8432a}
 /* ---------- shed, message, dock ---------- */
 body.nextMode #shed{background:var(--cb-cream);box-shadow:0 2px 0 #e6d3ab,0 6px 14px #0d5a6a2e}
+/* Hotfix 2026-11-17 (docs/V5_SHED_OVERLAY_HOTFIX_2026-11-17.md): a shed space and the folded bar's small icons hold
+   the same art as a board cell, whose absolutely placed parts (a crate's round family tag, the store's merge ring) need
+   a positioned host. Without one they were sized and placed against the whole page: a stored Rig crate drew a
+   page-sized coral oval with a white rim over the lower-right board. */
+body.nextMode #shed :is(.shedSlot,.shedPeek i){position:relative}
 body.nextMode .message{background:#ffffffb3;border-radius:999px;padding:2px 10px;margin:6px auto 0;width:fit-content;max-width:100%}
 body.nextMode .message:empty{display:none}
 body.nextMode footer{background:#ffffffb3;border-radius:14px;margin:8px 0 0}
