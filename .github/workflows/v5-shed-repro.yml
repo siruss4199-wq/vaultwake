@@ -50,10 +50,10 @@ jobs:
         run: |
           git config --global --add safe.directory "$PWD"
           git fetch -q origin claude/v5-board-full-rescue
-          git checkout -q "$SHA" -- tests/v5-next-board-rescue-browser.cjs tests/v5-next-shed-overlay-browser.cjs tests/fixtures/coast
-          # over a real network the board's pictures may still be loading when the Shed test takes its pixel baseline:
-          # wait for every image first (diagnostic patch here only; the PR's own CI serves the files locally)
-          node .github/scratch/patch-shed-baseline.cjs
+          # the game is bd68669 (the preview); the tests are the PR's at ac1d8bc (a test-only commit after it: the Shed
+          # test now seeds Board Full Rescue's own seen flag, so the rescue does not fade the board under that test)
+          git checkout -q ac1d8bcbf507dcdf0f8bbf060ce618103f8a1ba8 -- tests/v5-next-board-rescue-browser.cjs tests/v5-next-shed-overlay-browser.cjs tests/fixtures/coast
+          git diff --quiet bd6866998dc9fe0c2e595be1a4ae1084230ed656 ac1d8bcbf507dcdf0f8bbf060ce618103f8a1ba8 -- v5 v4 && echo "game files identical: bd68669 = ac1d8bc"
       - name: Smoke on an emulated iPhone 13 (webkit job) / Chromium
         if: matrix.engine == 'webkit'
         run: mkdir -p evidence-preview && ORIGIN=$PREVIEW OUT=evidence-preview node .github/scratch/preview-smoke.cjs
