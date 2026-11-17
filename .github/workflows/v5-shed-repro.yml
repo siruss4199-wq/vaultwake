@@ -51,6 +51,10 @@ jobs:
           git config --global --add safe.directory "$PWD"
           git fetch -q origin claude/v5-board-full-rescue
           git checkout -q "$SHA" -- tests/v5-next-board-rescue-browser.cjs tests/v5-next-shed-overlay-browser.cjs tests/fixtures/coast
+          # over a real network the board's pictures may still be loading when the Shed test takes its pixel baseline:
+          # wait for every image first (diagnostic patch here only; the PR's own CI serves the files locally)
+          sed -i "s|const base=new Set((await scan()).overlays),coral0=await coral();|await page.waitForFunction(()=>[...document.images].every(i=>i.complete),null,{timeout:30000});await delay(800);const base=new Set((await scan()).overlays),coral0=await coral();|" tests/v5-next-shed-overlay-browser.cjs
+          grep -c "every(i=>i.complete)" tests/v5-next-shed-overlay-browser.cjs
       - name: Smoke on an emulated iPhone 13 (webkit job) / Chromium
         if: matrix.engine == 'webkit'
         run: mkdir -p evidence-preview && ORIGIN=$PREVIEW OUT=evidence-preview node .github/scratch/preview-smoke.cjs
