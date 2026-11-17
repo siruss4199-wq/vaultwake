@@ -6,6 +6,7 @@ import {primaryAction} from './guide.mjs';
 import {coachStep,coachActive,laterTip,nextRareUse,COACH_ON,COACH_DONE,FIRST_PLACE} from './coach.mjs';
 import {tutorStep,guideLevel,tutorActive,signature,skills,COACH_NEXT,focusOrder as tutorFocus,who as tutorWho} from './tutor.mjs';
 import {isNewPlayer} from './newcomer.mjs';
+import {rescueStep,boardFull} from './rescue.mjs';
 import {needsOf,missingOf,levelOf} from './needs.mjs';
 import {LEVEL_PATH,BONUS_NAMES,CHEST_ENERGY,EARLY_LEVELS,EARLY_LEVEL_ENERGY,ONBOARDING,goldChase,CAMP} from './game.mjs';
 import {kit} from '../kits.mjs';
@@ -75,7 +76,7 @@ if(startNew){const q=new URLSearchParams(location.search);q.delete('new');histor
 // new camp on Home (which first copies it to SAVE_KEY+'-damaged'). A new camp with no save is not
 // written either until the player presses Play.
 const bootNow=Date.now(),stored=storage.get(SAVE_KEY)||null,rawSave=startNew?null:stored,read=readSave(rawSave,bootNow);
-let state=startNew?fresh(bootNow):read.state,selected=null,focusOrder=null,drag=null,suppressClick=false;
+let state=startNew?fresh(bootNow):read.state,selected=null,focusOrder=null,drag=null,suppressClick=false,clearArm=null;
 let damaged=read.status==='damaged'||read.status==='newer',newer=read.status==='newer',holdSave=!rawSave||damaged,homeOpen=!!document.getElementById('home');
 // First Session 2.0 (2026-11-13): a genuinely new player goes straight to the playable board (no Home click,
 // no three story pages). "New" is decided only here, after openSaveStore has settled: the SDK initialised and
@@ -455,7 +456,7 @@ function renderSelection(){
   // be cleared, not only on a nearly full board (Build 41 M4). Build 52A: what it gives back is game.mjs
   // clearRefund (+1 energy for an everyday part of Level 4+, else none); the button says so only when it does.
   // A part an order wants, a merged part or a rare part asks for a second tap.
-  {const rare=!!CHAINS[x.family].secondary,careful=rare||x.tier>=1||who.length>0,nearlyFull=state.board.filter(y=>y===null).length<=2,back=clearRefund(x);
+  {const rare=!!CHAINS[x.family].secondary,careful=rare||x.tier>=1||who.length>0||tutor?.st?.via==='clear'&&tutor.st.target?.index===selected,nearlyFull=state.board.filter(y=>y===null).length<=2,back=clearRefund(x);
    buttons=`<button data-action="recycle"${careful?' data-confirm="1"':''}>${nearlyFull&&!rare?'Clear space':'Clear'}${back?` · +${back} ϟ`:''}</button>`;}
  }else if(x.type==='source'){
   const chain=CHAINS[GENERATOR_CHAINS[x.id][0][0]];
@@ -537,8 +538,8 @@ addEventListener('resize',placeHand);addEventListener('scroll',placeHand,true);
 // it clears the moment the step changes, ends or is skipped. A Deliver or Build step adds ONE cue: a small dark label
 // ("Tap Deliver" / "Get 10 coins") whose tail touches that button, placed over the faded area next to it.
 function spotlight(t,on){
- const b=document.body;if(!on||!t||!['order','strip','pair','cell'].includes(t.kind)){delete b.dataset.spot;spotCue(null);return;}
- b.dataset.spot=t.kind;spotCue(['order','strip'].includes(t.kind)&&tutor?.st?{el:t.kind==='order'?$(`[data-order="${t.id}"] .reqDeliver`):$('#mapButton .rsAction'),title:tutor.st.what,sub:tutor.st.why}:null);
+ const b=document.body;if(!on||!t||!['order','strip','pair','cell','action'].includes(t.kind)){delete b.dataset.spot;spotCue(null);return;}
+ b.dataset.spot=t.kind;spotCue(['order','strip','action'].includes(t.kind)&&tutor?.st?{el:t.kind==='order'?$(`[data-order="${t.id}"] .reqDeliver`):t.kind==='action'?$(`#selection [data-action="${t.action}"]`):$('#mapButton .rsAction'),title:tutor.st.what,sub:tutor.st.why}:null);
 }
 let cueFor=null;
 function spotCue(c){
@@ -576,6 +577,7 @@ function coachArrow(a,b){
 // First Session 2.0 (Adaptive tutorial 2.0, tutor.mjs): the same line and targets, one actionable step at a
 // time: what (bold), why (one short line), where (gold = the next action, green = the matching pair, the hand
 // only while that skill is new, after Hint or after an idle reminder). Every target is accepted by act().
+let actionShown='';
 function showCoachTarget(t,{hand=true,spot=false}={}){
  clearCoach();if(!t)return;
  if(t.kind==='cell'){const el=board.querySelector(`[data-index="${t.index}"]`);el?.classList.add('coachTarget');if(hand)coachHand(el,'Tap here');}
@@ -585,6 +587,9 @@ function showCoachTarget(t,{hand=true,spot=false}={}){
  else if(t.kind==='order'){const el=$(`[data-order="${t.id}"]`);el?.classList.add('coachTarget');if(hand)coachHand(el,'Tap to deliver',null,true);}
  else if(t.kind==='strip'){const el=$('#mapButton');el?.classList.add('coachTarget');if(hand)coachHand(el,'Tap to open the coast');}
  else if(t.kind==='coins')$('#coinPill')?.classList.add('coachTarget');
+ else if(t.kind==='action'){const el=$(`#selection [data-action="${t.action}"]`);if(!el)return;el.classList.add('coachTarget');
+  // the button sits under the board: bring it into view once, without moving anything else
+  if(actionShown!==t.action+t.index){actionShown=t.action+t.index;const r=el.getBoundingClientRect();if(r.bottom>innerHeight-8||r.top<0)el.scrollIntoView({block:'nearest',behavior:reduced()?'auto':'smooth'});}}
  spotlight(t,spot);
 }
 // The tutorial's current step and how much it shows. A Hint or the idle reminder raises one step to full until
@@ -592,10 +597,24 @@ function showCoachTarget(t,{hand=true,spot=false}={}){
 const tutorG={hints:0,reminders:0};let tutor=null,tutorBoost=null,tutorSig='',tutorActs=-1,tutorIdle=0;const tutorReminded=new Set();
 const actsDone=()=>{const k=skills(state);return k.tap+k.merge+k.deliver+k.gold+k.build+(state.moves??0);};
 function tutorView(coast=$('#coastMap').open?'open':null){
- const st=tutorStep(state,{coast}),sig=signature(st),n=actsDone();
+ let st=tutorStep(state,{coast});
+ // Board Full Rescue (rescue.mjs): on a full board the one step is the safest action that frees a space. In the first
+ // tutorial it only replaces the old "The board is full" dead end; after it, it is shown in full once (the first full
+ // board) and from the Hint, until a space is free again (rescueOn); it is worked out only then (each one is dry-run).
+ if(!coast&&boardFull(state)&&(tutorActive(state)?st?.kind==='space':rescueOn))st=rescueStep(state,{selected,armed:clearArm?.index===selected&&clearArm.until>performance.now()})??st;
+ if(!boardFull(state))rescueOn=false;
+ const sig=signature(st),n=actsDone();
  if(sig!==tutorSig||n!==tutorActs){tutorBoost=null;tutorSig=sig;tutorActs=n;}
- return {st,sig,lv:tutorBoost===sig?'full':guideLevel(state,st)};
+ return {st,sig,lv:st?.rescue&&rescueOn?'full':tutorBoost===sig?'full':guideLevel(state,st)};
 }
+// Board Full Rescue: on while the board is full and the player was shown it (the first full board, or the Hint)
+let rescueOn=false;
+// The first full board after the tutorial: the rescue shows on its own, once. It has its own seen flag, RESCUE_SEEN
+// ('tip-rescue', in the existing seen object: no schema change; every build's load() accepts the key, SEEN_ID), so a
+// camp that only had the old generic "The board is full" note ('tip-shed') still gets the rescue once. 'tip-shed' is
+// set too, so the old note never shows on a rollback either. The Hint shows the rescue any time the board is full.
+const RESCUE_SEEN='tip-rescue';
+function rescueFirst(){if(boardFull(state)&&!coachActive(state)&&!state.seen?.[RESCUE_SEEN]){markSeen(RESCUE_SEEN);markSeen('tip-shed');rescueOn=true;}}
 // First 10 minutes (2026-11-14): a quiet step (a skill already shown) still says what the action is for, in a few
 // words, so a run of taps and merges keeps its reason ("For the gold order: Clear the landing path"). Text only:
 // no highlight and no hand, as before.
@@ -613,10 +632,11 @@ function renderCoach(){
  // the guided span (the game's coach span and the next objective), or a step a Hint / reminder raised
  const v=tutorView();
  if(tutorActive(state)||v.lv==='full'){tutor=v;const {st,lv}=v;coach={id:st.kind,text:st.what,target:st.target};
+  if(st.rescue&&!tutorActive(state))b.dataset.rescue='1';else delete b.dataset.rescue;
   b.innerHTML=`<b class="gWhat">${st.what}</b>${lv!=='quiet'&&st.why?`<small class="gWhy">${st.why}</small>`:lv==='quiet'&&stepPurpose(st)?`<small class="gWhy gFor">${stepPurpose(st)}</small>`:''}`;b.dataset.kind='coach';b.dataset.step=st.kind;b.dataset.level=lv;
-  requestAnimationFrame(()=>{fitLine(b);if(lv==='quiet'||!st.target)clearCoach();else showCoachTarget(st.target,{hand:lv==='full',spot:tutorActive(state)});});
+  requestAnimationFrame(()=>{fitLine(b);if(lv==='quiet'||!st.target)clearCoach();else showCoachTarget(st.target,{hand:lv==='full',spot:tutorActive(state)||!!st.rescue});});
   armTutorIdle();return true;}
- tutor=null;delete b.dataset.level;
+ tutor=null;delete b.dataset.level;delete b.dataset.rescue;
  coach=laterTip(state);
  if(!coach){clearCoach();return false;}
  b.textContent=coach.text;b.dataset.kind='coach';b.dataset.step=coach.id;
@@ -643,22 +663,26 @@ $('#coachSkip').textContent='Skip';$('#coachSkip').setAttribute('aria-label','Sk
 // The voluntary Hint: the current step, in full (the hand), until the player acts.
 {const hb=document.createElement('button');hb.id='guideHint';hb.type='button';hb.className='guideHint';hb.setAttribute('aria-label','Hint: show me the next step');hb.innerHTML='<span aria-hidden="true">💡</span>';
  $('#hint').after(hb);
- hb.onclick=()=>{const v=tutorView();tutorG.hints++;tutorReminded.add(v.sig);tutorBoost=v.sig;tutorSig=v.sig;sfx('tap');nudgeHint();renderHint();if($('#coastMap').open)showMap();
+ hb.onclick=()=>{if(boardFull(state))rescueOn=true;const v=tutorView();tutorG.hints++;tutorReminded.add(v.sig);tutorBoost=v.sig;tutorSig=v.sig;sfx('tap');nudgeHint();renderHint();if($('#coastMap').open)showMap();
   if(!v.st.target)$('#message').textContent=`${v.st.what}. ${v.st.why}`;};}
 // Stable board (2026-11-15, owner): selecting or deselecting an order must not move the board. The row that holds
 // the Hint and Details buttons sits above the board only while it carries the tutorial's guide line (then it is
 // there all the time, and Details joins it without a jump); otherwise it sits just below the board, where showing
 // or hiding it moves only the shed. On a landscape screen the left column keeps its order (the board is in its own
 // column). It follows the guide line's kind, whatever changes it.
+// Board Full Rescue: after the tutorial its line stays in the row's place under the board (the board never moves for it),
+// and the row (with the Hint) stays shown on a full board even when the game's own line is a Deliver or Upgrade one.
 function placeHeading(){
  const h=$('.boardHeading'),b=$('#board'),f=$('#free');if(!h||!b)return;
- if($('#hint')?.dataset.kind==='coach'){if(h.nextElementSibling!==b)b.before(h);}
+ if($('#hint')?.dataset.kind==='coach'&&!$('#hint').dataset.rescue){if(h.nextElementSibling!==b)b.before(h);}
  else if(h.previousElementSibling!==(f??b))(f??b).after(h);
 }
-new MutationObserver(placeHeading).observe($('#hint'),{attributes:true,attributeFilter:['data-kind']});
+new MutationObserver(placeHeading).observe($('#hint'),{attributes:true,attributeFilter:['data-kind','data-rescue']});
 function renderHint(){
  // While a delivery's coins fly, the guidance waits too (it may be about to say "Upgrade").
  if(holdPlace>performance.now())return;
+ rescueFirst();
+ {const h=$('#hint');h.toggleAttribute('data-full',boardFull(state));}
  if(renderCoach())return;delete $('#hint').dataset.step;
  guide=primaryAction(state,focusOrder);let label=guide.label;
  if(guide.kind==='energy'){const t=refillTimes(state,Date.now());label+=' · +1 in '+clock(t?.next??0);}
@@ -673,6 +697,10 @@ $('#hint').onclick=()=>{
   else if((tutor.st.kind==='deliver'||tutor.st.kind==='gold')&&t)run({type:'deliver',id:t.id});
   else if(t?.kind==='strip'){mapFocus=nextPlace()?.u.id??null;showMap();}
   else if(t?.kind==='pair'){tutorBoost=tutor.sig;renderHint();$('#message').textContent=tutor.st.kind==='unseal'?'Drag the marked part onto its crate.':'Drag one marked part onto the other.';}
+  // Board Full Rescue: the line selects the part it names, or presses the Shed / Clear button it points at (Clear
+  // still asks for its second tap)
+  else if(tutor.st.rescue&&t?.kind==='cell'){clickTile(t.index);}
+  else if(tutor.st.rescue&&t?.kind==='action')$(`#selection [data-action="${t.action}"]`)?.click();
   else $('#message').textContent=`${tutor.st.what}. ${tutor.st.why}`;
   return;}
  // a goal line (no highlight) still works like the normal hint line when tapped: its advice, on request
@@ -901,9 +929,8 @@ $('#selection').addEventListener('click',e=>{
  // Build 51d: clearing a part an order wants, a merged part or a rare part takes a second tap within 3 s
  if(b.dataset.action==='recycle'&&b.dataset.confirm&&!(clearArm?.index===selected&&clearArm.until>performance.now())){
   const at=selected;clearArm={index:at,until:performance.now()+3000};b.textContent='Tap again to clear';b.classList.add('confirm');
-  $('#message').textContent=`Clear the ${nameOf(x)}? Tap again to clear it for good.`;setTimeout(()=>{if(clearArm?.index===at&&clearArm.until<=performance.now()){clearArm=null;renderSelection();}},3100);return;}
+  $('#message').textContent=`Clear the ${nameOf(x)}? Tap again to clear it for good.`;renderHint();setTimeout(()=>{if(clearArm?.index===at&&clearArm.until<=performance.now()){clearArm=null;renderSelection();renderHint();}},3100);return;}
  clearArm=null;run({type:b.dataset.action,index:selected,id:x?.id});});
-let clearArm=null;
 $('#orderTools').addEventListener('click',e=>{if(e.target.closest('[data-sheet-close]')){setDetails(false);return;}const b=e.target.closest('[data-locate]');if(!b)return;setDetails(false);locateGen=b.dataset.locate;locateUntil=performance.now()+2600;renderBoard();if(coach)showCoachTarget(coach.target);
  board.querySelector('.tile.located')?.scrollIntoView({block:'nearest',behavior:reduced()?'auto':'smooth'});
  const i=locateIndex();if(i>=0)$('#message').textContent=`${SOURCES[locateGen].name}${state.board[i]?.level>1?` (level ${state.board[i].level})`:''}: tap it for parts.`;
@@ -952,7 +979,8 @@ function laterTips(r){
   if(g?.type==='glass'){const done=g.cracks??1,left=GLASS_HITS-done,need=g.tier+1;markSeen('tip-ice');
    // a merge beside it cracks it only if it makes a part at least as strong as the one inside (crack())
    setTimeout(()=>moment(`Tideglass cracked · ${done} of ${GLASS_HITS}`,`${left} more ${left===1?'merge':'merges'} beside it free the part inside. ${need<=2?'Any merge counts.':`Each must make a level ${need} part or better.`}`),reduced()?0:700);}}
- if(!coachActive(state)&&!state.board.includes(null)&&!state.seen?.['tip-shed']){markSeen('tip-shed');moment('The board is full','Tap a part and choose Shed to keep it for later, or deliver and merge to make room.');}
+ // the first full board: Board Full Rescue guides it on the board itself (rescueFirst, from renderHint), in place of
+ // the note this was ("The board is full")
 }
 // Skip is the player's own choice, so it counts as their first action: a new camp is saved from it (before, a Skip
 // pressed before any other action was not saved, and the guide came back after a reload).

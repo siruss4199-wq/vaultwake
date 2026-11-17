@@ -1,0 +1,45 @@
+[
+ {
+  "tag": "before",
+  "case": "first full board",
+  "line": "✓ Deliver · +10 coins",
+  "spot": null,
+  "moment": null
+ },
+ {
+  "tag": "before",
+  "case": "shed: Hint",
+  "line": "Upgrade Landing Beach: Hang the signal flags",
+  "msg": "",
+  "target": null
+ },
+ {
+  "tag": "before",
+  "case": "clear",
+  "line": "Upgrade Landing Beach: Hang the signal flags",
+  "msg": ""
+ },
+ {
+  "tag": "after",
+  "case": "first full board",
+  "line": "Tap Deliver\nFrees 2 spaces · +10 coins",
+  "spot": "order",
+  "moment": null
+ },
+ {
+  "tag": "after",
+  "case": "shed: Hint",
+  "line": "Tap the Driftwood crate\nThen tap Shed to keep it for later",
+  "msg": "",
+  "target": {
+   "kind": "cell",
+   "index": 48
+  }
+ },
+ {
+  "tag": "after",
+  "case": "clear",
+  "line": "Tap Clear again\nTo confirm: it is gone for good",
+  "msg": "Clear the Frayed twine? Tap again to clear it for good."
+ }
+]

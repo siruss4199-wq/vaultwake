@@ -29,7 +29,7 @@ jobs:
         run: node --test tests/v5-*.test.mjs
       - name: Modules and the CrazyGames page
         run: |
-          node --check v5/next/app.mjs && node --check v5/next/tutor.mjs && node --check v5/next/home.mjs
+          node --check v5/next/app.mjs && node --check v5/next/tutor.mjs && node --check v5/next/home.mjs && node --check v5/next/rescue.mjs
           node --check v5/app.mjs && node --check v5/core.mjs && node --check v5/art.mjs
           node tools/coast-crazygames.mjs --check
           node tools/coast-modules.mjs --check
@@ -69,6 +69,10 @@ jobs:
         if: ${{ !cancelled() }}
         timeout-minutes: 15
         run: node tests/v5-next-shed-overlay-browser.cjs
+      - name: Board Full Rescue (a full board guides the safest action that frees a space; deliver, merge, shed, confirmed Clear, rewards waiting, reload, Hint)
+        if: ${{ !cancelled() }}
+        timeout-minutes: 15
+        run: node tests/v5-next-board-rescue-browser.cjs
       - name: Build 57y P0 set (build flow, core actions, SDK not ready, tap flicker, coast ×, strip tap)
         if: ${{ !cancelled() }}
         timeout-minutes: 30
