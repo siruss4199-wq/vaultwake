@@ -1,0 +1,43 @@
+# Scratch diagnostic (not for merge): reproduce the reported mobile Shed overlay in WebKit and Chromium, on the
+# candidate (ecde162) and the expected live build (822a8f9). Prints DOM findings and JPEG crops (base64) to the log.
+name: V5 Shed overlay repro (diagnostic)
+on:
+  push:
+    branches: [claude/v5-shed-repro]
+permissions:
+  contents: read
+jobs:
+  hunt:
+    name: shed hunt ${{ matrix.engine }} ${{ matrix.code }} ${{ matrix.size }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [webkit, chromium]
+        code: [cand-ecde162, live-822a8f9]
+        size: ['390x844', '375x667']
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      options: --ipc=host
+    env:
+      HOME: /root
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: npm install --no-save --no-audit --no-fund playwright@1.62.1
+      - name: Serve the code under test on 8080
+        run: |
+          git config --global --add safe.directory "$PWD"
+          REF=${{ matrix.code == 'live-822a8f9' && '822a8f9' || 'ecde162' }}
+          mkdir -p /tmp/site && git archive "$REF" v5 v4/platform.mjs tools | tar -x -C /tmp/site
+          (node tools/ci-static-server.mjs /tmp/site 8080 > /tmp/http.log 2>&1 &)
+          for i in $(seq 1 30); do node -e "fetch('http://127.0.0.1:8080/v5/play.html').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))" && break; sleep 1; done
+      - name: Hunt
+        run: |
+          SIZE=${{ matrix.size }}
+          ENGINE=${{ matrix.engine }} W=${SIZE%x*} H=${SIZE#*x} B64=1 timeout 300 node .github/scratch/shed-hunt.cjs > /tmp/out.txt 2>&1 || echo "exit $?"
+          grep -v '^B64 ' /tmp/out.txt | head -400
+          echo "=== IMAGES"
+          grep '^B64 ' /tmp/out.txt || true
