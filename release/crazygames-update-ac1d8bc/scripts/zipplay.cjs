@@ -10,7 +10,7 @@ const STUB=`(()=>{const log=window.__sdk=[];const rec=n=>(...a)=>{log.push(n);};
   user:{isUserAccountAvailable:true,getUser:async()=>null,addAuthListener(){},removeAuthListener(){}},
   data:{getItem:k=>(k in store?store[k]:null),setItem:(k,v)=>{store[k]=String(v);log.push('data.setItem:'+k);},removeItem:k=>{delete store[k];},clear(){for(const k in store)delete store[k];}}}};})();`;
 const delay=ms=>new Promise(r=>setTimeout(r,ms));
-(async()=>{const b=await {chromium,webkit}[ENGINE].launch(),ctx=await b.newContext({viewport:{width:390,height:844},isMobile:ENGINE==='chromium',hasTouch:true}),page=await ctx.newPage();
+(async()=>{const b=await {chromium,webkit}[ENGINE].launch(),used=b.browserType().name(),version=b.version();if(used!==ENGINE)throw new Error(`asked for ${ENGINE}, launched ${used}`);const ctx=await b.newContext({viewport:{width:390,height:844},isMobile:ENGINE==='chromium',hasTouch:true}),page=await ctx.newPage();
  const failed=[],consoleErr=[],pageErr=[],outside=new Set();let bytes=0,bytesAtStart=null;
  await ctx.route('https://sdk.crazygames.com/**',r=>r.fulfill({contentType:'application/javascript',body:STUB}));
  page.on('requestfailed',r=>failed.push('FAILED '+r.url()));page.on('response',async r=>{if(r.status()>=400)failed.push(r.status()+' '+r.url());try{const l=+(r.headers()['content-length']||0);bytes+=l;}catch{}});
@@ -34,6 +34,6 @@ const delay=ms=>new Promise(r=>setTimeout(r,ms));
  if(home)await tapAt(page.locator('#homePlay'));await delay(1500);const after=await page.evaluate(()=>{const d=JSON.parse(localStorage.getItem('__cgdata')||'{}'),raw=d['vaultwake-v5-coast']??localStorage.getItem('vaultwake-v5-coast');return {step:window.VWGuide?.step?.kind??null,built:JSON.parse(raw||'{}').built,where:d['vaultwake-v5-coast']?'Data module':'localStorage'};});
  const sdk2=await page.evaluate(()=>window.__sdk.slice());await b.close();
  const uniq=a=>[...new Set(a)];
- console.log(JSON.stringify({engine:ENGINE,guided:kinds,tutorialComplete:built,save,afterReload:{home,...after},sdkFirstLoad:uniq(sdk1).join(' '),sdkCounts:{gameplayStart:sdk1.filter(x=>x==='gameplayStart').length,loadingStart:sdk1.filter(x=>x==='loadingStart').length,loadingStop:sdk1.filter(x=>x==='loadingStop').length,requestAd:sdk1.filter(x=>x.startsWith('requestAd')).length,dataSet:sdk1.filter(x=>x.startsWith('data.setItem')).length},sdkAfterReload:uniq(sdk2).join(' '),
+ console.log(JSON.stringify({engine:used,browserVersion:version,guided:kinds,tutorialComplete:built,save,afterReload:{home,...after},sdkFirstLoad:uniq(sdk1).join(' '),sdkCounts:{gameplayStart:sdk1.filter(x=>x==='gameplayStart').length,loadingStart:sdk1.filter(x=>x==='loadingStart').length,loadingStop:sdk1.filter(x=>x==='loadingStop').length,requestAd:sdk1.filter(x=>x.startsWith('requestAd')).length,dataSet:sdk1.filter(x=>x.startsWith('data.setItem')).length},sdkAfterReload:uniq(sdk2).join(' '),
   failedRequests:failed,consoleErrors:consoleErr,pageErrors:pageErr,outsideOrigins:[...outside],kbBeforeGameplayStart:Math.round(bytesAtStart/1024),kbTotal:Math.round(bytes/1024)},null,1));
 })().catch(e=>{console.error(e);process.exit(1);});

@@ -38,7 +38,7 @@ async function play(page,n){let acts=0;for(let i=0;i<n;i++){
  if(st?.kind==='order'){await page.locator(`[data-order="${st.id}"]`).click();acts++;await delay(900);continue;}
  await page.locator('#hint').click().catch(()=>{});acts++;await delay(500);}
  return acts;}
-(async()=>{const browser=await {chromium,webkit}[ENGINE].launch(),rows=[];rows.push(`engine ${ENGINE}`);let fail=0;
+(async()=>{const browser=await {chromium,webkit}[ENGINE].launch(),rows=[];const used=browser.browserType().name();if(used!==ENGINE)throw new Error(`asked for ${ENGINE}, launched ${used}`);rows.push(`engine ${used} ${browser.version()}`);let fail=0;
  const check=(ok,what)=>{rows.push(`${ok?'PASS':'FAIL'} ${what}`);if(!ok)fail++;};
  try{for(const [name,origin] of FROM){
   for(const kase of ['A new camp','B chapter-2 fixture']){const tag=s=>`${name} → candidate, ${kase}: ${s}`;

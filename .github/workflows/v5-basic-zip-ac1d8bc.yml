@@ -23,6 +23,8 @@ concurrency:
 env:
   SOURCE: ac1d8bcbf507dcdf0f8bbf060ce618103f8a1ba8
   ZIP_NAME: vaultwake-merge-crazygames-basic-ac1d8bc.zip
+  # the bytes of run 44116200314 (builds a = b, and this container's build): a rebuild must reproduce them exactly
+  EXPECTED_SHA256: 253dcb715440f12198d3074abf5a14c92b90caa5ffe4ea4a70ab36f6e34adb32
 jobs:
   build:
     name: Build ${{ matrix.build }} of the Basic ZIP from ac1d8bc
@@ -57,6 +59,7 @@ jobs:
           mkdir -p out && cp dist/vaultwake-coast-crazygames.zip "out/$ZIP_NAME"
           (cd out && sha256sum "$ZIP_NAME" | tee SHA256SUMS && echo "$(stat -c %s "$ZIP_NAME") bytes, $(unzip -Z1 "$ZIP_NAME" | wc -l) files")
           unzip -tq "out/$ZIP_NAME"
+          echo "$EXPECTED_SHA256  out/$ZIP_NAME" | sha256sum -c
       - uses: actions/upload-artifact@v4
         with:
           name: handoff-zip-${{ matrix.build }}
@@ -142,24 +145,53 @@ jobs:
       - name: Playwright 1.62.1 package (browsers come with the image)
         working-directory: src
         run: npm install --no-save --no-audit --no-fund playwright@1.62.1
-      - name: ZIP index.html — SDK lifecycle, Data-module saves, CrazyGames page, payload
+      - name: ZIP entry — index.html redirect to the game page (15 loads, page diagnostics)
         if: ${{ !cancelled() }}
-        timeout-minutes: 15
+        timeout-minutes: 10
+        working-directory: src
+        env:
+          ZIP_ORIGIN: http://127.0.0.1:8081
+        run: |
+          set +e
+          NODE_PATH="$PWD/node_modules" node ../ci/release/crazygames-update-ac1d8bc/scripts/redirect-diag.cjs > /tmp/redirect-diag.json; rc=$?
+          set -e
+          node -e "const d=require('/tmp/redirect-diag.json');console.log(JSON.stringify({engine:d.engine,version:d.version,loads:d.loads,gotoReturnedOnIndexHtml:d.gotoReturnedOnIndexHtml,homeNullWhenGotoReturned:d.homeNullWhenGotoReturned,allReachedGamePage:d.allReachedGamePage,allBooted:d.allBooted,bootMs:d.bootMs,verdict:d.verdict}))" | tee -a /tmp/suites.log
+          exit $rc
+      - name: ZIP game page — Data-module saves (guest, reload, second device, login, refused saves, slow SDK)
+        if: ${{ !cancelled() }}
+        timeout-minutes: 10
+        working-directory: src
+        env:
+          CG_URL: http://127.0.0.1:8081/v5/coast-crazygames.html
+        run: node tests/v5-next-crazygames-save-browser.cjs | tee -a /tmp/suites.log
+      - name: ZIP index.html — CrazyGames page (SDK lifecycle, no ads, nothing leads out, fits)
+        if: ${{ !cancelled() }}
+        timeout-minutes: 10
         working-directory: src
         env:
           CG_URL: http://127.0.0.1:8081/index.html
-        run: |
-          node tests/v5-next-crazygames-save-browser.cjs
-          node tests/v5-next-crazygames-browser.cjs
-          node tests/v5-next-sdk-not-ready-browser.cjs
-          node tests/v5-next-crazygames-payload-browser.cjs | tee /tmp/payload.jsonl
+        run: node tests/v5-next-crazygames-browser.cjs | tee -a /tmp/suites.log
+      - name: ZIP index.html — SDK not ready (taps never die)
+        if: ${{ !cancelled() }}
+        timeout-minutes: 10
+        working-directory: src
+        env:
+          CG_URL: http://127.0.0.1:8081/index.html
+        run: node tests/v5-next-sdk-not-ready-browser.cjs | tee -a /tmp/suites.log
+      - name: ZIP index.html — initial download
+        if: ${{ !cancelled() }}
+        timeout-minutes: 10
+        working-directory: src
+        env:
+          CG_URL: http://127.0.0.1:8081/index.html
+        run: node tests/v5-next-crazygames-payload-browser.cjs | tee /tmp/payload.jsonl
       - name: ZIP index.html — Build flow
         if: ${{ !cancelled() }}
         timeout-minutes: 10
         working-directory: src
         env:
           CG_URL: http://127.0.0.1:8081/index.html
-        run: node tests/v5-next-build-flow-browser.cjs
+        run: node tests/v5-next-build-flow-browser.cjs | tee -a /tmp/suites.log
       - name: ZIP index.html — core actions, tap flicker, coast ×, strip tap
         if: ${{ !cancelled() }}
         timeout-minutes: 15
@@ -167,31 +199,31 @@ jobs:
         env:
           CG_URL: http://127.0.0.1:8081/index.html
         run: |
-          node tests/v5-next-core-actions-browser.cjs
-          node tests/v5-next-tap-flicker-browser.cjs
-          node tests/v5-next-coast-back-browser.cjs
-          node tests/v5-next-strip-tap-browser.cjs
+          node tests/v5-next-core-actions-browser.cjs | tee -a /tmp/suites.log
+          node tests/v5-next-tap-flicker-browser.cjs | tee -a /tmp/suites.log
+          node tests/v5-next-coast-back-browser.cjs | tee -a /tmp/suites.log
+          node tests/v5-next-strip-tap-browser.cjs | tee -a /tmp/suites.log
       - name: ZIP files — Shed overlay hotfix
         if: ${{ !cancelled() }}
         timeout-minutes: 10
         working-directory: src
         env:
           ORIGIN: http://127.0.0.1:8080
-        run: node tests/v5-next-shed-overlay-browser.cjs
+        run: node tests/v5-next-shed-overlay-browser.cjs | tee -a /tmp/suites.log
       - name: ZIP files — Board Full Rescue (incl. an old save with tip-shed)
         if: ${{ !cancelled() }}
         timeout-minutes: 10
         working-directory: src
         env:
           ORIGIN: http://127.0.0.1:8080
-        run: node tests/v5-next-board-rescue-browser.cjs
+        run: node tests/v5-next-board-rescue-browser.cjs | tee -a /tmp/suites.log
       - name: ZIP files — tutorial endpoint (first loop to the first Build; Skip; existing save never guided)
         if: ${{ !cancelled() }}
         timeout-minutes: 15
         working-directory: src
         env:
           ORIGIN: http://127.0.0.1:8080
-        run: node tests/v5-next-tutorial-endpoint-browser.cjs
+        run: node tests/v5-next-tutorial-endpoint-browser.cjs | tee -a /tmp/suites.log
       - name: ZIP index.html with a stand-in CrazyGames SDK v3 — new player to the first Build, reload, Continue
         if: ${{ !cancelled() }}
         timeout-minutes: 10
@@ -199,7 +231,9 @@ jobs:
         env:
           ZIP_ORIGIN: http://127.0.0.1:8081
         run: |
-          node ../ci/release/crazygames-update-ac1d8bc/scripts/zipplay.cjs | tee /tmp/zipplay.json
+          # the script lives in the ci/ checkout; playwright is installed in src/node_modules
+          NODE_PATH="$PWD/node_modules" node ../ci/release/crazygames-update-ac1d8bc/scripts/zipplay.cjs | tee /tmp/zipplay.json
+          node -e "const d=require('/tmp/zipplay.json');console.log('zipplay engine',d.engine,d.browserVersion)" | tee -a /tmp/suites.log
           node -e "const d=require('/tmp/zipplay.json');const ok=d.tutorialComplete&&d.save?.done&&d.sdkCounts.gameplayStart===1&&d.sdkCounts.requestAd===0&&!d.failedRequests.length&&!d.consoleErrors.length&&!d.pageErrors.length&&!d.outsideOrigins.length&&d.afterReload.home==='Continue';console.log('zipplay',ok?'PASS':'FAIL');process.exit(ok?0:1)"
       - name: Saves across builds — live 822a8f9 and previous 664956e → this ZIP → rollback
         if: ${{ !cancelled() }}
@@ -208,10 +242,23 @@ jobs:
         env:
           CAND: http://127.0.0.1:8080
           FROM: live=http://127.0.0.1:8082,prev=http://127.0.0.1:8083
-        run: node ../ci/release/crazygames-update-ac1d8bc/scripts/crossver.cjs | tee /tmp/crossver.txt
+        run: NODE_PATH="$PWD/node_modules" node ../ci/release/crazygames-update-ac1d8bc/scripts/crossver.cjs | tee /tmp/crossver.txt
+      - name: Engine check — every suite and script ran in ${{ matrix.engine }} only
+        if: ${{ !cancelled() }}
+        run: |
+          grep -h "^engine " /tmp/crossver.txt >> /tmp/suites.log 2>/dev/null || true
+          OTHER=$([ "$ENGINE" = webkit ] && echo chromium || echo webkit)
+          mine=$(grep -cE "(^|[ \"])$ENGINE([ :×\"]|$)" /tmp/suites.log || true)
+          other=$(grep -cE "(^|[ \"])$OTHER([ :×\"]|$)" /tmp/suites.log || true)
+          echo "lines naming $ENGINE: $mine; naming $OTHER: $other"
+          grep -E "(^|[ \"])$OTHER([ :×\"]|$)" /tmp/suites.log | head -5 || true
+          [ "$mine" -gt 0 ] && [ "$other" = 0 ]
       - name: Keep the test outputs
         if: ${{ !cancelled() }}
-        run: mkdir -p results && cp /tmp/payload.jsonl /tmp/zipplay.json /tmp/crossver.txt results/ 2>/dev/null; ls results
+        run: |
+          mkdir -p results
+          for f in /tmp/payload.jsonl /tmp/zipplay.json /tmp/crossver.txt /tmp/redirect-diag.json /tmp/suites.log; do [ -f "$f" ] && cp "$f" results/ || echo "missing $f"; done
+          ls results
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
