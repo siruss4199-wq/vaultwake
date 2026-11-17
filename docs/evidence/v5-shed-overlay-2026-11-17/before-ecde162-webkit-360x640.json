@@ -1,0 +1,181 @@
+{
+ "engine": "webkit",
+ "size": "360x640",
+ "board": {
+  "x": 10,
+  "y": 206,
+  "width": 340,
+  "height": 340.015625
+ },
+ "before": [
+  {
+   "where": "board",
+   "box": [
+    208,
+    452,
+    8,
+    8
+   ],
+   "bg": "rgb(242, 119, 85)",
+   "border": "1.5px rgb(255, 255, 255)",
+   "containingBlock": "tile kit              odd",
+   "visible": true
+  }
+ ],
+ "selected": [
+  {
+   "where": "board",
+   "box": [
+    208,
+    452,
+    8,
+    8
+   ],
+   "bg": "rgb(242, 119, 85)",
+   "border": "1.5px rgb(255, 255, 255)",
+   "containingBlock": "tile kit          selected    odd",
+   "visible": true
+  },
+  {
+   "where": "selection",
+   "box": [
+    56,
+    657,
+    11,
+    11
+   ],
+   "bg": "rgb(242, 119, 85)",
+   "border": "2px rgb(255, 255, 255)",
+   "containingBlock": "preview",
+   "visible": true
+  }
+ ],
+ "stored150ms": [
+  {
+   "where": "shed bar peek",
+   "box": [
+    248,
+    305,
+    79,
+    141
+   ],
+   "bg": "rgb(242, 119, 85)",
+   "border": "2px rgb(255, 255, 255)",
+   "containingBlock": "html",
+   "visible": false
+  },
+  {
+   "where": "shed slot",
+   "box": [
+    248,
+    305,
+    79,
+    141
+   ],
+   "bg": "rgb(242, 119, 85)",
+   "border": "2px rgb(255, 255, 255)",
+   "containingBlock": "html",
+   "visible": true
+  }
+ ],
+ "stored": [
+  {
+   "where": "shed bar peek",
+   "box": [
+    248,
+    305,
+    79,
+    141
+   ],
+   "bg": "rgb(242, 119, 85)",
+   "border": "2px rgb(255, 255, 255)",
+   "containingBlock": "html",
+   "visible": false
+  },
+  {
+   "where": "shed slot",
+   "box": [
+    248,
+    305,
+    79,
+    141
+   ],
+   "bg": "rgb(242, 119, 85)",
+   "border": "2px rgb(255, 255, 255)",
+   "containingBlock": "html",
+   "visible": true
+  }
+ ],
+ "shed": [
+  "1/4",
+  "1 reward waiting · make a space"
+ ],
+ "folded": [
+  {
+   "where": "shed bar peek",
+   "box": [
+    248,
+    305,
+    79,
+    141
+   ],
+   "bg": "rgb(242, 119, 85)",
+   "border": "2px rgb(255, 255, 255)",
+   "containingBlock": "html",
+   "visible": true
+  },
+  {
+   "where": "shed slot",
+   "box": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "bg": "rgb(242, 119, 85)",
+   "border": "2px rgb(255, 255, 255)",
+   "containingBlock": "html",
+   "visible": false
+  }
+ ],
+ "afterReload": [
+  {
+   "where": "shed bar peek",
+   "box": [
+    248,
+    435,
+    79,
+    141
+   ],
+   "bg": "rgb(242, 119, 85)",
+   "border": "2px rgb(255, 255, 255)",
+   "containingBlock": "html",
+   "visible": true
+  },
+  {
+   "where": "shed slot",
+   "box": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "bg": "rgb(242, 119, 85)",
+   "border": "2px rgb(255, 255, 255)",
+   "containingBlock": "html",
+   "visible": false
+  }
+ ],
+ "saved": [
+  {
+   "type": "kit",
+   "family": "rig",
+   "size": 1,
+   "left": 3
+  },
+  null,
+  null,
+  null
+ ],
+ "errors": []
+}
