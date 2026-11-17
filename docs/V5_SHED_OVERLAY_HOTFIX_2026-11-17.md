@@ -100,7 +100,7 @@ The same line, applied to an archive of `822a8f9`, makes the regression test pas
 
 Regression:
 - `node --test tests/v5-*.test.mjs`: 494/494 pass.
-- The 34 Coast Camp browser suites in Chromium, local: see "CI" below. The full Chromium + WebKit matrix runs in the hotfix CI.
+- The 34 Coast Camp browser suites plus the new one, Chromium, local: **33/35 PASS**. The other two, `v5-next-browser.cjs` and `v5-next-playtest-browser.cjs`, stop only at `browserType.launch` for WebKit, which is not installed in this container; their Chromium parts passed, with no assertion failure. The full Chromium + WebKit matrix runs in the hotfix CI (see "CI" below).
 
 ## Evidence
 `docs/evidence/v5-shed-overlay-2026-11-17/` holds before/after sheets at actual phone scale (2× pixels) for the reported path: a Rig crate stored with Shed on a full board, then a reload.
