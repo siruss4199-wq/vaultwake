@@ -18,8 +18,9 @@ const VIEWPORTS=(process.env.VIEWPORTS||'390x664,360x640,430x932').split(',').ma
 const delay=ms=>new Promise(r=>setTimeout(r,ms));
 // a progressed camp, its board filled (parts that pair up, so a merge is possible), crates of three kinds in it
 const camp=JSON.parse(fs.readFileSync(path.join(__dirname,'fixtures','coast','coast-ch1-pre-secondary.json'),'utf8'));
-// the rare extras already open (no unlock gift waiting for a space), the daily gift taken
-camp.pending=[];camp.secOpen={rig:true,chart:true};camp.daily={day:9e6,count:1};camp.seen={'tip-shed':true,'extras-rig':true,'extras-chart':true,'extras-rope':true,'extras-shell':true,'extras-lamp':true};
+// the rare extras already open (no unlock gift waiting for a space), the daily gift taken; the board-full guides already
+// seen (tip-shed, and Board Full Rescue's own tip-rescue): this test is about the shed, so no guide fades the board
+camp.pending=[];camp.secOpen={rig:true,chart:true};camp.daily={day:9e6,count:1};camp.seen={'tip-shed':true,'tip-rescue':true,'extras-rig':true,'extras-chart':true,'extras-rope':true,'extras-shell':true,'extras-lamp':true};
 {let f=0;for(let i=0;i<camp.board.length;i++)if(camp.board[i]===null){camp.board[i]={type:'item',family:['rig','chart'][f%2],tier:f%4};f++;}}
 const crates=[];for(const family of ['rig','shell','chart']){const i=camp.board.findLastIndex((x,k)=>x?.type==='item'&&!crates.includes(k));camp.board[i]={type:'kit',family,size:1,left:3};crates.push(i);}
 const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
