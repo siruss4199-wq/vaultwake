@@ -53,7 +53,7 @@ jobs:
           git checkout -q "$SHA" -- tests/v5-next-board-rescue-browser.cjs tests/v5-next-shed-overlay-browser.cjs tests/fixtures/coast
           # over a real network the board's pictures may still be loading when the Shed test takes its pixel baseline:
           # wait for every image first (diagnostic patch here only; the PR's own CI serves the files locally)
-          sed -i "s|const base=new Set((await scan()).overlays),coral0=await coral();|await page.waitForFunction(()=>[...document.images].every(i=>i.complete),null,{timeout:30000});await delay(800);const base=new Set((await scan()).overlays),coral0=await coral();|" tests/v5-next-shed-overlay-browser.cjs
+          sed -i "s|const base=new Set((await scan()).overlays),coral0=await coral();|await page.waitForFunction(()=>[...document.images].every(i=>i.complete\&\&i.naturalWidth>0||i.loading===\x27lazy\x27),null,{timeout:30000});let c0=-1;for(let k=0;k<20;k++){const c=await coral();if(c!==null\&\&c>0\&\&Math.abs(c-c0)<0.02)break;c0=c;await delay(700);}console.log(\x27baseline coral settled\x27,c0);const base=new Set((await scan()).overlays),coral0=await coral();|" tests/v5-next-shed-overlay-browser.cjs
           grep -c "every(i=>i.complete)" tests/v5-next-shed-overlay-browser.cjs
       - name: Smoke on an emulated iPhone 13 (webkit job) / Chromium
         if: matrix.engine == 'webkit'
