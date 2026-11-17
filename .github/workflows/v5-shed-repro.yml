@@ -1,23 +1,18 @@
-# Scratch diagnostic (not for merge): reproduce the reported mobile Shed overlay in WebKit and Chromium, on the
-# candidate (ecde162) and the expected live build (822a8f9). Prints DOM findings and JPEG crops (base64) to the log.
+# Scratch diagnostic (not for merge): the mobile Shed overlay in WebKit and Chromium. Job 1: screenshots of the
+# reported path (a Rig crate stored with the Shed button, then a reload) in WebKit on the candidate (ecde162), the
+# expected live build (822a8f9) and the hotfix, committed back to this branch under evidence/. Job 2: the hotfix's
+# regression test against the unfixed builds (expected to FAIL; it passes on the hotfix branch's own CI run).
 name: V5 Shed overlay repro (diagnostic)
 on:
   push:
     branches: [claude/v5-shed-repro]
 permissions:
-  contents: read
+  contents: write
 jobs:
-  hunt:
-    name: shed hunt ${{ matrix.engine }} ${{ matrix.code }} ${{ matrix.size }} full=${{ matrix.full }}
+  shots:
+    name: WebKit screenshots before/after
     runs-on: ubuntu-latest
-    timeout-minutes: 20
-    strategy:
-      fail-fast: false
-      matrix:
-        engine: [webkit, chromium]
-        code: [cand-ecde162, live-822a8f9]
-        size: ['390x844', '375x667']
-        full: ['1', '']
+    timeout-minutes: 25
     container:
       image: mcr.microsoft.com/playwright:v1.62.1-noble
       options: --ipc=host
@@ -28,17 +23,58 @@ jobs:
         with:
           fetch-depth: 0
       - run: npm install --no-save --no-audit --no-fund playwright@1.62.1
-      - name: Serve the code under test on 8080
+      - name: Serve candidate :8080, live :8082, hotfix :8081
         run: |
           git config --global --add safe.directory "$PWD"
-          REF=${{ matrix.code == 'live-822a8f9' && '822a8f9' || 'ecde162' }}
-          mkdir -p /tmp/site && git archive "$REF" v5 v4/platform.mjs tools | tar -x -C /tmp/site
-          (node tools/ci-static-server.mjs /tmp/site 8080 > /tmp/http.log 2>&1 &)
-          for i in $(seq 1 30); do node -e "fetch('http://127.0.0.1:8080/v5/play.html').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))" && break; sleep 1; done
-      - name: Hunt
+          git fetch -q origin claude/v5-shed-overlay-hotfix
+          for p in "8080 ecde162" "8082 822a8f9" "8081 FETCH_HEAD"; do set -- $p; mkdir -p /tmp/s$1 && git archive "$2" v5 v4/platform.mjs | tar -x -C /tmp/s$1; (node tools/ci-static-server.mjs /tmp/s$1 $1 > /tmp/http$1.log 2>&1 &); done
+          sleep 2
+      - name: Screenshots
         run: |
-          SIZE=${{ matrix.size }}
-          FULL=${{ matrix.full }} ENGINE=${{ matrix.engine }} W=${SIZE%x*} H=${SIZE#*x} B64=1 timeout 300 node .github/scratch/shed-hunt.cjs > /tmp/out.txt 2>&1 || echo "exit $?"
-          # images first, the text summary last (read with a log tail)
-          grep '^B64 ' /tmp/out.txt || true
-          grep -v '^B64 ' /tmp/out.txt | head -600
+          mkdir -p evidence
+          for v in 390x664 360x640 430x932; do for p in "8080 before-ecde162" "8082 before-live-822a8f9" "8081 after-hotfix"; do set -- $p
+            mkdir -p /tmp/o && rm -f /tmp/o/*
+            ENGINE=webkit ORIGIN=http://127.0.0.1:$1 OUT=/tmp/o W=${v%x*} H=${v#*x} timeout 200 node .github/scratch/shed-kit.cjs > evidence/$2-webkit-$v.json 2>&1 || echo "exit $? $2 $v"
+            for f in /tmp/o/*.png; do cp "$f" "evidence/$2-$(basename $f)"; done
+          done; done
+          ls evidence | head -80
+          python3 -c "
+          import json,glob
+          for f in sorted(glob.glob('evidence/*.json')):
+            try:
+              d=json.load(open(f));print(f,d['shed'],[(t['where'],t['box']) for t in d['stored'] if t['visible']],'reload',[(t['where'],t['box']) for t in d['afterReload'] if t['visible']],d['errors'])
+            except Exception as e: print(f,'ERR',open(f).read()[:300])
+          "
+      - name: Commit the evidence to this scratch branch
+        run: |
+          git config user.name "github-actions[bot]"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add evidence && git commit -q -m "chore(claude): shed overlay WebKit screenshots (diagnostic) [skip ci]" && for i in 1 2 3; do git pull -q --rebase origin claude/v5-shed-repro && git push -q origin HEAD:claude/v5-shed-repro && break; sleep 3; done
+  unfixed:
+    name: regression test on unfixed ${{ matrix.code }} (${{ matrix.engine }}, expected to fail)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [webkit, chromium]
+        code: [ecde162, 822a8f9]
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      options: --ipc=host
+    env:
+      HOME: /root
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: npm install --no-save --no-audit --no-fund playwright@1.62.1
+      - name: Serve ${{ matrix.code }}
+        run: |
+          git config --global --add safe.directory "$PWD"
+          mkdir -p /tmp/site && git archive ${{ matrix.code }} v5 v4/platform.mjs | tar -x -C /tmp/site
+          (node tools/ci-static-server.mjs /tmp/site 8080 > /tmp/http.log 2>&1 &)
+          sleep 2
+      - name: Regression test (FAIL expected here)
+        run: |
+          if ENGINES=${{ matrix.engine }} VIEWPORTS=390x664 timeout 300 node tests/v5-next-shed-overlay-browser.cjs > /tmp/t.txt 2>&1; then echo "UNEXPECTED PASS"; cat /tmp/t.txt; exit 1; fi
+          grep -E "AssertionError|^\+" /tmp/t.txt | head -8; echo "FAILED as expected on the unfixed build"
