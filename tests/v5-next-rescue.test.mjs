@@ -6,7 +6,7 @@
 //  - pending rewards: the freed space lets them land, and that counts;
 //  - it never changes the camp; seeded random full boards always get a doable step or a reasoned "nothing".
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import path from 'node:path';
-import {load,act,SOURCES} from '../v5/next/game.mjs';
+import {load,act,SOURCES,SEEN_ID} from '../v5/next/game.mjs';
 import {rescueStep,tryAction,boardFull} from '../v5/next/rescue.mjs';
 
 const NOW=1_800_000_000_000;
@@ -111,3 +111,11 @@ test('never changes the camp; seeded random full boards always get a doable step
   // and doing it really frees room in the camp itself
   const c=structuredClone(s);assert.ok(act(c,st.action??st.next,NOW).ok);void t;}
  for(const k of ['deliver','merge','shed','none'])assert.ok(kinds.has(k),`random boards reach "${k}" (${[...kinds]})`);});
+
+test('its once-only flag lives in the existing seen object: a save carrying it loads unchanged (no schema change)',()=>{
+ // 'tip-rescue' (app.mjs RESCUE_SEEN) passes SEEN_ID, the key check load() applies (the same pattern in the live 822a8f9
+ // and previous 664956e builds), so the camp is kept, not replaced by a fresh one, here and after a rollback
+ assert.match('tip-rescue',SEEN_ID);
+ const raw=JSON.parse(fixture);raw.seen={...raw.seen,'tip-shed':true,'tip-rescue':true};
+ const s=load(JSON.stringify(raw),NOW);assert.equal(s.seen['tip-rescue'],true);assert.equal(s.seen['tip-shed'],true);
+ assert.equal(s.coins,raw.coins,'the same camp (coins)');assert.deepEqual(s.built,raw.built,'the same camp (built)');});

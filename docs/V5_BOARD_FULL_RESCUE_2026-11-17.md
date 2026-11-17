@@ -42,7 +42,7 @@ Priority:
 | | |
 |---|---|
 | Activates | only with zero free spaces |
-| Shown on its own | once: the first full board after the tutorial (the existing seen flag `tip-shed`, which the old note used; a camp that already had that note is not told again) |
+| Shown on its own | once: the first full board after the tutorial. It has its own once-only flag, `tip-rescue`, inside the existing `seen` object (no schema change). A camp that only had the old generic note (`tip-shed`) still gets the rescue once. `tip-shed` is set too, so the old note never shows again on a rollback |
 | Hint | shows the current step any time the board is full. On a full board the Hint's row stays shown, even when the game's own line is a Deliver or Upgrade one |
 | Dismissed | as soon as a space is free |
 | Updates | each time the camp or the selection changes (select → Shed, Clear → Clear again, a reward that lands → the next step) |
@@ -52,7 +52,7 @@ Priority:
 
 **Preserved:**
 - Gameplay, economy and reducer are unchanged: `game.mjs`, `tutor.mjs`, `guide.mjs` and `coach.mjs` are untouched.
-- The save format is unchanged: no new key or field. The one seen flag is the existing `tip-shed`, whose key format all builds accept (`SEEN_ID`, the same in `664956e`, `822a8f9` and `ecde162`), so a rollback is safe.
+- The save format is unchanged: no new field. The once-only flag `tip-rescue` is one more entry in the existing `seen` object. Its key passes `SEEN_ID`, the check `load()` applies (the same in `664956e`, `822a8f9` and `ecde162`), so the camp loads unchanged, including after a rollback (unit-tested).
 - `mobile.css` and `style.css` are untouched; the Shed hotfix rule is unchanged.
 
 **Files:**
@@ -88,6 +88,7 @@ Priority:
 | D. Shed full | Hint → the part → "Tap Clear" → the first tap clears nothing ("Tap Clear again") → the second frees 1, only that part goes |
 | E. pending rewards | the merge frees a space and the waiting reward lands in it; the guide moves on to the next step by itself |
 | F. no valid safe action | "The board is full", no spotlight, no target, the reason in the message line |
+| H. existing save with `tip-shed=true` (the old note seen) | one space free: nothing; a generator tap fills the board → the rescue shows on its own (flag `tip-rescue` saved, `tip-shed` kept); the merge frees a space and it goes; the board full again → not on its own a second time; not after a reload; the Hint still shows it |
 
 Every case also checks: no page errors, and nothing duplicated or lost (board + shed + waiting rewards).
 
@@ -109,5 +110,5 @@ Every case also checks: no page errors, and nothing duplicated or lost (board + 
 
 ## Open points (owner)
 - **Clear on a wanted part.** When every part is wanted, the Shed is full and nothing merges, the last resort points at the cheapest everyday part, with the two-tap confirmation. The alternative is to explain only (no target), at the risk of a player stuck until they find Clear alone. Current choice: point, confirmed.
-- **The once-only trigger reuses `tip-shed`.** Players who already saw the old "The board is full" note get the rescue only from the Hint.
+- ~~The once-only trigger reuses `tip-shed`~~. Resolved (owner, PR #106): the rescue has its own flag `tip-rescue`, so a player who saw the old note gets the rescue once.
 - **No real-device run yet.** Android Chrome and iPhone Safari are not tested here.

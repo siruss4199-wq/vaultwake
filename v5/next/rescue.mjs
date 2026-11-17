@@ -11,7 +11,8 @@
 // act() on a copy: it is returned only if the reducer accepts it AND it frees room (a free space, or a waiting reward
 // that lands). A step that would undo progress toward an order (merging the two parts an order counts, laying a
 // wanted part on cargo, shedding a wanted part while something else would do) is "unsafe" and only offered later.
-// No new save data: the app shows it on a full board (once on its own, seen flag 'tip-shed'; any time from Hint).
+// No new save fields: the app shows it on a full board (once on its own, seen flag 'tip-rescue' in the existing seen
+// object; any time from Hint).
 //
 // rescueStep(s, {selected, armed, now}) → a step in the tutor's shape {id, kind, what, why, target, action, skill,
 // focus, rescue:true, via} or null when the board has a free space.

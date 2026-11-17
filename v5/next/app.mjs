@@ -609,9 +609,12 @@ function tutorView(coast=$('#coastMap').open?'open':null){
 }
 // Board Full Rescue: on while the board is full and the player was shown it (the first full board, or the Hint)
 let rescueOn=false;
-// The first full board after the tutorial: the rescue shows on its own, once (the seen flag the old "The board is
-// full" note used, so a camp that had that note is not told again; the Hint still shows it any time).
-function rescueFirst(){if(boardFull(state)&&!coachActive(state)&&!state.seen?.['tip-shed']){markSeen('tip-shed');rescueOn=true;}}
+// The first full board after the tutorial: the rescue shows on its own, once. It has its own seen flag, RESCUE_SEEN
+// ('tip-rescue', in the existing seen object: no schema change; every build's load() accepts the key, SEEN_ID), so a
+// camp that only had the old generic "The board is full" note ('tip-shed') still gets the rescue once. 'tip-shed' is
+// set too, so the old note never shows on a rollback either. The Hint shows the rescue any time the board is full.
+const RESCUE_SEEN='tip-rescue';
+function rescueFirst(){if(boardFull(state)&&!coachActive(state)&&!state.seen?.[RESCUE_SEEN]){markSeen(RESCUE_SEEN);markSeen('tip-shed');rescueOn=true;}}
 // First 10 minutes (2026-11-14): a quiet step (a skill already shown) still says what the action is for, in a few
 // words, so a run of taps and merges keeps its reason ("For the gold order: Clear the landing path"). Text only:
 // no highlight and no hand, as before.
