@@ -537,8 +537,8 @@ body.nextMode .orderTools .sheetClose,body.nextMode .boardHeading .orderDetails,
  body.nextMode .boardHeading .orderDetails:not([hidden])::after{content:"▴";margin-left:6px;font-size:11px}
  /* the guidance line takes no space when nothing in it shows (its hint hides itself when the strip or an
     order card already says it, Skip guide after the guide, Details with no order tapped) */
- body.nextMode .boardHeading:is(:has(#hint[data-kind="upgrade"]),:has(#hint[data-kind="deliver"])):has(#coachSkip[hidden]):has(#orderDetails[hidden]){display:none}
- body.nextMode[data-art] .boardHeading:is(:has(#hint[data-kind="upgrade"]),:has(#hint[data-kind="deliver"])):has(#coachSkip[hidden]):has(#orderDetails[hidden])+#board.board{margin-top:8px}
+ body.nextMode .boardHeading:is(:has(#hint[data-kind="upgrade"]),:has(#hint[data-kind="deliver"])):has(#coachSkip[hidden]):has(#orderDetails[hidden]):not(:has(#hint[data-full])){display:none}
+ body.nextMode[data-art] .boardHeading:is(:has(#hint[data-kind="upgrade"]),:has(#hint[data-kind="deliver"])):has(#coachSkip[hidden]):has(#orderDetails[hidden]):not(:has(#hint[data-full]))+#board.board{margin-top:8px}
 }
 @media(max-width:699px) and (prefers-reduced-motion:reduce){body.nextMode #orderTools.sheetOpen{animation:none}}
 @keyframes sheetUp{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}
@@ -830,6 +830,14 @@ body.nextMode:is([data-spot="order"],[data-spot="strip"]) .moment{filter:opacity
 body.nextMode[data-spot="order"] .boardHeading #hint,body.nextMode[data-spot="strip"] .boardHeading #hint{opacity:.55}
 body.nextMode[data-spot] #requests .requestCard.coachTarget{box-shadow:0 6px 18px #0d4a5a40}
 body.nextMode:is([data-spot="order"],[data-spot="strip"]) .moment{top:auto;bottom:max(14px,calc(env(safe-area-inset-bottom) + 8px))}
+/* Board Full Rescue (2026-11-17, docs/V5_BOARD_FULL_RESCUE_2026-11-17.md): the same spotlight for the selected part's
+   Shed or Clear button (data-spot="action"): the panel stays, the board and the panel's other buttons step back, the
+   button carries the guide's one ring and its cue */
+body.nextMode[data-spot="action"] main.game>#selection{opacity:1}
+body.nextMode[data-spot="action"] main.game>#board,
+body.nextMode[data-spot="action"] #selection .actionGroup>:not(.coachTarget){opacity:var(--spot-dim)}
+body.nextMode #selection [data-action].coachTarget{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--pp-gold)}
+@media (prefers-reduced-motion:no-preference){body.nextMode #selection [data-action].coachTarget{animation:tutPulseCtl 1.6s ease-out infinite}}
 /* the coast screen's Build step: the card with Build, the guide line above it and the scene stay; the places strip, the
    chapter path, Coming next and Back to the board fade back the same way */
 #coastMap[open]:has(#mapCard .coachTarget) #mapContent>:not(.beachTop,.sceneWrap,.coachLine,#mapCard){opacity:var(--spot-dim,.38)}
