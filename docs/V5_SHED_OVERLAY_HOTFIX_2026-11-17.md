@@ -96,11 +96,22 @@ The same line, applied to an archive of `822a8f9`, makes the regression test pas
 | pixel check alone (DOM checks disabled), `ecde162` | **FAIL**: 7.88% of the board's pixels coral, against 1.24% before |
 | `822a8f9` + the one rule, Chromium, local | PASS |
 | unfixed `ecde162` and `822a8f9`, CI **WebKit** and Chromium (scratch run [44031970390](https://github.com/siruss4199-wq/vaultwake/actions/runs/44031970390), `claude/v5-shed-repro`, not for merge) | **FAIL** as expected in all 4 jobs: `span.kitTag → html`, `button.shedSlot.full.merge-pop::before → html` |
-| hotfix `b04d6c3`, CI Chromium + WebKit, the full First Session 2.0 workflow (workflow_dispatch) | see "CI" below |
+| hotfix `b04d6c3`, CI Chromium + WebKit, the full First Session 2.0 workflow (workflow_dispatch, run [44031904946](https://github.com/siruss4199-wq/vaultwake/actions/runs/44031904946)) | **PASS**: all 3 jobs green (see "CI") |
 
 Regression:
 - `node --test tests/v5-*.test.mjs`: 494/494 pass.
-- The 34 Coast Camp browser suites plus the new one, Chromium, local: **33/35 PASS**. The other two, `v5-next-browser.cjs` and `v5-next-playtest-browser.cjs`, stop only at `browserType.launch` for WebKit, which is not installed in this container; their Chromium parts passed, with no assertion failure. The full Chromium + WebKit matrix runs in the hotfix CI (see "CI" below).
+- The 34 Coast Camp browser suites plus the new one, Chromium, local: **33/35 PASS**. The other two, `v5-next-browser.cjs` and `v5-next-playtest-browser.cjs`, stop only at `browserType.launch` for WebKit, which is not installed in this container; their Chromium parts passed, with no assertion failure. The full Chromium + WebKit matrix is green in the hotfix CI (see "CI").
+
+## CI
+Run [44031904946](https://github.com/siruss4199-wq/vaultwake/actions/runs/44031904946): the First Session 2.0 workflow on `claude/v5-shed-overlay-hotfix` @ `b04d6c3`, started by workflow_dispatch at 06:32 UTC. **All 3 jobs succeeded.**
+
+| job | result | the new step "Shed overlay hotfix" |
+|---|---|---|
+| V5 unit and simulation tests, plus the modules and CrazyGames page check | success (1 min) | |
+| Coast Camp browser suites (chromium): all 5 suite steps and screenshots | success (36 min) | success (1 min 16 s) |
+| Coast Camp browser suites (webkit): all 5 suite steps and screenshots | success (44 min) | success (1 min 38 s) |
+
+The WebKit job also passed every existing suite: First Session 2.0, the P0 set, Home/story/guide/saves/CrazyGames (including the tutorial endpoint) and chapters 1–6. That run showed no "Target page closed" drop.
 
 ## Evidence
 `docs/evidence/v5-shed-overlay-2026-11-17/` holds before/after sheets at actual phone scale (2× pixels) for the reported path: a Rig crate stored with Shed on a full board, then a reload.
