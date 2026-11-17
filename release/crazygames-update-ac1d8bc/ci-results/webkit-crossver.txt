@@ -1,0 +1,70 @@
+engine webkit 26.5
+PASS live → candidate, A new camp: Home offers "Continue" (Continue expected, never a new camp)
+PASS live → candidate, A new camp: coins kept (10 → 10)
+PASS live → candidate, A new camp: built kept ({} → {})
+PASS live → candidate, A new camp: materials kept ({} → {})
+PASS live → candidate, A new camp: level kept (2 → 2)
+PASS live → candidate, A new camp: ordersDone kept (1 → 1)
+PASS live → candidate, A new camp: board kept ([{"type":"glass","family":"chart","tier" → [{"type":"glass","family":"chart","tier")
+PASS live → candidate, A new camp: shed kept ([null,null,null,null] → [null,null,null,null])
+PASS live → candidate, A new camp: area kept (0 → 0)
+PASS live → candidate, A new camp: moves kept, apart from one-time seen flags (26 → 26; seen flags 2 → 2)
+INFO live → candidate, A new camp: no stage built yet in the source build: the first-loop guide resumes at "gold" (expected: a half-finished guide resumes)
+PASS live → candidate, A new camp: an action and a reload keep the camp (moves 26 → 27 → 27)
+PASS live → candidate, A new camp: no page errors in the candidate ()
+PASS live → candidate, A new camp: rollback: the source build offers "Continue"
+PASS live → candidate, A new camp: rollback: the source build opens the candidate's camp unchanged
+PASS live → candidate, A new camp: rollback: no page errors ()
+     sizes: vaultwake-storage-check 1 B, vaultwake-v5-coast-energy-receipts 121 B, vaultwake-v5-coast-story 48 B, vaultwake-v5-coast-playtest 1439 B, vaultwake-v5-coast 4322 B
+PASS live → candidate, B chapter-2 fixture: Home offers "Continue" (Continue expected, never a new camp)
+PASS live → candidate, B chapter-2 fixture: coins kept (28 → 28)
+PASS live → candidate, B chapter-2 fixture: built kept ({"beach-path":3,"beach-tent":3,"beach-ma → {"beach-path":3,"beach-tent":3,"beach-ma)
+PASS live → candidate, B chapter-2 fixture: materials kept ({"beach-path":3,"beach-tent":3,"beach-ma → {"beach-path":3,"beach-tent":3,"beach-ma)
+PASS live → candidate, B chapter-2 fixture: level kept (34 → 34)
+PASS live → candidate, B chapter-2 fixture: ordersDone kept (82 → 82)
+PASS live → candidate, B chapter-2 fixture: board kept ([{"type":"glass","family":"chart","tier" → [{"type":"glass","family":"chart","tier")
+PASS live → candidate, B chapter-2 fixture: shed kept ([null,null,null,null] → [null,null,null,null])
+PASS live → candidate, B chapter-2 fixture: area kept (3 → 3)
+PASS live → candidate, B chapter-2 fixture: moves kept, apart from one-time seen flags (1586 → 1587; seen flags 4 → 5)
+PASS live → candidate, B chapter-2 fixture: a camp with a stage built is never put in the tutorial ({"step":null,"spot":null})
+PASS live → candidate, B chapter-2 fixture: an action and a reload keep the camp (moves 1586 → 1588 → 1588)
+PASS live → candidate, B chapter-2 fixture: no page errors in the candidate ()
+PASS live → candidate, B chapter-2 fixture: rollback: the source build offers "Continue"
+PASS live → candidate, B chapter-2 fixture: rollback: the source build opens the candidate's camp unchanged
+PASS live → candidate, B chapter-2 fixture: rollback: no page errors ()
+     sizes: vaultwake-storage-check 1 B, vaultwake-v5-coast-energy-receipts 90 B, vaultwake-v5-coast-story 16 B, vaultwake-v5-coast-playtest 1396 B, vaultwake-v5-coast 4665 B
+PASS prev → candidate, A new camp: Home offers "Continue" (Continue expected, never a new camp)
+PASS prev → candidate, A new camp: coins kept (10 → 10)
+PASS prev → candidate, A new camp: built kept ({} → {})
+PASS prev → candidate, A new camp: materials kept ({} → {})
+PASS prev → candidate, A new camp: level kept (2 → 2)
+PASS prev → candidate, A new camp: ordersDone kept (1 → 1)
+PASS prev → candidate, A new camp: board kept ([{"type":"glass","family":"chart","tier" → [{"type":"glass","family":"chart","tier")
+PASS prev → candidate, A new camp: shed kept ([null,null,null,null] → [null,null,null,null])
+PASS prev → candidate, A new camp: area kept (0 → 0)
+PASS prev → candidate, A new camp: moves kept, apart from one-time seen flags (26 → 26; seen flags 2 → 2)
+INFO prev → candidate, A new camp: no stage built yet in the source build: the first-loop guide resumes at "gold" (expected: a half-finished guide resumes)
+PASS prev → candidate, A new camp: an action and a reload keep the camp (moves 26 → 27 → 27)
+PASS prev → candidate, A new camp: no page errors in the candidate ()
+PASS prev → candidate, A new camp: rollback: the source build offers "Continue"
+PASS prev → candidate, A new camp: rollback: the source build opens the candidate's camp unchanged
+PASS prev → candidate, A new camp: rollback: no page errors ()
+     sizes: vaultwake-storage-check 1 B, vaultwake-v5-coast-energy-receipts 121 B, vaultwake-v5-coast-story 48 B, vaultwake-v5-coast-playtest 1439 B, vaultwake-v5-coast 4322 B
+PASS prev → candidate, B chapter-2 fixture: Home offers "Continue" (Continue expected, never a new camp)
+PASS prev → candidate, B chapter-2 fixture: coins kept (28 → 28)
+PASS prev → candidate, B chapter-2 fixture: built kept ({"beach-path":3,"beach-tent":3,"beach-ma → {"beach-path":3,"beach-tent":3,"beach-ma)
+PASS prev → candidate, B chapter-2 fixture: materials kept ({"beach-path":3,"beach-tent":3,"beach-ma → {"beach-path":3,"beach-tent":3,"beach-ma)
+PASS prev → candidate, B chapter-2 fixture: level kept (34 → 34)
+PASS prev → candidate, B chapter-2 fixture: ordersDone kept (82 → 82)
+PASS prev → candidate, B chapter-2 fixture: board kept ([{"type":"glass","family":"chart","tier" → [{"type":"glass","family":"chart","tier")
+PASS prev → candidate, B chapter-2 fixture: shed kept ([null,null,null,null] → [null,null,null,null])
+PASS prev → candidate, B chapter-2 fixture: area kept (3 → 3)
+PASS prev → candidate, B chapter-2 fixture: moves kept, apart from one-time seen flags (1586 → 1587; seen flags 4 → 5)
+PASS prev → candidate, B chapter-2 fixture: a camp with a stage built is never put in the tutorial ({"step":null,"spot":null})
+PASS prev → candidate, B chapter-2 fixture: an action and a reload keep the camp (moves 1586 → 1588 → 1588)
+PASS prev → candidate, B chapter-2 fixture: no page errors in the candidate ()
+PASS prev → candidate, B chapter-2 fixture: rollback: the source build offers "Continue"
+PASS prev → candidate, B chapter-2 fixture: rollback: the source build opens the candidate's camp unchanged
+PASS prev → candidate, B chapter-2 fixture: rollback: no page errors ()
+     sizes: vaultwake-storage-check 1 B, vaultwake-v5-coast-energy-receipts 90 B, vaultwake-v5-coast-story 16 B, vaultwake-v5-coast-playtest 1396 B, vaultwake-v5-coast 4665 B
+all save compatibility checks passed

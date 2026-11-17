@@ -1,0 +1,73 @@
+{"engine":"webkit","version":"26.5","loads":15,"gotoReturnedOnIndexHtml":0,"homeNullWhenGotoReturned":0,"allReachedGamePage":true,"allBooted":true,"bootMs":{"min":739,"max":2028},"verdict":"PASS"}
+webkit: new guest saves to the Data module; reload and second device continue; saving continues after a login event; diagnostics passed
+webkit: browser camp copied in and kept; account camp kept beside it; delayed restore not lost passed
+webkit: refusing Data module falls back to localStorage passed
+webkit: slow SDK init on a CrazyGames host uses the Data module and survives reload; refused save survives reload passed
+webkit 907×510: CrazyGames page: SDK lifecycle, no ads, nothing leads out, fits, no errors passed
+webkit 390×844: CrazyGames page: SDK lifecycle, no ads, nothing leads out, fits, no errors passed
+webkit 360×780: CrazyGames page: SDK lifecycle, no ads, nothing leads out, fits, no errors passed
+ok webkit sdkNotInitialized 390×664: Build pill → coast → Build once, Details open/close, generator, merge, reload
+ok webkit sdkNotInitialized 360×640: Build pill → coast → Build once, Details open/close, generator, merge, reload
+ok webkit sdkDisabled 390×664: Build pill → coast → Build once, Details open/close, generator, merge, reload
+ok webkit sdkDisabled 360×640: Build pill → coast → Build once, Details open/close, generator, merge, reload
+sdk not ready browser tests passed
+ok webkit 360×640: not ready → gold → crew → Ready to build → coast → Build once → stage 2 → next → reload
+ok webkit 390×664: not ready → gold → crew → Ready to build → coast → Build once → stage 2 → next → reload
+ok webkit 390×844: not ready → gold → crew → Ready to build → coast → Build once → stage 2 → next → reload
+ok webkit 430×932: not ready → gold → crew → Ready to build → coast → Build once → stage 2 → next → reload
+build flow browser tests passed
+ok webkit 360×640: generator, merge, order → Details sheet (✕, outside, Esc), board after close, find generator, strip → coast, shed in/out, Home → Continue
+ok webkit 390×664: generator, merge, order → Details sheet (✕, outside, Esc), board after close, find generator, strip → coast, shed in/out, Home → Continue
+ok webkit 390×844: generator, merge, order → Details sheet (✕, outside, Esc), board after close, find generator, strip → coast, shed in/out, Home → Continue
+ok webkit 430×932: generator, merge, order → Details sheet (✕, outside, Esc), board after close, find generator, strip → coast, shed in/out, Home → Continue
+core actions browser tests passed
+== webkit 390×664: per tap
+┌─────────┬───────────────────────┬────────┬──────────────┬──────────────┬──────────────┬──────────────┬────────────────┬───────────────┬──────────────┬─────────────────────┐
+│ (index) │ tap                   │ reload │ newBoardImgs │ cellsChanged │ newOrderImgs │ newStripImgs │ animsRestarted │ undrawnFrames │ worstUndrawn │ screencastTransient │
+├─────────┼───────────────────────┼────────┼──────────────┼──────────────┼──────────────┼──────────────┼────────────────┼───────────────┼──────────────┼─────────────────────┤
+│ 0       │ 'an item selected'    │ false  │ 2            │ 2            │ 0            │ 0            │ 0              │ 0             │ 0            │ null                │
+│ 1       │ 'the item deselected' │ false  │ 0            │ 0            │ 0            │ 0            │ 0              │ 0             │ 0            │ null                │
+│ 2       │ 'an order card'       │ false  │ 0            │ 0            │ 0            │ 0            │ 0              │ 0             │ 0            │ null                │
+│ 3       │ 'Details opened'      │ false  │ 0            │ 0            │ 0            │ 0            │ 0              │ 0             │ 0            │ null                │
+│ 4       │ 'Details closed (✕)'  │ false  │ 0            │ 0            │ 0            │ 0            │ 0              │ 0             │ 0            │ null                │
+│ 5       │ 'an empty space'      │ false  │ 0            │ 0            │ 0            │ 0            │ 0              │ 0             │ 0            │ null                │
+│ 6       │ 'the generator'       │ false  │ 1            │ 1            │ 0            │ 0            │ 0              │ 0             │ 0            │ null                │
+└─────────┴───────────────────────┴────────┴──────────────┴──────────────┴──────────────┴──────────────┴────────────────┴───────────────┴──────────────┴─────────────────────┘
+ok webkit 390×664: plain taps repaint only what changed; no reload, no undrawn frame; generator, merge, reload
+== webkit 360×640: per tap
+┌─────────┬───────────────────────┬────────┬──────────────┬──────────────┬──────────────┬──────────────┬────────────────┬───────────────┬──────────────┬─────────────────────┐
+│ (index) │ tap                   │ reload │ newBoardImgs │ cellsChanged │ newOrderImgs │ newStripImgs │ animsRestarted │ undrawnFrames │ worstUndrawn │ screencastTransient │
+├─────────┼───────────────────────┼────────┼──────────────┼──────────────┼──────────────┼──────────────┼────────────────┼───────────────┼──────────────┼─────────────────────┤
+│ 0       │ 'an item selected'    │ false  │ 2            │ 2            │ 0            │ 0            │ 0              │ 0             │ 0            │ null                │
+│ 1       │ 'the item deselected' │ false  │ 0            │ 0            │ 0            │ 0            │ 0              │ 0             │ 0            │ null                │
+│ 2       │ 'an order card'       │ false  │ 0            │ 0            │ 0            │ 0            │ 0              │ 0             │ 0            │ null                │
+│ 3       │ 'Details opened'      │ false  │ 0            │ 0            │ 0            │ 0            │ 0              │ 0             │ 0            │ null                │
+│ 4       │ 'Details closed (✕)'  │ false  │ 0            │ 0            │ 0            │ 0            │ 0              │ 0             │ 0            │ null                │
+│ 5       │ 'an empty space'      │ false  │ 0            │ 0            │ 0            │ 0            │ 0              │ 0             │ 0            │ null                │
+│ 6       │ 'the generator'       │ false  │ 1            │ 1            │ 0            │ 0            │ 0              │ 0             │ 0            │ null                │
+└─────────┴───────────────────────┴────────┴──────────────┴──────────────┴──────────────┴──────────────┴────────────────┴───────────────┴──────────────┴─────────────────────┘
+ok webkit 360×640: plain taps repaint only what changed; no reload, no undrawn frame; generator, merge, reload
+tap flicker browser tests passed
+ok webkit 360×640: × visible at the middle and bottom, back at once; Back to the board; Build once; reload
+ok webkit 390×664: × visible at the middle and bottom, back at once; Back to the board; Build once; reload
+ok webkit 390×844: × visible at the middle and bottom, back at once; Back to the board; Build once; reload
+coast back browser tests passed
+webkit guide: "Ready to build": finger at 214,175 on b (top of stack: b > span.rsText > button#mapButton.restoreStrip > main.game > body.nextMode)
+ok webkit guide
+webkit played camp, "Ready to build": finger at 214,175 on b (top of stack: b > span.rsText > button#mapButton.restoreStrip > main.game > body.nextMode)
+ok webkit played camp, "Ready to build"
+webkit played camp, the Build pill: finger at 345,182 on span.rsAction (top of stack: span.rsAction > button#mapButton.restoreStrip > main.game > body.nextMode > div#backdrop)
+ok webkit played camp, the Build pill
+strip tap browser tests passed
+ok webkit 390×664: the shed keeps its art inside it on every path; nothing duplicated or lost; merge and reload work
+ok webkit 360×640: the shed keeps its art inside it on every path; nothing duplicated or lost; merge and reload work
+ok webkit 430×932: the shed keeps its art inside it on every path; nothing duplicated or lost; merge and reload work
+shed overlay browser tests passed
+ok webkit 390×664: board full rescue: deliver (auto once), merge (Hint), shed, confirmed Clear, rewards waiting, nothing to do, reload, an old save with tip-shed gets it once
+ok webkit 375×667: board full rescue: deliver (auto once), merge (Hint), shed, confirmed Clear, rewards waiting, nothing to do, reload, an old save with tip-shed gets it once
+board full rescue browser tests passed
+ok webkit 390×664: first loop guided to the first Build; "Tutorial complete" once; normal game after, across reloads; Hint without spotlight; Skip; existing save never guided
+ok webkit 360×640: first loop guided to the first Build; "Tutorial complete" once; normal game after, across reloads; Hint without spotlight; Skip; existing save never guided
+tutorial endpoint browser tests passed
+zipplay engine webkit 26.5
+engine webkit 26.5

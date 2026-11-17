@@ -1,0 +1,57 @@
+{
+ "engine": "webkit",
+ "browserVersion": "26.5",
+ "guided": [
+  "tap",
+  "merge",
+  "tap",
+  "merge",
+  "deliver",
+  "tap",
+  "merge",
+  "tap",
+  "merge",
+  "tap",
+  "merge",
+  "tap",
+  "merge",
+  "tap",
+  "merge",
+  "tap",
+  "merge",
+  "gold",
+  "build"
+ ],
+ "tutorialComplete": true,
+ "save": {
+  "built": {
+   "beach-path": 1
+  },
+  "coins": 40,
+  "moves": 30,
+  "done": true
+ },
+ "afterReload": {
+  "home": "Continue",
+  "step": null,
+  "built": {
+   "beach-path": 1
+  },
+  "where": "Data module"
+ },
+ "sdkFirstLoad": "init loadingStart loadingStop gameplayStart data.setItem:vaultwake-v5-coast data.setItem:vaultwake-v5-coast-energy-receipts",
+ "sdkCounts": {
+  "gameplayStart": 1,
+  "loadingStart": 1,
+  "loadingStop": 1,
+  "requestAd": 0,
+  "dataSet": 60
+ },
+ "sdkAfterReload": "init data.setItem:vaultwake-v5-coast data.setItem:vaultwake-v5-coast-energy-receipts loadingStart loadingStop gameplayStart",
+ "failedRequests": [],
+ "consoleErrors": [],
+ "pageErrors": [],
+ "outsideOrigins": [],
+ "kbBeforeGameplayStart": 1292,
+ "kbTotal": 5478
+}

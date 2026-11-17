@@ -1,0 +1,9 @@
+source_commit=ac1d8bcbf507dcdf0f8bbf060ce618103f8a1ba8
+pr=106 (claude/v5-board-full-rescue)
+build=node tools/coast-crazygames.mjs --zip (SOURCE_DATE_EPOCH default 2026-01-01T00:00:00Z), GitHub ubuntu-latest runner, built twice, byte-identical
+sha256=253dcb715440f12198d3074abf5a14c92b90caa5ffe4ea4a70ab36f6e34adb32
+bytes=14886738
+files=337
+launch=basic (data-ads=off), update of the existing CrazyGames game (game ID 166859)
+previous_live=822a8f9 (vaultwake-merge-crazygames-basic-822a8f9.zip, sha256 b160a59a9f0ac9ff78fe968b638433ea104bf7fde6363667528d4365e067e890)
+status=PRIVATE QA CANDIDATE: not uploaded, not published

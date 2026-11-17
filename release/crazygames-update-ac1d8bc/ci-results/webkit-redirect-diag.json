@@ -1,0 +1,301 @@
+{
+ "engine": "webkit",
+ "version": "26.5",
+ "loads": 15,
+ "gotoReturnedOnIndexHtml": 0,
+ "homeNullWhenGotoReturned": 0,
+ "allReachedGamePage": true,
+ "allBooted": true,
+ "bootMs": {
+  "min": 739,
+  "max": 2028
+ },
+ "verdict": "PASS",
+ "rows": [
+  {
+   "n": 0,
+   "atGoto": {
+    "path": "/v5/coast-crazygames.html",
+    "ready": "complete",
+    "home": true
+   },
+   "landedMs": 823,
+   "bootedMs": 861,
+   "end": {
+    "path": "/v5/coast-crazygames.html",
+    "home": true,
+    "homeShown": true,
+    "board": 49
+   },
+   "errors": [],
+   "failed": [],
+   "outside": []
+  },
+  {
+   "n": 1,
+   "atGoto": {
+    "path": "/v5/coast-crazygames.html",
+    "ready": "complete",
+    "home": true
+   },
+   "landedMs": 911,
+   "bootedMs": 947,
+   "end": {
+    "path": "/v5/coast-crazygames.html",
+    "home": true,
+    "homeShown": true,
+    "board": 49
+   },
+   "errors": [],
+   "failed": [],
+   "outside": []
+  },
+  {
+   "n": 2,
+   "atGoto": {
+    "path": "/v5/coast-crazygames.html",
+    "ready": "complete",
+    "home": true
+   },
+   "landedMs": 1100,
+   "bootedMs": 1164,
+   "end": {
+    "path": "/v5/coast-crazygames.html",
+    "home": true,
+    "homeShown": true,
+    "board": 49
+   },
+   "errors": [],
+   "failed": [],
+   "outside": []
+  },
+  {
+   "n": 3,
+   "atGoto": {
+    "path": "/v5/coast-crazygames.html",
+    "ready": "complete",
+    "home": true
+   },
+   "landedMs": 1461,
+   "bootedMs": 1573,
+   "end": {
+    "path": "/v5/coast-crazygames.html",
+    "home": true,
+    "homeShown": false,
+    "board": 49
+   },
+   "errors": [],
+   "failed": [],
+   "outside": []
+  },
+  {
+   "n": 4,
+   "atGoto": {
+    "path": "/v5/coast-crazygames.html",
+    "ready": "complete",
+    "home": true
+   },
+   "landedMs": 1909,
+   "bootedMs": 2028,
+   "end": {
+    "path": "/v5/coast-crazygames.html",
+    "home": true,
+    "homeShown": false,
+    "board": 49
+   },
+   "errors": [],
+   "failed": [],
+   "outside": []
+  },
+  {
+   "n": 5,
+   "atGoto": {
+    "path": "/v5/coast-crazygames.html",
+    "ready": "complete",
+    "home": true
+   },
+   "landedMs": 1010,
+   "bootedMs": 1041,
+   "end": {
+    "path": "/v5/coast-crazygames.html",
+    "home": true,
+    "homeShown": true,
+    "board": 49
+   },
+   "errors": [],
+   "failed": [],
+   "outside": []
+  },
+  {
+   "n": 6,
+   "atGoto": {
+    "path": "/v5/coast-crazygames.html",
+    "ready": "complete",
+    "home": true
+   },
+   "landedMs": 784,
+   "bootedMs": 817,
+   "end": {
+    "path": "/v5/coast-crazygames.html",
+    "home": true,
+    "homeShown": true,
+    "board": 49
+   },
+   "errors": [],
+   "failed": [],
+   "outside": []
+  },
+  {
+   "n": 7,
+   "atGoto": {
+    "path": "/v5/coast-crazygames.html",
+    "ready": "complete",
+    "home": true
+   },
+   "landedMs": 988,
+   "bootedMs": 1039,
+   "end": {
+    "path": "/v5/coast-crazygames.html",
+    "home": true,
+    "homeShown": true,
+    "board": 49
+   },
+   "errors": [],
+   "failed": [],
+   "outside": []
+  },
+  {
+   "n": 8,
+   "atGoto": {
+    "path": "/v5/coast-crazygames.html",
+    "ready": "complete",
+    "home": true
+   },
+   "landedMs": 1170,
+   "bootedMs": 1203,
+   "end": {
+    "path": "/v5/coast-crazygames.html",
+    "home": true,
+    "homeShown": true,
+    "board": 49
+   },
+   "errors": [],
+   "failed": [],
+   "outside": []
+  },
+  {
+   "n": 9,
+   "atGoto": {
+    "path": "/v5/coast-crazygames.html",
+    "ready": "complete",
+    "home": true
+   },
+   "landedMs": 735,
+   "bootedMs": 769,
+   "end": {
+    "path": "/v5/coast-crazygames.html",
+    "home": true,
+    "homeShown": true,
+    "board": 49
+   },
+   "errors": [],
+   "failed": [],
+   "outside": []
+  },
+  {
+   "n": 10,
+   "atGoto": {
+    "path": "/v5/coast-crazygames.html",
+    "ready": "complete",
+    "home": true
+   },
+   "landedMs": 734,
+   "bootedMs": 771,
+   "end": {
+    "path": "/v5/coast-crazygames.html",
+    "home": true,
+    "homeShown": true,
+    "board": 49
+   },
+   "errors": [],
+   "failed": [],
+   "outside": []
+  },
+  {
+   "n": 11,
+   "atGoto": {
+    "path": "/v5/coast-crazygames.html",
+    "ready": "complete",
+    "home": true
+   },
+   "landedMs": 708,
+   "bootedMs": 746,
+   "end": {
+    "path": "/v5/coast-crazygames.html",
+    "home": true,
+    "homeShown": true,
+    "board": 49
+   },
+   "errors": [],
+   "failed": [],
+   "outside": []
+  },
+  {
+   "n": 12,
+   "atGoto": {
+    "path": "/v5/coast-crazygames.html",
+    "ready": "complete",
+    "home": true
+   },
+   "landedMs": 739,
+   "bootedMs": 774,
+   "end": {
+    "path": "/v5/coast-crazygames.html",
+    "home": true,
+    "homeShown": true,
+    "board": 49
+   },
+   "errors": [],
+   "failed": [],
+   "outside": []
+  },
+  {
+   "n": 13,
+   "atGoto": {
+    "path": "/v5/coast-crazygames.html",
+    "ready": "complete",
+    "home": true
+   },
+   "landedMs": 699,
+   "bootedMs": 739,
+   "end": {
+    "path": "/v5/coast-crazygames.html",
+    "home": true,
+    "homeShown": true,
+    "board": 49
+   },
+   "errors": [],
+   "failed": [],
+   "outside": []
+  },
+  {
+   "n": 14,
+   "atGoto": {
+    "path": "/v5/coast-crazygames.html",
+    "ready": "complete",
+    "home": true
+   },
+   "landedMs": 716,
+   "bootedMs": 750,
+   "end": {
+    "path": "/v5/coast-crazygames.html",
+    "home": true,
+    "homeShown": true,
+    "board": 49
+   },
+   "errors": [],
+   "failed": [],
+   "outside": []
+  }
+ ]
+}
