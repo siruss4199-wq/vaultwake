@@ -8,7 +8,7 @@ permissions:
   contents: read
 jobs:
   hunt:
-    name: shed hunt ${{ matrix.engine }} ${{ matrix.code }} ${{ matrix.size }}
+    name: shed hunt ${{ matrix.engine }} ${{ matrix.code }} ${{ matrix.size }} full=${{ matrix.full }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     strategy:
@@ -17,6 +17,7 @@ jobs:
         engine: [webkit, chromium]
         code: [cand-ecde162, live-822a8f9]
         size: ['390x844', '375x667']
+        full: ['1', '']
     container:
       image: mcr.microsoft.com/playwright:v1.62.1-noble
       options: --ipc=host
@@ -37,7 +38,7 @@ jobs:
       - name: Hunt
         run: |
           SIZE=${{ matrix.size }}
-          ENGINE=${{ matrix.engine }} W=${SIZE%x*} H=${SIZE#*x} B64=1 timeout 300 node .github/scratch/shed-hunt.cjs > /tmp/out.txt 2>&1 || echo "exit $?"
-          grep -v '^B64 ' /tmp/out.txt | head -400
-          echo "=== IMAGES"
+          FULL=${{ matrix.full }} ENGINE=${{ matrix.engine }} W=${SIZE%x*} H=${SIZE#*x} B64=1 timeout 300 node .github/scratch/shed-hunt.cjs > /tmp/out.txt 2>&1 || echo "exit $?"
+          # images first, the text summary last (read with a log tail)
           grep '^B64 ' /tmp/out.txt || true
+          grep -v '^B64 ' /tmp/out.txt | head -600

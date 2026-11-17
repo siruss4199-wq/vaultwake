@@ -8,7 +8,9 @@ const W=+(process.env.W||390),H=+(process.env.H||844);
 const camp=JSON.parse(fs.readFileSync(process.env.FIXTURE||require('path').join(process.cwd(),'tests/fixtures/coast/coast-ch1-pre-secondary.json'),'utf8'));camp.pending=[];
 // fill the board to one free space (parts that cannot merge with each other), keep the daily gift available
 {let filler=0;const fam=['rig','chart'];for(let i=0;i<camp.board.length;i++)if(camp.board[i]===null){camp.board[i]={type:'item',family:fam[filler%2],tier:(filler%4)};filler++;}
- const last=camp.board.findLastIndex(x=>x?.type==='item');camp.board[last]=null;}
+ if(!process.env.FULL){const last=camp.board.findLastIndex(x=>x?.type==='item');camp.board[last]=null;}}
+let helper;const coral=async(page)=>{const bb=await page.locator('#board').boundingBox();const png=await page.screenshot({clip:{x:bb.x,y:bb.y,width:bb.width,height:bb.height}});
+ return helper.evaluate(async b64=>{const im=new Image();im.src='data:image/png;base64,'+b64;await im.decode();const c=document.createElement('canvas');c.width=im.width;c.height=im.height;const g=c.getContext('2d');g.drawImage(im,0,0);const d=g.getImageData(0,0,c.width,c.height).data;let n=0,q=[0,0,0,0];for(let i=0;i<d.length;i+=4){const r=d[i],gr=d[i+1],bl=d[i+2];if(r>200&&gr>60&&gr<150&&bl<110&&r-gr>70){n++;const p=i/4,x=p%c.width,y=(p/c.width)|0;q[(x>c.width/2?1:0)+(y>c.height/2?2:0)]++;}}return {pct:+(100*n/(d.length/4)).toFixed(2),quad:q.map(v=>+(100*v/(d.length/16)).toFixed(1))};},png.toString('base64'));};
 const delay=ms=>new Promise(r=>setTimeout(r,ms));
 const scan=page=>page.evaluate(()=>{const board=document.querySelector('#board'),br=board.getBoundingClientRect(),cells=[...board.querySelectorAll('.tile')].map(t=>t.getBoundingClientRect());
  const area=(a,b)=>Math.max(0,Math.min(a.right,b.right)-Math.max(a.left,b.left))*Math.max(0,Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top));
@@ -25,7 +27,7 @@ const scan=page=>page.evaluate(()=>{const board=document.querySelector('#board')
    // an absolute pseudo larger than its host by far is the suspect
    if(r.width*r.height>4*Math.max(1,host.width*host.height)&&area(r,br)>600)hits.push({what:desc(e)+p,pos:cs.position,containingBlock:desc(c),box:[r.left,r.top,r.width,r.height].map(Math.round),host:[host.width,host.height].map(Math.round),border:cs.borderTopWidth+' '+cs.borderTopColor,bg:cs.backgroundColor,opacity:cs.opacity,anim:cs.animationName});}}
  return {shed:document.querySelector('#shed .shedToggle b')?.innerText,free:document.querySelector('#free:not([hidden])')?.innerText??'',ghosts:document.querySelectorAll('.dragGhost').length,hits};});
-(async()=>{const b=await {chromium,webkit}[ENGINE].launch(),ctx=await b.newContext({viewport:{width:W,height:H},isMobile:ENGINE==='chromium',hasTouch:true,deviceScaleFactor:OUT?2:1}),page=await ctx.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
+(async()=>{const b=await {chromium,webkit}[ENGINE].launch(),ctx=await b.newContext({viewport:{width:W,height:H},isMobile:ENGINE==='chromium',hasTouch:true,deviceScaleFactor:OUT?2:1}),page=await ctx.newPage(),errors=[];helper=await ctx.newPage();await page.bringToFront();page.on('pageerror',e=>errors.push(e.message));
  await page.addInitScript(([k,v])=>{if(!sessionStorage.s){localStorage.setItem(k,v);localStorage.setItem('vaultwake-v5-coast-story','{"intro":"skip"}');sessionStorage.s=1;}},['vaultwake-v5-coast',JSON.stringify(camp)]);
  await page.goto(ORIGIN+'/v5/play.html');await page.waitForSelector('#board .tile');await delay(1200);
  for(let k=0;k<6;k++){if(await page.locator('#daily[open]').count())await page.locator('#daily .close').click();const v=await page.evaluate(()=>!document.querySelector('#home')?.hidden&&!document.querySelector('#homePlay')?.hidden);if(v){await page.locator('#homePlay').click();await delay(900);}}
@@ -39,10 +41,11 @@ const scan=page=>page.evaluate(()=>{const board=document.querySelector('#board')
   for(let k=1;k<=12;k++){await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:a.x+(z.x-a.x)*k/12,y:a.y+(z.y-a.y)*k/12}]});await delay(20);if(scroll&&k===6)await page.evaluate(()=>scrollBy(0,40));}
   await cdp.send('Input.dispatchTouchEvent',{type:cancel?'touchCancel':'touchEnd',touchPoints:[]});};
  const item=()=>page.evaluate(()=>[...document.querySelectorAll('#board .tile.item')].map(e=>+e.dataset.index).at(-1));
- const base=new Set((await scan(page)).hits.map(h=>h.what));
- const report=[];const look=async label=>{for(const ms of [30,120,250,500,1500]){await delay(ms===30?30:ms-[30,120,250,500,1500][[30,120,250,500,1500].indexOf(ms)-1]);const s=await scan(page);s.hits=s.hits.filter(h=>!base.has(h.what));
-  if(s.hits.length||s.ghosts)report.push({label,ms,...s});if(OUT&&ms===120)await page.screenshot({path:`${OUT}/${ENGINE}-${label.replace(/\W+/g,'_')}.png`});
-  if(process.env.B64&&(ms===120||ms===1500)){const bb=await page.locator('#board').boundingBox(),sh=await page.locator('#shed').boundingBox();const y0=Math.max(0,bb.y-4),y1=Math.min(H,sh.y+sh.height+4);const buf=await page.screenshot({type:'jpeg',quality:45,clip:{x:0,y:y0,width:W,height:Math.max(10,y1-y0)}});console.log(`B64 ${ENGINE} ${label.replace(/\W+/g,'_')} ${ms} ${buf.toString('base64')}`);}}
+ let base0=null;const base=new Set((await scan(page)).hits.map(h=>h.what));base0=(await coral(page)).pct;const fullAtStart=await page.evaluate(()=>document.querySelector('#free')?.innerText);
+ const report=[],imgs=[];const look=async label=>{for(const ms of [30,120,250,500,1500]){await delay(ms===30?30:ms-[30,120,250,500,1500][[30,120,250,500,1500].indexOf(ms)-1]);const s=await scan(page);s.hits=s.hits.filter(h=>!base.has(h.what));
+  const px=await coral(page);if(base0===null)base0=px.pct;s.coral=px;
+  if(s.hits.length||s.ghosts||px.pct>base0+0.4)report.push({label,ms,...s});if(OUT&&ms===120)await page.screenshot({path:`${OUT}/${ENGINE}-${label.replace(/\W+/g,'_')}.png`});
+  if(process.env.B64&&(ms===120||ms===1500)&&(s.hits.length||px.pct>base0+0.4||ms===120&&imgs.length<3)&&imgs.length<8){const bb=await page.locator('#board').boundingBox(),sh=await page.locator('#shed').boundingBox();const y0=Math.max(0,bb.y-4),y1=Math.min(H,sh.y+sh.height+4);const buf=await page.screenshot({type:'jpeg',quality:40,clip:{x:0,y:y0,width:W,height:Math.max(10,y1-y0)}});imgs.push(`B64 ${ENGINE} ${label.replace(/\W+/g,'_')} ${ms} ${buf.toString('base64')}`);}}
   const s=await scan(page);report.push({label:label+' (final)',shed:s.shed,free:s.free,ghosts:s.ghosts,hits:s.hits.length});};
  // 1. Shed button
  await tap(`#board [data-index="${await item()}"]`);await delay(300);await tap('#selection [data-action="store"]');await look('Shed button');
@@ -64,5 +67,5 @@ const scan=page=>page.evaluate(()=>{const board=document.querySelector('#board')
  await page.reload();await page.waitForSelector('#board .tile');await delay(1500);for(let k=0;k<4;k++){const v=await page.evaluate(()=>!document.querySelector('#home')?.hidden&&!document.querySelector('#homePlay')?.hidden);if(v){await page.locator('#homePlay').click();await delay(900);}}
  const after=await page.evaluate(()=>{const s=JSON.parse(localStorage.getItem('vaultwake-v5-coast'));return {shed:s.shed.map(x=>x?x.family+x.tier:null),items:s.board.filter(Boolean).length};});
  await look('after reload');
- console.log(JSON.stringify({engine:ENGINE,size:`${W}x${H}`,report,saveBeforeReload:before,saveAfterReload:after,errors},null,1));await b.close();
+ for(const l of imgs)console.log(l);console.log('=== TEXT');console.log(JSON.stringify({fullAtStart,coralBase:base0,engine:ENGINE,size:`${W}x${H}`,report,saveBeforeReload:before,saveAfterReload:after,errors},null,1));await b.close();
 })().catch(e=>{console.error(e);process.exit(1);});
