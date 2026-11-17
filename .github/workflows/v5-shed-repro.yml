@@ -1,63 +1,41 @@
-# Scratch diagnostic (not for merge): the mobile Shed overlay in WebKit and Chromium. Job 1: screenshots of the
-# reported path (a Rig crate stored with the Shed button, then a reload) in WebKit on the candidate (ecde162), the
-# expected live build (822a8f9) and the hotfix, committed back to this branch under evidence/. Job 2: the hotfix's
-# regression test against the unfixed builds (expected to FAIL; it passes on the hotfix branch's own CI run).
-name: V5 Shed overlay repro (diagnostic)
+# Scratch diagnostic (not for merge): verify the Cloudflare Pages QA preview of PR #106 (bd68669) from a runner,
+# since the preview host is not reachable from the development container. 1) the deployed files are byte-identical
+# to the commit; 2) the game starts on an emulated iPhone (WebKit) and in Chromium; 3) the Shed overlay and Board
+# Full Rescue browser tests pass against the preview itself (fresh browser contexts: nothing touches a real device).
+name: V5 QA preview check (diagnostic)
 on:
   push:
     branches: [claude/v5-shed-repro]
 permissions:
   contents: write
+env:
+  PREVIEW: https://ae6fe693.wispwood-game.pages.dev
+  SHA: bd6866998dc9fe0c2e595be1a4ae1084230ed656
 jobs:
-  shots:
-    name: WebKit screenshots before/after
+  files:
+    name: deployed files = commit bd68669
     runs-on: ubuntu-latest
-    timeout-minutes: 25
-    container:
-      image: mcr.microsoft.com/playwright:v1.62.1-noble
-      options: --ipc=host
-    env:
-      HOME: /root
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - run: npm install --no-save --no-audit --no-fund playwright@1.62.1
-      - name: Serve candidate :8080, live :8082, hotfix :8081
-        run: |
-          git config --global --add safe.directory "$PWD"
-          git fetch -q origin claude/v5-shed-overlay-hotfix
-          for p in "8080 ecde162" "8082 822a8f9" "8081 FETCH_HEAD"; do set -- $p; mkdir -p /tmp/s$1 && git archive "$2" v5 v4/platform.mjs | tar -x -C /tmp/s$1; (node tools/ci-static-server.mjs /tmp/s$1 $1 > /tmp/http$1.log 2>&1 &); done
-          sleep 2
-      - name: Screenshots
-        run: |
-          mkdir -p evidence
-          for v in 390x664 360x640 430x932; do for p in "8080 before-ecde162" "8082 before-live-822a8f9" "8081 after-hotfix"; do set -- $p
-            mkdir -p /tmp/o && rm -f /tmp/o/*
-            ENGINE=webkit ORIGIN=http://127.0.0.1:$1 OUT=/tmp/o W=${v%x*} H=${v#*x} timeout 200 node .github/scratch/shed-kit.cjs > evidence/$2-webkit-$v.json 2>&1 || echo "exit $? $2 $v"
-            for f in /tmp/o/*.png; do cp "$f" "evidence/$2-$(basename $f)"; done
-          done; done
-          ls evidence | head -80
-          python3 -c "
-          import json,glob
-          for f in sorted(glob.glob('evidence/*.json')):
-            try:
-              d=json.load(open(f));print(f,d['shed'],[(t['where'],t['box']) for t in d['stored'] if t['visible']],'reload',[(t['where'],t['box']) for t in d['afterReload'] if t['visible']],d['errors'])
-            except Exception as e: print(f,'ERR',open(f).read()[:300])
-          "
-      - name: Commit the evidence to this scratch branch
-        run: |
-          git config user.name "github-actions[bot]"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add evidence && git commit -q -m "chore(claude): shed overlay WebKit screenshots (diagnostic) [skip ci]" && for i in 1 2 3; do git pull -q --rebase origin claude/v5-shed-repro && git push -q origin HEAD:claude/v5-shed-repro && break; sleep 3; done
-  unfixed:
-    name: regression test on unfixed ${{ matrix.code }} (${{ matrix.engine }}, expected to fail)
+      - run: |
+          git fetch -q origin "$SHA" || git fetch -q origin claude/v5-board-full-rescue
+          bad=0;n=0
+          for f in $(git ls-tree -r --name-only "$SHA" v5/play.html v5/coast-crazygames.html v5/next v5/style.css v5/mobile.css v4/platform.mjs | grep -E '\.(html|mjs|js|css)$'); do
+            n=$((n+1)); want=$(git show "$SHA:$f" | sha256sum | cut -c1-64); got=$(curl -sfL "$PREVIEW/$f" | sha256sum | cut -c1-64)
+            if [ "$want" != "$got" ]; then echo "DIFF $f"; bad=$((bad+1)); fi
+          done
+          echo "checked $n files, $bad differ"; [ "$bad" = 0 ]
+          curl -sIL "$PREVIEW/v5/play.html" | grep -iE '^(HTTP|content-type|x-robots-tag|cache-control)' | head -8
+  play:
+    name: preview play ${{ matrix.engine }}
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
         engine: [webkit, chromium]
-        code: [ecde162, 822a8f9]
     container:
       image: mcr.microsoft.com/playwright:v1.62.1-noble
       options: --ipc=host
@@ -68,13 +46,20 @@ jobs:
         with:
           fetch-depth: 0
       - run: npm install --no-save --no-audit --no-fund playwright@1.62.1
-      - name: Serve ${{ matrix.code }}
+      - name: The PR's own tests, from the commit
         run: |
           git config --global --add safe.directory "$PWD"
-          mkdir -p /tmp/site && git archive ${{ matrix.code }} v5 v4/platform.mjs | tar -x -C /tmp/site
-          (node tools/ci-static-server.mjs /tmp/site 8080 > /tmp/http.log 2>&1 &)
-          sleep 2
-      - name: Regression test (FAIL expected here)
+          git fetch -q origin claude/v5-board-full-rescue
+          git checkout -q "$SHA" -- tests/v5-next-board-rescue-browser.cjs tests/v5-next-shed-overlay-browser.cjs tests/fixtures/coast
+      - name: Smoke on an emulated iPhone 13 (webkit job) / Chromium
+        if: matrix.engine == 'webkit'
+        run: mkdir -p evidence-preview && ORIGIN=$PREVIEW OUT=evidence-preview node .github/scratch/preview-smoke.cjs
+      - name: Shed overlay test against the preview
+        run: ORIGIN=$PREVIEW ENGINES=${{ matrix.engine }} VIEWPORTS=390x664 node tests/v5-next-shed-overlay-browser.cjs
+      - name: Board Full Rescue test against the preview
+        run: ORIGIN=$PREVIEW ENGINES=${{ matrix.engine }} node tests/v5-next-board-rescue-browser.cjs
+      - name: Commit the iPhone screenshots to this scratch branch
+        if: matrix.engine == 'webkit'
         run: |
-          if ENGINES=${{ matrix.engine }} VIEWPORTS=390x664 timeout 300 node tests/v5-next-shed-overlay-browser.cjs > /tmp/t.txt 2>&1; then echo "UNEXPECTED PASS"; cat /tmp/t.txt; exit 1; fi
-          grep -E "AssertionError|^\+" /tmp/t.txt | head -8; echo "FAILED as expected on the unfixed build"
+          git config user.name "github-actions[bot]"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git reset -q; git add evidence-preview && git commit -q -m "chore(claude): QA preview iPhone screenshots (diagnostic) [skip ci]" && for i in 1 2 3; do git pull -q --rebase origin claude/v5-shed-repro && git push -q origin HEAD:claude/v5-shed-repro && break; sleep 3; done
