@@ -1,0 +1,56 @@
+# WebKit page-process loss: isolation (2026-11-17, docs/V5_CRAZYGAMES_UPDATE_ac1d8bc_2026-11-17.md §2). In PR #106's CI
+# the long WebKit job lost its page ("Target page, context or browser has been closed") in a different suite on each
+# attempt (shed overlay + rare merges, then build flow). Here each of those suites runs ALONE, in its own job (a fresh
+# container, nothing before it), three times, on the candidate (ac1d8bc) and on the base before Board Full Rescue
+# (ae83302), with Playwright's browser-process log on, so a WebKit crash prints its reason. Diagnostic only.
+name: V5 WebKit isolation (ac1d8bc vs base)
+on:
+  push:
+    branches: [claude/v5-crazygames-update-ac1d8bc]
+    paths: ['.github/workflows/v5-webkit-isolation-ac1d8bc.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  isolate:
+    name: ${{ matrix.suite }} · ${{ matrix.code }} · try ${{ matrix.attempt }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [v5-next-build-flow-browser, v5-next-rare-merges-browser, v5-next-shed-overlay-browser]
+        code: [ac1d8bcbf507dcdf0f8bbf060ce618103f8a1ba8, ae8330296667b1be930f72c6494cb29fe8637b71]
+        attempt: [1, 2, 3]
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      options: --ipc=host
+    env:
+      HOME: /root
+      ENGINES: webkit
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.code }}
+      - run: npm install --no-save --no-audit --no-fund playwright@1.62.1
+      - name: Static server (the code under test)
+        run: |
+          (node tools/ci-static-server.mjs . 8080 > /tmp/http.log 2>&1 &)
+          for i in $(seq 1 30); do node -e "fetch('http://127.0.0.1:8080/v5/play.html').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))" && break; sleep 1; done
+      - name: The suite alone (WebKit), browser-process log kept
+        run: |
+          free -m | head -2
+          s=$(date +%s)
+          set +e
+          DEBUG=pw:browser node tests/${{ matrix.suite }}.cjs > /tmp/out.txt 2> /tmp/browser.txt; rc=$?
+          set -e
+          echo "exit $rc after $(( $(date +%s)-s )) s"
+          grep -vE "^\s+'" /tmp/out.txt | tail -12
+          echo "--- WebKit process log: crash / signal / memory lines"
+          grep -iE "crash|signal|sigsegv|sigabrt|sigkill|killed|out of memory|oom|terminated|WebProcess|exited|closed" /tmp/browser.txt | grep -v "^\s*$" | tail -25 || true
+          free -m | head -2
+          echo "RESULT ${{ matrix.suite }} ${{ matrix.code }} try${{ matrix.attempt }} rc=$rc"
+          exit $rc

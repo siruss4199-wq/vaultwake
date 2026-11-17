@@ -1,0 +1,249 @@
+name: Vaultwake Merge Basic ZIP from ac1d8bc (CrazyGames update, private QA candidate)
+# Owner (2026-11-17): prepare the next CrazyGames Basic Launch update of the EXISTING game (game ID 166859) from PR #106 @
+# ac1d8bc. The same procedure as v5-basic-zip-822a8f9.yml (the live build's ZIP), plus a reproducibility proof:
+#  1. two independent builds of the ZIP from exactly ac1d8bc (node tools/coast-crazygames.mjs --zip on the plain runner,
+#     which has zip) must be byte-identical; their SHA-256 is the release checksum;
+#  2. the extracted ZIP is tested in Chromium and WebKit (Playwright image, no apt): its own index.html (SDK lifecycle,
+#     CrazyGames page, payload, Data-module saves, Build/Deliver/Merge/Details/shed/coast/flicker flows); the ZIP's
+#     modules and assets with the source's play.html beside them (Shed overlay, Board Full Rescue, tutorial endpoint);
+#     a stand-in CrazyGames SDK v3 playing the packaged index.html to the first Build (lifecycle order, no ads, no
+#     outside requests); saves written by the live (822a8f9) and previous (664956e) builds opened in the ZIP and back;
+#  3. only when everything passed, the ZIP, its SHA256SUMS and SOURCE_COMMIT.txt are committed to this branch under
+#     release/crazygames-update-ac1d8bc/ and kept as a 90-day artifact. Nothing is uploaded to CrazyGames.
+on:
+  push:
+    branches: [claude/v5-crazygames-update-ac1d8bc]
+    paths: ['.github/workflows/v5-basic-zip-ac1d8bc.yml', 'release/crazygames-update-ac1d8bc/scripts/**']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: v5-basic-zip-ac1d8bc
+  cancel-in-progress: true
+env:
+  SOURCE: ac1d8bcbf507dcdf0f8bbf060ce618103f8a1ba8
+  ZIP_NAME: vaultwake-merge-crazygames-basic-ac1d8bc.zip
+jobs:
+  build:
+    name: Build ${{ matrix.build }} of the Basic ZIP from ac1d8bc
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        build: [a, b]
+    steps:
+      - name: Game source at ac1d8bc
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.SOURCE }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Unit and simulation tests at ac1d8bc
+        if: matrix.build == 'a'
+        timeout-minutes: 8
+        run: |
+          test "$(git rev-parse HEAD)" = "$SOURCE"
+          node --test tests/v5-*.test.mjs
+      - name: Build the ZIP (node tools/coast-crazygames.mjs --zip)
+        timeout-minutes: 5
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE"
+          zip -v | head -2
+          node tools/coast-crazygames.mjs --check
+          node tools/coast-modules.mjs --check
+          node tools/coast-crazygames.mjs --zip
+          mkdir -p out && cp dist/vaultwake-coast-crazygames.zip "out/$ZIP_NAME"
+          (cd out && sha256sum "$ZIP_NAME" | tee SHA256SUMS && echo "$(stat -c %s "$ZIP_NAME") bytes, $(unzip -Z1 "$ZIP_NAME" | wc -l) files")
+          unzip -tq "out/$ZIP_NAME"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: handoff-zip-${{ matrix.build }}
+          path: out/
+          retention-days: 1
+  reproducible:
+    name: The two builds are byte-identical
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: handoff-zip-a
+          path: a
+      - uses: actions/download-artifact@v4
+        with:
+          name: handoff-zip-b
+          path: b
+      - name: Compare
+        run: |
+          set -euo pipefail
+          cat a/SHA256SUMS b/SHA256SUMS
+          cmp "a/$ZIP_NAME" "b/$ZIP_NAME"
+          echo "REPRODUCIBLE: build a = build b, $(sha256sum "a/$ZIP_NAME")"
+          mkdir -p out && cp "a/$ZIP_NAME" a/SHA256SUMS out/
+          printf 'source_commit=%s\npr=106 (claude/v5-board-full-rescue)\nbuild=node tools/coast-crazygames.mjs --zip (SOURCE_DATE_EPOCH default 2026-01-01T00:00:00Z), GitHub ubuntu-latest runner, built twice, byte-identical\nsha256=%s\nbytes=%s\nfiles=%s\nlaunch=basic (data-ads=off), update of the existing CrazyGames game (game ID 166859)\nprevious_live=822a8f9 (vaultwake-merge-crazygames-basic-822a8f9.zip, sha256 b160a59a9f0ac9ff78fe968b638433ea104bf7fde6363667528d4365e067e890)\nstatus=PRIVATE QA CANDIDATE: not uploaded, not published\n' \
+            "$SOURCE" "$(cut -d' ' -f1 a/SHA256SUMS)" "$(stat -c %s "a/$ZIP_NAME")" "$(unzip -Z1 "a/$ZIP_NAME" | wc -l)" > out/SOURCE_COMMIT.txt
+          cat out/SOURCE_COMMIT.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: handoff-zip-untested
+          path: out/
+          retention-days: 1
+  test:
+    name: Test the extracted ZIP (${{ matrix.engine }})
+    needs: reproducible
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, webkit]
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      options: --ipc=host
+    env:
+      HOME: /root
+      ENGINES: ${{ matrix.engine }}
+      ENGINE: ${{ matrix.engine }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Test source at ac1d8bc (full history for the live and previous builds)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.SOURCE }}
+          path: src
+          fetch-depth: 0
+      - name: CI helpers and release scripts from this branch
+        uses: actions/checkout@v4
+        with:
+          path: ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: handoff-zip-untested
+          path: zip
+      - name: SHA-256 again; extract; serve the ZIP (8081), the ZIP + play.html (8080), live 822a8f9 (8082), previous 664956e (8083)
+        timeout-minutes: 4
+        run: |
+          set -euo pipefail
+          git config --global --add safe.directory '*'
+          test "$(git -C src rev-parse HEAD)" = "$SOURCE"
+          (cd zip && sha256sum -c SHA256SUMS)
+          node ci/tools/ci-unzip.mjs "zip/$ZIP_NAME" /tmp/zip
+          test -f /tmp/zip/index.html
+          # a test-only copy: the ZIP's files plus the source's play.html (the ZIP has only the CrazyGames page)
+          mkdir -p /tmp/zipplus && cp -r /tmp/zip/. /tmp/zipplus/ && cp src/v5/play.html /tmp/zipplus/v5/play.html
+          for c in "822a8f9 /tmp/live" "664956e /tmp/prev"; do set -- $c; mkdir -p $2 && git -C src archive "$1" v5 v4/platform.mjs | tar -x -C $2; done
+          for p in "/tmp/zip 8081" "/tmp/zipplus 8080" "/tmp/live 8082" "/tmp/prev 8083"; do set -- $p; (node ci/tools/ci-static-server.mjs $1 $2 > /tmp/http$2.log 2>&1 &); done
+          for port in 8080 8081 8082 8083; do for i in $(seq 1 30); do node -e "fetch('http://127.0.0.1:$port/').then(r=>process.exit(r.status<500?0:1),()=>process.exit(1))" && break; sleep 1; done; done
+          echo "ZIP: $(find /tmp/zip -type f | wc -l) files"
+      - name: Playwright 1.62.1 package (browsers come with the image)
+        working-directory: src
+        run: npm install --no-save --no-audit --no-fund playwright@1.62.1
+      - name: ZIP index.html — SDK lifecycle, Data-module saves, CrazyGames page, payload
+        if: ${{ !cancelled() }}
+        timeout-minutes: 15
+        working-directory: src
+        env:
+          CG_URL: http://127.0.0.1:8081/index.html
+        run: |
+          node tests/v5-next-crazygames-save-browser.cjs
+          node tests/v5-next-crazygames-browser.cjs
+          node tests/v5-next-sdk-not-ready-browser.cjs
+          node tests/v5-next-crazygames-payload-browser.cjs | tee /tmp/payload.jsonl
+      - name: ZIP index.html — Build flow
+        if: ${{ !cancelled() }}
+        timeout-minutes: 10
+        working-directory: src
+        env:
+          CG_URL: http://127.0.0.1:8081/index.html
+        run: node tests/v5-next-build-flow-browser.cjs
+      - name: ZIP index.html — core actions, tap flicker, coast ×, strip tap
+        if: ${{ !cancelled() }}
+        timeout-minutes: 15
+        working-directory: src
+        env:
+          CG_URL: http://127.0.0.1:8081/index.html
+        run: |
+          node tests/v5-next-core-actions-browser.cjs
+          node tests/v5-next-tap-flicker-browser.cjs
+          node tests/v5-next-coast-back-browser.cjs
+          node tests/v5-next-strip-tap-browser.cjs
+      - name: ZIP files — Shed overlay hotfix
+        if: ${{ !cancelled() }}
+        timeout-minutes: 10
+        working-directory: src
+        env:
+          ORIGIN: http://127.0.0.1:8080
+        run: node tests/v5-next-shed-overlay-browser.cjs
+      - name: ZIP files — Board Full Rescue (incl. an old save with tip-shed)
+        if: ${{ !cancelled() }}
+        timeout-minutes: 10
+        working-directory: src
+        env:
+          ORIGIN: http://127.0.0.1:8080
+        run: node tests/v5-next-board-rescue-browser.cjs
+      - name: ZIP files — tutorial endpoint (first loop to the first Build; Skip; existing save never guided)
+        if: ${{ !cancelled() }}
+        timeout-minutes: 15
+        working-directory: src
+        env:
+          ORIGIN: http://127.0.0.1:8080
+        run: node tests/v5-next-tutorial-endpoint-browser.cjs
+      - name: ZIP index.html with a stand-in CrazyGames SDK v3 — new player to the first Build, reload, Continue
+        if: ${{ !cancelled() }}
+        timeout-minutes: 10
+        working-directory: src
+        env:
+          ZIP_ORIGIN: http://127.0.0.1:8081
+        run: |
+          node ../ci/release/crazygames-update-ac1d8bc/scripts/zipplay.cjs | tee /tmp/zipplay.json
+          node -e "const d=require('/tmp/zipplay.json');const ok=d.tutorialComplete&&d.save?.done&&d.sdkCounts.gameplayStart===1&&d.sdkCounts.requestAd===0&&!d.failedRequests.length&&!d.consoleErrors.length&&!d.pageErrors.length&&!d.outsideOrigins.length&&d.afterReload.home==='Continue';console.log('zipplay',ok?'PASS':'FAIL');process.exit(ok?0:1)"
+      - name: Saves across builds — live 822a8f9 and previous 664956e → this ZIP → rollback
+        if: ${{ !cancelled() }}
+        timeout-minutes: 20
+        working-directory: src
+        env:
+          CAND: http://127.0.0.1:8080
+          FROM: live=http://127.0.0.1:8082,prev=http://127.0.0.1:8083
+        run: node ../ci/release/crazygames-update-ac1d8bc/scripts/crossver.cjs | tee /tmp/crossver.txt
+      - name: Keep the test outputs
+        if: ${{ !cancelled() }}
+        run: mkdir -p results && cp /tmp/payload.jsonl /tmp/zipplay.json /tmp/crossver.txt results/ 2>/dev/null; ls results
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: zip-test-results-${{ matrix.engine }}
+          path: results/
+          retention-days: 30
+  publish:
+    name: Keep the tested ZIP on this branch (not CrazyGames)
+    needs: [reproducible, test]
+    if: ${{ success() }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: handoff-zip-untested
+          path: out
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: zip-test-results-*
+          path: results
+      - name: Commit the ZIP, SHA256SUMS, SOURCE_COMMIT.txt and the test outputs
+        run: |
+          set -euo pipefail
+          (cd out && sha256sum -c SHA256SUMS)
+          D=release/crazygames-update-ac1d8bc && mkdir -p $D/ci-results
+          cp out/* $D/ && for e in chromium webkit; do for f in results/zip-test-results-$e/*; do cp "$f" "$D/ci-results/$e-$(basename "$f")"; done; done
+          git config user.name "github-actions[bot]"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add $D && git commit -q -m "chore(release): tested Basic ZIP from ac1d8bc (CI run ${{ github.run_id }}) [skip ci]"
+          for i in 1 2 3; do git pull -q --rebase origin "${GITHUB_REF_NAME}" && git push -q origin "HEAD:${GITHUB_REF_NAME}" && break; sleep 5; done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vaultwake-merge-crazygames-basic-ac1d8bc
+          path: out/
+          retention-days: 90
