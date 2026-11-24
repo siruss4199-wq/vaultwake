@@ -1,0 +1,7 @@
+Playgama Bridge SDK, unmodified.
+package: @playgama/bridge@2.4.4 (npm registry, published 2026-11-19)
+file:    dist/playgama-bridge.js (the self-contained build; the docs' option for a build with no external SDK script)
+sha256:  12a9527f66b9bce1b2a6cca8abf39e7f55410bf6b4b92e2fe1080ceb359a1437
+tarball: playgama-bridge-2.4.4.tgz sha256 f8f2440efb821442330ad740520e0e41384b54af7d19db9b882b83a66a074155
+license: GNU LGPL v3 (LICENSE, shipped beside it in the game archive)
+fetched: 2026-11-24 with: npm pack @playgama/bridge@2.4.4

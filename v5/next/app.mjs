@@ -13,7 +13,7 @@ import {kit} from '../kits.mjs';
 import {iceNeed,weakIceBeside} from './ice.mjs';
 import {purposeOf} from './purposes.mjs';
 import {createLog} from './playtest.mjs';
-import {rewardedAd,adsAvailable,initPlatform,platform,onCrazyGamesHost,SAVE_INIT_TIMEOUT} from './platform-cg.mjs';
+import {rewardedAd,adsAvailable,initPlatform,platform,onCrazyGamesHost,SAVE_INIT_TIMEOUT,onPlaygama,interstitial,rewardedSupported} from './platform.mjs';
 import {cellPos} from '../core.mjs';
 import {CHAINS,draw,maxTier,chainsAt,GENERATOR_CHAINS} from './chains.mjs';
 import {art,portrait} from '../art.mjs';
@@ -28,6 +28,7 @@ import {sfx as sounds} from './sfx.mjs';
 import {createHome} from './home.mjs';
 import {readSave,keptCamps,freeKey,isKeptKey} from './saves.mjs?build=releaseqa54';
 import {openSaveStore,saveLine} from './save-store.mjs';
+import {kvStore,bridgeSaveLine} from './bridge-store.mjs';
 import {playIntro,preloadIntro,storySeen,playScenes,INTRO} from './story-intro.mjs';
 import {haptics} from './haptics.mjs';
 import {createEnergyReceipts} from './energy-receipts.mjs';
@@ -62,10 +63,29 @@ const $=q=>document.querySelector(q),board=$('#board');
 const saveNotes=[];
 // On CrazyGames the real SDK's init can take several seconds (2026-11-09 private-QA failure): the
 // save waits for it (the loading screen stays up) rather than falling back to localStorage.
-const storage=await openSaveStore({init:()=>initPlatform({timeout:onCrazyGamesHost()?SAVE_INIT_TIMEOUT:4000}),
+// On Playgama (release/playgama, 2026-11-24) progress goes through the Bridge's Storage module: playgama-boot.js
+// initialised the Bridge and read every key before this module was loaded (window.VWKV, bridge-store.mjs).
+const storage=onPlaygama?kvStore(await globalThis.VWKVReady,globalThis.VWBridge):await openSaveStore({init:()=>initPlatform({timeout:onCrazyGamesHost()?SAVE_INIT_TIMEOUT:4000}),
  onEvent:(e,d)=>{saveNotes.push([e,d]);if(/Error|Full|OverLimit/.test(e))console.warn('[Vaultwake save]',e,d);}});
+if(onPlaygama)initPlatform();
+const saveText=st=>onPlaygama?bridgeSaveLine(st,globalThis.VWBridge):saveLine(st);
+// Playgama rule 1.4.5: a long press on the game never opens the browser's menu (Android Chrome shows one on a
+// picture). Text fields keep theirs.
+// Playgama: the game column fits the window (coastal.css). The scale comes from the column's usual contents,
+// header to footer, without the panels that open during play, and changes only when the window does.
+function fitPlaygama(){
+ const main=document.querySelector('main.game'),foot=main?.querySelector('footer');if(!main||!foot)return;
+ const root=document.documentElement;root.style.setProperty('--pgFit','1');root.style.setProperty('--pgH',innerHeight+'px');
+ const extra=['#selection','#message'].reduce((n,q)=>n+(main.querySelector(q)?.offsetHeight??0),0);
+ const need=foot.offsetTop+foot.offsetHeight+12-extra,k=Math.max(.6,Math.min(1,innerHeight/need));
+ root.style.setProperty('--pgFit',k.toFixed(4));root.style.setProperty('--pgH',(innerHeight/k).toFixed(1)+'px');
+}
+if(onPlaygama){fitPlaygama();let fitT=0;const refit=()=>{clearTimeout(fitT);fitT=setTimeout(fitPlaygama,120);};addEventListener('resize',refit);globalThis.visualViewport?.addEventListener('resize',refit);addEventListener('orientationchange',refit);globalThis.VWFit=fitPlaygama;}
+if(onPlaygama)document.addEventListener('contextmenu',e=>{if(!e.target.closest?.('input,textarea'))e.preventDefault();});
+// A reload right after a save (a restored camp): on Playgama the batched save is sent first.
+const reloadSaved=()=>Promise.resolve(storage.flush?.()).finally(()=>location.reload());
 // Diagnostics for QA: where progress goes and whether saves are accepted (also the menu's save line).
-globalThis.VWSave=storage.status;console.info('[Vaultwake save]',saveLine(storage.status),storage.status);
+globalThis.VWSave=storage.status;console.info('[Vaultwake save]',saveText(storage.status),storage.status);
 // ?new=1 (the playtest page's "start from the beginning" link) starts a new camp.
 const startNew=new URLSearchParams(location.search).has('new');
 if(startNew){const q=new URLSearchParams(location.search);q.delete('new');history.replaceState(null,'',location.pathname+(q.size?'?'+q:''));}
@@ -116,7 +136,7 @@ function restoreKept(key){
  persist();const cur=storage.get(SAVE_KEY);
  if(cur&&cur!==raw&&!keepCopy(cur,damaged?'damaged':'kept')){alert('Your current camp could not be copied aside (this browser\'s storage is full), so nothing was replaced.');return false;}
  storage.set(SAVE_KEY,raw);if(storage.get(SAVE_KEY)!==raw){alert('The kept camp could not be restored (this browser\'s storage is full).');return false;}
- holdSave=true;playlog.event('restoreKept');location.reload();return true;
+ holdSave=true;playlog.event('restoreKept');reloadSaved();return true;
 }
 function showKept(){
  const list=kept(),when=t=>new Date(t).toLocaleString(undefined,{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
@@ -125,7 +145,9 @@ function showKept(){
 }
 $('#keptList').addEventListener('click',e=>{const b=e.target.closest('[data-restore]');if(b)restoreKept(b.dataset.restore);});
 // The local playtest log (Build 41 M6): this browser only, copied out by the player.
-const playlog=createLog({storage:{get:k=>{try{return localStorage.getItem(k);}catch{return null;}},set:(k,v)=>localStorage.setItem(k,v),remove:k=>localStorage.removeItem(k)},
+// On Playgama the log stays in memory for the session (rule 3.2.1: nothing of the game's own in localStorage).
+const memLog=new Map();
+const playlog=createLog({storage:onPlaygama?{get:k=>memLog.get(k)??null,set:(k,v)=>memLog.set(k,String(v)),remove:k=>memLog.delete(k)}:{get:k=>{try{return localStorage.getItem(k);}catch{return null;}},set:(k,v)=>localStorage.setItem(k,v),remove:k=>localStorage.removeItem(k)},
  build:BUILD,viewport:`${innerWidth}x${innerHeight}`,touch:!!globalThis.matchMedia?.('(pointer:coarse)').matches});
 playlog.startSession();
 for(const [e,d] of saveNotes)playlog.event(e,d);
@@ -142,7 +164,10 @@ const COIN='<i class="coinIcon" aria-hidden="true"></i>';
 // build name and the ad stand-in, as before; a page that has real ads says data-ads="on"
 // (CrazyGames after Full Launch). Without ads every ad offer is hidden; nothing else changes.
 const DEV=new URLSearchParams(location.search).has('dev');document.documentElement.dataset.dev=DEV?'on':'off';
-const ADS=document.documentElement.dataset.ads==='on'||DEV&&document.documentElement.dataset.ads!=='off';
+// On Playgama the rewarded offers exist only where the platform supports rewarded ads (required step 8:
+// hidden, not shown broken); the help text's ad lines go with them.
+const ADS=onPlaygama?rewardedSupported():document.documentElement.dataset.ads==='on'||DEV&&document.documentElement.dataset.ads!=='off';
+if(onPlaygama)document.documentElement.dataset.ads=ADS?'on':'off';
 const pips=n=>`<span class="pips" aria-label="stage ${n} of ${STAGES}">${Array.from({length:STAGES},(_,k)=>`<i class="${k<n?'on':''}"></i>`).join('')}</span>`;
 // Places with stage art (build 38: workshop, pier, beacon) are drawn as they stand at their stage.
 // Build 48a: the Hidden Harbour's cut-outs (tools/harbour-art.py) live in their own folder. Build 48c:
@@ -198,6 +223,8 @@ function render(){
  renderOrders();renderBoard();renderShed();renderSelection();renderHint();renderNextPlace();
  $('#dailyButton').hidden=!giftReady();
  $('#adEnergyButton').hidden=!ADS||!adReady||coachActive(state)||!(state.energy<5&&shopLeft(state,'adEnergy',today())>0);
+ // Rule 2.2.1: the button says an ad will play and what it gives (the reward is SHOP.adEnergy's, +25).
+ if(!$('#adEnergyButton').hidden){const t=`Ad +${SHOP.adEnergy.energy} ϟ`;if($('#adEnergyButton').dataset.label!==t){$('#adEnergyButton').dataset.label=t;$('#adEnergyButton').innerHTML=`<b aria-hidden="true">▶</b>${t}`;$('#adEnergyButton').setAttribute('aria-label',`Watch an ad for ${SHOP.adEnergy.energy} energy`);}}
  if(!$('#adEnergyButton').hidden&&!adOffered)playlog.event('adOffer',{id:'adEnergy'});adOffered=!$('#adEnergyButton').hidden;
  {const n=bookReady(state).length+BOOK_CHAINS.filter(f=>pageReady(state,f)).length;$('#bookCount').hidden=!n;$('#bookCount').textContent=n;$('#bookButton').classList.toggle('ready',n>0);}
  calmBadges();
@@ -336,7 +363,7 @@ function renderOrderTools(){
  const day=today(),free=swapsLeft(state,day),ads=adSwapsLeft(state,day),missing=missingOf(state,o);
  bar.hidden=false;
  if(o.story){setHTML(bar,SHEET_CLOSE+goldPanel(o));syncSheet();return;}
- const swap=`<span class="toolNote">Stuck on ${CREW[o.who].name}'s order?</span>`+(free>0?`<button data-swap>↻ New order <small>${free} free today</small></button>`:ADS&&ads>0?'<button class="adOffer" data-swap-ad>▶ New order</button>':'<button disabled>No more changes today</button>');
+ const swap=`<span class="toolNote">Stuck on ${CREW[o.who].name}'s order?</span>`+(free>0?`<button data-swap>↻ New order <small>${free} free today</small></button>`:ADS&&ads>0?'<button class="adOffer" data-swap-ad>▶ Watch ad · new order</button>':'<button disabled>No more changes today</button>');
  // What the order is for and where its coins go (Build 44): the crew member's reason, and the
  // next stage the coins count toward (the gold order instead brings that stage's materials).
  const role=roleOf(o),why=purposeOf(o,role),n=nextPlace(),kind={quick:'Quick job',pair:'Two-part job'}[role];
@@ -568,11 +595,13 @@ function coachArrow(a,b){
  const br=board.getBoundingClientRect(),ra=a.getBoundingClientRect(),rb=b.getBoundingClientRect();if(!ra.width||!rb.width)return;
  const sx=ra.left+ra.width/2,sy=ra.top+ra.height/2,dx=rb.left+rb.width/2-sx,dy=rb.top+rb.height/2-sy,d=Math.hypot(dx,dy)||1,pitch=Math.abs(rb.left-ra.left)||Math.abs(rb.top-ra.top)||ra.width;
  const near=d<=Math.max(ra.width,pitch)*1.5,k=ra.width/2+1,px=near?sx+dx/2:sx+dx/d*k,py=near?sy+dy/2:sy+dy/d*k,ox=br.left+board.clientLeft,oy=br.top+board.clientTop;
+ // The board's own pixels per screen pixel: 1 everywhere except a scaled Playgama column (coastal.css --pgFit).
+ const z=board.offsetWidth?br.width/board.offsetWidth:1,L=v=>v/z;
  const el=document.createElement('i');el.className='coachArrow';el.setAttribute('aria-hidden','true');el.innerHTML=ARROW_SVG;
- el.style.left=`${px-ox}px`;el.style.top=`${py-oy}px`;el.style.setProperty('--a',`${Math.atan2(dy,dx)*180/Math.PI}deg`);board.append(el);
+ el.style.left=`${L(px-ox)}px`;el.style.top=`${L(py-oy)}px`;el.style.setProperty('--a',`${Math.atan2(dy,dx)*180/Math.PI}deg`);board.append(el);
  const art=a.querySelector(':scope>img.art,:scope>svg.art,:scope>.art');if(!art||reduced())return;
  const g=document.createElement('span');g.className='coachGhost';g.setAttribute('aria-hidden','true');g.append(art.cloneNode(true));
- g.style.cssText=`left:${sx-ox}px;top:${sy-oy}px;width:${ra.width}px;height:${ra.height}px;--gx:${dx}px;--gy:${dy}px`;board.append(g);
+ g.style.cssText=`left:${L(sx-ox)}px;top:${L(sy-oy)}px;width:${L(ra.width)}px;height:${L(ra.height)}px;--gx:${L(dx)}px;--gy:${L(dy)}px`;board.append(g);
 }
 // First Session 2.0 (Adaptive tutorial 2.0, tutor.mjs): the same line and targets, one actionable step at a
 // time: what (bold), why (one short line), where (gold = the next action, green = the matching pair, the hand
@@ -821,7 +850,7 @@ function run(a,{adCompletion=false}={}){
   if(r.unlocks?.length)extrasNews();else moment(SOURCES[src.id].name+' · level '+src.level,LEVEL_GAIN[src.level]+(waiting?` Level ${UNLOCK_LEVEL} brings out the ${SOURCES[next].name}.`:''),src);tile?.classList.add('merge-pop');burst(tile?.getBoundingClientRect(),'gold',true);sfx('milestone');}
  // On the coast screen the build plays first (Build 41f), then its story.
  if(r.event==='restore'&&r.effects?.boost){const b=r.effects.boost;energyNote(`${b.milestone?'Restoration '+b.milestone:'First stage'} · +${b.energy} energy`);rewardFlight($('#mapButton').getBoundingClientRect(),$('#energyPill').getBoundingClientRect(),`+${b.energy} energy`);}
- if(r.event==='restore'){haptics.pulse('restore');if($('#coastMap').open&&!reduced())setTimeout(()=>showBeat(r.task,r.effects),1300);else showBeat(r.task,r.effects);}
+ if(r.event==='restore'){builtThisVisit=true;haptics.pulse('restore');if($('#coastMap').open&&!reduced())setTimeout(()=>showBeat(r.task,r.effects),1300);else showBeat(r.task,r.effects);}
  if(r.event==='store'){$(`#shed [data-slot="${r.slot}"]`)?.classList.add('merge-pop');sfx('tap');}
  if(r.event==='unstore'){tile?.classList.add('merge-pop');sfx('tap');if(!state.shed.some(Boolean)){shedOpen=false;renderShed();}}
  if(r.event==='shop'){const o=SHOP[r.id];if(r.energy)rewardFlight(($('#shop').open?$('#shopContent'):$('#adEnergyButton')).getBoundingClientRect(),$('#energyPill').getBoundingClientRect(),`+${r.energy} ϟ`);else moment(o.name+(r.ad?' · thanks for watching':''),r.slot!=null?'In the shed: the board is full.':'On the board next to Rivet Rover.',r.thing);tile?.classList.add('unsealed');sfx('rare');}
@@ -937,7 +966,7 @@ $('#orderTools').addEventListener('click',e=>{if(e.target.closest('[data-sheet-c
  setTimeout(()=>{if(performance.now()>=locateUntil){renderBoard();if(coach)showCoachTarget(coach.target);}},2700);});
 $('#orderDetails').addEventListener('click',()=>{sfx('tap');setDetails(true);});
 $('#sheetBackdrop').addEventListener('click',()=>setDetails(false));
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&detailsOpen){e.preventDefault();setDetails(false);$('#orderDetails').focus({preventScroll:true});}});
+document.addEventListener('keydown',e=>{if(!onPlaygama&&e.key==='Escape'&&detailsOpen){e.preventDefault();setDetails(false);$('#orderDetails').focus({preventScroll:true});}});
 $('#requests').addEventListener('click',e=>{const c=e.target.closest('[data-order]');if(!c)return;const o=state.orders.find(o=>o.id===c.dataset.order);if(!o)return;if(orderItems(state,o)){run({type:'deliver',id:o.id});return;}focusOrder=focusOrder===o.id?null:o.id;render();$('#message').textContent=`${CREW[o.who].name} needs ${needsOf(state,o).map(r=>r.count+' × '+nameOf(item(r.family,r.tier))+(r.sibling?` (level ${levelOf(r)})`:'')).join(' and ')}. Their parts are marked on the board.`+o.needs.filter(r=>CHAINS[r.family].secondary).map(r=>' '+sourceNote(r.family,r.tier)).join('');});
 // The upgrading happens on the beach screen (user: "tusdaa orchinruu ochij upgrade hiih").
 $('#mapButton').onclick=()=>{mapFocus=$('#mapButton').dataset.place||null;sfx('tap');showMap();};
@@ -1081,7 +1110,7 @@ async function watchAd(action){
   const interrupt=()=>{if(document.hidden)controller.abort();};
   document.addEventListener('visibilitychange',interrupt);addEventListener('pagehide',()=>controller.abort(),{once:true,signal:controller.signal});
   try{
-   const r=await rewardedAd({onStart(){adPlaying=true;},onEnd(){adPlaying=false;},standIn:adStandIn,allowStandIn:localStandIn,signal:controller.signal});
+   const r=await rewardedAd({onStart(){adPlaying=true;},onEnd(){adPlaying=false;},standIn:adStandIn,allowStandIn:localStandIn,signal:controller.signal,placement:{adEnergy:'energy',adCrate:'crate'}[action.id]??'new_order'});
    playlog.event('ad',{id:action.id??'swap',phase:r});
    if(r==='finished'&&state.energyRewards.id===camp.energyRewards.id&&!controller.signal.aborted){
     const saved=readSave(storage.get(SAVE_KEY),Date.now());
@@ -1108,12 +1137,12 @@ async function watchAd(action){
 // appears)
 let giftBase=state.moves??0,giftCamp=state;
 function offerGift(){if(state!==giftCamp){giftCamp=state;giftBase=state.moves??0;}
- if(!homeOpen&&!adBusy&&giftReady()&&giftShown!==today()&&giftBase>=3&&state.moves>=3&&!tutorActive(state)&&!drag&&!document.querySelector('dialog[open]'))showDaily();}
+ if(!homeOpen&&!adBusy&&!platform.paused&&giftReady()&&giftShown!==today()&&giftBase>=3&&state.moves>=3&&!tutorActive(state)&&!drag&&!document.querySelector('dialog[open]'))showDaily();}
 $('#soundButton').onclick=()=>{sounds.toggle();render();sfx('tap');};
 $('#hapticsButton').onclick=()=>{haptics.toggle();render();haptics.pulse('merge');};
 $('#helpButton').onclick=()=>$('#help').showModal();
 $('#keptButton').onclick=()=>{$('#menu').close();showKept();};
-$('#menuButton').onclick=()=>{$('#homeButton').hidden=homeOpen;{const n=kept().length;$('#keptButton').hidden=!n;$('#keptButton').textContent=`Kept camps (${n})`;}{let n=$('#saveNote');if(!n){n=document.createElement('small');n.id='saveNote';$('#hapticsNote').after(n);}n.textContent=saveLine(storage.status);}$('#classicNote').textContent=storage.get('vaultwake-v5')?'Your Classic save is kept and continues where you left it.':'';$('#hapticsNote').textContent=haptics.method==='vibrate'?'Vibration on merges: use the button at the bottom of the board screen.':haptics.method==='ios-switch'?'Vibration on merges may work on this iPhone (iOS 18 and later); turn it off at the bottom of the board screen.':'Vibration is not available in this browser.';$('#menu').showModal();};
+$('#menuButton').onclick=()=>{$('#homeButton').hidden=homeOpen;{const n=kept().length;$('#keptButton').hidden=!n;$('#keptButton').textContent=`Kept camps (${n})`;}{let n=$('#saveNote');if(!n){n=document.createElement('small');n.id='saveNote';$('#hapticsNote').after(n);}n.textContent=saveText(storage.status);}$('#classicNote').textContent=storage.get('vaultwake-v5')?'Your Classic save is kept and continues where you left it.':'';$('#hapticsNote').textContent=haptics.method==='vibrate'?'Vibration on merges: use the button at the bottom of the board screen.':haptics.method==='ios-switch'?'Vibration on merges may work on this iPhone (iOS 18 and later); turn it off at the bottom of the board screen.':'Vibration is not available in this browser.';$('#menu').showModal();};
 $('#newGame').onclick=()=>{if(!confirm('Start a new game from the beginning? This camp is kept in this browser (Kept camps in this menu brings it back), and your Classic save is not affected.'))return;if(!newCamp())return;$('#menu').close();if(homeOpen&&home)home.enter();else showIntro();};
 // A new camp, chosen by the player (the menu, or Home after a save could not be read).
 // Round 2: the camp a new camp replaces is kept (SAVE_KEY-kept…), so starting again loses nothing.
@@ -1365,6 +1394,17 @@ function showBeat(id,effects,stage=stageOf(state,id)){
 let restoredHtml=null;
 function keepRestoredCard(){if(!restoredHtml||!$('#coastMap').open)return;const wrap=$('#coastMap .sceneWrap');if(wrap&&!$('#coastMap .restoredCard'))wrap.insertAdjacentHTML('afterend',restoredHtml);}
 $('#coastMap').addEventListener('close',()=>{restoredHtml=null;});
+// Playgama (rule 2.1.2-2.1.3, required step 7): an interstitial is asked for at the game's natural pause, going
+// back to the board after building on the coast. Never during the first tutorial, never for the first stage
+// built (the tutorial's own end) and never while the player is mid-action; the Bridge decides whether one is
+// actually shown (its first delay and minimum interval), the game keeps no timer or counter of its own.
+let builtThisVisit=false;
+const stagesBuiltAll=()=>AREAS.reduce((n,a)=>n+(a?.tasks??[]).reduce((m,t)=>m+stageOf(state,t.id),0),0);
+$('#coastMap').addEventListener('close',()=>{
+ if(!builtThisVisit)return;builtThisVisit=false;
+ if(!onPlaygama||adBusy||drag||tutorActive(state)||coachActive(state)||stagesBuiltAll()<2)return;
+ interstitial('stage_built').then(r=>{playlog.event('interstitial',{placement:'stage_built',result:r});render();});
+});
 let tutorDone=false;
 function restoredCard(t,st,stage,effects,nxt,spent=null){
  $('#coastMap .restoredCard')?.remove();const wrap=$('#coastMap .sceneWrap');if(!wrap)return;
@@ -1563,7 +1603,9 @@ $('#build').textContent='COAST CAMP · '+BUILD.toUpperCase();
 // then gameplay whenever no menu, end screen, log, ad or hidden tab is in the way.
 // Build 46p: loading ends when Home is usable (home.ready), not when every picture is in.
 let home=null;
-initPlatform().then(on=>{if(!on)return;platform.loadingStart();const stop=()=>{platform.loadingStop();syncPlaying();};home?home.ready.then(stop):document.readyState==='complete'?stop():addEventListener('load',stop,{once:true});});
+// Playgama's game_ready (loadingStop) means "the player can interact now": Home with its Play/Continue button,
+// or, for a new player who goes straight in, the board itself (arrive() below).
+initPlatform().then(on=>{if(!on)return;platform.loadingStart();const stop=()=>{if(onPlaygama&&newPlayer&&homeOpen)return;platform.loadingStop();syncPlaying();};home?home.ready.then(stop):document.readyState==='complete'?stop():addEventListener('load',stop,{once:true});});
 const syncPlaying=()=>platform.setPlaying(!homeOpen&&!adBusy&&!document.hidden&&!document.querySelector('#menu[open],#help[open],#playlog[open],#endDialog[open],#adStandIn[open]'));
 document.addEventListener('visibilitychange',syncPlaying);
 // What the playtest log keeps of an action (Build 41 M6).
@@ -1698,6 +1740,8 @@ addEventListener('pageshow',e=>{if(e.persisted&&!homeOpen)framePlay();});
 // What happens on arriving at the board: once at the start without Home, and each time from Home.
 let storyJustPlayed=false;
 function arrive(fromHome=true){
+ if(onPlaygama)initPlatform().then(on=>{if(on)platform.loadingStop();});
+ if(onPlaygama)fitPlaygama();
  if(holdSave&&!damaged&&!waitFirstAction){holdSave=false;persist();}
  syncPlaying();if(fromHome)$('#hint').focus({preventScroll:true});framePlay();
  // Build 51c: a story played to its end already says what to do first, so no second introduction follows

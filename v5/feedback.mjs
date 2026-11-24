@@ -4,10 +4,12 @@ import {containerInfo} from './containers.mjs';
 import {platform} from '../v4/platform.mjs';
 // Merge feedback is part of the core feel: sound starts on unless the player turned it off.
 let audioContext=null,lastTone=0,enabled=true;
-try{enabled=localStorage.getItem('vaultwake-sound')!=='off';}catch{}
+// On Playgama the setting goes through the Bridge's storage (window.VWKV, v5/next/playgama-boot.js).
+const settings=()=>globalThis.VWKV??localStorage;
+try{enabled=settings().getItem('vaultwake-sound')!=='off';}catch{}
 export const sound={
  enabled:()=>enabled,
- toggle(){enabled=!enabled;try{localStorage.setItem('vaultwake-sound',enabled?'on':'off');}catch{}return enabled;},
+ toggle(){enabled=!enabled;try{settings().setItem('vaultwake-sound',enabled?'on':'off');}catch{}return enabled;},
  play(kind,tier=0){
   if(!enabled||platform.audioMuted()||document.hidden||performance.now()-lastTone<55)return;
   lastTone=performance.now();

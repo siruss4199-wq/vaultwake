@@ -196,7 +196,7 @@ body.nextMode #requests .requestCard.requestCard.active{outline:0}
 :root:not([data-ads="on"]):not([data-dev="on"]) :is(.adsOnly,#adEnergyButton),[data-ads="off"] :is(.adsOnly,#adEnergyButton){display:none!important}
 /* on CrazyGames nothing leads out of the game: no Classic link, playtest log, sound check page or
    feedback export (data-platform="crazygames", tools/coast-crazygames.mjs) */
-[data-platform="crazygames"] :is(#classicLink,#classicNote,#playlogButton,a[href="next/sounds.html"],[data-feedback]){display:none!important}
+:is([data-platform="crazygames"],[data-platform="playgama"]) :is(#classicLink,#classicNote,#playlogButton,a[href="next/sounds.html"],[data-feedback]){display:none!important}
 /* players see no developer tools: the Classic link, the playtest log, the sound check page, the
    feedback export and the build name show only with ?dev=1 (2026-10-26) */
 :root:not([data-dev="on"]) :is(#classicLink,#classicNote,#playlogButton,a[href="next/sounds.html"],[data-feedback],#menu .menuNote,footer #build){display:none!important}
@@ -857,3 +857,11 @@ body.nextMode #board .coachArrow svg{width:14px;height:14px;fill:none;stroke:#ff
 body.nextMode #board .coachGhost{position:absolute;z-index:4;pointer-events:none;opacity:0;transform:translate(-50%,-50%) scale(.7);animation:tutDrag 2.2s ease-in-out infinite}
 body.nextMode #board .coachGhost>*{position:static;display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 3px 4px #0005)}
 @keyframes tutDrag{0%,14%{opacity:0;transform:translate(-50%,-50%) scale(.7)}26%{opacity:.7;transform:translate(-50%,-50%) scale(.72)}72%{opacity:.7;transform:translate(calc(-50% + var(--gx,0px)),calc(-50% + var(--gy,0px))) scale(.72)}86%,100%{opacity:0;transform:translate(calc(-50% + var(--gx,0px)),calc(-50% + var(--gy,0px))) scale(.7)}}
+/* Playgama (release/playgama, 2026-11-24; Game Requirements 1.6.2, 1.6.3, 1.6.6, the Responsive layout guide's "fit
+   with a background" for board games): the browser page never scrolls. The game column is scaled down to fit the
+   window when its usual contents (header to footer) are taller than it (app.mjs fitPlaygama sets --pgFit and
+   --pgH on resize only, so nothing jumps during play); a panel that opens during play (the selected part, a
+   message) scrolls inside the game instead of the page. Other builds are unchanged. */
+html[data-platform="playgama"],html[data-platform="playgama"] body{height:100%;overflow:hidden;overscroll-behavior:none}
+html[data-platform="playgama"] body.nextMode main.game{transform:scale(var(--pgFit,1));transform-origin:50% 0;height:var(--pgH,100dvh);min-height:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}
+html[data-platform="playgama"] body.nextMode main.game::-webkit-scrollbar{display:none}

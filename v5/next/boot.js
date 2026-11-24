@@ -52,6 +52,8 @@
   return homeArt.promise;
  };
  const hasCamp=(()=>{try{if(/[?&]new=1(&|$)/.test(location.search))return false;
+  // On Playgama the keys were read from the Bridge's storage before this script ran (playgama-boot.js).
+  if(window.VWKV)return window.VWKV.keys().some(k=>/^vaultwake-v5-coast/.test(k));
   for(let i=0;i<localStorage.length;i++)if(/^vaultwake-v5-coast/.test(localStorage.key(i)||''))return true;return false;}catch{return true;}})();
  if(hasCamp)homeArt.load();
  // A game file (this site's scripts and styles) that fails to load, or the game failing while it

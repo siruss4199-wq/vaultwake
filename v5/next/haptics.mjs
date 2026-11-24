@@ -16,7 +16,9 @@ const nav=typeof navigator!=='undefined'?navigator:{};
 const canVibrate=typeof nav.vibrate==='function';
 const apple=/iP(hone|ad|od)/.test(nav.userAgent??'')||(nav.platform==='MacIntel'&&nav.maxTouchPoints>1);
 const canSwitch=!canVibrate&&apple&&typeof HTMLInputElement!=='undefined'&&'switch' in HTMLInputElement.prototype;
-let on=true;try{on=localStorage.getItem(KEY)!=='off';}catch{}
+// On Playgama the setting goes through the Bridge's storage (window.VWKV, playgama-boot.js).
+const settings=()=>globalThis.VWKV??localStorage;
+let on=true;try{on=settings().getItem(KEY)!=='off';}catch{}
 let toggleEl=null,last=0;
 function iosTick(){
  if(!toggleEl){
@@ -34,7 +36,7 @@ export const haptics={
  method:canVibrate?'vibrate':canSwitch?'ios-switch':null,
  supported:canVibrate||canSwitch,
  enabled:()=>on,
- toggle(){on=!on;try{localStorage.setItem(KEY,on?'on':'off');}catch{}return on;},
+ toggle(){on=!on;try{settings().setItem(KEY,on?'on':'off');}catch{}return on;},
  // Returns true when a pulse was asked of the device (the device may still ignore it).
  pulse(kind='merge'){
   if(!on||!PATTERN[kind])return false;

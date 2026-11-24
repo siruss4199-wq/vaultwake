@@ -77,7 +77,8 @@ export function playScenes({scenes,face,reduced,last='Continue',label=''}){
   if(reduced())end();else{root.classList.add('leaving');setTimeout(end,260);}
   resolve({how,scene:n+1});
  }
- const keys=e=>{if(e.key==='Escape'){e.preventDefault();finish('skipped');}};
+ // Playgama rule 1.5.2: the Esc key belongs to the browser (leaving full screen); Skip is the way out there.
+ const keys=e=>{if(e.key==='Escape'&&document.documentElement.dataset.platform!=='playgama'){e.preventDefault();finish('skipped');}};
  const relight=()=>{const s=scenes[n],img=layers[top];if(s)light(s,img);};
  $('storyNext').onclick=()=>{if(closed)return;if(n<scenes.length-1){n++;scene();}else finish('done');};
  $('storySkip').onclick=()=>finish('skipped');

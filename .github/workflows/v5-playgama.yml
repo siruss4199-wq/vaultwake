@@ -1,0 +1,137 @@
+name: Vaultwake Merge Playgama build (release/playgama)
+# 2026-11-24: the Playgama build of Vaultwake Merge (tools/coast-playgama.mjs). On every push to release/playgama:
+#  1. unit and simulation tests, the module list and the CrazyGames page are up to date;
+#  2. the Playgama ZIP is built twice; the two builds must be byte-identical (their SHA-256 is the release checksum);
+#  3. the extracted ZIP is tested in Chromium, WebKit and Firefox (Playwright image): tests/v5-playgama-browser.cjs
+#     (Bridge first, one storage read, game_ready, guided first Build, batched saves, no localStorage, rewarded ads
+#     finished / closed early / failed / unsupported, the interstitial at the build break, audio and pause, Bridge
+#     failures, the real Bridge, screen sizes incl. a square window);
+#  4. the game's existing Coast Camp browser suites run on the source tree (standalone and CrazyGames pages), so the
+#     Playgama changes are shown not to break the other builds.
+# Nothing is uploaded to Playgama from CI.
+on:
+  push:
+    branches: [release/playgama]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: v5-playgama-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    name: Build ${{ matrix.build }} of the Playgama ZIP
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        build: [a, b]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Unit and simulation tests
+        if: matrix.build == 'a'
+        timeout-minutes: 8
+        run: node --test tests/v5-*.test.mjs
+      - name: Build the ZIP
+        run: |
+          set -euo pipefail
+          node tools/coast-modules.mjs --check
+          node tools/coast-crazygames.mjs --check
+          node --check v5/next/app.mjs && node --check v5/next/platform-pg.mjs && node --check v5/next/playgama-boot.js
+          node tools/coast-playgama.mjs
+          mkdir -p out && cp dist/vaultwake-merge-playgama.zip out/
+          (cd out && sha256sum vaultwake-merge-playgama.zip | tee SHA256SUMS && echo "$(stat -c %s vaultwake-merge-playgama.zip) bytes, $(unzip -Z1 vaultwake-merge-playgama.zip | wc -l) files")
+          unzip -tq out/vaultwake-merge-playgama.zip
+          unzip -Z1 out/vaultwake-merge-playgama.zip | grep -qx index.html
+          unzip -Z1 out/vaultwake-merge-playgama.zip | grep -qx playgama-bridge-config.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: playgama-zip-${{ matrix.build }}
+          path: out/
+          retention-days: 30
+  reproducible:
+    name: The two builds are byte-identical
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: playgama-zip-a
+          path: a
+      - uses: actions/download-artifact@v4
+        with:
+          name: playgama-zip-b
+          path: b
+      - run: cmp a/vaultwake-merge-playgama.zip b/vaultwake-merge-playgama.zip && cat a/SHA256SUMS
+  zip-test:
+    name: Test the extracted ZIP (${{ matrix.engine }})
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, webkit, firefox]
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      options: --ipc=host
+    env:
+      HOME: /root
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: playgama-zip-a
+          path: zip
+      - run: npm install --no-save --no-audit --no-fund playwright@1.62.1
+      - name: Extract and serve the ZIP
+        run: |
+          mkdir -p dist/playgama && node tools/ci-unzip.mjs zip/vaultwake-merge-playgama.zip dist/playgama
+          (node tools/ci-static-server.mjs dist/playgama 8090 > /tmp/http.log 2>&1 &)
+          for i in $(seq 1 30); do node -e "fetch('http://127.0.0.1:8090/index.html').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))" && break; sleep 1; done
+      - name: Playgama browser tests (${{ matrix.engine }})
+        run: ENGINE=${{ matrix.engine }} PG_ORIGIN=http://127.0.0.1:8090 node tests/v5-playgama-browser.cjs
+      - if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playgama-test-${{ matrix.engine }}
+          path: test-artifacts/v5/playgama/
+          retention-days: 30
+  source-suites:
+    name: Existing Coast Camp suites on the source (${{ matrix.engine }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, webkit]
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      options: --ipc=host
+    env:
+      HOME: /root
+      ENGINES: ${{ matrix.engine }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --no-save --no-audit --no-fund playwright@1.62.1
+      - name: Serve the source
+        run: |
+          (node tools/ci-static-server.mjs . 8080 > /tmp/http.log 2>&1 &)
+          for i in $(seq 1 30); do node -e "fetch('http://127.0.0.1:8080/v5/play.html').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))" && break; sleep 1; done
+      - name: CrazyGames page, SDK not ready, saves
+        if: ${{ !cancelled() }}
+        run: |
+          node tests/v5-next-crazygames-browser.cjs
+          node tests/v5-next-sdk-not-ready-browser.cjs
+          node tests/v5-next-crazygames-save-browser.cjs
+      - name: Build flow, core actions, Shed, Board Full Rescue, tutorial endpoint
+        if: ${{ !cancelled() }}
+        run: |
+          node tests/v5-next-build-flow-browser.cjs
+          node tests/v5-next-core-actions-browser.cjs
+          node tests/v5-next-shed-overlay-browser.cjs
+          node tests/v5-next-board-rescue-browser.cjs
+          node tests/v5-next-tutorial-endpoint-browser.cjs
