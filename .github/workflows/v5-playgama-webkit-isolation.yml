@@ -7,6 +7,8 @@
 #   head-nomusic  this branch with the background-music element switched off (a one-line edit in the job only),
 # printing the test's own output and errors and the WebKit process log. Diagnostic only.
 name: V5 Playgama WebKit isolation (build flow)
+# Round 2 (run 45556278873): head 2/2 and head without music 2/2 passed, so the loss is intermittent; round 3 takes a
+# larger even sample: base ac1d8bc and head, five tries each.
 on:
   push:
     branches: [release/playgama]
@@ -22,8 +24,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        code: [b95d967, head, head-nomusic]
-        attempt: [1, 2]
+        code: [base, head]
+        attempt: [1, 2, 3, 4, 5]
     container:
       image: mcr.microsoft.com/playwright:v1.62.1-noble
       options: --ipc=host
@@ -36,7 +38,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ matrix.code == 'b95d967' && 'b95d967' || github.sha }}
+          ref: ${{ matrix.code == 'base' && 'ac1d8bcbf507dcdf0f8bbf060ce618103f8a1ba8' || github.sha }}
           fetch-depth: 0
       - run: npm install --no-save --no-audit --no-fund playwright@1.62.1
       - name: Music off (head-nomusic only)
