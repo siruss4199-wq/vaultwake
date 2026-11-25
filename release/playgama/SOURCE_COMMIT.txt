@@ -1,10 +1,11 @@
-source_commit=b95d967 (release/playgama; game files unchanged since, the later commits add covers, screenshots and docs)
+source_commit=5087987 (release/playgama; game files unchanged since, later commits are CI and docs)
 base=ac1d8bcbf507dcdf0f8bbf060ce618103f8a1ba8 (live CrazyGames 822a8f9 + RC ecde162 + Shed hotfix + Board Full Rescue)
-build=node tools/coast-playgama.mjs (SOURCE_DATE_EPOCH default 2026-01-01T00:00:00Z); CI builds a and b byte-identical
-sha256=84a07419fe2424605dc590445e800e0193dc3c32290b370ec3b6e563c284b86f
-bytes=14962669
-files=329
+build=node tools/coast-playgama.mjs (SOURCE_DATE_EPOCH default 2026-01-01T00:00:00Z); CI builds a and b byte-identical (run 45555518243)
+sha256=f4c00bc3d7df8ca44283e1a1bbf1879c4146debfe5d623881b2c9bebe6211c6e
+bytes=17707228
+files=352
 bridge=@playgama/bridge 2.4.4 (vendor/playgama-bridge/2.4.4, unmodified)
+audio=CC0 (Kenney, OpenGameArt), v5/assets/audio/LICENSES.md
 playgama_game=cmwus3b7d09r6li0hl4k3c1th (DRAFT)
-playgama_archive=cmwuwhibd0nuzii0hhsuks85w (build check PASSED, Bridge 2.4.4 found)
+playgama_archive=cmwvpzgaq1qoeii0hsdc139pj (build check PASSED, Bridge 2.4.4 found); earlier archive cmwuwhibd0nuzii0hhsuks85w (b95d967) superseded
 status=DRAFT: uploaded to the Playgama draft only; not published to the sandbox, not submitted to moderation
