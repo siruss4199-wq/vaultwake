@@ -216,6 +216,29 @@ async function run(id,name,fn){
   await ctx.close();
  });
 
+ await run('M','audio files: nothing before the first tap; 16 effects decoded; music follows pause, platform audio and the Sound setting',async()=>{
+  const {ctx,page,log}=await open({seed:camp()});
+  await page.waitForSelector('#homePlay:not([hidden])',{timeout:30000});await delay(800);
+  assert.equal(log.requests.filter(r=>r.path.includes('/assets/audio/')).length,0,'no audio fetched before the first tap');
+  await continueCamp(page);
+  await page.waitForFunction(async()=>{const {sfx}=await import('/next/sfx.mjs');await sfx.ready();return sfx.state.decoded===sfx.state.files;},null,{timeout:15000});
+  const st=()=>page.evaluate(async()=>(await import('/next/sfx.mjs')).sfx.state);
+  const played=await page.evaluate(async()=>{const {sfx}=await import('/next/sfx.mjs');return ['merge','produce','deliver','build','reward','tap'].map(k=>sfx.play(k,2));});
+  assert.deepEqual(played,[true,true,true,true,true,true],'cues play from the files');
+  await delay(900);let s=await st();assert.ok(s.unlocked&&s.wanted,'music wanted after the first tap: '+JSON.stringify(s));
+  if(ENGINE==='chromium')assert.ok(s.playing,'music playing (Chromium)');
+  await page.evaluate(()=>window.__pg.emit('pause_state_changed',true));await delay(700);s=await st();assert.ok(!s.wanted&&!s.playing,'paused by the platform: '+JSON.stringify(s));
+  await page.evaluate(()=>window.__pg.emit('pause_state_changed',false));await delay(700);s=await st();assert.ok(s.wanted,'back after the pause');
+  await page.evaluate(()=>window.__pg.setAudio(false));await delay(700);s=await st();assert.ok(!s.wanted&&!s.playing,'silent when the platform turns audio off');
+  await page.evaluate(()=>window.__pg.setAudio(true));await delay(700);
+  await page.evaluate(()=>document.querySelector('#soundButton').click());await delay(700);s=await st();assert.ok(!s.wanted&&!s.playing,'Sound off stops the music');
+  await page.evaluate(()=>document.querySelector('#soundButton').click());await delay(700);s=await st();assert.ok(s.wanted,'Sound on again');
+  const audio=log.requests.filter(r=>r.path.includes('/assets/audio/'));
+  assert.deepEqual(log.errors,[]);assert.deepEqual(log.failed,[]);
+  console.log(`   M: ${audio.length} audio requests after the first tap (${[...new Set(audio.map(r=>r.path.split('/').pop()))].length} files), music playing: ${s.playing}`);
+  await ctx.close();
+ });
+
  const SIZES=[[360,640,true],[390,844,true],[430,932,true],[844,390,true],[1280,720,false],[907,510,false],[800,800,false],[600,600,false]];
  await run('L','screen sizes incl. square: no page scroll, board inside the window',async()=>{
   const rows=[];

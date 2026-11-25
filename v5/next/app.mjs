@@ -45,6 +45,11 @@ function moment(title,detail='',x=null){sharedMoment(title,detail,null);const el
 let adPlaying=false;
 // A sound never stops the action that plays it (Build 57y: a throwing SDK getter made the strip and Details dead).
 const sfx=(kind,tier=0)=>{try{return sounds.play(kind,tier,{muted:adPlaying||platform.muted()});}catch{return false;}};
+// Background music (sfx.mjs, 2026-11-25): it plays only while sound may play, as the cues above: no ad open, the
+// platform not muting or pausing the game (Playgama audio and pause state, CrazyGames' mute), the page visible
+// and the player's Sound setting on. Checked a few times a second, so every change is followed at once.
+const syncMusic=()=>{try{sounds.music(!adPlaying&&!platform.muted());}catch{}};
+setInterval(syncMusic,400);document.addEventListener('visibilitychange',syncMusic);
 // Shown in the footer so a playtester can tell which build is running.
 export const BUILD='Build 52A4 · harder orders from stage 3, crates give wanted parts, Tide token always usable';
 // The level path (docs/V5_LEVEL_PATH_2026-10-27.md): a crew order that pays a tool on top shows it
@@ -853,11 +858,11 @@ function run(a,{adCompletion=false}={}){
  if(r.event==='restore'){builtThisVisit=true;haptics.pulse('restore');if($('#coastMap').open&&!reduced())setTimeout(()=>showBeat(r.task,r.effects),1300);else showBeat(r.task,r.effects);}
  if(r.event==='store'){$(`#shed [data-slot="${r.slot}"]`)?.classList.add('merge-pop');sfx('tap');}
  if(r.event==='unstore'){tile?.classList.add('merge-pop');sfx('tap');if(!state.shed.some(Boolean)){shedOpen=false;renderShed();}}
- if(r.event==='shop'){const o=SHOP[r.id];if(r.energy)rewardFlight(($('#shop').open?$('#shopContent'):$('#adEnergyButton')).getBoundingClientRect(),$('#energyPill').getBoundingClientRect(),`+${r.energy} ϟ`);else moment(o.name+(r.ad?' · thanks for watching':''),r.slot!=null?'In the shed: the board is full.':'On the board next to Rivet Rover.',r.thing);tile?.classList.add('unsealed');sfx('rare');}
+ if(r.event==='shop'){const o=SHOP[r.id];if(r.energy)rewardFlight(($('#shop').open?$('#shopContent'):$('#adEnergyButton')).getBoundingClientRect(),$('#energyPill').getBoundingClientRect(),`+${r.energy} ϟ`);else moment(o.name+(r.ad?' · thanks for watching':''),r.slot!=null?'In the shed: the board is full.':'On the board next to Rivet Rover.',r.thing);tile?.classList.add('unsealed');sfx('reward');}
  if(r.event==='swapOrder'){const c=$(`[data-order="${r.id}"]`);c?.classList.add('merge-pop');sfx('tap');}
  if(r.event==='book'){sfx('rare');}
  if(r.event==='bookPage'){sfx('milestone');moment('Page complete!',`Every ${pageName(r.family)} part found · a Brass cog`+(r.slot!=null?' (in the shed)':''),{type:'cog'});tile?.classList.add('unsealed');}
- if(r.event==='daily'){const g=r.gift;if(g.coins)rewardFlight($('#dailyButton').getBoundingClientRect(),$('#coinPill').getBoundingClientRect(),`+${g.coins} coins`);if(g.energy)rewardFlight($('#dailyButton').getBoundingClientRect(),$('#energyPill').getBoundingClientRect(),`+${g.energy} ϟ`);tile?.classList.add('unsealed');sfx('milestone');moment(`Daily gift · day ${g.day} of ${DAILY.length}`,giftText(DAILY[g.day-1])+(g.slot!=null?' · in the shed (the board is full)':''),g.thing??null);}
+ if(r.event==='daily'){const g=r.gift;if(g.coins)rewardFlight($('#dailyButton').getBoundingClientRect(),$('#coinPill').getBoundingClientRect(),`+${g.coins} coins`);if(g.energy)rewardFlight($('#dailyButton').getBoundingClientRect(),$('#energyPill').getBoundingClientRect(),`+${g.energy} ϟ`);tile?.classList.add('unsealed');sfx('reward');moment(`Daily gift · day ${g.day} of ${DAILY.length}`,giftText(DAILY[g.day-1])+(g.slot!=null?' · in the shed (the board is full)':''),g.thing??null);}
  // A generator reaching level 2 brings out the next kind beside it.
  for(const n of r.released??[]){const t=board.querySelector(`[data-index="${n.index}"]`);t?.classList.add('unsealed');burst(t?.getBoundingClientRect(),'gold',true);setTimeout(()=>{newGeneratorMoment(n.id);sfx('milestone');},r.event==='producerUp'?900:0);}
  // A reward that was waiting for space lands (Build 47a).
@@ -1325,7 +1330,7 @@ function buildFx(id,from,was=0){
   mapFx('buildRing',tx,ty,'',800);
   if(t?.art){const old=mapFx('stageOld',tx,ty,`width:${to.width}px;height:${to.height}px`,900);old.innerHTML=placeArt(t,was);if(!was)old.classList.add('unbuilt');}
   for(let k=0;k<8;k++){const a=Math.PI*(.15+.7*k/7),d=30+(k%3)*12;mapFx('dust',tx+(k-3.5)*6,ty+to.height*.3,`--dx:${Math.cos(a)*d*(k<4?-1:1)}px;--dy:${-Math.sin(a)*d*.35}px;animation-delay:${k*20}ms`,900);}for(let k=0;k<14;k++){const a=2*Math.PI*k/14,d=46+(k%3)*14;mapFx('buildSpark',tx,ty,`--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d}px;background:${k%2?'#ffe08a':'#ffffff'}`,800);}
-  sfx('milestone');},520);
+  sfx('build');},520);
 }
 $('#mapContent').addEventListener('click',e=>{
  const r=e.target.closest('[data-restore]');if(r){const from=r.getBoundingClientRect(),cost=upgrades(state).find(u=>u.id===r.dataset.restore)?.cost,was=stageOf(state,r.dataset.restore);receipt=cost;const res=run({type:'restore',id:r.dataset.restore});if(!res.ok)receipt=null;if(res.ok&&!res.effects.nextArea)lastStage={id:res.task,stage:res.stage};if(res.ok&&stageOf(state,res.task)>=STAGES)mapFocus=null;
