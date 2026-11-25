@@ -1,0 +1,74 @@
+[
+ {
+  "id": "A",
+  "name": "new player: Bridge first, one read, game_ready once, guided first Build, batched saves, no localStorage, reload keeps it",
+  "ok": true,
+  "ms": 36947
+ },
+ {
+  "id": "B",
+  "name": "played camp: Build → back to the board → one interstitial, muted and paused only while open; Esc; long press",
+  "ok": true,
+  "ms": 11707
+ },
+ {
+  "id": "C",
+  "name": "rewarded ad watched to the end: +25 energy",
+  "ok": true,
+  "ms": 7853
+ },
+ {
+  "id": "D",
+  "name": "rewarded ad closed early: no reward",
+  "ok": true,
+  "ms": 7863
+ },
+ {
+  "id": "E",
+  "name": "rewarded ad fails: no reward, game goes on",
+  "ok": true,
+  "ms": 7803
+ },
+ {
+  "id": "F",
+  "name": "rewarded not supported: no rewarded button or offer anywhere",
+  "ok": true,
+  "ms": 5033
+ },
+ {
+  "id": "G",
+  "name": "platform audio off at start, on, pause",
+  "ok": true,
+  "ms": 7094
+ },
+ {
+  "id": "H",
+  "name": "Bridge initialize() fails: the game still starts, plays and saves in this browser",
+  "ok": true,
+  "ms": 1394
+ },
+ {
+  "id": "I",
+  "name": "Bridge script missing (404): the game still starts, plays and saves in this browser",
+  "ok": true,
+  "ms": 1307
+ },
+ {
+  "id": "J",
+  "name": "Bridge storage cannot be read: playable, nothing written, the menu says so",
+  "ok": true,
+  "ms": 5679
+ },
+ {
+  "id": "K",
+  "name": "the real Bridge 2.4.4: starts, plays, keeps progress over a reload",
+  "ok": true,
+  "ms": 2211
+ },
+ {
+  "id": "L",
+  "name": "screen sizes incl. square: no page scroll, board inside the window",
+  "ok": true,
+  "ms": 36680
+ }
+]
