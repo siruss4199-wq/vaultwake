@@ -77,7 +77,7 @@ No banners, no in-app purchases.
 | ZIP reproducible: CI builds a and b | byte-identical, SHA-256 as above |
 | Existing Coast Camp suites on the source, Chromium (local) | **pass**. Suites: CrazyGames page, SDK not ready, CrazyGames saves, build flow, core actions, Shed overlay, Board Full Rescue, tutorial endpoint, Home, saves, story, First Session 2.0, energy, full-board rewards, guide, initial view. Home failed once after 2 s and passed on three later runs |
 | The same in CI: Chromium | pass |
-| The same in CI: WebKit | **1 failure** in build flow: "Target page, context or browser has been closed". This is the WebKit page loss already recorded at the base (`docs/V5_CRAZYGAMES_UPDATE_ac1d8bc_2026-11-17.md` §3; it also fails on `ae83302`). It is not on a Playgama code path. CI run 45551971537 re-runs it |
+| The same in CI: WebKit | **1 failure** in build flow: "Target page, context or browser has been closed". This is the WebKit page loss already recorded at the base (`docs/V5_CRAZYGAMES_UPDATE_ac1d8bc_2026-11-17.md` §3; it also fails on `ae83302`). It is not on a Playgama code path. Runs 45551971537 and 45552204778 were cancelled by later pushes. Run 45552321250 (`34629ba`): every Playgama ZIP job passed (Chromium, WebKit, Firefox, byte-identical builds); the WebKit source-suite job **failed again with the same page loss** in build flow (390×664, after 360×640 passed). Investigated in `docs/V5_PLAYGAMA_RELEASE_2026-11-25.md` |
 | Playgama automatic build check | **PASSED**; Bridge SDK FOUND, version 2.4.4, engine javascript |
 
 **What the Playgama suite checks** (stand-in Bridge unless noted):
