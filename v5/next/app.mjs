@@ -40,6 +40,8 @@ function energyNote(text){document.querySelector('.energyNote')?.remove();const 
  const r=$('#energyPill').getBoundingClientRect();el.style.left=Math.max(8,Math.min(r.left,innerWidth-230))+'px';el.style.top=(r.bottom+14)+'px';([...document.querySelectorAll('dialog[open]')].at(-1)??document.body).append(el);setTimeout(()=>el.remove(),2600);}
 function moment(title,detail='',x=null){sharedMoment(title,detail,null);const el=document.querySelector('.moment');const top=[...document.querySelectorAll('dialog[open]')].pop();if(el&&top)top.append(el);if(!x||!el)return;const icon=document.createElement('span');icon.style.cssText='float:left;width:42px;height:42px;margin-right:10px';icon.innerHTML=draw(x);icon.firstElementChild.style.cssText='width:100%;height:100%';el.prepend(icon);}
 
+// Interface icons drawn for the game (2026-11-25, Playgama rule 4.3.2: no emoji in place of icons).
+const ICON={play:'<svg class="ico fill" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5.2v13.6L19 12Z"/></svg>',bulb:'<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9.2 17.5h5.6M10 20.5h4M12 3.2a5.8 5.8 0 0 0-3.5 10.4c.8.6 1.1 1.4 1.1 2.2v.2h4.8v-.2c0-.8.3-1.6 1.1-2.2A5.8 5.8 0 0 0 12 3.2Z"/></svg>',hammer:'<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M13.6 8.4 4.2 17.8a1.5 1.5 0 0 0 2.1 2.1l9.4-9.4M12 6.8l3.2-3.2 5.2 5.2-3.2 3.2Z"/></svg>',lock:'<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8.2 10.5V8a3.8 3.8 0 0 1 7.6 0v2.5"/></svg>'};
 // Game sounds go through sfx: silent while an ad plays or when CrazyGames mutes the game
 // (Build 41 M7), without touching the player's own sound setting.
 let adPlaying=false;
@@ -229,7 +231,7 @@ function render(){
  $('#dailyButton').hidden=!giftReady();
  $('#adEnergyButton').hidden=!ADS||!adReady||coachActive(state)||!(state.energy<5&&shopLeft(state,'adEnergy',today())>0);
  // Rule 2.2.1: the button says an ad will play and what it gives (the reward is SHOP.adEnergy's, +25).
- if(!$('#adEnergyButton').hidden){const t=`Ad +${SHOP.adEnergy.energy} ϟ`;if($('#adEnergyButton').dataset.label!==t){$('#adEnergyButton').dataset.label=t;$('#adEnergyButton').innerHTML=`<b aria-hidden="true">▶</b>${t}`;$('#adEnergyButton').setAttribute('aria-label',`Watch an ad for ${SHOP.adEnergy.energy} energy`);}}
+ if(!$('#adEnergyButton').hidden){const t=`Ad +${SHOP.adEnergy.energy} ϟ`;if($('#adEnergyButton').dataset.label!==t){$('#adEnergyButton').dataset.label=t;$('#adEnergyButton').innerHTML=`<b aria-hidden="true">${ICON.play}</b>${t}`;$('#adEnergyButton').setAttribute('aria-label',`Watch an ad for ${SHOP.adEnergy.energy} energy`);}}
  if(!$('#adEnergyButton').hidden&&!adOffered)playlog.event('adOffer',{id:'adEnergy'});adOffered=!$('#adEnergyButton').hidden;
  {const n=bookReady(state).length+BOOK_CHAINS.filter(f=>pageReady(state,f)).length;$('#bookCount').hidden=!n;$('#bookCount').textContent=n;$('#bookButton').classList.toggle('ready',n>0);}
  calmBadges();
@@ -368,7 +370,7 @@ function renderOrderTools(){
  const day=today(),free=swapsLeft(state,day),ads=adSwapsLeft(state,day),missing=missingOf(state,o);
  bar.hidden=false;
  if(o.story){setHTML(bar,SHEET_CLOSE+goldPanel(o));syncSheet();return;}
- const swap=`<span class="toolNote">Stuck on ${CREW[o.who].name}'s order?</span>`+(free>0?`<button data-swap>↻ New order <small>${free} free today</small></button>`:ADS&&ads>0?'<button class="adOffer" data-swap-ad>▶ Watch ad · new order</button>':'<button disabled>No more changes today</button>');
+ const swap=`<span class="toolNote">Stuck on ${CREW[o.who].name}'s order?</span>`+(free>0?`<button data-swap>↻ New order <small>${free} free today</small></button>`:ADS&&ads>0?`<button class="adOffer" data-swap-ad>${ICON.play} Watch ad · new order</button>`:'<button disabled>No more changes today</button>');
  // What the order is for and where its coins go (Build 44): the crew member's reason, and the
  // next stage the coins count toward (the gold order instead brings that stage's materials).
  const role=roleOf(o),why=purposeOf(o,role),n=nextPlace(),kind={quick:'Quick job',pair:'Two-part job'}[role];
@@ -695,7 +697,7 @@ $('#coastMap').addEventListener('close',()=>{if(tutor||tutorActive(state))render
 // a short Skip on the guide's line (the line's room goes to what and why); its name stays "Skip guide"
 $('#coachSkip').textContent='Skip';$('#coachSkip').setAttribute('aria-label','Skip guide');
 // The voluntary Hint: the current step, in full (the hand), until the player acts.
-{const hb=document.createElement('button');hb.id='guideHint';hb.type='button';hb.className='guideHint';hb.setAttribute('aria-label','Hint: show me the next step');hb.innerHTML='<span aria-hidden="true">💡</span>';
+{const hb=document.createElement('button');hb.id='guideHint';hb.type='button';hb.className='guideHint';hb.setAttribute('aria-label','Hint: show me the next step');hb.innerHTML=`<span aria-hidden="true">${ICON.bulb}</span>`;
  $('#hint').after(hb);
  hb.onclick=()=>{if(boardFull(state))rescueOn=true;const v=tutorView();tutorG.hints++;tutorReminded.add(v.sig);tutorBoost=v.sig;tutorSig=v.sig;sfx('tap');nudgeHint();renderHint();if($('#coastMap').open)showMap();
   if(!v.st.target)$('#message').textContent=`${v.st.what}. ${v.st.why}`;};}
@@ -799,7 +801,7 @@ function run(a,{adCompletion=false}={}){
  // spotlight, cue and hand go at once; the optional Hint and the normal objective line stay.
  if(coachBefore&&r.event==='restore'){markSeen(COACH_DONE);markSeen(COACH_NEXT);coachNote=null;tutorDone=true;tutor=null;clearCoach();const next=TASKS[FIRST_PLACE].stages[stageOf(state,FIRST_PLACE)];
   $('#message').textContent=`Tutorial complete. Next: ${next?next.name+': its gold order brings the materials and coins, crew orders add more coins.':'the coast\'s next place.'}`;
-  setTimeout(()=>{if(tutorDone){tutorDone=false;moment('Tutorial complete','You know the loop: orders, materials, coins, build. Hint 💡 is there any time.');}},$('#coastMap').open?2600:400);}
+  setTimeout(()=>{if(tutorDone){tutorDone=false;moment('Tutorial complete','You know the loop: orders, materials, coins, build. The Hint button is there any time.');}},$('#coastMap').open?2600:400);}
  // the guide is this camp's from its first action on (a seen flag is an action too, so not before: a new
  // camp stays untouched until the player acts)
  if(coachBefore&&!state.seen?.[COACH_ON])markSeen(COACH_ON);
@@ -1064,7 +1066,7 @@ function showShop(){
  const day=today(),row=id=>{const o=SHOP[id],left=shopLeft(state,id,day),x=offerThing(o);
   const what=o.energy?`+${o.energy} energy`:o.kit?`${CRATES[o.kit-1]} for the ${SOURCES[newestGenerator(state)].name}`:o.token?'Turns a part into one an order wants':'+1 level for a generator';
   const capped=o.energy&&state.energy+o.energy>STORE_ENERGY;
-  const btn=left<1?`<button disabled>${o.ad?'Daily rewards used':'Sold out'}</button>`:o.ad?`<button class="adOffer" data-ad="${id}" ${!adReady||adBusy||capped?'disabled':''}>${capped?'Energy storage full':!adReady?'Ad unavailable':o.energy?'▶ Watch · +'+o.energy+' energy':'▶ Watch for crate'}</button>`:`<button class="buy" data-buy="${id}" ${state.coins<o.cost||capped||purchaseBusy?'disabled':''}>${COIN} ${o.cost}</button>`;
+  const btn=left<1?`<button disabled>${o.ad?'Daily rewards used':'Sold out'}</button>`:o.ad?`<button class="adOffer" data-ad="${id}" ${!adReady||adBusy||capped?'disabled':''}>${capped?'Energy storage full':!adReady?'Ad unavailable':o.energy?ICON.play+' Watch · +'+o.energy+' energy':ICON.play+' Watch for crate'}</button>`:`<button class="buy" data-buy="${id}" ${state.coins<o.cost||capped||purchaseBusy?'disabled':''}>${COIN} ${o.cost}</button>`;
   return `<li class="shopItem"><span class="shopIcon">${x?draw(x):'<b class="bolt">ϟ</b>'}</span><span class="shopText"><b>${o.name}</b><small>${what}</small><small class="left">${left} of ${o.limit} left today</small>${capped?'<small>Spend energy first (storage limit 200).</small>':''}</span>${btn}</li>`;};
  const ids=Object.keys(SHOP);
  $('#shopContent').innerHTML=`<div class="shopTop"><h2 id="shopTitle">Shop</h2><b class="beachCoins">${COIN} ${state.coins}</b></div><p>A little help for coins, a few of each a day; it restocks tomorrow. Coins spent here are not spent on the coast.</p>
@@ -1272,10 +1274,10 @@ function showMap(){
  const places=area.tasks.map(t=>{
   const n=stageOf(state,t.id),u=open.get(t.id);
   const status=n>=STAGES?'done':u&&canBuild(u)?'ready':u?'next':'locked';
-  const badge=status==='done'?'<b class="tileBadge done">✓</b>':status==='ready'?'<b class="tileBadge ready">!</b>':status==='locked'?'<b class="tileBadge locked">🔒</b>':'';
+  const badge=status==='done'?'<b class="tileBadge done">✓</b>':status==='ready'?'<b class="tileBadge ready">!</b>':status==='locked'?`<b class="tileBadge locked">${ICON.lock}</b>`:'';
   return `<li class="place ${t.id===mapFocus?'selected':''}" style="--i:${area.tasks.indexOf(t)}" data-status="${status}" data-place="${t.id}"><button type="button" data-select="${t.id}" aria-label="${t.name}: ${status==='done'?'complete':status==='locked'?'locked':status==='ready'?'ready to build':`stage ${n} of ${STAGES}`}"><span class="placeIcon ${t.art&&!n?'unbuilt':''}">${placeArt(t,n)}</span>${pips(n)}${badge}</button></li>`;
  }).join('');
- const markers=area.tasks.filter(t=>open.has(t.id)).map((t,k)=>{const u=open.get(t.id);return `<button type="button" class="siteMarker ${area.map?'small':''} ${area.map&&stageOf(state,t.id)&&ANCHORED.has(t.art)?'beside':''} ${canBuild(u)?'ready':''} ${t.id===mapFocus?'selected':''}" data-select="${t.id}" style="--i:${k};${markerAt(t)}" aria-label="${u.name}"><span>${canBuild(u)?'▲':'🔨'}</span></button>`;}).join('');
+ const markers=area.tasks.filter(t=>open.has(t.id)).map((t,k)=>{const u=open.get(t.id);return `<button type="button" class="siteMarker ${area.map?'small':''} ${area.map&&stageOf(state,t.id)&&ANCHORED.has(t.art)?'beside':''} ${canBuild(u)?'ready':''} ${t.id===mapFocus?'selected':''}" data-select="${t.id}" style="--i:${k};${markerAt(t)}" aria-label="${u.name}"><span>${canBuild(u)?'▲':ICON.hammer}</span></button>`;}).join('');
  // Finished areas stay listed above the current one, the ones still to come below it.
  const before=AREAS.slice(0,state.area).map(a=>`<section class="mapArea done"><div class="mapHead"><img src="assets/premium/${a.picture}-vibrant.webp" alt=""><div><h2>${a.name}</h2><b>Complete ✓</b></div></div></section>`).join('');
  const laterAreas=AREAS.slice(state.area+1);
@@ -1415,7 +1417,7 @@ function restoredCard(t,st,stage,effects,nxt,spent=null){
  $('#coastMap .restoredCard')?.remove();const wrap=$('#coastMap .sceneWrap');if(!wrap)return;
  const chips=rewardText(effects).replace(/^Rewards: /,'').split(' · ').map(x=>`<span>${x}</span>`).join('');
  const next=nxt?`<p class="rcNext"><b>Next:</b> ${nxt.u.name}${nxt.ready?' · ready to build':''}${newKindOf(nxt.u)?` · unlocks the ${SOURCES[newKindOf(nxt.u)].name}`:''}</p>`:'';
- const done=tutorDone?'<p class="rcDone"><b>✓ Tutorial complete</b> You know the loop: orders, materials, coins, build. Hint 💡 is there any time.</p>':'';tutorDone=false;
+ const done=tutorDone?'<p class="rcDone"><b>✓ Tutorial complete</b> You know the loop: orders, materials, coins, build. The Hint button is there any time.</p>':'';tutorDone=false;
  wrap.insertAdjacentHTML('afterend',`<section class="restoredCard" role="status" aria-label="${st.name} restored">${done}<small>${(AREAS.find(a=>a.tasks.includes(t))??currentArea(state)).name} · stage ${stage} of ${STAGES}</small><b class="rcTitle">${st.name}</b>${spent?`<b class="beatReceipt">−${spent} coins</b>`:''}
   ${st.lines.map(([w,l])=>`<p class="rcLine">${face(w)}<span><b>${who$(w)}</b>: “${l}”</span></p>`).join('')}<div class="rcRewards">${chips}</div>${next}<button class="primary rcBack" type="button" data-done>Back to the board</button></section>`);
  restoredHtml=$('#coastMap .restoredCard').outerHTML;

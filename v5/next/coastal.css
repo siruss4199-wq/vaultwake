@@ -865,3 +865,12 @@ body.nextMode #board .coachGhost>*{position:static;display:block;width:100%;heig
 html[data-platform="playgama"],html[data-platform="playgama"] body{height:100%;overflow:hidden;overscroll-behavior:none}
 html[data-platform="playgama"] body.nextMode main.game{transform:scale(var(--pgFit,1));transform-origin:50% 0;height:var(--pgH,100dvh);min-height:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}
 html[data-platform="playgama"] body.nextMode main.game::-webkit-scrollbar{display:none}
+
+/* Interface icons (2026-11-25, Playgama rule 4.3.2: no emoji in place of icons): line icons drawn for the game in the
+   style of Home's book and settings icons, sized like the glyphs they replace. */
+svg.ico{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.14em}
+svg.ico.fill{fill:currentColor;stroke:none}
+.nextMode .dock button>b svg.ico{width:28px;height:28px}
+.nextMode .dock #shopButton>b{color:#23795a}.nextMode .dock #bookButton>b{color:#2f5fae}.nextMode .dock #dailyButton>b{color:#a5631a}
+.nextMode .dock #adEnergyButton>b svg.ico{width:22px;height:22px}
+.tileBadge.locked svg.ico{width:.9em;height:.9em}
