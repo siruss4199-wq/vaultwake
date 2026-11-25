@@ -1,0 +1,10 @@
+source_commit=b95d967 (release/playgama; game files unchanged since, the later commits add covers, screenshots and docs)
+base=ac1d8bcbf507dcdf0f8bbf060ce618103f8a1ba8 (live CrazyGames 822a8f9 + RC ecde162 + Shed hotfix + Board Full Rescue)
+build=node tools/coast-playgama.mjs (SOURCE_DATE_EPOCH default 2026-01-01T00:00:00Z); CI builds a and b byte-identical
+sha256=84a07419fe2424605dc590445e800e0193dc3c32290b370ec3b6e563c284b86f
+bytes=14962669
+files=329
+bridge=@playgama/bridge 2.4.4 (vendor/playgama-bridge/2.4.4, unmodified)
+playgama_game=cmwus3b7d09r6li0hl4k3c1th (DRAFT)
+playgama_archive=cmwuwhibd0nuzii0hhsuks85w (build check PASSED, Bridge 2.4.4 found)
+status=DRAFT: uploaded to the Playgama draft only; not published to the sandbox, not submitted to moderation
