@@ -73,7 +73,7 @@ async function drag(page,a,z){const A=await page.locator(`#board [data-index="${
     await page.locator('#menuButton').click();await page.locator('#homeButton').click();await page.waitForSelector('#home:not([hidden])');
     await page.locator('#homePlay').click();await page.waitForSelector('#home',{state:'hidden'});assert.equal(await page.locator('#story').isVisible(),false,tag('no story from Home'));
     // a new camp from the menu: no story again (already seen)
-    await page.locator('#menuButton').click();await page.locator('#newGame').click();await page.waitForTimeout(400);
+    await page.locator('#menuButton').click();await page.locator('#newGame').click();await page.locator('#confirmBox [data-yes]').click();await page.waitForTimeout(400);
     assert.equal(await page.locator('#story').isVisible(),false,tag('no story on a later new camp'));
     assert.deepEqual(errors,[]);await context.close();}
 

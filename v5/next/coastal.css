@@ -874,3 +874,19 @@ svg.ico.fill{fill:currentColor;stroke:none}
 .nextMode .dock #shopButton>b{color:#23795a}.nextMode .dock #bookButton>b{color:#2f5fae}.nextMode .dock #dailyButton>b{color:#a5631a}
 .nextMode .dock #adEnergyButton>b svg.ico{width:22px;height:22px}
 .tileBadge.locked svg.ico{width:.9em;height:.9em}
+/* In-game confirmation (2026-11-25): replaces the browser's confirm()/alert(). Cancel is the quiet button; a
+   destructive Yes keeps the menu's danger colours. */
+#confirmBox{max-width:min(360px,calc(100vw - 32px))}
+#confirmBox .confirmActions{display:flex;gap:10px;margin-top:14px}
+#confirmBox .confirmActions .menuButton{flex:1;width:auto;margin:0;min-height:48px;line-height:1.2;padding:10px 12px}
+#confirmBox .confirmActions [data-no]{background:#e9f1f2;color:#24515a;box-shadow:0 3px 0 #c3d4d7}
+#confirmBox .confirmActions .danger{background:#f3e3df;color:#9a3b2a;box-shadow:0 3px 0 #dfc4bc}
+/* Playgama compact mode (2026-11-25): on a window too short for the column (fitPlaygama adds .pgCompact when it
+   would scale below 97 %), the space around the board shrinks first (the dock's circles and the gaps), so the
+   board, the tiles and the buttons are scaled down less. The board itself is not changed. */
+html.pgCompact body.nextMode main.game{padding-top:4px}
+html.pgCompact .nextMode .dock{margin:4px 0 2px;gap:12px}
+html.pgCompact .nextMode .dock button{min-width:58px}
+html.pgCompact .nextMode .dock button>b{width:44px;height:44px;font-size:21px;border-width:2px}
+html.pgCompact .nextMode .dock button>b svg.ico{width:24px;height:24px}
+html.pgCompact footer{margin-top:4px}

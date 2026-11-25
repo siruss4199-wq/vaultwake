@@ -127,7 +127,7 @@ async function drag(page,a,z){const A=await page.locator(`#board [data-index="${
     await page.waitForTimeout(1500);assert.equal(await save(page),broken,tag('damaged save left untouched'));
     // Retry reloads the page (boot.js): wait for that load before reading, or the read can land mid-navigation
     await Promise.all([page.waitForEvent('load'),page.locator('#homeRetry').click()]);await homeUsable(page);assert.equal(await save(page),broken,tag('Retry keeps it'));
-    await page.locator('#homeNew').click();await page.waitForSelector('#home',{state:'hidden'});
+    await page.locator('#homeNew').click();await page.locator('#confirmBox [data-yes]').click();await page.waitForSelector('#home',{state:'hidden'});
     assert.equal(await page.evaluate(k=>localStorage.getItem(k+'-damaged'),KEY),broken,tag('backup kept'));
     assert.equal(JSON.parse(await save(page)).moves,0,tag('new camp on request'));
     assert.deepEqual(errors,[]);await context.close();}
@@ -138,7 +138,7 @@ async function drag(page,a,z){const A=await page.locator(`#board [data-index="${
     await page.goto(BASE+'play.html?new=1');await homeUsable(page);
     const broken='{"version":4,"board":"second broken save"}';
     await page.evaluate(([k,v])=>{localStorage.setItem(k,v);localStorage.setItem(k+'-damaged','an older recovery copy');localStorage.setItem(k+'-backup','a PR #80 recovery copy');},[KEY,broken]);
-    await page.reload();await homeUsable(page);await page.locator('#homeNew').click();await page.waitForSelector('#home',{state:'hidden'});
+    await page.reload();await homeUsable(page);await page.locator('#homeNew').click();await page.locator('#confirmBox [data-yes]').click();await page.waitForSelector('#home',{state:'hidden'});
     const keys=await page.evaluate(k=>[k+'-damaged',k+'-backup',k+'-damaged-2',k+'-damaged-3'].map(x=>localStorage.getItem(x)),KEY);
     assert.deepEqual(keys,['an older recovery copy','a PR #80 recovery copy',broken,null],tag('older copies kept, this one beside them'));
     assert.deepEqual(errors,[]);await context.close();}

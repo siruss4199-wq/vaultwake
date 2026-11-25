@@ -39,7 +39,7 @@ async function skipStory(page){await page.waitForFunction(()=>document.querySele
     assert.equal(await page.locator('#homePlay').isVisible(),false,'no Play over a save it cannot open');
     assert.equal(await page.locator('#homeNew').isVisible(),true);assert.equal(await page.locator('#homeKept').isVisible(),false,'nothing kept to restore yet');
     await page.waitForTimeout(1500);await page.reload();await homeUsable(page);assert.equal((await all(page))[KEY],NEWER,'left exactly as it is, across a reload');
-    await page.locator('#homeNew').click();await skipStory(page);await page.waitForSelector('#home',{state:'hidden'});await page.waitForTimeout(300);
+    await page.locator('#homeNew').click();await page.locator('#confirmBox [data-yes]').click();await skipStory(page);await page.waitForSelector('#home',{state:'hidden'});await page.waitForTimeout(300);
     const after=await all(page);assert.equal(after[KEY+'-damaged'],NEWER,'kept aside first');assert.notEqual(after[KEY],NEWER);
     assert.deepEqual(errors,[]);await context.close();}
    // 2. A damaged save is said to be damaged, and kept the same way.
@@ -67,7 +67,7 @@ async function skipStory(page){await page.waitForFunction(()=>document.querySele
    // 5. The menu's "Start a new game" button keeps the camp it replaces (once, however often).
    {const {context,page,errors}=await open({[KEY]:PILOT});
     await page.locator('#homePlay').click();await page.waitForSelector('#home',{state:'hidden'});
-    await page.locator('#menuButton').click();await page.locator('#newGame').click();await skipStory(page).catch(()=>{});await page.waitForTimeout(400);
+    await page.locator('#menuButton').click();await page.locator('#newGame').click();await page.locator('#confirmBox [data-yes]').click();await skipStory(page).catch(()=>{});await page.waitForTimeout(400);
     let after=await all(page);assert.ok(sameCamp(after[KEY+'-kept'],PILOT),'the camp is kept');assert.notEqual(after[KEY],PILOT);
     await page.evaluate(()=>document.querySelectorAll('dialog[open]').forEach(d=>d.close()));
     await page.locator('#menuButton').click();assert.equal(await page.locator('#keptButton').textContent(),'Kept camps (1)');

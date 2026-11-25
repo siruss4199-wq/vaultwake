@@ -239,6 +239,28 @@ async function run(id,name,fn){
   await ctx.close();
  });
 
+ await run('N','in-game confirmation: no browser dialog; Cancel keeps the camp, Yes starts a new one and keeps the old aside',async()=>{
+  const {ctx,page,log}=await open({seed:camp()});const native=[];page.on('dialog',d=>{native.push(d.type());d.dismiss().catch(()=>{});});
+  await continueCamp(page);
+  const moves0=await page.evaluate(()=>JSON.parse(window.VWKV.getItem('vaultwake-v5-coast')).moves);
+  await page.evaluate(()=>document.querySelector('#menuButton').click());await delay(300);
+  await page.evaluate(()=>document.querySelector('#newGame').click());await page.waitForSelector('#confirmBox[open]');
+  assert.match(await page.locator('#confirmTitle').innerText(),/new game/i);
+  await tapAt(page,page.locator('#confirmBox [data-no]'));await delay(400);
+  assert.equal(await page.locator('#confirmBox[open]').count(),0);
+  assert.equal(await page.evaluate(()=>JSON.parse(window.VWKV.getItem('vaultwake-v5-coast')).moves),moves0,'Cancel kept the camp');
+  await page.evaluate(()=>{document.querySelector('#menu').open||document.querySelector('#menuButton').click();document.querySelector('#newGame').click();});
+  await page.waitForSelector('#confirmBox[open]');await tapAt(page,page.locator('#confirmBox [data-yes]'));await delay(1500);await settle(page);
+  const after=await page.evaluate(()=>({moves:JSON.parse(window.VWKV.getItem('vaultwake-v5-coast')||'{}').moves??0,kept:window.VWKV.keys().filter(k=>/-kept/.test(k))}));
+  assert.ok(after.moves<moves0,'a new camp');assert.ok(after.kept.length>=1,'the old camp kept aside');
+  assert.deepEqual(native,[],'no browser confirm/alert');assert.deepEqual(log.errors,[]);
+  await page.evaluate(()=>window.VWKV.flush());await delay(300);
+  const kept=await page.evaluate(()=>Object.keys(JSON.parse(localStorage.getItem('__pgStub'))).filter(k=>/-kept|-keys/.test(k)));
+  assert.ok(kept.some(k=>/-kept/.test(k)),'the kept camp reached the Bridge storage: '+kept);
+  console.log(`   N: moves ${moves0} → ${after.moves}; kept: ${after.kept.join(' ')}`);
+  await ctx.close();
+ });
+
  const SIZES=[[360,640,true],[390,844,true],[430,932,true],[844,390,true],[1280,720,false],[907,510,false],[800,800,false],[600,600,false]];
  await run('L','screen sizes incl. square: no page scroll, board inside the window',async()=>{
   const rows=[];

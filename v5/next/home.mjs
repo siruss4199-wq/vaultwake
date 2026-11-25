@@ -45,7 +45,7 @@ export function createHome({boot,hasSave,damaged,newer=false,kept=()=>0,onKept,c
   const c=damaged||!hasSave?'':chapter();$('homeChapter').textContent=c;$('homeChapter').hidden=!c;
   $('homeBook').hidden=!hasSave||damaged||!onBook;
   $('homeNote').hidden=!damaged;$('homeNew').hidden=!damaged;$('homeKept').hidden=!damaged||!onKept||!kept();
-  if(damaged){$('homeNote').textContent=newer?'This camp was saved by a newer version of Vaultwake, so this version cannot open it. It has been left exactly as it is: open it with the newer version, or start a new camp here (the newer camp stays in this browser and comes back with that version).':'Your saved camp could not be read, so it has been left exactly as it is. Try again, or start a new camp (the old save is kept in this browser as a backup).';$('homeRetry').hidden=false;}
+  if(damaged){$('homeNote').textContent=newer?'This camp was saved by a newer version of Vaultwake, so this version cannot open it. It has been left exactly as it is: open it with the newer version, or start a new camp here (the newer camp is kept as it is and comes back with that version).':'Your saved camp could not be read, so it has been left exactly as it is. Try again, or start a new camp (the old save is kept as a backup).';$('homeRetry').hidden=false;}
  }
  // Home becomes usable once its own pictures are in (or the player chose to go on without them).
  function becomeUsable(){
@@ -74,7 +74,8 @@ export function createHome({boot,hasSave,damaged,newer=false,kept=()=>0,onKept,c
  $('homeSettings').addEventListener('click',()=>onSettings?.());
  $('homeBook').addEventListener('click',()=>onBook?.());
  $('homeKept').addEventListener('click',()=>onKept?.());
- $('homeNew').addEventListener('click',()=>{if(onNewCamp?.()){damaged=false;hasSave=false;$('homeRetry').hidden=true;enter('new');}});
+ // onNewCamp may answer later (the in-game confirmation, 2026-11-25): a promise or a plain true/false.
+ $('homeNew').addEventListener('click',()=>{Promise.resolve(onNewCamp?.()).then(ok=>{if(ok){damaged=false;hasSave=false;$('homeRetry').hidden=true;enter('new');}});});
  // Home → board: a short fade of Home only (none with reduced motion); the board is already there.
  const why=()=>hasSave?'continue':'play';
  function enter(reason='continue'){

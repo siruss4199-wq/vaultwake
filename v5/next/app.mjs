@@ -75,6 +75,20 @@ const saveNotes=[];
 const storage=onPlaygama?kvStore(await globalThis.VWKVReady,globalThis.VWBridge):await openSaveStore({init:()=>initPlatform({timeout:onCrazyGamesHost()?SAVE_INIT_TIMEOUT:4000}),
  onEvent:(e,d)=>{saveNotes.push([e,d]);if(/Error|Full|OverLimit/.test(e))console.warn('[Vaultwake save]',e,d);}});
 if(onPlaygama)initPlatform();
+// In-game confirmations and notices (2026-11-25): the browser's own confirm() and alert() boxes look foreign, and a
+// platform's frame may block them (then the action silently did nothing). ask() answers true only for its Yes
+// button; ×, Cancel, Esc or closing it any other way is No.
+function ask(title,text,{yes='OK',no='Cancel',danger=false}={}){
+ return new Promise(resolve=>{
+  const d=document.getElementById('confirmBox'),y=d.querySelector('[data-yes]'),n=d.querySelector('[data-no]');
+  document.getElementById('confirmTitle').textContent=title;document.getElementById('confirmText').textContent=text;
+  y.textContent=yes;y.classList.toggle('danger',danger);n.hidden=no===null;if(no!==null)n.textContent=no;
+  let answer=false;y.onclick=()=>{answer=true;d.close();};n.onclick=()=>d.close();
+  d.addEventListener('close',()=>resolve(answer),{once:true});
+  if(d.open)d.close();d.showModal();(no===null?y:n).focus({preventScroll:true});
+ });
+}
+const notice=(title,text)=>ask(title,text,{yes:'OK',no:null});
 const saveText=st=>onPlaygama?bridgeSaveLine(st,globalThis.VWBridge):saveLine(st);
 // Playgama rule 1.4.5: a long press on the game never opens the browser's menu (Android Chrome shows one on a
 // picture). Text fields keep theirs.
@@ -83,8 +97,10 @@ const saveText=st=>onPlaygama?bridgeSaveLine(st,globalThis.VWBridge):saveLine(st
 function fitPlaygama(){
  const main=document.querySelector('main.game'),foot=main?.querySelector('footer');if(!main||!foot)return;
  const root=document.documentElement;root.style.setProperty('--pgFit','1');root.style.setProperty('--pgH',innerHeight+'px');
- const extra=['#selection','#message'].reduce((n,q)=>n+(main.querySelector(q)?.offsetHeight??0),0);
- const need=foot.offsetTop+foot.offsetHeight+12-extra,k=Math.max(.6,Math.min(1,innerHeight/need));
+ const need=()=>foot.offsetTop+foot.offsetHeight+12-['#selection','#message'].reduce((n,q)=>n+(main.querySelector(q)?.offsetHeight??0),0);
+ // A short window gets the compact spacing first (coastal.css .pgCompact), then whatever scaling is still needed.
+ root.classList.remove('pgCompact');if(innerHeight/need()<.97)root.classList.add('pgCompact');
+ const k=Math.max(.6,Math.min(1,innerHeight/need()));
  root.style.setProperty('--pgFit',k.toFixed(4));root.style.setProperty('--pgH',(innerHeight/k).toFixed(1)+'px');
 }
 if(onPlaygama){fitPlaygama();let fitT=0;const refit=()=>{clearTimeout(fitT);fitT=setTimeout(fitPlaygama,120);};addEventListener('resize',refit);globalThis.visualViewport?.addEventListener('resize',refit);addEventListener('orientationchange',refit);globalThis.VWFit=fitPlaygama;}
@@ -141,8 +157,8 @@ const kept=()=>keptCamps(storageKeys(),storage.get,Date.now(),storage.get(SAVE_K
 function restoreKept(key){
  const raw=storage.get(key);if(!raw)return false;
  persist();const cur=storage.get(SAVE_KEY);
- if(cur&&cur!==raw&&!keepCopy(cur,damaged?'damaged':'kept')){alert('Your current camp could not be copied aside (this browser\'s storage is full), so nothing was replaced.');return false;}
- storage.set(SAVE_KEY,raw);if(storage.get(SAVE_KEY)!==raw){alert('The kept camp could not be restored (this browser\'s storage is full).');return false;}
+ if(cur&&cur!==raw&&!keepCopy(cur,damaged?'damaged':'kept')){notice('Nothing was replaced','Your current camp could not be copied aside (the game\'s storage is full), so nothing was replaced.');return false;}
+ storage.set(SAVE_KEY,raw);if(storage.get(SAVE_KEY)!==raw){notice('Not restored','The kept camp could not be restored (the game\'s storage is full).');return false;}
  holdSave=true;playlog.event('restoreKept');reloadSaved();return true;
 }
 function showKept(){
@@ -1150,11 +1166,11 @@ $('#hapticsButton').onclick=()=>{haptics.toggle();render();haptics.pulse('merge'
 $('#helpButton').onclick=()=>$('#help').showModal();
 $('#keptButton').onclick=()=>{$('#menu').close();showKept();};
 $('#menuButton').onclick=()=>{$('#homeButton').hidden=homeOpen;{const n=kept().length;$('#keptButton').hidden=!n;$('#keptButton').textContent=`Kept camps (${n})`;}{let n=$('#saveNote');if(!n){n=document.createElement('small');n.id='saveNote';$('#hapticsNote').after(n);}n.textContent=saveText(storage.status);}$('#classicNote').textContent=storage.get('vaultwake-v5')?'Your Classic save is kept and continues where you left it.':'';$('#hapticsNote').textContent=haptics.method==='vibrate'?'Vibration on merges: use the button at the bottom of the board screen.':haptics.method==='ios-switch'?'Vibration on merges may work on this iPhone (iOS 18 and later); turn it off at the bottom of the board screen.':'Vibration is not available in this browser.';$('#menu').showModal();};
-$('#newGame').onclick=()=>{if(!confirm('Start a new game from the beginning? This camp is kept in this browser (Kept camps in this menu brings it back), and your Classic save is not affected.'))return;if(!newCamp())return;$('#menu').close();if(homeOpen&&home)home.enter();else showIntro();};
+$('#newGame').onclick=async()=>{if(!await ask('Start a new game?','Start again from the beginning? Your current camp is kept aside: Kept camps in this menu brings it back.',{yes:'Start a new game',danger:true}))return;if(!newCamp())return;$('#menu').close();if(homeOpen&&home)home.enter();else showIntro();};
 // A new camp, chosen by the player (the menu, or Home after a save could not be read).
 // Round 2: the camp a new camp replaces is kept (SAVE_KEY-kept…), so starting again loses nothing.
-function newCamp(){const wasDamaged=damaged;if(!keepDamaged()){alert('Your old save could not be copied aside (this browser\'s storage is full), so nothing was replaced.');return false;}
- if(!wasDamaged){persist();if(!keepCopy(storage.get(SAVE_KEY),'kept')){alert('Your camp could not be copied aside (this browser\'s storage is full), so nothing was replaced.');return false;}}
+function newCamp(){const wasDamaged=damaged;if(!keepDamaged()){notice('Nothing was replaced','Your old save could not be copied aside (the game\'s storage is full), so nothing was replaced.');return false;}
+ if(!wasDamaged){persist();if(!keepCopy(storage.get(SAVE_KEY),'kept')){notice('Nothing was replaced','Your camp could not be copied aside (the game\'s storage is full), so nothing was replaced.');return false;}}
  holdSave=false;replaced=null;state=fresh(Date.now());selected=null;focusOrder=null;persist();render();return true;}
 $('#homeButton').onclick=()=>{$('#menu').close();persist();home?.show();};
 for(const d of document.querySelectorAll('dialog'))d.querySelector('.close')?.addEventListener('click',()=>d.close());
@@ -1689,7 +1705,7 @@ $('#playlogContent').addEventListener('click',async e=>{
  const text=$('#playlogText');
  if(e.target.closest('[data-copy]')){try{await navigator.clipboard.writeText(text.value);$('#playlogContent [data-copy]').textContent='Copied';}catch{text.select();document.execCommand?.('copy');$('#playlogContent [data-copy]').textContent='Selected · copy it';}}
  if(e.target.closest('[data-download]')){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([playlog.toJSON()],{type:'application/json'}));a.download='coast-camp-playtest.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
- if(e.target.closest('[data-clear]')&&confirm('Clear the playtest log? Your game is not affected.')){playlog.clear();showPlaylog();}
+ if(e.target.closest('[data-clear]')&&await ask('Clear the playtest log?','Your game is not affected.',{yes:'Clear',danger:true})){playlog.clear();showPlaylog();}
 });
 $('#playlogButton').onclick=()=>{$('#menu').close();showPlaylog();};
 // At most two things call for attention outside the board at once (Build 41 M3), in this order:
@@ -1764,7 +1780,7 @@ if(document.getElementById('home')){
  home=createHome({boot:window.VWBoot??null,hasSave:!!rawSave&&!damaged,damaged,newer,kept:()=>kept().length,onKept:showKept,
   chapter:()=>{const a=currentArea(state);return a?.tasks?.length?`${a.name} · ${stagesBuilt()} of ${a.tasks.length*STAGES} stages built`:a?.name??'';},
   onEnter:arrive,onSettings:()=>$('#menuButton').onclick(),onBook:showBook,
-  onNewCamp:()=>{if(!confirm('Start a new camp? The save that could not be read stays in this browser as a backup.'))return false;return newCamp();},
+  onNewCamp:async()=>{if(!await ask('Start a new camp?','The save that could not be read is kept as a backup.',{yes:'Start a new camp',danger:true}))return false;return newCamp();},
   onOpenChange:v=>{homeOpen=v;syncPlaying?.();placeHand();placeCue();},
   // The first-play story (Build 46q): once, on the first new camp's Play, never on Continue.
   autoEnter:newPlayer,
