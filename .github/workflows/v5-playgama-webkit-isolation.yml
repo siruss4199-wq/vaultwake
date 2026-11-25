@@ -1,0 +1,56 @@
+# WebKit page loss on release/playgama (2026-11-25). The source-suite job of v5-playgama.yml lost its WebKit page in the
+# build-flow suite in runs 45435802641 and 45552321250 ("Target page, context or browser has been closed", after the
+# 360x640 size passed). The same loss is recorded on the base (docs/V5_CRAZYGAMES_UPDATE_ac1d8bc_2026-11-17.md §3).
+# Here build flow runs ALONE in a fresh container, three times on ac1d8bc (the base of this branch) and three times on
+# this branch's head, with Playwright's browser-process log, to tell whether the branch makes it worse. Diagnostic only.
+name: V5 Playgama WebKit isolation (build flow, base vs head)
+on:
+  push:
+    branches: [release/playgama]
+    paths: ['.github/workflows/v5-playgama-webkit-isolation.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  isolate:
+    name: build flow · ${{ matrix.code }} · try ${{ matrix.attempt }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        code: [base, head]
+        attempt: [1, 2, 3]
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+      options: --ipc=host
+    env:
+      HOME: /root
+      ENGINES: webkit
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.code == 'base' && 'ac1d8bcbf507dcdf0f8bbf060ce618103f8a1ba8' || github.sha }}
+      - run: npm install --no-save --no-audit --no-fund playwright@1.62.1
+      - name: Static server
+        run: |
+          (node tools/ci-static-server.mjs . 8080 > /tmp/http.log 2>&1 &)
+          for i in $(seq 1 30); do node -e "fetch('http://127.0.0.1:8080/v5/play.html').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))" && break; sleep 1; done
+      - name: Build flow alone (WebKit), browser-process log kept
+        run: |
+          git log --oneline -1
+          free -m | head -2
+          s=$(date +%s)
+          set +e
+          DEBUG=pw:browser node tests/v5-next-build-flow-browser.cjs > /tmp/out.txt 2> /tmp/browser.txt; rc=$?
+          set -e
+          echo "exit $rc after $(( $(date +%s)-s )) s"
+          grep -vE "^\s+'" /tmp/out.txt | tail -12
+          echo "--- WebKit process log: crash / signal / memory lines"
+          grep -iE "crash|signal|sigsegv|sigabrt|sigkill|killed|out of memory|oom|terminated|WebProcess|exited|closed" /tmp/browser.txt | grep -v "^\s*$" | tail -25 || true
+          free -m | head -2
+          echo "RESULT ${{ matrix.code }} try${{ matrix.attempt }} rc=$rc"
+          exit $rc
